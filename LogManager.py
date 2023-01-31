@@ -12,6 +12,7 @@ from time import mktime
 import csv
 import threading
 from datetime import datetime
+from geopy.geocoders import Nominatim
 
 
 class LogManager:
@@ -26,16 +27,16 @@ class LogManager:
     sheet = None
 
     water_temperature = ""
-    depth = ""
-    heading = ""
-    gps_latitude = None
-    gps_longitude = None
-    speed_over_ground = ""
-    true_wind_speed = ""
-    true_wind_direction = ""
-    apparent_wind_speed = ""
-    apparent_wind_angle = ""
-    speed_over_water = ""
+    depth = 0.0
+    heading = 0
+    gps_latitude = Latitude()
+    gps_longitude = Longitude()
+    true_wind_speed = 0
+    true_wind_direction = 0
+    apparent_wind_speed = 0.0
+    apparent_wind_angle = 0
+    speed_over_water = 0.0
+    speed_over_ground = 0.0
     disk_write_thread_is_running = False
     gpx = None
     gpx_track = None
@@ -138,12 +139,11 @@ class LogManager:
             self.water_temperature = csv_list[1]
             print(f'Detected Temperature {self.water_temperature} Celsius')
         elif str_csv_list_type == "$SDDPT":
-            depth = 0
             if csv_list[2] != '':
-                depth = float(csv_list[1]) + float(csv_list[2])
+                self.depth = float(csv_list[1]) + float(csv_list[2])
             else:
-                depth = float(csv_list[1])
-            self.depth = int(depth * 10) / 10
+                self.depth = float(csv_list[1])
+            self.depth = int(self.depth * 10) / 10
             print(f'Detected depth {self.depth} meters')
         elif str_csv_list_type == "$GPVTG":
             self.speed_over_ground = csv_list[5]
@@ -156,9 +156,7 @@ class LogManager:
                 f'and speed {self.true_wind_speed} knots')
         elif str_csv_list_type == "$WIMWV":
             if self.true_wind_direction != "":
-                self.apparent_wind_angle = int(float(csv_list[1]) - float(self.true_wind_direction))
-                if self.apparent_wind_angle < 0:
-                    self.apparent_wind_angle = -1 * (360 - self.apparent_wind_angle)
+                self.apparent_wind_angle = math.floor(float(csv_list[1]))
             self.apparent_wind_speed = csv_list[3]
             print(
                 f'Detected apparent wind angle {self.apparent_wind_angle} degrees and ' +
@@ -237,7 +235,8 @@ class LogManager:
 
             # Create the header row
             summary_sheet.append(["Starting Timestamp (UTC)", "Starting Timestamp (Local)", "Ending Timestamp (UTC)",
-                                  "Ending Timestamp (Local)", "Starting GPS Latitude (d°m\'S\" H)",
+                                  "Ending Timestamp (Local)", "Starting Location (City, Country)",
+                                  "Ending Location (City, Country)", "Starting GPS Latitude (d°m\'S\" H)",
                                   "Starting GPS Longitude (d°m\'S\" H)", "Ending GPS Latitude (d°m\'S\" H)",
                                   "Ending GPS Longitude (d°m\'S\" H)", "Distance (miles)", "Heading (degrees)",
                                   "Average Wind Speed (knots)", "Average Wind Direction (degrees)",
@@ -256,6 +255,20 @@ class LogManager:
                 log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", last_entry.get_utc_timestamp())}')
                 log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", last_entry.get_local_timestamp())}')
 
+                # Try to fetch the starting and ending location cities
+                geolocator = Nominatim(user_agent="geoapiExercises")
+                starting_location = geolocator.reverse(f'{first_entry.get_gps_latitude()}' + ',' +
+                                                       f'{first_entry.get_gps_longitude()}')
+                starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + \
+                                        starting_location.raw['address'].get('country', '')
+                log_summary_list.append(starting_location_str)
+
+                ending_location = geolocator.reverse(f'{last_entry.get_gps_latitude()}' + ',' +
+                                                     f'{last_entry.get_gps_longitude()}')
+                ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + \
+                                      ending_location.raw['address'].get('country', '')
+                log_summary_list.append(ending_location_str)
+
                 # Collect GPS coordinates
                 log_summary_list.append(first_entry.get_gps_latitude().to_string("d%°%m%\'%S%\" %H"))
                 log_summary_list.append(first_entry.get_gps_longitude().to_string("d%°%m%\'%S%\" %H"))
@@ -267,7 +280,7 @@ class LogManager:
                 latlon_end = LatLon(last_entry.get_gps_latitude(), last_entry.get_gps_longitude())
                 distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
                 log_summary_list.append(distance)
-                heading = latlon_end.heading_initial(latlon_start)
+                heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
                 log_summary_list.append(heading)
 
                 # Calculate averages
