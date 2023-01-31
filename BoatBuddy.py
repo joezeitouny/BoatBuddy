@@ -1,32 +1,167 @@
+import csv
 import math
-
-from Log import Log
-from LogEntry import LogEntry
+import optparse
+import socket
+import threading
+import time
+from datetime import datetime
 from io import StringIO
+from time import mktime
+
 import gpxpy
 import gpxpy.gpx
-from latloncalc.latlon import LatLon, Latitude, Longitude
 import openpyxl
-import time
-from time import mktime
-import csv
-import threading
-from datetime import datetime
 from geopy.geocoders import Nominatim
+from latloncalc.latlon import LatLon, Latitude, Longitude
+
+DEFAULT_TCP_PORT = 10110
+DEFAULT_BUFFER_SIZE = 4096
+DEFAULT_SOCKET_TIMEOUT = 60
+DEFAULT_DISK_WRITE_INTERVAL = 5
+DEFAULT_FILENAME_PREFIX = "Trip_"
+DEFAULT_EXCEL_OUTPUT_FLAG = False
+DEFAULT_CSV_OUTPUT_FLAG = False
+DEFAULT_GPX_OUTPUT_FLAG = False
+DEFAULT_SUMMARY_OUTPUT_FLAG = False
+DEFAULT_SUMMARY_FILENAME_PREFIX = "Trip_Summary_"
+DEFAULT_VERBOSE_FLAG = False
+
+verbose_flag = DEFAULT_VERBOSE_FLAG
+
+
+def print_string(string_to_print):
+    if verbose_flag:
+        print(string_to_print)
+
+
+class LogEntry:
+
+    def __init__(self, utc_time, local_time, heading, true_wind_speed, true_wind_direction,
+                 apparent_wind_speed, apparent_wind_angle, gps_longitude, gps_latitude,
+                 water_temperature, depth, speed_over_ground, speed_over_water,
+                 distance_from_previous_entry, cumulative_distance):
+        self.utc_time = utc_time
+        self.local_time = local_time
+        self.heading = heading
+        self.true_wind_speed = true_wind_speed
+        self.true_wind_direction = true_wind_direction
+        self.apparent_wind_speed = apparent_wind_speed
+        self.apparent_wind_angle = apparent_wind_angle
+        self.gps_longitude = gps_longitude
+        self.gps_latitude = gps_latitude
+        self.water_temperature = water_temperature
+        self.depth = depth
+        self.speed_over_ground = speed_over_ground
+        self.speed_over_water = speed_over_water
+        self.distance_from_previous_entry = distance_from_previous_entry
+        self.cumulative_distance = cumulative_distance
+
+    def __str__(self):
+        return self.comma_separated_values()
+
+    def comma_separated_values(self):
+        lon = self.gps_longitude.to_string("d%°%m%\'%S%\" %H")
+        lat = self.gps_latitude.to_string("d%°%m%\'%S%\" %H")
+        return f'{time.strftime("%Y-%m-%d %H:%M:%S", self.utc_time)}' + \
+            f',{time.strftime("%Y-%m-%d %H:%M:%S", self.local_time)}' + \
+            f',{self.heading},{self.true_wind_speed}' + \
+            f',{self.true_wind_direction},{self.apparent_wind_speed},{self.apparent_wind_angle}' + \
+            f',{lon},{lat}' + \
+            f',{self.water_temperature},{self.depth},{self.speed_over_ground}' + \
+            f',{self.speed_over_water},{self.distance_from_previous_entry},{self.cumulative_distance}'
+
+    def string_value_list(self):
+        lon = self.gps_longitude.to_string("d%°%m%\'%S%\" %H")
+        lat = self.gps_latitude.to_string("d%°%m%\'%S%\" %H")
+        return [f'{time.strftime("%Y-%m-%d %H:%M:%S", self.utc_time)}',
+                f'{time.strftime("%Y-%m-%d %H:%M:%S", self.local_time)}',
+                f'{self.heading}', f'{self.true_wind_speed}',
+                f'{self.true_wind_direction}', f'{self.apparent_wind_speed}', f'{self.apparent_wind_angle}', lon, lat,
+                f'{self.water_temperature}', f'{self.depth}', f'{self.speed_over_ground}',
+                f'{self.speed_over_water}', f'{self.distance_from_previous_entry}', f'{self.cumulative_distance}']
+
+    def get_utc_timestamp(self):
+        return self.utc_time
+
+    def get_local_timestamp(self):
+        return self.local_time
+
+    def get_heading(self):
+        return self.heading
+
+    def get_true_wind_speed(self):
+        return self.true_wind_speed
+
+    def get_true_wind_direction(self):
+        return self.true_wind_direction
+
+    def get_apparent_wind_speed(self):
+        return self.apparent_wind_speed
+
+    def get_apparent_wind_angle(self):
+        return self.apparent_wind_angle
+
+    def get_gps_longitude(self):
+        return self.gps_longitude
+
+    def get_gps_latitude(self):
+        return self.gps_latitude
+
+    def get_water_temperature(self):
+        return self.water_temperature
+
+    def get_depth(self):
+        return self.depth
+
+    def get_speed_over_ground(self):
+        return self.speed_over_ground
+
+    def get_speed_over_water(self):
+        return self.speed_over_water
+
+    def get_distance_from_previous_entry(self):
+        return self.distance_from_previous_entry
+
+    def get_cumulative_distance(self):
+        return self.cumulative_distance
+
+
+class Log:
+    log_entries = []
+
+    def __init__(self, utc_time, local_time, filename_prefix):
+        self.utc_time = utc_time
+        self.local_time = local_time
+        suffix = time.strftime("%Y%m%d%H%M%S", utc_time)
+        self.name = f'{filename_prefix}{suffix}'
+
+    def get_utc_time(self):
+        return self.utc_time
+
+    def get_name(self):
+        return self.name
+
+    def add_entry(self, entry):
+        if entry is not None:
+            self.log_entries.append(entry)
+
+    def get_entries(self):
+        return self.log_entries
 
 
 class LogManager:
-    log = None
     disk_write_interval = 0
     excel_output = False
     csv_output = False
     gpx_output = False
     summary_output = False
     summary_filename_prefix = ""
+
+    log = None
     workbook = None
     sheet = None
 
-    water_temperature = ""
+    water_temperature = 0.0
     depth = 0.0
     heading = 0
     gps_latitude = Latitude()
@@ -79,7 +214,7 @@ class LogManager:
             self.gpx_segment = gpxpy.gpx.GPXTrackSegment()
             self.gpx_track.segments.append(self.gpx_segment)
 
-        print(f'New Log file initialized {self.log.get_name()}')
+        print_string(f'New log session initialized {self.log.get_name()}')
 
         threading.Timer(self.disk_write_interval, self.start_disk_helper_thread).start()
 
@@ -128,42 +263,50 @@ class LogManager:
 
         # Determine the type of data
         if str_csv_list_type == "$IIHDG":
-            self.heading = csv_list[1]
-            print(f'Detected heading {self.heading} degrees (True north)')
+            if csv_list[1] != '':
+                self.heading = math.floor(float(csv_list[1]))
+                print_string(f'Detected heading {self.heading} degrees (True north)')
         elif str_csv_list_type == "$GPGGA":
-            self.gps_latitude = LogManager.get_latitude(csv_list[2], csv_list[3])
-            self.gps_longitude = LogManager.get_longitude(csv_list[4], csv_list[5])
-            print(
-                f'Detected GPS coordinates Latitude: {self.gps_latitude} Longitude: {self.gps_longitude}')
+            if csv_list[2] != '' and csv_list[3] != '' and csv_list[4] != '' and csv_list[5] != '':
+                self.gps_latitude = LogManager.get_latitude(csv_list[2], csv_list[3])
+                self.gps_longitude = LogManager.get_longitude(csv_list[4], csv_list[5])
+                print_string(
+                    f'Detected GPS coordinates Latitude: {self.gps_latitude} Longitude: {self.gps_longitude}')
         elif str_csv_list_type == "$SDMTW":
-            self.water_temperature = csv_list[1]
-            print(f'Detected Temperature {self.water_temperature} Celsius')
+            if csv_list[1] != '':
+                self.water_temperature = float(csv_list[1])
+                print_string(f'Detected Temperature {self.water_temperature} Celsius')
         elif str_csv_list_type == "$SDDPT":
-            if csv_list[2] != '':
-                self.depth = float(csv_list[1]) + float(csv_list[2])
-            else:
-                self.depth = float(csv_list[1])
-            self.depth = int(self.depth * 10) / 10
-            print(f'Detected depth {self.depth} meters')
+            if csv_list[1] != '':
+                if csv_list[2] != '':
+                    self.depth = float(csv_list[1]) + float(csv_list[2])
+                else:
+                    self.depth = float(csv_list[1])
+                self.depth = int(self.depth * 10) / 10
+                print_string(f'Detected depth {self.depth} meters')
         elif str_csv_list_type == "$GPVTG":
-            self.speed_over_ground = csv_list[5]
-            print(f'Detected speed over ground {self.speed_over_ground} knots')
+            if csv_list[5] != '':
+                self.speed_over_ground = csv_list[5]
+                print_string(f'Detected speed over ground {self.speed_over_ground} knots')
         elif str_csv_list_type == "$WIMWD":
-            self.true_wind_direction = math.floor(float(csv_list[1]))
-            self.true_wind_speed = csv_list[5]
-            print(
-                f'Detected true wind direction {self.true_wind_direction} degrees (True north) ' +
-                f'and speed {self.true_wind_speed} knots')
+            if csv_list[1] != '' and csv_list[5] != '':
+                self.true_wind_direction = math.floor(float(csv_list[1]))
+                self.true_wind_speed = csv_list[5]
+                print_string(
+                    f'Detected true wind direction {self.true_wind_direction} degrees (True north) ' +
+                    f'and speed {self.true_wind_speed} knots')
         elif str_csv_list_type == "$WIMWV":
-            if self.true_wind_direction != "":
-                self.apparent_wind_angle = math.floor(float(csv_list[1]))
-            self.apparent_wind_speed = csv_list[3]
-            print(
-                f'Detected apparent wind angle {self.apparent_wind_angle} degrees and ' +
-                f'speed {self.apparent_wind_speed} knots')
+            if csv_list[1] != '' and csv_list[3] != '':
+                if self.true_wind_direction != "":
+                    self.apparent_wind_angle = math.floor(float(csv_list[1]))
+                self.apparent_wind_speed = csv_list[3]
+                print_string(
+                    f'Detected apparent wind angle {self.apparent_wind_angle} degrees and ' +
+                    f'speed {self.apparent_wind_speed} knots')
         elif str_csv_list_type == "$SDVHW":
-            self.speed_over_water = csv_list[5]
-            print(f'Detected speed over water {self.speed_over_water} knots')
+            if csv_list[5] != '':
+                self.speed_over_water = csv_list[5]
+                print_string(f'Detected speed over water {self.speed_over_water} knots')
 
     def write_log_data_to_disk(self):
         while self.disk_write_thread_is_running:
@@ -191,7 +334,7 @@ class LogManager:
             self.log.add_entry(log_entry)
 
             # Write log contents to disk
-            print("Writing collected data to disk")
+            print_string("Writing collected data to disk")
 
             # Append the last added entry to the file on disk
             if self.csv_output:
@@ -220,7 +363,7 @@ class LogManager:
             time.sleep(self.disk_write_interval)
 
     def end_session(self):
-        print("Ending log manager session")
+        print_string("Ending session")
 
         # Stop the running thread that captures log entries
         self.disk_write_thread_is_running = False
@@ -312,3 +455,77 @@ class LogManager:
             # Save the workbook
             workbook_filename = self.summary_filename_prefix + time.strftime("%Y%m%d%H%M%S", self.log.get_utc_time())
             summary_workbook.save(filename=f"{workbook_filename}.xlsx")
+
+
+def start_logging(server_ip, server_port, disk_write_interval, filename_prefix, excel, csv, gpx, summary,
+                  summary_filename):
+    log_manager = None
+
+    while True:
+        print_string(f'Trying to connect to server with address {server_ip} on port {server_port}...')
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.settimeout(60)
+
+        try:
+            client.connect((server_ip, server_port))
+
+            print_string("Connection established")
+
+            log_manager = LogManager(filename_prefix, disk_write_interval, excel, csv, gpx, summary, summary_filename)
+
+            while True:
+                data = client.recv(DEFAULT_BUFFER_SIZE)
+                if data is None:
+                    print_string('No data received')
+                    break
+
+                str_data = data.decode().rstrip('\r\n')
+
+                # print(f'Data received: {str_data}')
+                LogManager.process_data(log_manager, str_data)
+
+        except TimeoutError:
+            print_string("Connection timeout")
+        finally:
+            print_string("Closing connections if any")
+            client.close()
+            if log_manager is not None:
+                log_manager.end_session()
+
+
+if __name__ == '__main__':
+    # Create an options list using the Options Parser
+    parser = optparse.OptionParser()
+    parser.set_usage("%prog host [options]")
+    parser.set_defaults(port=DEFAULT_TCP_PORT, filename=DEFAULT_FILENAME_PREFIX, interval=DEFAULT_DISK_WRITE_INTERVAL,
+                        excel=DEFAULT_EXCEL_OUTPUT_FLAG, csv=DEFAULT_CSV_OUTPUT_FLAG, gpx=DEFAULT_GPX_OUTPUT_FLAG,
+                        summary=DEFAULT_SUMMARY_OUTPUT_FLAG, summary_filename=DEFAULT_SUMMARY_FILENAME_PREFIX,
+                        verbose=DEFAULT_VERBOSE_FLAG)
+    parser.add_option('--port', dest='port', type='int', help=f'NMEA0183 host port. Default is: {DEFAULT_TCP_PORT}')
+    parser.add_option('-i', '--interval', type='float', dest='interval',
+                      help=f'Disk write interval (in seconds). Default is: {DEFAULT_DISK_WRITE_INTERVAL} seconds')
+    parser.add_option('--excel', action='store_true', dest='excel', help='Generate an Excel workbook.')
+    parser.add_option('--csv', action='store_true', dest='csv', help='Generate a comma separated list (CSV) file.')
+    parser.add_option('--gpx', action='store_true', dest='gpx', help=f'Generate a GPX file.')
+    parser.add_option('-f', '--file', dest='filename', type='string', help='Output filename prefix. ' +
+                                                                           f'Default is: {DEFAULT_FILENAME_PREFIX}')
+    parser.add_option('--summary', action='store_true', dest='summary',
+                      help=f'Generate a trip summary excel workbook at the end of the session.')
+    parser.add_option('--summary-filename-prefix', dest='summary_filename', type='string',
+                      help=f'Summary filename prefix. Default is: {DEFAULT_SUMMARY_FILENAME_PREFIX}')
+    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+                      help=f'Verbose mode. Print debugging messages about captured data. ' +
+                           f'This is helpful in debugging connection, and configuration problems.')
+    (options, args) = parser.parse_args()
+
+    # If the host address is not provided
+    if len(args) == 0:
+        print(f'Error: Host Address is required\r\n')
+        parser.print_help()
+    elif not options.excel and not options.gpx and not options.csv and not options.summary:
+        print(f'Error: At least one output medium needs to be specified\r\n')
+        parser.print_help()
+    else:
+        verbose_flag = options.verbose
+        start_logging(args[0], options.port, options.interval, options.filename, options.excel,
+                      options.csv, options.gpx, options.summary, options.summary_filename)
