@@ -8,8 +8,10 @@ import gpxpy.gpx
 from latloncalc.latlon import LatLon, Latitude, Longitude
 import openpyxl
 import time
+from time import mktime
 import csv
 import threading
+from datetime import datetime
 
 
 class LogManager:
@@ -28,7 +30,6 @@ class LogManager:
     heading = ""
     gps_latitude = None
     gps_longitude = None
-    gps_elevation = ""
     speed_over_ground = ""
     true_wind_speed = ""
     true_wind_direction = ""
@@ -61,7 +62,7 @@ class LogManager:
             self.sheet.append(["UTC Timestamp", "Local Timestamp", "True Heading (degrees)", "True Wind Speed (knots)",
                                "True Wind Direction (degrees)", "Apparent Wind Speed (knots)",
                                "Apparent Wind Angle (Relative degrees)", "GPS Longitude (d°m\'S\" H)",
-                               "GPS Latitude (d°m\'S\" H)", "GPS Elevation (meters)", "Water Temperature (°C)",
+                               "GPS Latitude (d°m\'S\" H)", "Water Temperature (°C)",
                                "Depth (meters)", "Speed Over Ground (knots)", "Speed Over Water (knots)",
                                "Distance From Previous Entry (miles)", "Cumulative Distance (miles)"])
 
@@ -131,10 +132,8 @@ class LogManager:
         elif str_csv_list_type == "$GPGGA":
             self.gps_latitude = LogManager.get_latitude(csv_list[2], csv_list[3])
             self.gps_longitude = LogManager.get_longitude(csv_list[4], csv_list[5])
-            self.gps_elevation = csv_list[9]
             print(
-                f'Detected GPS coordinates Latitude: {self.gps_latitude} Longitude: {self.gps_longitude} '
-                + f'Elevation: {self.gps_elevation} meters')
+                f'Detected GPS coordinates Latitude: {self.gps_latitude} Longitude: {self.gps_longitude}')
         elif str_csv_list_type == "$SDMTW":
             self.water_temperature = csv_list[1]
             print(f'Detected Temperature {self.water_temperature} Celsius')
@@ -171,8 +170,8 @@ class LogManager:
     def write_log_data_to_disk(self):
         while self.disk_write_thread_is_running:
             # Calculate the distance traveled so far and the distance from the last recorded entry
-            cumulative_distance = 0
-            distance_from_previous_entry = 0
+            cumulative_distance = 0.0
+            distance_from_previous_entry = 0.0
             entries_count = len(self.log.get_entries())
             if self.gps_latitude and self.gps_longitude and entries_count > 0:
                 latlon_start = LatLon(self.log.get_entries()[entries_count - 1].get_gps_latitude(),
@@ -186,7 +185,7 @@ class LogManager:
             log_entry = LogEntry(time.gmtime(), time.localtime(), self.heading, self.true_wind_speed,
                                  self.true_wind_direction,
                                  self.apparent_wind_speed, self.apparent_wind_angle, self.gps_longitude,
-                                 self.gps_latitude, self.gps_elevation, self.water_temperature, self.depth,
+                                 self.gps_latitude, self.water_temperature, self.depth,
                                  self.speed_over_ground, self.speed_over_water, distance_from_previous_entry,
                                  cumulative_distance)
 
@@ -210,9 +209,10 @@ class LogManager:
 
             if self.gpx_output:
                 # Append new GPX track point
-                self.gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(log_entry.get_gps_latitude(),
-                                                                       log_entry.get_gps_longitude(),
-                                                                       elevation=log_entry.gps_elevation))
+                self.gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(latitude=log_entry.get_gps_latitude(),
+                                                                       longitude=log_entry.get_gps_longitude(),
+                                                                       time=datetime.fromtimestamp(
+                                                                           mktime(log_entry.get_utc_timestamp()))))
 
                 # Write the new contents of the GPX file to disk
                 with open(f"{self.log.get_name()}.gpx", 'w') as file:

@@ -5,7 +5,7 @@ class LogEntry:
 
     def __init__(self, utc_time, local_time, heading, true_wind_speed, true_wind_direction,
                  apparent_wind_speed, apparent_wind_angle, gps_longitude, gps_latitude,
-                 gps_elevation, water_temperature, depth, speed_over_ground, speed_over_water,
+                 water_temperature, depth, speed_over_ground, speed_over_water,
                  distance_from_previous_entry, cumulative_distance):
         self.utc_time = utc_time
         self.local_time = local_time
@@ -16,7 +16,6 @@ class LogEntry:
         self.apparent_wind_angle = apparent_wind_angle
         self.gps_longitude = gps_longitude
         self.gps_latitude = gps_latitude
-        self.gps_elevation = gps_elevation
         self.water_temperature = water_temperature
         self.depth = depth
         self.speed_over_ground = speed_over_ground
@@ -35,7 +34,7 @@ class LogEntry:
             f',{self.heading},{self.true_wind_speed}' + \
             f',{self.true_wind_direction},{self.apparent_wind_speed},{self.apparent_wind_angle}' + \
             f',{lon},{lat}' + \
-            f',{self.gps_elevation},{self.water_temperature},{self.depth},{self.speed_over_ground}' + \
+            f',{self.water_temperature},{self.depth},{self.speed_over_ground}' + \
             f',{self.speed_over_water},{self.distance_from_previous_entry},{self.cumulative_distance}'
 
     def string_value_list(self):
@@ -45,7 +44,7 @@ class LogEntry:
                 f'{time.strftime("%Y-%m-%d %H:%M:%S", self.local_time)}',
                 f'{self.heading}', f'{self.true_wind_speed}',
                 f'{self.true_wind_direction}', f'{self.apparent_wind_speed}', f'{self.apparent_wind_angle}', lon, lat,
-                f'{self.gps_elevation}', f'{self.water_temperature}', f'{self.depth}', f'{self.speed_over_ground}',
+                f'{self.water_temperature}', f'{self.depth}', f'{self.speed_over_ground}',
                 f'{self.speed_over_water}', f'{self.distance_from_previous_entry}', f'{self.cumulative_distance}']
 
     def get_utc_timestamp(self):
@@ -74,9 +73,6 @@ class LogEntry:
 
     def get_gps_latitude(self):
         return self.gps_latitude
-
-    def get_gps_elevation(self):
-        return self.gps_elevation
 
     def get_water_temperature(self):
         return self.water_temperature
