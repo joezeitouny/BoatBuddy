@@ -14,6 +14,8 @@ FILENAME_PREFIX = "Trip_"
 EXCEL_OUTPUT = False
 CSV_OUTPUT = False
 GPX_OUTPUT = False
+SUMMARY_OUTPUT = False
+SUMMARY_FILENAME_PREFIX = "Trip_Summary_"
 
 
 def dm(x):
@@ -27,7 +29,8 @@ def decimal_degrees(degrees, minutes):
     return degrees + minutes/60
 
 
-def start_logging(server_ip, server_port, disk_write_interval, filename_prefix, excel, csv, gpx):
+def start_logging(server_ip, server_port, disk_write_interval, filename_prefix, excel, csv, gpx, summary,
+                  summary_filename):
     print('Initializing...')
 
     log_manager = None
@@ -42,7 +45,7 @@ def start_logging(server_ip, server_port, disk_write_interval, filename_prefix, 
 
             print("Connection established")
 
-            log_manager = LogManager(filename_prefix, disk_write_interval, excel, csv, gpx)
+            log_manager = LogManager(filename_prefix, disk_write_interval, excel, csv, gpx, summary, summary_filename)
 
             while True:
                 data = client.recv(BUFFER_SIZE)
@@ -69,7 +72,8 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.set_usage("%prog host [options]")
     parser.set_defaults(port=TCP_PORT, filename=FILENAME_PREFIX, interval=DISK_WRITE_INTERVAL,
-                        excel=EXCEL_OUTPUT, csv=CSV_OUTPUT, gpx=GPX_OUTPUT)
+                        excel=EXCEL_OUTPUT, csv=CSV_OUTPUT, gpx=GPX_OUTPUT, summary=SUMMARY_OUTPUT,
+                        summary_filename=SUMMARY_FILENAME_PREFIX)
     parser.add_option('-f', '--file', dest='filename', type='string', help='Output filename prefix. ' +
                                                                            f'Default is {FILENAME_PREFIX}')
     parser.add_option('--excel', action='store_true', dest='excel', help='Generate an Excel workbook. ' +
@@ -80,6 +84,11 @@ if __name__ == '__main__':
     parser.add_option('--port', dest='port', type='int', help=f'NMEA0183 host port. Default is {TCP_PORT}')
     parser.add_option('-i', '--interval', type='float', dest='interval', help='Disk write interval (in seconds). ' +
                       f'Default is {DISK_WRITE_INTERVAL} seconds')
+    parser.add_option('--summary', action='store_true', dest='summary',
+                      help=f'Generate a trip summary excel workbook at the end of the session. ' +
+                           f'Default is {SUMMARY_OUTPUT}')
+    parser.add_option('--summary-filename-prefix', dest='summary_filename', type='string',
+                      help=f'Summary filename prefix. Default is {SUMMARY_FILENAME_PREFIX}')
     (options, args) = parser.parse_args()
 
     # If the host address is not provided
@@ -91,4 +100,4 @@ if __name__ == '__main__':
         parser.print_help()
     else:
         start_logging(args[0], options.port, options.interval, options.filename, options.excel,
-                      options.csv, options.gpx)
+                      options.csv, options.gpx, options.summary, options.summary_filename)
