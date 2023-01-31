@@ -5,7 +5,8 @@ class LogEntry:
 
     def __init__(self, utc_time, local_time, heading, true_wind_speed, true_wind_direction,
                  apparent_wind_speed, apparent_wind_angle, gps_longitude, gps_latitude,
-                 gps_elevation, water_temperature, depth, speed_over_ground, speed_over_water):
+                 gps_elevation, water_temperature, depth, speed_over_ground, speed_over_water,
+                 distance_from_previous_entry, cumulative_distance):
         self.utc_time = utc_time
         self.local_time = local_time
         self.heading = heading
@@ -20,6 +21,8 @@ class LogEntry:
         self.depth = depth
         self.speed_over_ground = speed_over_ground
         self.speed_over_water = speed_over_water
+        self.distance_from_previous_entry = distance_from_previous_entry
+        self.cumulative_distance = cumulative_distance
 
     def __str__(self):
         return self.comma_separated_values()
@@ -33,7 +36,7 @@ class LogEntry:
             f',{self.true_wind_direction},{self.apparent_wind_speed},{self.apparent_wind_angle}' + \
             f',{lon},{lat}' + \
             f',{self.gps_elevation},{self.water_temperature},{self.depth},{self.speed_over_ground}' + \
-            f',{self.speed_over_water}'
+            f',{self.speed_over_water},{self.distance_from_previous_entry},{self.cumulative_distance}'
 
     def string_value_list(self):
         lon = self.gps_longitude.to_string("d%°%m%\'%S%\" %H")
@@ -43,7 +46,7 @@ class LogEntry:
                 f'{self.heading}', f'{self.true_wind_speed}',
                 f'{self.true_wind_direction}', f'{self.apparent_wind_speed}', f'{self.apparent_wind_angle}', lon, lat,
                 f'{self.gps_elevation}', f'{self.water_temperature}', f'{self.depth}', f'{self.speed_over_ground}',
-                f'{self.speed_over_water}']
+                f'{self.speed_over_water}', f'{self.distance_from_previous_entry}', f'{self.cumulative_distance}']
 
     def get_utc_timestamp(self):
         return self.utc_time
@@ -86,3 +89,9 @@ class LogEntry:
 
     def get_speed_over_water(self):
         return self.speed_over_water
+
+    def get_distance_from_previous_entry(self):
+        return self.distance_from_previous_entry
+
+    def get_cumulative_distance(self):
+        return self.cumulative_distance

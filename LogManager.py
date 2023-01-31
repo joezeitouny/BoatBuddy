@@ -62,7 +62,8 @@ class LogManager:
                                "True Wind Direction (degrees)", "Apparent Wind Speed (knots)",
                                "Apparent Wind Angle (Relative degrees)", "GPS Longitude (d°m\'S\" H)",
                                "GPS Latitude (d°m\'S\" H)", "GPS Elevation (meters)", "Water Temperature (°C)",
-                               "Depth (meters)", "Speed Over Ground (knots)", "Speed Over Water (knots)"])
+                               "Depth (meters)", "Speed Over Ground (knots)", "Speed Over Water (knots)",
+                               "Distance From Previous Entry (miles)", "Cumulative Distance (miles)"])
 
         if self.gpx_output:
             # Creating a new GPX object
@@ -169,12 +170,25 @@ class LogManager:
 
     def write_log_data_to_disk(self):
         while self.disk_write_thread_is_running:
+            # Calculate the distance traveled so far and the distance from the last recorded entry
+            cumulative_distance = 0
+            distance_from_previous_entry = 0
+            entries_count = len(self.log.get_entries())
+            if self.gps_latitude and self.gps_longitude and entries_count > 0:
+                latlon_start = LatLon(self.log.get_entries()[entries_count - 1].get_gps_latitude(),
+                                      self.log.get_entries()[entries_count - 1].get_gps_longitude())
+                latlon_end = LatLon(self.gps_latitude, self.gps_longitude)
+                distance_from_previous_entry = round(float(latlon_end.distance(latlon_start) / 1.852), 1)
+                cumulative_distance = round(float(self.log.get_entries()[entries_count - 1].get_cumulative_distance())
+                                            + distance_from_previous_entry, 1)
+
             # Create a log entry and add it to the log entries list
             log_entry = LogEntry(time.gmtime(), time.localtime(), self.heading, self.true_wind_speed,
                                  self.true_wind_direction,
                                  self.apparent_wind_speed, self.apparent_wind_angle, self.gps_longitude,
                                  self.gps_latitude, self.gps_elevation, self.water_temperature, self.depth,
-                                 self.speed_over_ground, self.speed_over_water)
+                                 self.speed_over_ground, self.speed_over_water, distance_from_previous_entry,
+                                 cumulative_distance)
 
             # Add this entry to the log object entries collection store
             self.log.add_entry(log_entry)
@@ -251,7 +265,7 @@ class LogManager:
                 # Calculate travelled distance and heading
                 latlon_start = LatLon(first_entry.get_gps_latitude(), first_entry.get_gps_longitude())
                 latlon_end = LatLon(last_entry.get_gps_latitude(), last_entry.get_gps_longitude())
-                distance = float(latlon_end.distance(latlon_start) / 1.852)
+                distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
                 log_summary_list.append(distance)
                 heading = latlon_end.heading_initial(latlon_start)
                 log_summary_list.append(heading)
