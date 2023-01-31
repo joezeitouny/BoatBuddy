@@ -75,27 +75,27 @@ if __name__ == '__main__':
                         excel=EXCEL_OUTPUT, csv=CSV_OUTPUT, gpx=GPX_OUTPUT, summary=SUMMARY_OUTPUT,
                         summary_filename=SUMMARY_FILENAME_PREFIX)
     parser.add_option('-f', '--file', dest='filename', type='string', help='Output filename prefix. ' +
-                                                                           f'Default is {FILENAME_PREFIX}')
+                                                                           f'Default is: {FILENAME_PREFIX}')
     parser.add_option('--excel', action='store_true', dest='excel', help='Generate an Excel workbook. ' +
-                                                                         f'Default is {EXCEL_OUTPUT}')
+                                                                         f'Default is: {EXCEL_OUTPUT}')
     parser.add_option('--csv', action='store_true', dest='csv', help='Generate a comma separated list (CSV) file. ' +
-                                                                     f'Default is {CSV_OUTPUT}')
-    parser.add_option('--gpx', action='store_true', dest='gpx', help=f'Generate a GPX file. Default is {GPX_OUTPUT}')
-    parser.add_option('--port', dest='port', type='int', help=f'NMEA0183 host port. Default is {TCP_PORT}')
+                                                                     f'Default is: {CSV_OUTPUT}')
+    parser.add_option('--gpx', action='store_true', dest='gpx', help=f'Generate a GPX file. Default is: {GPX_OUTPUT}')
+    parser.add_option('--port', dest='port', type='int', help=f'NMEA0183 host port. Default is: {TCP_PORT}')
     parser.add_option('-i', '--interval', type='float', dest='interval', help='Disk write interval (in seconds). ' +
-                      f'Default is {DISK_WRITE_INTERVAL} seconds')
+                      f'Default is: {DISK_WRITE_INTERVAL} seconds')
     parser.add_option('--summary', action='store_true', dest='summary',
                       help=f'Generate a trip summary excel workbook at the end of the session. ' +
-                           f'Default is {SUMMARY_OUTPUT}')
+                           f'Default is: {SUMMARY_OUTPUT}')
     parser.add_option('--summary-filename-prefix', dest='summary_filename', type='string',
-                      help=f'Summary filename prefix. Default is {SUMMARY_FILENAME_PREFIX}')
+                      help=f'Summary filename prefix. Default is: {SUMMARY_FILENAME_PREFIX}')
     (options, args) = parser.parse_args()
 
     # If the host address is not provided
     if len(args) == 0:
         print(f'Error: Host Address is required\r\n')
         parser.print_help()
-    elif not options.excel and not options.gpx and not options.csv:
+    elif not options.excel and not options.gpx and not options.csv and not options.summary:
         print(f'Error: At least one output medium needs to be specified\r\n')
         parser.print_help()
     else:
