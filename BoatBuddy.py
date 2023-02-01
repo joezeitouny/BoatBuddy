@@ -14,6 +14,8 @@ import openpyxl
 from geopy.geocoders import Nominatim
 from latloncalc.latlon import LatLon, Latitude, Longitude
 
+from VictronPlugin import VictronPlugin
+
 DEFAULT_TCP_PORT = 10110
 DEFAULT_BUFFER_SIZE = 4096
 DEFAULT_SOCKET_TIMEOUT = 60
@@ -32,6 +34,54 @@ verbose_flag = DEFAULT_VERBOSE_FLAG
 def print_string(string_to_print):
     if verbose_flag:
         print(string_to_print)
+
+
+def get_comma_separated_string(values_list):
+    if len(values_list) == 0:
+        return ''
+    elif len(values_list) == 1:
+        return values_list[0]
+    else:
+        comma_separated_list = ''
+        for entry in values_list:
+            comma_separated_list = comma_separated_list + f'{entry},'
+
+        return comma_separated_list[:-1]
+
+
+@staticmethod
+def get_degrees(coord_str):
+    if len(coord_str.split('.')[0]) == 5:
+        # We're dealing with negative coordinates here
+        return float(coord_str[1:3])
+    else:
+        return float(coord_str[:2])
+
+
+@staticmethod
+def get_minutes(coord_str):
+    return float(coord_str.split('.')[0][-2:])
+
+
+@staticmethod
+def get_seconds(coord_str):
+    return (0.1 * float(coord_str.split('.')[1]) * 60) / 1000
+
+
+@staticmethod
+def get_latitude(coord_str, hemispehere):
+    lat = Latitude(get_degrees(coord_str), get_minutes(coord_str),
+                   get_seconds(coord_str))
+    lat.set_hemisphere(hemispehere)
+    return lat
+
+
+@staticmethod
+def get_longitude(coord_str, hemispehere):
+    lon = Longitude(get_degrees(coord_str), get_minutes(coord_str),
+                    get_seconds(coord_str))
+    lon.set_hemisphere(hemispehere)
+    return lon
 
 
 class LogEntry:
@@ -57,20 +107,18 @@ class LogEntry:
         self.cumulative_distance = cumulative_distance
 
     def __str__(self):
-        return self.comma_separated_values()
+        return get_comma_separated_string(self.get_values())
 
-    def comma_separated_values(self):
-        lon = self.gps_longitude.to_string("d%°%m%\'%S%\" %H")
-        lat = self.gps_latitude.to_string("d%°%m%\'%S%\" %H")
-        return f'{time.strftime("%Y-%m-%d %H:%M:%S", self.utc_time)}' + \
-            f',{time.strftime("%Y-%m-%d %H:%M:%S", self.local_time)}' + \
-            f',{self.heading},{self.true_wind_speed}' + \
-            f',{self.true_wind_direction},{self.apparent_wind_speed},{self.apparent_wind_angle}' + \
-            f',{lon},{lat}' + \
-            f',{self.water_temperature},{self.depth},{self.speed_over_ground}' + \
-            f',{self.speed_over_water},{self.distance_from_previous_entry},{self.cumulative_distance}'
+    @staticmethod
+    def get_headers():
+        return ["UTC Timestamp", "Local Timestamp", "True Heading (degrees)", "True Wind Speed (knots)",
+                "True Wind Direction (degrees)", "Apparent Wind Speed (knots)",
+                "Apparent Wind Angle (Relative degrees)", "GPS Longitude (d°m\'S\" H)",
+                "GPS Latitude (d°m\'S\" H)", "Water Temperature (°C)",
+                "Depth (meters)", "Speed Over Ground (knots)", "Speed Over Water (knots)",
+                "Distance From Previous Entry (miles)", "Cumulative Distance (miles)"]
 
-    def string_value_list(self):
+    def get_values(self):
         lon = self.gps_longitude.to_string("d%°%m%\'%S%\" %H")
         lat = self.gps_latitude.to_string("d%°%m%\'%S%\" %H")
         return [f'{time.strftime("%Y-%m-%d %H:%M:%S", self.utc_time)}',
@@ -158,6 +206,7 @@ class LogManager:
     summary_filename_prefix = ""
 
     log = None
+    victron_plugin = None
     workbook = None
     sheet = None
 
@@ -178,7 +227,7 @@ class LogManager:
     gpx_segment = None
 
     def __init__(self, filename_prefix, disk_write_interval, excel_output, csv_output, gpx_output, summary_output,
-                 summary_filename_prefix):
+                 summary_filename_prefix, victron_server_ip):
         self.log = Log(time.gmtime(), time.localtime(), filename_prefix)
         self.disk_write_interval = disk_write_interval
         self.excel_output = excel_output
@@ -186,6 +235,16 @@ class LogManager:
         self.gpx_output = gpx_output
         self.summary_output = summary_output
         self.summary_filename_prefix = summary_filename_prefix
+        column_headers = LogEntry.get_headers()
+
+        if victron_server_ip:
+            self.victron_plugin = VictronPlugin([victron_server_ip])
+            column_headers += self.victron_plugin.get_metadata_headers()
+
+        if self.csv_output:
+            # Add the columns headers to the beginning of the csv file
+            with open(f"{self.log.get_name()}.csv", "a") as file:
+                file.write(f'{get_comma_separated_string(column_headers)}\r\n')
 
         if self.excel_output:
             # Create an Excel workbook
@@ -195,12 +254,7 @@ class LogManager:
             self.sheet = self.workbook.active
 
             # Create the header row
-            self.sheet.append(["UTC Timestamp", "Local Timestamp", "True Heading (degrees)", "True Wind Speed (knots)",
-                               "True Wind Direction (degrees)", "Apparent Wind Speed (knots)",
-                               "Apparent Wind Angle (Relative degrees)", "GPS Longitude (d°m\'S\" H)",
-                               "GPS Latitude (d°m\'S\" H)", "Water Temperature (°C)",
-                               "Depth (meters)", "Speed Over Ground (knots)", "Speed Over Water (knots)",
-                               "Distance From Previous Entry (miles)", "Cumulative Distance (miles)"])
+            self.sheet.append(column_headers)
 
         if self.gpx_output:
             # Creating a new GPX object
@@ -222,36 +276,6 @@ class LogManager:
         self.disk_write_thread_is_running = True
         threading.Thread(target=self.write_log_data_to_disk()).start()
 
-    @staticmethod
-    def get_degrees(coord_str):
-        if len(coord_str.split('.')[0]) == 5:
-            # We're dealing with negative coordinates here
-            return float(coord_str[1:3])
-        else:
-            return float(coord_str[:2])
-
-    @staticmethod
-    def get_minutes(coord_str):
-        return float(coord_str.split('.')[0][-2:])
-
-    @staticmethod
-    def get_seconds(coord_str):
-        return (0.1 * float(coord_str.split('.')[1]) * 60) / 1000
-
-    @staticmethod
-    def get_latitude(coord_str, hemispehere):
-        lat = Latitude(LogManager.get_degrees(coord_str), LogManager.get_minutes(coord_str),
-                       LogManager.get_seconds(coord_str))
-        lat.set_hemisphere(hemispehere)
-        return lat
-
-    @staticmethod
-    def get_longitude(coord_str, hemispehere):
-        lon = Longitude(LogManager.get_degrees(coord_str), LogManager.get_minutes(coord_str),
-                        LogManager.get_seconds(coord_str))
-        lon.set_hemisphere(hemispehere)
-        return lon
-
     def process_data(self, payload):
         if payload is None:
             return
@@ -268,8 +292,8 @@ class LogManager:
                 print_string(f'Detected heading {self.heading} degrees (True north)')
         elif str_csv_list_type == "$GPGGA":
             if csv_list[2] != '' and csv_list[3] != '' and csv_list[4] != '' and csv_list[5] != '':
-                self.gps_latitude = LogManager.get_latitude(csv_list[2], csv_list[3])
-                self.gps_longitude = LogManager.get_longitude(csv_list[4], csv_list[5])
+                self.gps_latitude = get_latitude(csv_list[2], csv_list[3])
+                self.gps_longitude = get_longitude(csv_list[4], csv_list[5])
                 print_string(
                     f'Detected GPS coordinates Latitude: {self.gps_latitude} Longitude: {self.gps_longitude}')
         elif str_csv_list_type == "$SDMTW":
@@ -336,14 +360,19 @@ class LogManager:
             # Write log contents to disk
             print_string("Writing collected data to disk")
 
+            column_values = log_entry.get_values()
+
+            if self.victron_plugin:
+                column_values += self.victron_plugin.get_metadata_values(print_func=print_string)
+
             # Append the last added entry to the file on disk
             if self.csv_output:
                 with open(f"{self.log.get_name()}.csv", "a") as file:
-                    file.write(f'{log_entry}\r\n')
+                    file.write(f'{get_comma_separated_string(column_values)}\r\n')
 
             if self.excel_output:
                 # Add the name and price to the sheet
-                self.sheet.append(log_entry.string_value_list())
+                self.sheet.append(column_values)
 
                 # Save the workbook
                 self.workbook.save(filename=f"{self.log.get_name()}.xlsx")
@@ -458,7 +487,7 @@ class LogManager:
 
 
 def start_logging(server_ip, server_port, disk_write_interval, filename_prefix, excel, csv, gpx, summary,
-                  summary_filename):
+                  summary_filename, victron_server_ip):
     log_manager = None
 
     while True:
@@ -471,7 +500,8 @@ def start_logging(server_ip, server_port, disk_write_interval, filename_prefix, 
 
             print_string("Connection established")
 
-            log_manager = LogManager(filename_prefix, disk_write_interval, excel, csv, gpx, summary, summary_filename)
+            log_manager = LogManager(filename_prefix, disk_write_interval, excel, csv, gpx, summary, summary_filename,
+                                     victron_server_ip)
 
             while True:
                 data = client.recv(DEFAULT_BUFFER_SIZE)
@@ -516,6 +546,8 @@ if __name__ == '__main__':
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
                       help=f'Verbose mode. Print debugging messages about captured data. ' +
                            f'This is helpful in debugging connection, and configuration problems.')
+    parser.add_option('--victron-server-ip', dest='victron_server_ip', type='string',
+                      help=f'Append Victron system metrics from the specified device IP')
     (options, args) = parser.parse_args()
 
     # If the host address is not provided
@@ -528,4 +560,4 @@ if __name__ == '__main__':
     else:
         verbose_flag = options.verbose
         start_logging(args[0], options.port, options.interval, options.filename, options.excel,
-                      options.csv, options.gpx, options.summary, options.summary_filename)
+                      options.csv, options.gpx, options.summary, options.summary_filename, options.victron_server_ip)
