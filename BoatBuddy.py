@@ -10,6 +10,7 @@ import openpyxl
 
 import Helper
 from NMEAPlugin import NMEAPlugin, NMEAPluginEvents
+from TimePlugin import TimePlugin
 from VictronPlugin import VictronPlugin
 
 DEFAULT_TCP_PORT = 10110
@@ -26,6 +27,7 @@ DEFAULT_VERBOSE_FLAG = False
 DEFAULT_LIMITED_FLAG = False
 
 log_filename = DEFAULT_FILENAME_PREFIX
+time_plugin = None
 nmea_plugin = None
 victron_plugin = None
 workbook = None
@@ -45,6 +47,9 @@ def write_log_data_to_disk():
         Helper.console_out("Writing collected data to disk")
 
         column_values = []
+
+        time_plugin.take_snapshot()
+        column_values += time_plugin.get_metadata_values()
 
         if nmea_plugin:
             nmea_plugin.take_snapshot()
@@ -72,7 +77,7 @@ def write_log_data_to_disk():
                 gpxpy.gpx.GPXTrackPoint(latitude=nmea_plugin.get_last_latitude_entry(),
                                         longitude=nmea_plugin.get_last_longitude_entry(),
                                         time=datetime.fromtimestamp(
-                                            mktime(nmea_plugin.get_last_utc_timestamp_entry()))))
+                                            mktime(time_plugin.get_last_utc_timestamp_entry()))))
 
             # Write the new contents of the GPX file to disk
             with open(f"{log_filename}.gpx", 'w') as file:
@@ -91,6 +96,10 @@ def start_disk_helper_thread():
 
 
 def initialize_plugins():
+    # initialize the common time plugin
+    global time_plugin
+    time_plugin = TimePlugin(options)
+
     if options.victron_server_ip:
         # initialize the Victron plugin
         global victron_plugin
@@ -118,7 +127,8 @@ def start_monitoring():
     global summary_filename
     summary_filename = f'{options.summary_filename}{suffix}'
 
-    column_headers = []
+    column_headers = time_plugin.get_metadata_headers()
+
     if options.nmea_server_ip:
         column_headers += nmea_plugin.get_metadata_headers()
 
@@ -172,6 +182,8 @@ def finalize_threads():
     if disk_write_thread:
         disk_write_thread.join()
 
+    time_plugin.finalize()
+
     if options.nmea_server_ip:
         nmea_plugin.finalize()
 
@@ -211,7 +223,7 @@ def end_session():
         summary_sheet = summary_workbook.active
 
         # Create the header row
-        column_headers = []
+        column_headers = time_plugin.get_summary_headers()
         if options.nmea_server_ip:
             column_headers += nmea_plugin.get_summary_headers()
 
@@ -219,7 +231,8 @@ def end_session():
             column_headers += victron_plugin.get_summary_headers()
         summary_sheet.append(column_headers)
 
-        log_summary_list = []
+        log_summary_list = time_plugin.get_summary_values()
+        time_plugin.reset_entries()
 
         if options.nmea_server_ip:
             log_summary_list += nmea_plugin.get_summary_values()

@@ -2,7 +2,6 @@ import csv
 import math
 import socket
 import threading
-import time
 from io import StringIO
 
 from events import Events
@@ -22,12 +21,10 @@ class NMEAPluginEvents(Events):
 
 class NMEAEntry:
 
-    def __init__(self, utc_time, local_time, heading, true_wind_speed, true_wind_direction,
+    def __init__(self, heading, true_wind_speed, true_wind_direction,
                  apparent_wind_speed, apparent_wind_angle, gps_longitude, gps_latitude,
                  water_temperature, depth, speed_over_ground, speed_over_water,
                  distance_from_previous_entry, cumulative_distance):
-        self.utc_time = utc_time
-        self.local_time = local_time
         self.heading = heading
         self.true_wind_speed = true_wind_speed
         self.true_wind_direction = true_wind_direction
@@ -48,18 +45,10 @@ class NMEAEntry:
     def get_values(self):
         lon = self.gps_longitude.to_string("d%°%m%\'%S%\" %H")
         lat = self.gps_latitude.to_string("d%°%m%\'%S%\" %H")
-        return [f'{time.strftime("%Y-%m-%d %H:%M:%S", self.utc_time)}',
-                f'{time.strftime("%Y-%m-%d %H:%M:%S", self.local_time)}',
-                f'{self.heading}', f'{self.true_wind_speed}',
+        return [f'{self.heading}', f'{self.true_wind_speed}',
                 f'{self.true_wind_direction}', f'{self.apparent_wind_speed}', f'{self.apparent_wind_angle}', lon, lat,
                 f'{self.water_temperature}', f'{self.depth}', f'{self.speed_over_ground}',
                 f'{self.speed_over_water}', f'{self.distance_from_previous_entry}', f'{self.cumulative_distance}']
-
-    def get_utc_timestamp(self):
-        return self.utc_time
-
-    def get_local_timestamp(self):
-        return self.local_time
 
     def get_heading(self):
         return self.heading
@@ -133,7 +122,7 @@ class NMEAPlugin(Plugin):
         self.nmea_server_thread.start()
 
     def get_metadata_headers(self):
-        return ["UTC Timestamp", "Local Timestamp", "True Heading (degrees)", "True Wind Speed (knots)",
+        return ["True Heading (degrees)", "True Wind Speed (knots)",
                 "True Wind Direction (degrees)", "Apparent Wind Speed (knots)",
                 "Apparent Wind Angle (Relative degrees)", "GPS Longitude (d°m\'S\" H)",
                 "GPS Latitude (d°m\'S\" H)", "Water Temperature (°C)",
@@ -154,7 +143,7 @@ class NMEAPlugin(Plugin):
                                         + distance_from_previous_entry, 1)
 
         # Create a new entry
-        entry = NMEAEntry(time.gmtime(), time.localtime(), self.heading, self.true_wind_speed, self.true_wind_direction,
+        entry = NMEAEntry(self.heading, self.true_wind_speed, self.true_wind_direction,
                           self.apparent_wind_speed, self.apparent_wind_angle, self.gps_longitude, self.gps_latitude,
                           self.water_temperature, self.depth, self.speed_over_ground, self.speed_over_water,
                           distance_from_previous_entry, cumulative_distance)
@@ -167,8 +156,7 @@ class NMEAPlugin(Plugin):
         return self.log_entries[len(self.log_entries) - 1].get_values()
 
     def get_summary_headers(self):
-        return ["Starting Timestamp (UTC)", "Starting Timestamp (Local)", "Ending Timestamp (UTC)",
-                "Ending Timestamp (Local)", "Starting Location (City, Country)",
+        return ["Starting Location (City, Country)",
                 "Ending Location (City, Country)", "Starting GPS Latitude (d°m\'S\" H)",
                 "Starting GPS Longitude (d°m\'S\" H)", "Ending GPS Latitude (d°m\'S\" H)",
                 "Ending GPS Longitude (d°m\'S\" H)", "Distance (miles)", "Heading (degrees)",
@@ -182,12 +170,6 @@ class NMEAPlugin(Plugin):
         if len(self.log_entries) > 0:
             first_entry = self.log_entries[0]
             last_entry = self.log_entries[len(self.log_entries) - 1]
-
-            # Collect timestamps
-            log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", first_entry.get_utc_timestamp())}')
-            log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", first_entry.get_local_timestamp())}')
-            log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", last_entry.get_utc_timestamp())}')
-            log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", last_entry.get_local_timestamp())}')
 
             # Try to fetch the starting and ending location cities
             geolocator = Nominatim(user_agent="geoapiExercises")
@@ -345,12 +327,6 @@ class NMEAPlugin(Plugin):
             return self.log_entries[len(self.log_entries) - 1].get_gps_longitude()
         else:
             return self.gps_longitude
-
-    def get_last_utc_timestamp_entry(self):
-        if len(self.log_entries) > 0:
-            return self.log_entries[len(self.log_entries) - 1].get_utc_timestamp()
-        else:
-            return time.gmtime()
 
     def finalize(self):
         self.exit_signal.set()
