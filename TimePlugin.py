@@ -1,4 +1,6 @@
 import time
+from datetime import datetime
+from time import mktime
 
 import Helper
 from Plugin import Plugin
@@ -45,7 +47,7 @@ class TimePlugin(Plugin):
 
     def get_summary_headers(self):
         return ["Starting Timestamp (UTC)", "Starting Timestamp (Local)", "Ending Timestamp (UTC)",
-                "Ending Timestamp (Local)"]
+                "Ending Timestamp (Local)", "Duration"]
 
     def get_summary_values(self):
         log_summary_list = []
@@ -59,6 +61,11 @@ class TimePlugin(Plugin):
             log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", first_entry.get_local_timestamp())}')
             log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", last_entry.get_utc_timestamp())}')
             log_summary_list.append(f'{time.strftime("%Y-%m-%d %H:%M:%S", last_entry.get_local_timestamp())}')
+
+            ending_date = datetime.fromtimestamp(mktime(last_entry.get_utc_timestamp()))
+            starting_date = datetime.fromtimestamp(mktime(first_entry.get_utc_timestamp()))
+            duration = ending_date - starting_date
+            log_summary_list.append(f'{duration}')
 
         return log_summary_list
 
