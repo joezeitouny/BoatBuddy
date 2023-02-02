@@ -113,6 +113,9 @@ class NMEAPlugin(Plugin):
     speed_over_water = 0.0
     speed_over_ground = 0.0
 
+    exit_signal = threading.Event()
+    nmea_server_thread = None
+
     def __init__(self, args):
         # invoking the __init__ of the parent class
         Plugin.__init__(self, args)
@@ -120,8 +123,8 @@ class NMEAPlugin(Plugin):
         self.server_ip = args.nmea_server_ip
         self.server_port = int(args.nmea_port)
 
-        thread = threading.Thread(target=self.main_thread)
-        thread.start()
+        self.nmea_server_thread = threading.Thread(target=self.main_thread)
+        self.nmea_server_thread.start()
 
     def get_metadata_headers(self):
         return ["UTC Timestamp", "Local Timestamp", "True Heading (degrees)", "True Wind Speed (knots)",
@@ -237,7 +240,7 @@ class NMEAPlugin(Plugin):
         self.log_entries = []
 
     def main_thread(self):
-        while True:
+        while not self.exit_signal.is_set():
             Helper.console_out(f'Trying to connect to server with address {self.server_ip} on ' +
                                f'port {self.server_port}...')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -262,7 +265,6 @@ class NMEAPlugin(Plugin):
             except OSError:
                 Helper.console_out("Host is down")
             finally:
-                Helper.console_out("Closing connections if any")
                 client.close()
 
     def process_data(self, payload):
@@ -338,3 +340,8 @@ class NMEAPlugin(Plugin):
             return self.log_entries[len(self.log_entries) - 1].get_utc_timestamp()
         else:
             return time.gmtime()
+
+    def finalize(self):
+        self.exit_signal.set()
+        self.nmea_server_thread.join()
+        Helper.console_out("NMEA plugin worker terminated")

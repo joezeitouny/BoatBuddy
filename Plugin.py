@@ -22,3 +22,7 @@ class Plugin:
 
     def reset_entries(self):
         raise NotImplementedError("Method needs to be implemented")
+
+    # Close active sessions (if any), this method is called when a KeyboardInterrupt signal is raised
+    def finalize(self):
+        raise NotImplementedError("Method needs to be implemented")

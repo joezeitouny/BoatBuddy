@@ -1,6 +1,4 @@
 import optparse
-import signal
-import sys
 import threading
 import time
 from datetime import datetime
@@ -34,60 +32,57 @@ sheet = None
 gpx = None
 gpx_track = None
 gpx_segment = None
-disk_write_thread_is_running = False
+exit_signal = threading.Event()
 disk_write_thread = None
 summary_filename = DEFAULT_SUMMARY_FILENAME_PREFIX
 
 
 def write_log_data_to_disk():
-    try:
-        while disk_write_thread_is_running:
-            # Write contents to disk
-            Helper.console_out("Writing collected data to disk")
+    while not exit_signal.is_set():
+        # Write contents to disk
+        Helper.console_out("Writing collected data to disk")
 
-            column_values = []
+        column_values = []
 
-            if nmea_plugin:
-                nmea_plugin.take_snapshot()
-                column_values += nmea_plugin.get_metadata_values()
+        if nmea_plugin:
+            nmea_plugin.take_snapshot()
+            column_values += nmea_plugin.get_metadata_values()
 
-            if victron_plugin:
-                victron_plugin.take_snapshot()
-                column_values += victron_plugin.get_metadata_values()
+        if victron_plugin:
+            victron_plugin.take_snapshot()
+            column_values += victron_plugin.get_metadata_values()
 
-            # Append the last added entry to the file on disk
-            if options.csv:
-                with open(f"{log_filename}.csv", "a") as file:
-                    file.write(f'{Helper.get_comma_separated_string(column_values)}\r\n')
+        # Append the last added entry to the file on disk
+        if options.csv:
+            with open(f"{log_filename}.csv", "a") as file:
+                file.write(f'{Helper.get_comma_separated_string(column_values)}\r\n')
 
-            if options.excel:
-                # Add the name and price to the sheet
-                sheet.append(column_values)
+        if options.excel:
+            # Add the name and price to the sheet
+            sheet.append(column_values)
 
-                # Save the workbook
-                workbook.save(filename=f"{log_filename}.xlsx")
+            # Save the workbook
+            workbook.save(filename=f"{log_filename}.xlsx")
 
-            if options.gpx:
-                # Append new GPX track point
-                gpx_segment.points.append(
-                    gpxpy.gpx.GPXTrackPoint(latitude=nmea_plugin.get_last_latitude_entry(),
-                                            longitude=nmea_plugin.get_last_longitude_entry(),
-                                            time=datetime.fromtimestamp(
-                                                mktime(nmea_plugin.get_last_utc_timestamp_entry()))))
+        if options.gpx:
+            # Append new GPX track point
+            gpx_segment.points.append(
+                gpxpy.gpx.GPXTrackPoint(latitude=nmea_plugin.get_last_latitude_entry(),
+                                        longitude=nmea_plugin.get_last_longitude_entry(),
+                                        time=datetime.fromtimestamp(
+                                            mktime(nmea_plugin.get_last_utc_timestamp_entry()))))
 
-                # Write the new contents of the GPX file to disk
-                with open(f"{log_filename}.gpx", 'w') as file:
-                    file.write(f'{gpx.to_xml()}')
+            # Write the new contents of the GPX file to disk
+            with open(f"{log_filename}.gpx", 'w') as file:
+                file.write(f'{gpx.to_xml()}')
 
-            # Sleep for the specified interval
-            time.sleep(options.interval)
-    except KeyboardInterrupt:
-        Helper.console_out("Ending disk helper thread")
+        # Sleep for the specified interval
+        time.sleep(options.interval)
+
+    Helper.console_out(f'Disk write worker terminated')
 
 
 def start_disk_helper_thread():
-    global disk_write_thread_is_running
-    disk_write_thread_is_running = True
     global disk_write_thread
     disk_write_thread = threading.Thread(target=write_log_data_to_disk)
     disk_write_thread.start()
@@ -151,23 +146,28 @@ def start_monitoring():
         gpx_segment = gpxpy.gpx.GPXTrackSegment()
         gpx_track.segments.append(gpx_segment)
 
-    Helper.console_out(f'New monitoring session initialized {log_filename}')
+    Helper.console_out(f'New session initialized {log_filename}')
 
     threading.Timer(options.interval, start_disk_helper_thread).start()
 
 
-def end_session():
-    Helper.console_out("Ending session")
-
-    # Stop the running thread that captures log entries
-    global disk_write_thread_is_running
-    disk_write_thread_is_running = False
-
+def finalize_threads():
+    Helper.console_out(f'Waiting for worker threads to finalize...')
     # If the thread is running the wait until it finishes
     global disk_write_thread
     if disk_write_thread:
         disk_write_thread.join()
 
+    if options.nmea_server_ip:
+        nmea_plugin.finalize()
+
+    if options.victron_server_ip:
+        victron_plugin.finalize()
+
+    Helper.console_out(f'Worker threads successfully terminated!')
+
+
+def end_session():
     # if the summary option is set then build a log summary excel workbook
     if options.summary:
         # Create an Excel workbook
@@ -201,12 +201,7 @@ def end_session():
         # Save the workbook
         summary_workbook.save(filename=f"{summary_filename}.xlsx")
 
-
-def signal_handler(signal, frame):
-    # Called when someone pressed Ctrl+C command
-    print("Someone pressed Ctrl+C")
-    end_session()
-    sys.exit(0)
+    Helper.console_out(f'Session {log_filename} successfully completed!')
 
 
 if __name__ == '__main__':
@@ -251,4 +246,13 @@ if __name__ == '__main__':
         Helper.verbose_output = options.verbose
         initialize_plugins()
         start_monitoring()
-        signal.signal(signal.SIGINT, signal_handler)
+
+        try:
+            while not exit_signal.is_set():  # enable children threads to exit the main thread, too
+                time.sleep(0.1)  # let it breathe a little
+        except KeyboardInterrupt:  # on keyboard interrupt...
+            exit_signal.set()  # send signal to all listening threads
+            Helper.console_out("Ctrl+C signal detected!")
+        finally:
+            finalize_threads()
+            end_session()

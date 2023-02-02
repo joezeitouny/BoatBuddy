@@ -166,3 +166,6 @@ class VictronPlugin(Plugin):
 
     def reset_entries(self):
         self.log_entries = []
+
+    def finalize(self):
+        print('Victron plugin worker terminated')
