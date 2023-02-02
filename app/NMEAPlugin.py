@@ -8,11 +8,9 @@ from events import Events
 from geopy.geocoders import Nominatim
 from latloncalc.latlon import LatLon, Latitude, Longitude
 
-import Helper
-from Plugin import Plugin
-
-DEFAULT_BUFFER_SIZE = 4096
-DEFAULT_SOCKET_TIMEOUT = 60
+import config
+from app import Helper
+from app.Plugin import Plugin
 
 
 class NMEAPluginEvents(Events):
@@ -232,7 +230,7 @@ class NMEAPlugin(Plugin):
             Helper.console_out(f'Trying to connect to server with address {self.server_ip} on ' +
                                f'port {self.server_port}...')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.settimeout(60)
+            client.settimeout(config.DEFAULT_SOCKET_TIMEOUT)
 
             try:
                 client.connect((self.server_ip, self.server_port))
@@ -243,7 +241,7 @@ class NMEAPlugin(Plugin):
                     self.events.on_connect()
 
                 while True:
-                    data = client.recv(DEFAULT_BUFFER_SIZE)
+                    data = client.recv(config.DEFAULT_BUFFER_SIZE)
                     if data is None:
                         Helper.console_out('No NMEA0183 data received')
                         break

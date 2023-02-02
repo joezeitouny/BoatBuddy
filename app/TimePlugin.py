@@ -2,8 +2,8 @@ import time
 from datetime import datetime
 from time import mktime
 
-import Helper
-from Plugin import Plugin
+from app import Helper
+from app.Plugin import Plugin
 
 
 class TimeEntry:

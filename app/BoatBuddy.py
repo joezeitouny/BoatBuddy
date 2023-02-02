@@ -1,4 +1,5 @@
 import optparse
+import os
 import threading
 import time
 from datetime import datetime
@@ -8,25 +9,14 @@ import gpxpy
 import gpxpy.gpx
 import openpyxl
 
-import Helper
-from NMEAPlugin import NMEAPlugin, NMEAPluginEvents
-from TimePlugin import TimePlugin
-from VictronPlugin import VictronPlugin
+import config
+from app import Helper
+from app.NMEAPlugin import NMEAPlugin, NMEAPluginEvents
+from app.TimePlugin import TimePlugin
+from app.VictronPlugin import VictronPlugin
 
-DEFAULT_TCP_PORT = 10110
-DEFAULT_BUFFER_SIZE = 4096
-DEFAULT_SOCKET_TIMEOUT = 60
-DEFAULT_DISK_WRITE_INTERVAL = 5
-DEFAULT_FILENAME_PREFIX = "Trip_"
-DEFAULT_CSV_OUTPUT_FLAG = False
-DEFAULT_EXCEL_OUTPUT_FLAG = False
-DEFAULT_GPX_OUTPUT_FLAG = False
-DEFAULT_SUMMARY_OUTPUT_FLAG = False
-DEFAULT_SUMMARY_FILENAME_PREFIX = "Trip_Summary_"
-DEFAULT_VERBOSE_FLAG = False
-DEFAULT_LIMITED_FLAG = False
-
-log_filename = DEFAULT_FILENAME_PREFIX
+log_filename = config.DEFAULT_FILENAME_PREFIX
+output_directory = ''
 time_plugin = None
 nmea_plugin = None
 victron_plugin = None
@@ -37,8 +27,9 @@ gpx_track = None
 gpx_segment = None
 exit_signal = threading.Event()
 disk_write_thread = None
-summary_filename = DEFAULT_SUMMARY_FILENAME_PREFIX
+summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
 monitoring_in_progress = False
+command_line_options = None
 
 
 def write_log_data_to_disk():
@@ -60,18 +51,18 @@ def write_log_data_to_disk():
             column_values += victron_plugin.get_metadata_values()
 
         # Append the last added entry to the file on disk
-        if options.csv:
-            with open(f"{log_filename}.csv", "a") as file:
+        if command_line_options.csv:
+            with open(f"{output_directory}{log_filename}.csv", "a") as file:
                 file.write(f'{Helper.get_comma_separated_string(column_values)}\r\n')
 
-        if options.excel:
+        if command_line_options.excel:
             # Add the name and price to the sheet
             sheet.append(column_values)
 
             # Save the workbook
-            workbook.save(filename=f"{log_filename}.xlsx")
+            workbook.save(filename=f"{output_directory}{log_filename}.xlsx")
 
-        if options.gpx:
+        if command_line_options.gpx:
             # Append new GPX track point
             gpx_segment.points.append(
                 gpxpy.gpx.GPXTrackPoint(latitude=nmea_plugin.get_last_latitude_entry(),
@@ -80,11 +71,11 @@ def write_log_data_to_disk():
                                             mktime(time_plugin.get_last_utc_timestamp_entry()))))
 
             # Write the new contents of the GPX file to disk
-            with open(f"{log_filename}.gpx", 'w') as file:
+            with open(f"{output_directory}{log_filename}.gpx", 'w') as file:
                 file.write(f'{gpx.to_xml()}')
 
         # Sleep for the specified interval
-        time.sleep(options.interval)
+        time.sleep(command_line_options.interval)
 
     Helper.console_out(f'Disk write worker terminated')
 
@@ -98,19 +89,19 @@ def start_disk_helper_thread():
 def initialize_plugins():
     # initialize the common time plugin
     global time_plugin
-    time_plugin = TimePlugin(options)
+    time_plugin = TimePlugin(command_line_options)
 
-    if options.victron_server_ip:
+    if command_line_options.victron_server_ip:
         # initialize the Victron plugin
         global victron_plugin
-        victron_plugin = VictronPlugin(options)
+        victron_plugin = VictronPlugin(command_line_options)
 
-    if options.nmea_server_ip:
+    if command_line_options.nmea_server_ip:
         # initialize the NMEA0183 plugin
         global nmea_plugin
-        nmea_plugin = NMEAPlugin(options)
+        nmea_plugin = NMEAPlugin(command_line_options)
 
-        if options.limited:
+        if command_line_options.limited:
             limited_mode_events = NMEAPluginEvents()
             limited_mode_events.on_connect += start_monitoring
             limited_mode_events.on_disconnect += stop_monitoring
@@ -123,24 +114,24 @@ def start_monitoring():
 
     suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
     global log_filename
-    log_filename = f'{options.filename}{suffix}'
+    log_filename = f'{command_line_options.filename}{suffix}'
     global summary_filename
-    summary_filename = f'{options.summary_filename}{suffix}'
+    summary_filename = f'{command_line_options.summary_filename}{suffix}'
 
     column_headers = time_plugin.get_metadata_headers()
 
-    if options.nmea_server_ip:
+    if command_line_options.nmea_server_ip:
         column_headers += nmea_plugin.get_metadata_headers()
 
-    if options.victron_server_ip:
+    if command_line_options.victron_server_ip:
         column_headers += victron_plugin.get_metadata_headers()
 
-    if options.csv:
+    if command_line_options.csv:
         # Add the columns headers to the beginning of the csv file
-        with open(f"{log_filename}.csv", "a") as file:
+        with open(f"{output_directory}{log_filename}.csv", "a") as file:
             file.write(f'{Helper.get_comma_separated_string(column_headers)}\r\n')
 
-    if options.excel:
+    if command_line_options.excel:
         # Create an Excel workbook
         global workbook
         workbook = openpyxl.Workbook()
@@ -152,7 +143,7 @@ def start_monitoring():
         # Create the header row
         sheet.append(column_headers)
 
-    if options.gpx:
+    if command_line_options.gpx:
         # Creating a new GPX object
         global gpx
         gpx = gpxpy.gpx.GPX()
@@ -172,7 +163,7 @@ def start_monitoring():
 
     Helper.console_out(f'New session initialized {log_filename}')
 
-    threading.Timer(options.interval, start_disk_helper_thread).start()
+    threading.Timer(command_line_options.interval, start_disk_helper_thread).start()
 
 
 def finalize_threads():
@@ -184,10 +175,10 @@ def finalize_threads():
 
     time_plugin.finalize()
 
-    if options.nmea_server_ip:
+    if command_line_options.nmea_server_ip:
         nmea_plugin.finalize()
 
-    if options.victron_server_ip:
+    if command_line_options.victron_server_ip:
         victron_plugin.finalize()
 
     Helper.console_out(f'Worker threads successfully terminated!')
@@ -215,7 +206,7 @@ def stop_monitoring():
 
 def end_session():
     # if the summary option is set then build a log summary excel workbook
-    if options.summary:
+    if command_line_options.summary:
         # Create an Excel workbook
         summary_workbook = openpyxl.Workbook()
 
@@ -224,21 +215,21 @@ def end_session():
 
         # Create the header row
         column_headers = time_plugin.get_summary_headers()
-        if options.nmea_server_ip:
+        if command_line_options.nmea_server_ip:
             column_headers += nmea_plugin.get_summary_headers()
 
-        if options.victron_server_ip:
+        if command_line_options.victron_server_ip:
             column_headers += victron_plugin.get_summary_headers()
         summary_sheet.append(column_headers)
 
         log_summary_list = time_plugin.get_summary_values()
         time_plugin.reset_entries()
 
-        if options.nmea_server_ip:
+        if command_line_options.nmea_server_ip:
             log_summary_list += nmea_plugin.get_summary_values()
             nmea_plugin.reset_entries()
 
-        if options.victron_server_ip:
+        if command_line_options.victron_server_ip:
             log_summary_list += victron_plugin.get_summary_values()
             victron_plugin.reset_entries()
 
@@ -246,35 +237,37 @@ def end_session():
         summary_sheet.append(log_summary_list)
 
         # Save the workbook
-        summary_workbook.save(filename=f"{summary_filename}.xlsx")
+        summary_workbook.save(filename=f"{output_directory}{summary_filename}.xlsx")
 
     Helper.console_out(f'Session {log_filename} successfully completed!')
 
 
-if __name__ == '__main__':
+def run(argv):
     # Create an options list using the Options Parser
     parser = optparse.OptionParser()
-    parser.set_usage("%prog [options]")
-    parser.set_defaults(nmea_port=DEFAULT_TCP_PORT, filename=DEFAULT_FILENAME_PREFIX,
-                        interval=DEFAULT_DISK_WRITE_INTERVAL, excel=DEFAULT_EXCEL_OUTPUT_FLAG,
-                        csv=DEFAULT_CSV_OUTPUT_FLAG, gpx=DEFAULT_GPX_OUTPUT_FLAG,
-                        summary=DEFAULT_SUMMARY_OUTPUT_FLAG, summary_filename=DEFAULT_SUMMARY_FILENAME_PREFIX,
-                        verbose=DEFAULT_VERBOSE_FLAG, limited=DEFAULT_LIMITED_FLAG)
+    parser.set_usage("%prog OUTPUT_DIRECTORY [options]")
+    parser.set_defaults(nmea_port=config.DEFAULT_TCP_PORT, filename=config.DEFAULT_FILENAME_PREFIX,
+                        interval=config.DEFAULT_DISK_WRITE_INTERVAL, excel=config.DEFAULT_EXCEL_OUTPUT_FLAG,
+                        csv=config.DEFAULT_CSV_OUTPUT_FLAG, gpx=config.DEFAULT_GPX_OUTPUT_FLAG,
+                        summary=config.DEFAULT_SUMMARY_OUTPUT_FLAG,
+                        summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
+                        verbose=config.DEFAULT_VERBOSE_FLAG, limited=config.DEFAULT_LIMITED_FLAG)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
-                                                                               f'Default is: {DEFAULT_TCP_PORT}')
+                                                                               f'Default is: {config.DEFAULT_TCP_PORT}')
     parser.add_option('-i', '--interval', type='float', dest='interval',
-                      help=f'Disk write interval (in seconds). Default is: {DEFAULT_DISK_WRITE_INTERVAL} seconds')
+                      help=f'Disk write interval (in seconds). Default is: ' +
+                           f'{config.DEFAULT_DISK_WRITE_INTERVAL} seconds')
     parser.add_option('--excel', action='store_true', dest='excel', help='Generate an Excel workbook.')
     parser.add_option('--csv', action='store_true', dest='csv', help='Generate a comma separated list (CSV) file.')
     parser.add_option('--gpx', action='store_true', dest='gpx', help=f'Generate a GPX file.')
-    parser.add_option('-f', '--file', dest='filename', type='string', help='Output filename prefix. ' +
-                                                                           f'Default is: {DEFAULT_FILENAME_PREFIX}')
+    parser.add_option('-f', '--file', dest='filename', type='string',
+                      help='Output filename prefix. Default is: {config.DEFAULT_FILENAME_PREFIX}')
     parser.add_option('--summary', action='store_true', dest='summary',
                       help=f'Generate a trip summary excel workbook at the end of the session.')
     parser.add_option('--summary-filename-prefix', dest='summary_filename', type='string',
-                      help=f'Summary filename prefix. Default is: {DEFAULT_SUMMARY_FILENAME_PREFIX}')
+                      help=f'Summary filename prefix. Default is: {config.DEFAULT_SUMMARY_FILENAME_PREFIX}')
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
                       help=f'Verbose mode. Print debugging messages about captured data. ' +
                            f'This is helpful in debugging connection, and configuration problems.')
@@ -284,21 +277,35 @@ if __name__ == '__main__':
                       help=f'Sessions are only initialized when the NMEA server is up')
     (options, args) = parser.parse_args()
 
-    # If the host address is not provided
-    if not options.excel and not options.gpx and not options.csv and not options.summary:
+    global command_line_options
+    command_line_options = options
+
+    # If the output directory is not provided
+    if len(args) == 0:
+        print(f'Error: Output directory is required\r\n')
+        parser.print_help()
+    elif not os.path.exists(args[0]):
+        print(f'Error: Valid output directory is required\r\n')
+        parser.print_help()
+    elif not command_line_options.excel and not command_line_options.gpx and not command_line_options.csv and not command_line_options.summary:
         print(f'Error: At least one output medium needs to be specified\r\n')
         parser.print_help()
-    elif not options.nmea_server_ip and not options.victron_server_ip:
+    elif not command_line_options.nmea_server_ip and not command_line_options.victron_server_ip:
         print(f'Error: At least one system metric needs to be specified (NMEA0183, Victron...)\r\n')
         parser.print_help()
-    elif options.limited and not options.nmea_server_ip:
+    elif command_line_options.limited and not command_line_options.nmea_server_ip:
         print(f'Error: Cannot use the limited mode without providing NMEA0183 configuration parameters\r\n')
         parser.print_help()
     else:
-        Helper.verbose_output = options.verbose
+        Helper.verbose_output = command_line_options.verbose
+        global output_directory
+        if args[0].endswith('/'):
+            output_directory = args[0]
+        else:
+            output_directory = args[0] + '/'
         initialize_plugins()
 
-        if not options.limited:
+        if not command_line_options.limited:
             start_monitoring()
 
         try:
@@ -309,5 +316,5 @@ if __name__ == '__main__':
             Helper.console_out("Ctrl+C signal detected!")
         finally:
             finalize_threads()
-            if not options.limited:
+            if not command_line_options.limited:
                 end_session()

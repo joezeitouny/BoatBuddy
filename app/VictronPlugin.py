@@ -1,9 +1,8 @@
 from pyModbusTCP.client import ModbusClient
 
-import Helper
-from Plugin import Plugin
-
-MODBUS_TCP_PORT = 502
+import config
+from app import Helper
+from app.Plugin import Plugin
 
 
 class VictronEntry:
@@ -77,7 +76,7 @@ class VictronPlugin(Plugin):
 
     def take_snapshot(self):
         server_ip = f'{self.args.victron_server_ip}'
-        server_port = MODBUS_TCP_PORT
+        server_port = config.MODBUS_TCP_PORT
 
         try:
             # TCP auto connect on modbus request, close after it
