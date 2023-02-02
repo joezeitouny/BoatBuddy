@@ -233,12 +233,12 @@ class NMEAPlugin(Plugin):
                 sum_speed_over_ground += float(entry.get_speed_over_ground())
                 sum_speed_over_water += float(entry.get_speed_over_water())
 
-            log_summary_list.append(sum_wind_speed / count)
+            log_summary_list.append(round(sum_wind_speed / count))
             log_summary_list.append(int(sum_true_wind_direction / count))
-            log_summary_list.append(sum_water_temperature / count)
-            log_summary_list.append(sum_depth / count)
-            log_summary_list.append(sum_speed_over_ground / count)
-            log_summary_list.append(sum_speed_over_water / count)
+            log_summary_list.append(round(sum_water_temperature / count, 1))
+            log_summary_list.append(round(sum_depth / count, 1))
+            log_summary_list.append(round(sum_speed_over_ground / count, 1))
+            log_summary_list.append(round(sum_speed_over_water / count, 1))
 
         return log_summary_list
 

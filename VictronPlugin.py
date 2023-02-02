@@ -39,6 +39,27 @@ class VictronEntry:
                 f'{self.battery_state_string}',
                 f'{self.pv_power}', f'{self.pv_current}', f'{self.starter_battery_voltage}']
 
+    def get_battery_voltage(self):
+        return self.battery_voltage
+
+    def get_battery_current(self):
+        return self.battery_current
+
+    def get_battery_power(self):
+        return self.battery_power
+
+    def get_pv_power(self):
+        return self.pv_power
+
+    def get_pv_current(self):
+        return self.pv_current
+
+    def get_starter_battery_voltage(self):
+        return self.starter_battery_voltage
+
+    def get_ac_consumption_power(self):
+        return self.ac_consumption
+
 
 class VictronPlugin(Plugin):
     log_entries = []
@@ -163,3 +184,91 @@ class VictronPlugin(Plugin):
 
     def finalize(self):
         print('Victron plugin worker terminated')
+
+    def get_summary_headers(self):
+        return ["Housing battery max voltage (V)", "Housing battery min voltage (V)",
+                "Housing battery average voltage (V)", "Housing battery max current (A)",
+                "Housing battery average current (A)", "Housing battery max power (W)",
+                "Housing battery average power (W)",
+                "PV max power (W)", "PV average power",
+                "PV max current (A)", "PV average current (A)",
+                "Starter battery max voltage (V)", "Starter battery min voltage (V)",
+                "Starter battery average voltage", "AC Consumption max (W)", "AC Consumption average (W)"]
+
+    def get_summary_values(self):
+        log_summary_list = []
+
+        if len(self.log_entries) > 0:
+            first_entry = self.log_entries[0]
+            last_entry = self.log_entries[len(self.log_entries) - 1]
+
+            # Calculate extremes and averages
+            housing_battery_max_voltage = 0
+            housing_battery_min_voltage = 0
+            sum_housing_battery_voltage = 0
+            housing_battery_max_current = 0
+            sum_housing_battery_current = 0
+            housing_battery_max_power = 0
+            sum_housing_battery_power = 0
+            pv_max_power = 0
+            sum_pv_power = 0
+            pv_max_current = 0
+            sum_pv_current = 0
+            starter_battery_max_voltage = 0
+            starter_battery_min_voltage = 0
+            sum_starter_battery_voltage = 0
+            ac_consumption_max_power = 0
+            sum_ac_consumption_power = 0
+            count = len(self.log_entries)
+            for entry in self.log_entries:
+                # Sum up all values that will be averaged later
+                sum_housing_battery_voltage += float(entry.get_battery_voltage())
+                sum_housing_battery_current += int(entry.get_battery_current())
+                sum_housing_battery_power += float(entry.get_battery_power())
+                sum_pv_power += float(entry.get_pv_power())
+                sum_pv_current += float(entry.get_pv_current())
+                sum_starter_battery_voltage += float(entry.get_starter_battery_voltage())
+                sum_ac_consumption_power += float(entry.get_ac_consumption_power())
+
+                # Collect extremes
+                housing_battery_max_voltage = Helper.get_biggest_number(float(entry.get_battery_voltage()),
+                                                                        housing_battery_max_voltage)
+                if housing_battery_min_voltage == 0:
+                    housing_battery_min_voltage = float(entry.get_battery_voltage())
+                else:
+                    housing_battery_min_voltage = Helper.get_smallest_number(float(entry.get_battery_voltage()),
+                                                                             housing_battery_min_voltage)
+                housing_battery_max_current = Helper.get_biggest_number(float(entry.get_battery_current()),
+                                                                        housing_battery_max_current)
+                housing_battery_max_power = Helper.get_biggest_number(float(entry.get_battery_power()),
+                                                                      housing_battery_max_power)
+                pv_max_power = Helper.get_biggest_number(float(entry.get_pv_power()), pv_max_power)
+                pv_max_current = Helper.get_biggest_number(float(entry.get_pv_current()), pv_max_current)
+                starter_battery_max_voltage = Helper.get_biggest_number(float(entry.get_starter_battery_voltage()),
+                                                                        starter_battery_max_voltage)
+                if starter_battery_min_voltage == 0:
+                    starter_battery_min_voltage = float(entry.get_starter_battery_voltage())
+                else:
+                    starter_battery_min_voltage = Helper.get_smallest_number(float(entry.get_starter_battery_voltage()),
+                                                                             starter_battery_min_voltage)
+                ac_consumption_max_power = Helper.get_biggest_number(float(entry.get_ac_consumption_power()),
+                                                                     ac_consumption_max_power)
+
+            log_summary_list.append(housing_battery_max_voltage)
+            log_summary_list.append(housing_battery_min_voltage)
+            log_summary_list.append(round(sum_housing_battery_voltage / count, 2))
+            log_summary_list.append(housing_battery_max_current)
+            log_summary_list.append(round(sum_housing_battery_current / count, 2))
+            log_summary_list.append(housing_battery_max_power)
+            log_summary_list.append(round(sum_housing_battery_power / count))
+            log_summary_list.append(pv_max_power)
+            log_summary_list.append(round(sum_pv_power / count))
+            log_summary_list.append(pv_max_current)
+            log_summary_list.append(round(sum_pv_current / count, 1))
+            log_summary_list.append(starter_battery_max_voltage)
+            log_summary_list.append(starter_battery_min_voltage)
+            log_summary_list.append(round(sum_starter_battery_voltage / count, 2))
+            log_summary_list.append(ac_consumption_max_power)
+            log_summary_list.append(round(sum_ac_consumption_power / count))
+
+        return log_summary_list

@@ -44,9 +44,20 @@ def get_latitude(coord_str, hemispehere):
     return lat
 
 
-@staticmethod
 def get_longitude(coord_str, hemispehere):
     lon = Longitude(get_degrees(coord_str), get_minutes(coord_str),
                     get_seconds(coord_str))
     lon.set_hemisphere(hemispehere)
     return lon
+
+
+def get_biggest_number(number1, number2):
+    if number1 > number2:
+        return number1
+    return number2
+
+
+def get_smallest_number(number1, number2):
+    if number1 < number2:
+        return number1
+    return number2
