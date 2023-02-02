@@ -1,8 +1,8 @@
 from pyModbusTCP.client import ModbusClient
 
-import config
-from app import Helper
-from app.Plugin import Plugin
+from BoatBuddy import Helper
+from BoatBuddy import config
+from BoatBuddy.Plugin import Plugin
 
 
 class VictronEntry:

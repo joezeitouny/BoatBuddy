@@ -9,14 +9,14 @@ import gpxpy
 import gpxpy.gpx
 import openpyxl
 
-import config
-from app import Helper
-from app.NMEAPlugin import NMEAPlugin, NMEAPluginEvents
-from app.TimePlugin import TimePlugin
-from app.VictronPlugin import VictronPlugin
+from BoatBuddy import Helper
+from BoatBuddy import config
+from BoatBuddy.NMEAPlugin import NMEAPlugin, NMEAPluginEvents
+from BoatBuddy.TimePlugin import TimePlugin
+from BoatBuddy.VictronPlugin import VictronPlugin
 
 log_filename = config.DEFAULT_FILENAME_PREFIX
-output_directory = ''
+output_directory = None
 time_plugin = None
 nmea_plugin = None
 victron_plugin = None
@@ -29,7 +29,6 @@ exit_signal = threading.Event()
 disk_write_thread = None
 summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
 monitoring_in_progress = False
-command_line_options = None
 
 
 def write_log_data_to_disk():
@@ -51,18 +50,18 @@ def write_log_data_to_disk():
             column_values += victron_plugin.get_metadata_values()
 
         # Append the last added entry to the file on disk
-        if command_line_options.csv:
+        if options.csv:
             with open(f"{output_directory}{log_filename}.csv", "a") as file:
                 file.write(f'{Helper.get_comma_separated_string(column_values)}\r\n')
 
-        if command_line_options.excel:
+        if options.excel:
             # Add the name and price to the sheet
             sheet.append(column_values)
 
             # Save the workbook
             workbook.save(filename=f"{output_directory}{log_filename}.xlsx")
 
-        if command_line_options.gpx:
+        if options.gpx:
             # Append new GPX track point
             gpx_segment.points.append(
                 gpxpy.gpx.GPXTrackPoint(latitude=nmea_plugin.get_last_latitude_entry(),
@@ -75,7 +74,7 @@ def write_log_data_to_disk():
                 file.write(f'{gpx.to_xml()}')
 
         # Sleep for the specified interval
-        time.sleep(command_line_options.interval)
+        time.sleep(options.interval)
 
     Helper.console_out(f'Disk write worker terminated')
 
@@ -86,22 +85,28 @@ def start_disk_helper_thread():
     disk_write_thread.start()
 
 
-def initialize_plugins():
+def initialize():
+    global output_directory
+    if not args[0].endswith('/'):
+        output_directory = args[0] + '/'
+    else:
+        output_directory = args[0]
+
     # initialize the common time plugin
     global time_plugin
-    time_plugin = TimePlugin(command_line_options)
+    time_plugin = TimePlugin(options)
 
-    if command_line_options.victron_server_ip:
+    if options.victron_server_ip:
         # initialize the Victron plugin
         global victron_plugin
-        victron_plugin = VictronPlugin(command_line_options)
+        victron_plugin = VictronPlugin(options)
 
-    if command_line_options.nmea_server_ip:
+    if options.nmea_server_ip:
         # initialize the NMEA0183 plugin
         global nmea_plugin
-        nmea_plugin = NMEAPlugin(command_line_options)
+        nmea_plugin = NMEAPlugin(options)
 
-        if command_line_options.limited:
+        if options.limited:
             limited_mode_events = NMEAPluginEvents()
             limited_mode_events.on_connect += start_monitoring
             limited_mode_events.on_disconnect += stop_monitoring
@@ -114,24 +119,24 @@ def start_monitoring():
 
     suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
     global log_filename
-    log_filename = f'{command_line_options.filename}{suffix}'
+    log_filename = f'{options.filename}{suffix}'
     global summary_filename
-    summary_filename = f'{command_line_options.summary_filename}{suffix}'
+    summary_filename = f'{options.summary_filename}{suffix}'
 
     column_headers = time_plugin.get_metadata_headers()
 
-    if command_line_options.nmea_server_ip:
+    if options.nmea_server_ip:
         column_headers += nmea_plugin.get_metadata_headers()
 
-    if command_line_options.victron_server_ip:
+    if options.victron_server_ip:
         column_headers += victron_plugin.get_metadata_headers()
 
-    if command_line_options.csv:
+    if options.csv:
         # Add the columns headers to the beginning of the csv file
         with open(f"{output_directory}{log_filename}.csv", "a") as file:
             file.write(f'{Helper.get_comma_separated_string(column_headers)}\r\n')
 
-    if command_line_options.excel:
+    if options.excel:
         # Create an Excel workbook
         global workbook
         workbook = openpyxl.Workbook()
@@ -143,7 +148,7 @@ def start_monitoring():
         # Create the header row
         sheet.append(column_headers)
 
-    if command_line_options.gpx:
+    if options.gpx:
         # Creating a new GPX object
         global gpx
         gpx = gpxpy.gpx.GPX()
@@ -163,7 +168,7 @@ def start_monitoring():
 
     Helper.console_out(f'New session initialized {log_filename}')
 
-    threading.Timer(command_line_options.interval, start_disk_helper_thread).start()
+    threading.Timer(options.interval, start_disk_helper_thread).start()
 
 
 def finalize_threads():
@@ -175,10 +180,10 @@ def finalize_threads():
 
     time_plugin.finalize()
 
-    if command_line_options.nmea_server_ip:
+    if options.nmea_server_ip:
         nmea_plugin.finalize()
 
-    if command_line_options.victron_server_ip:
+    if options.victron_server_ip:
         victron_plugin.finalize()
 
     Helper.console_out(f'Worker threads successfully terminated!')
@@ -206,7 +211,7 @@ def stop_monitoring():
 
 def end_session():
     # if the summary option is set then build a log summary excel workbook
-    if command_line_options.summary:
+    if options.summary:
         # Create an Excel workbook
         summary_workbook = openpyxl.Workbook()
 
@@ -215,21 +220,21 @@ def end_session():
 
         # Create the header row
         column_headers = time_plugin.get_summary_headers()
-        if command_line_options.nmea_server_ip:
+        if options.nmea_server_ip:
             column_headers += nmea_plugin.get_summary_headers()
 
-        if command_line_options.victron_server_ip:
+        if options.victron_server_ip:
             column_headers += victron_plugin.get_summary_headers()
         summary_sheet.append(column_headers)
 
         log_summary_list = time_plugin.get_summary_values()
         time_plugin.reset_entries()
 
-        if command_line_options.nmea_server_ip:
+        if options.nmea_server_ip:
             log_summary_list += nmea_plugin.get_summary_values()
             nmea_plugin.reset_entries()
 
-        if command_line_options.victron_server_ip:
+        if options.victron_server_ip:
             log_summary_list += victron_plugin.get_summary_values()
             victron_plugin.reset_entries()
 
@@ -242,10 +247,10 @@ def end_session():
     Helper.console_out(f'Session {log_filename} successfully completed!')
 
 
-def run(argv):
+if __name__ == '__main__':
     # Create an options list using the Options Parser
     parser = optparse.OptionParser()
-    parser.set_usage("%prog OUTPUT_DIRECTORY [options]")
+    parser.set_usage("python3 -m BoatBuddy OUTPUT_DIRECTORY [options]")
     parser.set_defaults(nmea_port=config.DEFAULT_TCP_PORT, filename=config.DEFAULT_FILENAME_PREFIX,
                         interval=config.DEFAULT_DISK_WRITE_INTERVAL, excel=config.DEFAULT_EXCEL_OUTPUT_FLAG,
                         csv=config.DEFAULT_CSV_OUTPUT_FLAG, gpx=config.DEFAULT_GPX_OUTPUT_FLAG,
@@ -277,9 +282,6 @@ def run(argv):
                       help=f'Sessions are only initialized when the NMEA server is up')
     (options, args) = parser.parse_args()
 
-    global command_line_options
-    command_line_options = options
-
     # If the output directory is not provided
     if len(args) == 0:
         print(f'Error: Output directory is required\r\n')
@@ -287,25 +289,21 @@ def run(argv):
     elif not os.path.exists(args[0]):
         print(f'Error: Valid output directory is required\r\n')
         parser.print_help()
-    elif not command_line_options.excel and not command_line_options.gpx and not command_line_options.csv and not command_line_options.summary:
+    elif not options.excel and not options.gpx and not options.csv and not options.summary:
         print(f'Error: At least one output medium needs to be specified\r\n')
         parser.print_help()
-    elif not command_line_options.nmea_server_ip and not command_line_options.victron_server_ip:
+    elif not options.nmea_server_ip and not options.victron_server_ip:
         print(f'Error: At least one system metric needs to be specified (NMEA0183, Victron...)\r\n')
         parser.print_help()
-    elif command_line_options.limited and not command_line_options.nmea_server_ip:
+    elif options.limited and not options.nmea_server_ip:
         print(f'Error: Cannot use the limited mode without providing NMEA0183 configuration parameters\r\n')
         parser.print_help()
     else:
-        Helper.verbose_output = command_line_options.verbose
-        global output_directory
-        if args[0].endswith('/'):
-            output_directory = args[0]
-        else:
-            output_directory = args[0] + '/'
-        initialize_plugins()
+        Helper.verbose_output = options.verbose
 
-        if not command_line_options.limited:
+        initialize()
+
+        if not options.limited:
             start_monitoring()
 
         try:
@@ -316,5 +314,5 @@ def run(argv):
             Helper.console_out("Ctrl+C signal detected!")
         finally:
             finalize_threads()
-            if not command_line_options.limited:
+            if not options.limited:
                 end_session()

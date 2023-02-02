@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "BoatBuddy"
-version = "0.0.1"
+version = "0.0.5"
 authors = [
     { name = "Joe Zeitouny", email = "joezeitouny@gmail.com" },
 ]
@@ -16,7 +16,14 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
+dependencies = [
+    "geopy ~= 2.3.0",
+    "gpxpy ~= 1.5.0",
+    "latloncalc ~= 1.5.3",
+    "openpyxl ~= 3.0.10",
+    "pyModbusTCP ~= 0.2.0",
+    "Events ~= 0.4"
+]
 [project.urls]
 "Homepage" = "https://github.com/joezeitouny/BoatBuddy"
 "Bug Tracker" = "https://github.com/joezeitouny/BoatBuddy/issues"

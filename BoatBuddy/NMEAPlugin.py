@@ -8,9 +8,9 @@ from events import Events
 from geopy.geocoders import Nominatim
 from latloncalc.latlon import LatLon, Latitude, Longitude
 
-import config
-from app import Helper
-from app.Plugin import Plugin
+from BoatBuddy import Helper
+from BoatBuddy import config
+from BoatBuddy.Plugin import Plugin
 
 
 class NMEAPluginEvents(Events):

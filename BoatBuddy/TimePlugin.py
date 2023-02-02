@@ -2,8 +2,8 @@ import time
 from datetime import datetime
 from time import mktime
 
-from app import Helper
-from app.Plugin import Plugin
+from BoatBuddy import Helper
+from BoatBuddy.Plugin import Plugin
 
 
 class TimeEntry:
