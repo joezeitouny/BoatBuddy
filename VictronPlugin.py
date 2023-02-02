@@ -1,24 +1,62 @@
 from pyModbusTCP.client import ModbusClient
 
+import Helper
 from Plugin import Plugin
 
-TCP_PORT = 502
+MODBUS_TCP_PORT = 502
+
+
+class VictronEntry:
+    def __init__(self, input_source_string, grid_power, generator_power, ac_input_voltage, ac_input_current,
+                 ac_input_frequency, ve_bus_state_string, ac_consumption, battery_voltage,
+                 battery_current, battery_power, battery_soc, battery_state_string,
+                 pv_power, pv_current, starter_battery_voltage):
+        self.input_source_string = input_source_string
+        self.grid_power = grid_power
+        self.generator_power = generator_power
+        self.ac_input_voltage = ac_input_voltage
+        self.ac_input_current = ac_input_current
+        self.ac_input_frequency = ac_input_frequency
+        self.ve_bus_state_string = ve_bus_state_string
+        self.ac_consumption = ac_consumption
+        self.battery_voltage = battery_voltage
+        self.battery_current = battery_current
+        self.battery_power = battery_power
+        self.battery_soc = battery_soc
+        self.battery_state_string = battery_state_string
+        self.pv_power = pv_power
+        self.pv_current = pv_current
+        self.starter_battery_voltage = starter_battery_voltage
+
+    def __str__(self):
+        return Helper.get_comma_separated_string(self.get_values())
+
+    def get_values(self):
+        return [f'{self.input_source_string}', f'{self.grid_power}', f'{self.generator_power}',
+                f'{self.ac_input_voltage}', f'{self.ac_input_current}', f'{self.ac_input_frequency}',
+                f'{self.ve_bus_state_string}', f'{self.ac_consumption}', f'{self.battery_voltage}',
+                f'{self.battery_current}', f'{self.battery_power}', f'{self.battery_soc}',
+                f'{self.battery_state_string}',
+                f'{self.pv_power}', f'{self.pv_current}', f'{self.starter_battery_voltage}']
 
 
 class VictronPlugin(Plugin):
+    log_entries = []
+
     def __init__(self, args):
         # invoking the __init__ of the parent class
         Plugin.__init__(self, args)
 
-        self.metadata_headers = ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
-                                 'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
-                                 'VE.Bus State', 'AC Consumption (W)', 'Battery Voltage (V)', 'Battery Current (A)',
-                                 'Battery Power (W)', 'Battery SOC', 'Battery state', 'PV Power (W)', 'PV Current (A)',
-                                 'Starter Battery Voltage (V)']
+    def get_metadata_headers(self):
+        return ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
+                'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
+                'VE.Bus State', 'AC Consumption (W)', 'Battery Voltage (V)', 'Battery Current (A)',
+                'Battery Power (W)', 'Battery SOC', 'Battery state', 'PV Power (W)', 'PV Current (A)',
+                'Starter Battery Voltage (V)']
 
-    def get_metadata_values(self, print_func):
-        server_ip = self.args[0]
-        server_port = TCP_PORT
+    def take_snapshot(self):
+        server_ip = f'{self.args.victron_server_ip}'
+        server_port = MODBUS_TCP_PORT
 
         try:
             # TCP auto connect on modbus request, close after it
@@ -97,30 +135,34 @@ class VictronPlugin(Plugin):
             elif ve_bus_state == 252:
                 ve_bus_state_string = 'External control'
 
-            print_func(f'Active Input source: {input_source_string}')
-            print_func(f'Grid power: {grid_power} W')
-            print_func(f'Generator power: {generator_power} W')
-            print_func(f'AC input 1 {ac_input_voltage} VAC {ac_input_current} A {ac_input_frequency} Hz')
-            print_func(f'VE.Bus State: {ve_bus_state_string}')
-            print_func(f'AC Consumption: {ac_consumption} W AC')
-            print_func(f'Battery voltage: {battery_voltage} VDC')
-            print_func(f'Battery current: {battery_current} A')
-            print_func(f'Battery power: {battery_power} W DC')
-            print_func(f'Battery SOC: {battery_soc} %')
-            print_func(f'Battery state: {battery_state_string}')
-            print_func(f'PV power: {pv_power} W DC')
-            print_func(f'PV current: {pv_current} A DC')
+            Helper.console_out(f'Active Input source: {input_source_string}')
+            Helper.console_out(f'Grid power: {grid_power} W')
+            Helper.console_out(f'Generator power: {generator_power} W')
+            Helper.console_out(f'AC input 1 {ac_input_voltage} VAC {ac_input_current} A {ac_input_frequency} Hz')
+            Helper.console_out(f'VE.Bus State: {ve_bus_state_string}')
+            Helper.console_out(f'AC Consumption: {ac_consumption} W AC')
+            Helper.console_out(f'Battery voltage: {battery_voltage} VDC')
+            Helper.console_out(f'Battery current: {battery_current} A')
+            Helper.console_out(f'Battery power: {battery_power} W DC')
+            Helper.console_out(f'Battery SOC: {battery_soc} %')
+            Helper.console_out(f'Battery state: {battery_state_string}')
+            Helper.console_out(f'PV power: {pv_power} W DC')
+            Helper.console_out(f'PV current: {pv_current} A DC')
+            Helper.console_out(f'Starter battery voltage: {starter_battery_voltage} V DC')
 
-            print_func(f'Starter battery voltage: {starter_battery_voltage} V DC')
-
-            self.metadata_values = [f'{input_source_string}', f'{grid_power}', f'{generator_power}',
-                                    f'{ac_input_voltage}', f'{ac_input_current}', f'{ac_input_frequency}',
-                                    f'{ve_bus_state_string}', f'{ac_consumption}', f'{battery_voltage}',
-                                    f'{battery_current}', f'{battery_power}', f'{battery_soc}',
-                                    f'{battery_state_string}',
-                                    f'{pv_power}', f'{pv_current}', f'{starter_battery_voltage}']
-
+            entry = VictronEntry(input_source_string, grid_power, generator_power, ac_input_voltage,
+                                 ac_input_current, ac_input_frequency, ve_bus_state_string, ac_consumption,
+                                 battery_voltage, battery_current, battery_power, battery_soc, battery_state_string,
+                                 pv_power, pv_current, starter_battery_voltage)
+            self.log_entries.append(entry)
         except ValueError:
-            print_func("Error with host or port params")
+            Helper.console_out("Error with host or port params")
 
-        return self.metadata_values
+    def get_metadata_values(self):
+        if len(self.log_entries) > 0:
+            return self.log_entries[len(self.log_entries) - 1].get_values()
+        else:
+            return []
+
+    def reset_entries(self):
+        self.log_entries = []

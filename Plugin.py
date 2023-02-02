@@ -1,15 +1,24 @@
 class Plugin:
-    metadata_headers = None
-    metadata_values = None
     args = None
 
     def __init__(self, args):
         self.args = args
-        self.metadata_headers = []
-        self.metadata_values = []
 
     def get_metadata_headers(self):
-        return self.metadata_headers
+        return []
 
-    def get_metadata_values(self, print_func):
-        return self.metadata_values
+    # Collect all current data in an object in memory (add that object to a list instance if needed)
+    def take_snapshot(self):
+        raise NotImplementedError("Method needs to be implemented")
+
+    def get_metadata_values(self):
+        return []
+
+    def get_summary_headers(self):
+        return []
+
+    def get_summary_values(self):
+        return []
+
+    def reset_entries(self):
+        raise NotImplementedError("Method needs to be implemented")
