@@ -5,6 +5,7 @@ import threading
 import time
 from io import StringIO
 
+from events import Events
 from geopy.geocoders import Nominatim
 from latloncalc.latlon import LatLon, Latitude, Longitude
 
@@ -13,6 +14,10 @@ from Plugin import Plugin
 
 DEFAULT_BUFFER_SIZE = 4096
 DEFAULT_SOCKET_TIMEOUT = 60
+
+
+class NMEAPluginEvents(Events):
+    __events__ = ('on_connect', 'on_disconnect',)
 
 
 class NMEAEntry:
@@ -115,6 +120,7 @@ class NMEAPlugin(Plugin):
 
     exit_signal = threading.Event()
     nmea_server_thread = None
+    events = None
 
     def __init__(self, args):
         # invoking the __init__ of the parent class
@@ -249,23 +255,28 @@ class NMEAPlugin(Plugin):
             try:
                 client.connect((self.server_ip, self.server_port))
 
-                Helper.console_out("Connection established")
+                Helper.console_out(f'Connection to NMEA0183 server established')
+
+                if self.events:
+                    self.events.on_connect()
 
                 while True:
                     data = client.recv(DEFAULT_BUFFER_SIZE)
                     if data is None:
-                        Helper.console_out('No data received')
+                        Helper.console_out('No NMEA0183 data received')
                         break
 
                     str_data = data.decode().rstrip('\r\n')
                     self.process_data(str_data)
 
             except TimeoutError:
-                Helper.console_out("Connection timeout")
+                Helper.console_out(f'Connection to server {self.server_ip} is lost!')
             except OSError:
-                Helper.console_out("Host is down")
+                Helper.console_out(f'Server {self.server_ip} is down!')
             finally:
                 client.close()
+                if self.events:
+                    self.events.on_disconnect()
 
     def process_data(self, payload):
         if payload is None:
@@ -345,3 +356,6 @@ class NMEAPlugin(Plugin):
         self.exit_signal.set()
         self.nmea_server_thread.join()
         Helper.console_out("NMEA plugin worker terminated")
+
+    def raise_events(self, events):
+        self.events = events

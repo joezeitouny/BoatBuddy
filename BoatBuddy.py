@@ -9,7 +9,7 @@ import gpxpy.gpx
 import openpyxl
 
 import Helper
-from NMEAPlugin import NMEAPlugin
+from NMEAPlugin import NMEAPlugin, NMEAPluginEvents
 from VictronPlugin import VictronPlugin
 
 DEFAULT_TCP_PORT = 10110
@@ -23,6 +23,7 @@ DEFAULT_GPX_OUTPUT_FLAG = False
 DEFAULT_SUMMARY_OUTPUT_FLAG = False
 DEFAULT_SUMMARY_FILENAME_PREFIX = "Trip_Summary_"
 DEFAULT_VERBOSE_FLAG = False
+DEFAULT_LIMITED_FLAG = False
 
 log_filename = DEFAULT_FILENAME_PREFIX
 nmea_plugin = None
@@ -35,6 +36,7 @@ gpx_segment = None
 exit_signal = threading.Event()
 disk_write_thread = None
 summary_filename = DEFAULT_SUMMARY_FILENAME_PREFIX
+monitoring_in_progress = False
 
 
 def write_log_data_to_disk():
@@ -99,8 +101,17 @@ def initialize_plugins():
         global nmea_plugin
         nmea_plugin = NMEAPlugin(options)
 
+        if options.limited:
+            limited_mode_events = NMEAPluginEvents()
+            limited_mode_events.on_connect += start_monitoring
+            limited_mode_events.on_disconnect += stop_monitoring
+            nmea_plugin.raise_events(limited_mode_events)
+
 
 def start_monitoring():
+    global exit_signal
+    exit_signal = threading.Event()
+
     suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
     global log_filename
     log_filename = f'{options.filename}{suffix}'
@@ -146,6 +157,9 @@ def start_monitoring():
         gpx_segment = gpxpy.gpx.GPXTrackSegment()
         gpx_track.segments.append(gpx_segment)
 
+    global monitoring_in_progress
+    monitoring_in_progress = True
+
     Helper.console_out(f'New session initialized {log_filename}')
 
     threading.Timer(options.interval, start_disk_helper_thread).start()
@@ -165,6 +179,26 @@ def finalize_threads():
         victron_plugin.finalize()
 
     Helper.console_out(f'Worker threads successfully terminated!')
+
+
+def stop_monitoring():
+    global monitoring_in_progress
+    if not monitoring_in_progress:
+        return
+
+    Helper.console_out(f'Waiting for disk worker thread to finalize...')
+
+    # Send an exit signal to the worker thread
+    exit_signal.set()
+
+    # If the thread is running the wait until it finishes
+    global disk_write_thread
+    if disk_write_thread:
+        disk_write_thread.join()
+
+    monitoring_in_progress = False
+
+    end_session()
 
 
 def end_session():
@@ -212,7 +246,7 @@ if __name__ == '__main__':
                         interval=DEFAULT_DISK_WRITE_INTERVAL, excel=DEFAULT_EXCEL_OUTPUT_FLAG,
                         csv=DEFAULT_CSV_OUTPUT_FLAG, gpx=DEFAULT_GPX_OUTPUT_FLAG,
                         summary=DEFAULT_SUMMARY_OUTPUT_FLAG, summary_filename=DEFAULT_SUMMARY_FILENAME_PREFIX,
-                        verbose=DEFAULT_VERBOSE_FLAG)
+                        verbose=DEFAULT_VERBOSE_FLAG, limited=DEFAULT_LIMITED_FLAG)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
@@ -233,6 +267,8 @@ if __name__ == '__main__':
                            f'This is helpful in debugging connection, and configuration problems.')
     parser.add_option('--victron-server-ip', dest='victron_server_ip', type='string',
                       help=f'Append Victron system metrics from the specified device IP')
+    parser.add_option('--limited-mode', action='store_true', dest='limited',
+                      help=f'Sessions are only initialized when the NMEA server is up')
     (options, args) = parser.parse_args()
 
     # If the host address is not provided
@@ -242,17 +278,23 @@ if __name__ == '__main__':
     elif not options.nmea_server_ip and not options.victron_server_ip:
         print(f'Error: At least one system metric needs to be specified (NMEA0183, Victron...)\r\n')
         parser.print_help()
+    elif options.limited and not options.nmea_server_ip:
+        print(f'Error: Cannot use the limited mode without providing NMEA0183 configuration parameters\r\n')
+        parser.print_help()
     else:
         Helper.verbose_output = options.verbose
         initialize_plugins()
-        start_monitoring()
+
+        if not options.limited:
+            start_monitoring()
 
         try:
-            while not exit_signal.is_set():  # enable children threads to exit the main thread, too
-                time.sleep(0.1)  # let it breathe a little
+            while True:  # enable children threads to exit the main thread, too
+                time.sleep(0.5)  # let it breathe a little
         except KeyboardInterrupt:  # on keyboard interrupt...
             exit_signal.set()  # send signal to all listening threads
             Helper.console_out("Ctrl+C signal detected!")
         finally:
             finalize_threads()
-            end_session()
+            if not options.limited:
+                end_session()

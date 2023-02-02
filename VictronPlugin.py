@@ -135,20 +135,14 @@ class VictronPlugin(Plugin):
             elif ve_bus_state == 252:
                 ve_bus_state_string = 'External control'
 
-            Helper.console_out(f'Active Input source: {input_source_string}')
-            Helper.console_out(f'Grid power: {grid_power} W')
-            Helper.console_out(f'Generator power: {generator_power} W')
-            Helper.console_out(f'AC input 1 {ac_input_voltage} VAC {ac_input_current} A {ac_input_frequency} Hz')
-            Helper.console_out(f'VE.Bus State: {ve_bus_state_string}')
-            Helper.console_out(f'AC Consumption: {ac_consumption} W AC')
-            Helper.console_out(f'Battery voltage: {battery_voltage} VDC')
-            Helper.console_out(f'Battery current: {battery_current} A')
-            Helper.console_out(f'Battery power: {battery_power} W DC')
-            Helper.console_out(f'Battery SOC: {battery_soc} %')
-            Helper.console_out(f'Battery state: {battery_state_string}')
-            Helper.console_out(f'PV power: {pv_power} W DC')
-            Helper.console_out(f'PV current: {pv_current} A DC')
-            Helper.console_out(f'Starter battery voltage: {starter_battery_voltage} V DC')
+            Helper.console_out(f'Active Input source: {input_source_string} Grid Power: {grid_power} W ' +
+                               f'Generator Power: {generator_power} W AC Consumption: {ac_consumption} W')
+            Helper.console_out(f'AC input 1 {ac_input_voltage} V {ac_input_current} A {ac_input_frequency} Hz ' +
+                               f'State: {ve_bus_state_string}')
+            Helper.console_out(f'Housing battery stats {battery_voltage} V  {battery_current} A {battery_power} W ' +
+                               f'{battery_soc} % {battery_state_string}')
+            Helper.console_out(f'PV {pv_power} W {pv_current} A')
+            Helper.console_out(f'Starter battery voltage: {starter_battery_voltage} V')
 
             entry = VictronEntry(input_source_string, grid_power, generator_power, ac_input_voltage,
                                  ac_input_current, ac_input_frequency, ve_bus_state_string, ac_consumption,
