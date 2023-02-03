@@ -1,7 +1,7 @@
 # General
 LOG_FILENAME = 'BoatBuddy.log'
 LOGGER_NAME = 'BoatBuddy'
-LOG_LEVEL = 'DEBUG'  # Log level DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL = 'INFO'  # Log level DEBUG, INFO, WARNING, ERROR, CRITICAL
 INITIAL_SNAPSHOT_INTERVAL = 10
 DEFAULT_DISK_WRITE_INTERVAL = 900  # Entry disk write interval in seconds (15 minutes = 900 seconds)
 
