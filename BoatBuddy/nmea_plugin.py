@@ -117,7 +117,7 @@ class NMEAPlugin(GenericPlugin):
         self._server_ip = args.nmea_server_ip
         self._server_port = int(args.nmea_port)
 
-        self._nmea_server_thread = threading.Thread(target=self.main_thread)
+        self._nmea_server_thread = threading.Thread(target=self._main_thread)
         self._nmea_server_thread.start()
 
     def get_metadata_headers(self):
@@ -226,7 +226,7 @@ class NMEAPlugin(GenericPlugin):
     def reset_entries(self):
         self._log_entries = []
 
-    def main_thread(self):
+    def _main_thread(self):
         while not self._exit_signal.is_set():
             utils.console_out(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
                               f'port {self._server_port}...')
@@ -248,7 +248,7 @@ class NMEAPlugin(GenericPlugin):
                         break
 
                     str_data = data.decode().rstrip('\r\n')
-                    self.process_data(str_data)
+                    self._process_data(str_data)
 
             except TimeoutError:
                 utils.console_out(f'Connection to server {self._server_ip} is lost!')
@@ -259,7 +259,7 @@ class NMEAPlugin(GenericPlugin):
                 if self._events:
                     self._events.on_disconnect()
 
-    def process_data(self, payload):
+    def _process_data(self, payload):
         if payload is None:
             return
 

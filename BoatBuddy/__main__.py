@@ -31,7 +31,7 @@ _summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
 _monitoring_in_progress = False
 
 
-def write_log_data_to_disk():
+def _write_log_data_to_disk():
     while not _exit_signal.is_set():
         # Write contents to disk
         utils.console_out("Writing collected data to disk")
@@ -79,13 +79,13 @@ def write_log_data_to_disk():
     utils.console_out(f'Disk write worker terminated')
 
 
-def start_disk_helper_thread():
+def _start_disk_helper_thread():
     global _disk_write_thread
-    _disk_write_thread = threading.Thread(target=write_log_data_to_disk)
+    _disk_write_thread = threading.Thread(target=_write_log_data_to_disk)
     _disk_write_thread.start()
 
 
-def initialize():
+def _initialize():
     global _output_directory
     if not args[0].endswith('/'):
         _output_directory = args[0] + '/'
@@ -108,12 +108,12 @@ def initialize():
 
         if options.limited:
             limited_mode_events = NMEAPluginEvents()
-            limited_mode_events.on_connect += start_monitoring
-            limited_mode_events.on_disconnect += stop_monitoring
+            limited_mode_events.on_connect += _start_monitoring
+            limited_mode_events.on_disconnect += _stop_monitoring
             _nmea_plugin.raise_events(limited_mode_events)
 
 
-def start_monitoring():
+def _start_monitoring():
     global _exit_signal
     _exit_signal = threading.Event()
 
@@ -168,10 +168,10 @@ def start_monitoring():
 
     utils.console_out(f'New session initialized {_log_filename}')
 
-    threading.Timer(options.interval, start_disk_helper_thread).start()
+    threading.Timer(options.interval, _start_disk_helper_thread).start()
 
 
-def finalize_threads():
+def _finalize_threads():
     utils.console_out(f'Waiting for worker threads to finalize...')
     # If the thread is running the wait until it finishes
     global _disk_write_thread
@@ -189,7 +189,7 @@ def finalize_threads():
     utils.console_out(f'Worker threads successfully terminated!')
 
 
-def stop_monitoring():
+def _stop_monitoring():
     global _monitoring_in_progress
     if not _monitoring_in_progress:
         return
@@ -206,10 +206,10 @@ def stop_monitoring():
 
     _monitoring_in_progress = False
 
-    end_session()
+    _end_session()
 
 
-def end_session():
+def _end_session():
     # if the summary option is set then build a log summary excel workbook
     if options.summary:
         # Create an Excel workbook
@@ -301,10 +301,10 @@ if __name__ == '__main__':
     else:
         utils._verbose_output = options.verbose
 
-        initialize()
+        _initialize()
 
         if not options.limited:
-            start_monitoring()
+            _start_monitoring()
 
         try:
             while True:  # enable children threads to exit the main thread, too
@@ -313,6 +313,6 @@ if __name__ == '__main__':
             _exit_signal.set()  # send signal to all listening threads
             utils.console_out("Ctrl+C signal detected!")
         finally:
-            finalize_threads()
+            _finalize_threads()
             if not options.limited:
-                end_session()
+                _end_session()
