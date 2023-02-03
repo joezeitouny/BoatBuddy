@@ -1,8 +1,8 @@
 from pyModbusTCP.client import ModbusClient
 
-from BoatBuddy import Helper
 from BoatBuddy import config
-from BoatBuddy.Plugin import Plugin
+from BoatBuddy import utils
+from BoatBuddy.genericplugin import GenericPlugin
 
 
 class VictronEntry:
@@ -10,62 +10,62 @@ class VictronEntry:
                  ac_input_frequency, ve_bus_state_string, ac_consumption, battery_voltage,
                  battery_current, battery_power, battery_soc, battery_state_string,
                  pv_power, pv_current, starter_battery_voltage):
-        self.input_source_string = input_source_string
-        self.grid_power = grid_power
-        self.generator_power = generator_power
-        self.ac_input_voltage = ac_input_voltage
-        self.ac_input_current = ac_input_current
-        self.ac_input_frequency = ac_input_frequency
-        self.ve_bus_state_string = ve_bus_state_string
-        self.ac_consumption = ac_consumption
-        self.battery_voltage = battery_voltage
-        self.battery_current = battery_current
-        self.battery_power = battery_power
-        self.battery_soc = battery_soc
-        self.battery_state_string = battery_state_string
-        self.pv_power = pv_power
-        self.pv_current = pv_current
-        self.starter_battery_voltage = starter_battery_voltage
+        self._input_source_string = input_source_string
+        self._grid_power = grid_power
+        self._generator_power = generator_power
+        self._ac_input_voltage = ac_input_voltage
+        self._ac_input_current = ac_input_current
+        self._ac_input_frequency = ac_input_frequency
+        self._ve_bus_state_string = ve_bus_state_string
+        self._ac_consumption = ac_consumption
+        self._battery_voltage = battery_voltage
+        self._battery_current = battery_current
+        self._battery_power = battery_power
+        self._battery_soc = battery_soc
+        self._battery_state_string = battery_state_string
+        self._pv_power = pv_power
+        self._pv_current = pv_current
+        self._starter_battery_voltage = starter_battery_voltage
 
     def __str__(self):
-        return Helper.get_comma_separated_string(self.get_values())
+        return utils.get_comma_separated_string(self.get_values())
 
     def get_values(self):
-        return [f'{self.input_source_string}', f'{self.grid_power}', f'{self.generator_power}',
-                f'{self.ac_input_voltage}', f'{self.ac_input_current}', f'{self.ac_input_frequency}',
-                f'{self.ve_bus_state_string}', f'{self.ac_consumption}', f'{self.battery_voltage}',
-                f'{self.battery_current}', f'{self.battery_power}', f'{self.battery_soc}',
-                f'{self.battery_state_string}',
-                f'{self.pv_power}', f'{self.pv_current}', f'{self.starter_battery_voltage}']
+        return [f'{self._input_source_string}', f'{self._grid_power}', f'{self._generator_power}',
+                f'{self._ac_input_voltage}', f'{self._ac_input_current}', f'{self._ac_input_frequency}',
+                f'{self._ve_bus_state_string}', f'{self._ac_consumption}', f'{self._battery_voltage}',
+                f'{self._battery_current}', f'{self._battery_power}', f'{self._battery_soc}',
+                f'{self._battery_state_string}',
+                f'{self._pv_power}', f'{self._pv_current}', f'{self._starter_battery_voltage}']
 
     def get_battery_voltage(self):
-        return self.battery_voltage
+        return self._battery_voltage
 
     def get_battery_current(self):
-        return self.battery_current
+        return self._battery_current
 
     def get_battery_power(self):
-        return self.battery_power
+        return self._battery_power
 
     def get_pv_power(self):
-        return self.pv_power
+        return self._pv_power
 
     def get_pv_current(self):
-        return self.pv_current
+        return self._pv_current
 
     def get_starter_battery_voltage(self):
-        return self.starter_battery_voltage
+        return self._starter_battery_voltage
 
     def get_ac_consumption_power(self):
-        return self.ac_consumption
+        return self._ac_consumption
 
 
-class VictronPlugin(Plugin):
-    log_entries = []
+class VictronPlugin(GenericPlugin):
+    _log_entries = []
 
     def __init__(self, args):
         # invoking the __init__ of the parent class
-        Plugin.__init__(self, args)
+        GenericPlugin.__init__(self, args)
 
     def get_metadata_headers(self):
         return ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
@@ -75,7 +75,7 @@ class VictronPlugin(Plugin):
                 'Starter Battery Voltage (V)']
 
     def take_snapshot(self):
-        server_ip = f'{self.args.victron_server_ip}'
+        server_ip = f'{self._args.victron_server_ip}'
         server_port = config.MODBUS_TCP_PORT
 
         try:
@@ -155,31 +155,31 @@ class VictronPlugin(Plugin):
             elif ve_bus_state == 252:
                 ve_bus_state_string = 'External control'
 
-            Helper.console_out(f'Active Input source: {input_source_string} Grid Power: {grid_power} W ' +
-                               f'Generator Power: {generator_power} W AC Consumption: {ac_consumption} W')
-            Helper.console_out(f'AC input 1 {ac_input_voltage} V {ac_input_current} A {ac_input_frequency} Hz ' +
-                               f'State: {ve_bus_state_string}')
-            Helper.console_out(f'Housing battery stats {battery_voltage} V  {battery_current} A {battery_power} W ' +
-                               f'{battery_soc} % {battery_state_string}')
-            Helper.console_out(f'PV {pv_power} W {pv_current} A')
-            Helper.console_out(f'Starter battery voltage: {starter_battery_voltage} V')
+            utils.console_out(f'Active Input source: {input_source_string} Grid Power: {grid_power} W ' +
+                              f'Generator Power: {generator_power} W AC Consumption: {ac_consumption} W')
+            utils.console_out(f'AC input 1 {ac_input_voltage} V {ac_input_current} A {ac_input_frequency} Hz ' +
+                              f'State: {ve_bus_state_string}')
+            utils.console_out(f'Housing battery stats {battery_voltage} V  {battery_current} A {battery_power} W ' +
+                              f'{battery_soc} % {battery_state_string}')
+            utils.console_out(f'PV {pv_power} W {pv_current} A')
+            utils.console_out(f'Starter battery voltage: {starter_battery_voltage} V')
 
             entry = VictronEntry(input_source_string, grid_power, generator_power, ac_input_voltage,
                                  ac_input_current, ac_input_frequency, ve_bus_state_string, ac_consumption,
                                  battery_voltage, battery_current, battery_power, battery_soc, battery_state_string,
                                  pv_power, pv_current, starter_battery_voltage)
-            self.log_entries.append(entry)
+            self._log_entries.append(entry)
         except ValueError:
-            Helper.console_out("Error with host or port params")
+            utils.console_out("Error with host or port params")
 
     def get_metadata_values(self):
-        if len(self.log_entries) > 0:
-            return self.log_entries[len(self.log_entries) - 1].get_values()
+        if len(self._log_entries) > 0:
+            return self._log_entries[len(self._log_entries) - 1].get_values()
         else:
             return []
 
     def reset_entries(self):
-        self.log_entries = []
+        self._log_entries = []
 
     def finalize(self):
         print('Victron plugin worker terminated')
@@ -197,10 +197,7 @@ class VictronPlugin(Plugin):
     def get_summary_values(self):
         log_summary_list = []
 
-        if len(self.log_entries) > 0:
-            first_entry = self.log_entries[0]
-            last_entry = self.log_entries[len(self.log_entries) - 1]
-
+        if len(self._log_entries) > 0:
             # Calculate extremes and averages
             housing_battery_max_voltage = 0
             housing_battery_min_voltage = 0
@@ -218,8 +215,8 @@ class VictronPlugin(Plugin):
             sum_starter_battery_voltage = 0
             ac_consumption_max_power = 0
             sum_ac_consumption_power = 0
-            count = len(self.log_entries)
-            for entry in self.log_entries:
+            count = len(self._log_entries)
+            for entry in self._log_entries:
                 # Sum up all values that will be averaged later
                 sum_housing_battery_voltage += float(entry.get_battery_voltage())
                 sum_housing_battery_current += int(entry.get_battery_current())
@@ -230,28 +227,28 @@ class VictronPlugin(Plugin):
                 sum_ac_consumption_power += float(entry.get_ac_consumption_power())
 
                 # Collect extremes
-                housing_battery_max_voltage = Helper.get_biggest_number(float(entry.get_battery_voltage()),
-                                                                        housing_battery_max_voltage)
+                housing_battery_max_voltage = utils.get_biggest_number(float(entry.get_battery_voltage()),
+                                                                       housing_battery_max_voltage)
                 if housing_battery_min_voltage == 0:
                     housing_battery_min_voltage = float(entry.get_battery_voltage())
                 else:
-                    housing_battery_min_voltage = Helper.get_smallest_number(float(entry.get_battery_voltage()),
-                                                                             housing_battery_min_voltage)
-                housing_battery_max_current = Helper.get_biggest_number(float(entry.get_battery_current()),
-                                                                        housing_battery_max_current)
-                housing_battery_max_power = Helper.get_biggest_number(float(entry.get_battery_power()),
-                                                                      housing_battery_max_power)
-                pv_max_power = Helper.get_biggest_number(float(entry.get_pv_power()), pv_max_power)
-                pv_max_current = Helper.get_biggest_number(float(entry.get_pv_current()), pv_max_current)
-                starter_battery_max_voltage = Helper.get_biggest_number(float(entry.get_starter_battery_voltage()),
-                                                                        starter_battery_max_voltage)
+                    housing_battery_min_voltage = utils.get_smallest_number(float(entry.get_battery_voltage()),
+                                                                            housing_battery_min_voltage)
+                housing_battery_max_current = utils.get_biggest_number(float(entry.get_battery_current()),
+                                                                       housing_battery_max_current)
+                housing_battery_max_power = utils.get_biggest_number(float(entry.get_battery_power()),
+                                                                     housing_battery_max_power)
+                pv_max_power = utils.get_biggest_number(float(entry.get_pv_power()), pv_max_power)
+                pv_max_current = utils.get_biggest_number(float(entry.get_pv_current()), pv_max_current)
+                starter_battery_max_voltage = utils.get_biggest_number(float(entry.get_starter_battery_voltage()),
+                                                                       starter_battery_max_voltage)
                 if starter_battery_min_voltage == 0:
                     starter_battery_min_voltage = float(entry.get_starter_battery_voltage())
                 else:
-                    starter_battery_min_voltage = Helper.get_smallest_number(float(entry.get_starter_battery_voltage()),
-                                                                             starter_battery_min_voltage)
-                ac_consumption_max_power = Helper.get_biggest_number(float(entry.get_ac_consumption_power()),
-                                                                     ac_consumption_max_power)
+                    starter_battery_min_voltage = utils.get_smallest_number(float(entry.get_starter_battery_voltage()),
+                                                                            starter_battery_min_voltage)
+                ac_consumption_max_power = utils.get_biggest_number(float(entry.get_ac_consumption_power()),
+                                                                    ac_consumption_max_power)
 
             log_summary_list.append(housing_battery_max_voltage)
             log_summary_list.append(housing_battery_min_voltage)

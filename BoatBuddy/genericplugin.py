@@ -1,8 +1,8 @@
-class Plugin:
-    args = None
+class GenericPlugin:
+    _args = None
 
     def __init__(self, args):
-        self.args = args
+        self._args = args
 
     def get_metadata_headers(self):
         return []

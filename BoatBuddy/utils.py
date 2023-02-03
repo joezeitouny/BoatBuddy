@@ -1,10 +1,10 @@
 from latloncalc.latlon import Latitude, Longitude
 
-verbose_output = False
+_verbose_output = False
 
 
 def console_out(string_to_print):
-    if verbose_output:
+    if _verbose_output:
         print(string_to_print)
 
 
