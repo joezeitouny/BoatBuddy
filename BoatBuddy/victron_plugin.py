@@ -2,7 +2,7 @@ from pyModbusTCP.client import ModbusClient
 
 from BoatBuddy import config
 from BoatBuddy import utils
-from BoatBuddy.genericplugin import GenericPlugin
+from BoatBuddy.generic_plugin import GenericPlugin
 
 
 class VictronEntry:

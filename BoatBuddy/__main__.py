@@ -11,9 +11,9 @@ import openpyxl
 
 from BoatBuddy import config
 from BoatBuddy import utils
-from BoatBuddy.clockplugin import TimePlugin
-from BoatBuddy.nmeaplugin import NMEAPlugin, NMEAPluginEvents
-from BoatBuddy.victronplugin import VictronPlugin
+from BoatBuddy.clock_plugin import TimePlugin
+from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
+from BoatBuddy.victron_plugin import VictronPlugin
 
 _log_filename = config.DEFAULT_FILENAME_PREFIX
 _output_directory = None

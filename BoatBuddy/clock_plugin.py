@@ -3,7 +3,7 @@ from datetime import datetime
 from time import mktime
 
 from BoatBuddy import utils
-from BoatBuddy.genericplugin import GenericPlugin
+from BoatBuddy.generic_plugin import GenericPlugin
 
 
 class TimeEntry:

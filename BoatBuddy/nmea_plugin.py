@@ -10,7 +10,7 @@ from latloncalc.latlon import LatLon, Latitude, Longitude
 
 from BoatBuddy import config
 from BoatBuddy import utils
-from BoatBuddy.genericplugin import GenericPlugin
+from BoatBuddy.generic_plugin import GenericPlugin
 
 
 class NMEAPluginEvents(Events):
