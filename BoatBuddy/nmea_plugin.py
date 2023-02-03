@@ -107,7 +107,7 @@ class NMEAPlugin(GenericPlugin):
     _speed_over_ground = 0.0
 
     _exit_signal = threading.Event()
-    _nmea_server_thread = None
+    _nmea_server_thread = threading.Thread()
     _events = None
 
     def __init__(self, args):
@@ -116,8 +116,8 @@ class NMEAPlugin(GenericPlugin):
 
         self._server_ip = args.nmea_server_ip
         self._server_port = int(args.nmea_port)
-
-        self._nmea_server_thread = threading.Thread(target=self._main_thread)
+        self._exit_signal = threading.Event()
+        self._nmea_server_thread = threading.Thread(target=self._run_client)
         self._nmea_server_thread.start()
 
     def get_metadata_headers(self):
@@ -226,7 +226,7 @@ class NMEAPlugin(GenericPlugin):
     def reset_entries(self):
         self._log_entries = []
 
-    def _main_thread(self):
+    def _run_client(self):
         while not self._exit_signal.is_set():
             utils.get_logger().info(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
                                     f'port {self._server_port}...')
@@ -241,7 +241,7 @@ class NMEAPlugin(GenericPlugin):
                 if self._events:
                     self._events.on_connect()
 
-                while True:
+                while not self._exit_signal.is_set():
                     data = client.recv(config.BUFFER_SIZE)
                     if data is None:
                         utils.get_logger().info('No NMEA0183 data received')
@@ -257,7 +257,9 @@ class NMEAPlugin(GenericPlugin):
                 utils.get_logger().info(f'Server {self._server_ip} is down!')
             finally:
                 client.close()
-                if self._events:
+                if self._exit_signal.is_set():
+                    utils.get_logger().info('NMEA plugin instance is ready to be destroyed')
+                elif self._events:
                     self._events.on_disconnect()
 
     def _process_data(self, payload):
@@ -330,8 +332,7 @@ class NMEAPlugin(GenericPlugin):
 
     def finalize(self):
         self._exit_signal.set()
-        self._nmea_server_thread.join()
-        utils.get_logger().info("NMEA plugin worker terminated")
+        utils.get_logger().info("NMEA plugin worker thread notified...")
 
     def register_for_events(self, events):
         self._events = events

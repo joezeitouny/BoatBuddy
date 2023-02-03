@@ -183,7 +183,7 @@ class VictronPlugin(GenericPlugin):
         self._log_entries = []
 
     def finalize(self):
-        utils.get_logger().info('Victron plugin worker terminated')
+        utils.get_logger().info('Victron plugin instance is ready to be destroyed')
 
     def get_summary_headers(self):
         return ["Housing battery max voltage (V)", "Housing battery min voltage (V)",

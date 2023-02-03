@@ -13,7 +13,7 @@ import openpyxl
 
 from BoatBuddy import config
 from BoatBuddy import utils
-from BoatBuddy.clock_plugin import TimePlugin
+from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.victron_plugin import VictronPlugin
 
@@ -29,6 +29,7 @@ _gpx_track = None
 _gpx_segment = None
 _summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
 _timer = None
+_is_session_active = False
 
 
 def _write_log_data_to_disk():
@@ -89,7 +90,7 @@ def _initialize():
 
     # initialize the common time plugin
     global _time_plugin
-    _time_plugin = TimePlugin(options)
+    _time_plugin = ClockPlugin(options)
 
     if options.victron_server_ip:
         # initialize the Victron plugin
@@ -103,13 +104,13 @@ def _initialize():
 
         if options.limited:
             limited_mode_events = NMEAPluginEvents()
-            limited_mode_events.on_connect += _start_monitoring
+            limited_mode_events.on_connect += _start_collecting_metrics
             limited_mode_events.on_disconnect += _on_nmea_server_disconnect
             _nmea_plugin.register_for_events(limited_mode_events)
 
 
-def _start_monitoring():
-    utils.get_logger().debug('Start monitoring')
+def _start_collecting_metrics():
+    utils.get_logger().debug('Start collecting system metrics')
 
     suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
     global _log_filename
@@ -163,8 +164,11 @@ def _start_monitoring():
     _timer = threading.Timer(config.INITIAL_SNAPSHOT_INTERVAL, _write_log_data_to_disk)
     _timer.start()
 
+    global _is_session_active
+    _is_session_active = True
 
-def _finalize_threads():
+
+def _prepare_to_shutdown():
     utils.get_logger().info(f'Waiting for worker threads to finalize...')
     # If the thread is running the wait until it finishes
     if _timer:
@@ -173,22 +177,23 @@ def _finalize_threads():
 
     _time_plugin.finalize()
 
-    if options.nmea_server_ip:
-        _nmea_plugin.finalize()
-
     if options.victron_server_ip:
         _victron_plugin.finalize()
 
-    utils.get_logger().info(f'Worker threads successfully terminated!')
+    if options.nmea_server_ip:
+        _nmea_plugin.finalize()
 
 
 def _on_nmea_server_disconnect():
-    # if we're not running in limited mode then discard this event
+    # run through this method implementation only if the application is running in limited mode
     if not options.limited:
         return
 
-    _finalize_threads()
-    _end_session()
+    _prepare_to_shutdown()
+
+    global _is_session_active
+    if _is_session_active:
+        _end_session()
     # Re-initialize the system components to reset the state of the system
     _initialize()
 
@@ -229,6 +234,9 @@ def _end_session():
         summary_workbook.save(filename=f"{_output_directory}{_summary_filename}.xlsx")
 
     utils.get_logger().info(f'Session {_log_filename} successfully completed!')
+
+    global _is_session_active
+    _is_session_active = False
 
 
 if __name__ == '__main__':
@@ -313,8 +321,9 @@ if __name__ == '__main__':
 
         _initialize()
 
+        # If normal mode is active then start recording system metrics immediately
         if not options.limited:
-            _start_monitoring()
+            _start_collecting_metrics()
 
         try:
             while True:  # enable children threads to exit the main thread, too
@@ -322,6 +331,6 @@ if __name__ == '__main__':
         except KeyboardInterrupt:  # on keyboard interrupt...
             utils.get_logger().warning("Ctrl+C signal detected!")
         finally:
-            _finalize_threads()
-            if not options.limited:
+            _prepare_to_shutdown()
+            if _is_session_active:
                 _end_session()

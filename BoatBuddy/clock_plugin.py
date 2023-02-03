@@ -6,7 +6,7 @@ from BoatBuddy import utils
 from BoatBuddy.generic_plugin import GenericPlugin
 
 
-class TimeEntry:
+class ClockEntry:
     def __init__(self, utc_time, local_time):
         self._utc_time = utc_time
         self._local_time = local_time
@@ -25,7 +25,7 @@ class TimeEntry:
         return self._local_time
 
 
-class TimePlugin(GenericPlugin):
+class ClockPlugin(GenericPlugin):
     _log_entries = []
 
     def __init__(self, args):
@@ -36,7 +36,7 @@ class TimePlugin(GenericPlugin):
         return ["UTC Timestamp", "Local Timestamp"]
 
     def take_snapshot(self):
-        entry = TimeEntry(time.gmtime(), time.localtime())
+        entry = ClockEntry(time.gmtime(), time.localtime())
 
         # Add it to the list of entries in memory
         self._log_entries.append(entry)
@@ -73,7 +73,7 @@ class TimePlugin(GenericPlugin):
         self._log_entries = []
 
     def finalize(self):
-        utils.get_logger().info("Time plugin worker terminated")
+        utils.get_logger().info("Clock plugin instance is ready to be destroyed")
 
     def get_last_utc_timestamp_entry(self):
         if len(self._log_entries) > 0:
