@@ -27,5 +27,5 @@ class GenericPlugin:
     def finalize(self):
         raise NotImplementedError("Method needs to be implemented")
 
-    def raise_events(self, events):
+    def register_for_events(self, events):
         pass

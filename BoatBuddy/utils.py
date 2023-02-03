@@ -1,11 +1,12 @@
+import logging
+
 from latloncalc.latlon import Latitude, Longitude
 
-_verbose_output = False
+from BoatBuddy import config
 
 
-def console_out(string_to_print):
-    if _verbose_output:
-        print(string_to_print)
+def get_logger():
+    return logging.getLogger(config.LOGGER_NAME)
 
 
 def get_comma_separated_string(values_list):

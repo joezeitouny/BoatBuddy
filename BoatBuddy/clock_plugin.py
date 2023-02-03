@@ -73,7 +73,7 @@ class TimePlugin(GenericPlugin):
         self._log_entries = []
 
     def finalize(self):
-        utils.console_out("Time plugin worker terminated")
+        utils.get_logger().info("Time plugin worker terminated")
 
     def get_last_utc_timestamp_entry(self):
         if len(self._log_entries) > 0:

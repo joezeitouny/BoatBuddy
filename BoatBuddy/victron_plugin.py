@@ -155,14 +155,15 @@ class VictronPlugin(GenericPlugin):
             elif ve_bus_state == 252:
                 ve_bus_state_string = 'External control'
 
-            utils.console_out(f'Active Input source: {input_source_string} Grid Power: {grid_power} W ' +
-                              f'Generator Power: {generator_power} W AC Consumption: {ac_consumption} W')
-            utils.console_out(f'AC input 1 {ac_input_voltage} V {ac_input_current} A {ac_input_frequency} Hz ' +
-                              f'State: {ve_bus_state_string}')
-            utils.console_out(f'Housing battery stats {battery_voltage} V  {battery_current} A {battery_power} W ' +
-                              f'{battery_soc} % {battery_state_string}')
-            utils.console_out(f'PV {pv_power} W {pv_current} A')
-            utils.console_out(f'Starter battery voltage: {starter_battery_voltage} V')
+            utils.get_logger().debug(f'Active Input source: {input_source_string} Grid Power: {grid_power} W ' +
+                                     f'Generator Power: {generator_power} W AC Consumption: {ac_consumption} W')
+            utils.get_logger().debug(f'AC input 1 {ac_input_voltage} V {ac_input_current} A {ac_input_frequency} Hz ' +
+                                     f'State: {ve_bus_state_string}')
+            utils.get_logger().debug(
+                f'Housing battery stats {battery_voltage} V  {battery_current} A {battery_power} W ' +
+                f'{battery_soc} % {battery_state_string}')
+            utils.get_logger().debug(f'PV {pv_power} W {pv_current} A')
+            utils.get_logger().debug(f'Starter battery voltage: {starter_battery_voltage} V')
 
             entry = VictronEntry(input_source_string, grid_power, generator_power, ac_input_voltage,
                                  ac_input_current, ac_input_frequency, ve_bus_state_string, ac_consumption,
@@ -170,7 +171,7 @@ class VictronPlugin(GenericPlugin):
                                  pv_power, pv_current, starter_battery_voltage)
             self._log_entries.append(entry)
         except ValueError:
-            utils.console_out("Error with host or port params")
+            utils.get_logger().info("Error with host or port params")
 
     def get_metadata_values(self):
         if len(self._log_entries) > 0:
@@ -182,7 +183,7 @@ class VictronPlugin(GenericPlugin):
         self._log_entries = []
 
     def finalize(self):
-        print('Victron plugin worker terminated')
+        utils.get_logger().info('Victron plugin worker terminated')
 
     def get_summary_headers(self):
         return ["Housing battery max voltage (V)", "Housing battery min voltage (V)",

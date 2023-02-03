@@ -1,5 +1,7 @@
+import logging
 import optparse
 import os
+import sys
 import threading
 import time
 from datetime import datetime
@@ -25,67 +27,60 @@ _sheet = None
 _gpx = None
 _gpx_track = None
 _gpx_segment = None
-_exit_signal = threading.Event()
-_disk_write_thread = None
 _summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
-_monitoring_in_progress = False
+_timer = None
 
 
 def _write_log_data_to_disk():
-    while not _exit_signal.is_set():
-        # Write contents to disk
-        utils.console_out("Writing collected data to disk")
+    # Write contents to disk
+    utils.get_logger().info("Writing collected data to disk")
 
-        column_values = []
+    column_values = []
 
-        _time_plugin.take_snapshot()
-        column_values += _time_plugin.get_metadata_values()
+    _time_plugin.take_snapshot()
+    column_values += _time_plugin.get_metadata_values()
 
-        if _nmea_plugin:
-            _nmea_plugin.take_snapshot()
-            column_values += _nmea_plugin.get_metadata_values()
+    if _nmea_plugin:
+        _nmea_plugin.take_snapshot()
+        column_values += _nmea_plugin.get_metadata_values()
 
-        if _victron_plugin:
-            _victron_plugin.take_snapshot()
-            column_values += _victron_plugin.get_metadata_values()
+    if _victron_plugin:
+        _victron_plugin.take_snapshot()
+        column_values += _victron_plugin.get_metadata_values()
 
-        # Append the last added entry to the file on disk
-        if options.csv:
-            with open(f"{_output_directory}{_log_filename}.csv", "a") as file:
-                file.write(f'{utils.get_comma_separated_string(column_values)}\r\n')
+    # Append the last added entry to the file on disk
+    if options.csv:
+        with open(f"{_output_directory}{_log_filename}.csv", "a") as file:
+            file.write(f'{utils.get_comma_separated_string(column_values)}\r\n')
 
-        if options.excel:
-            # Add the name and price to the sheet
-            _sheet.append(column_values)
+    if options.excel:
+        # Add the name and price to the sheet
+        _sheet.append(column_values)
 
-            # Save the workbook
-            _workbook.save(filename=f"{_output_directory}{_log_filename}.xlsx")
+        # Save the workbook
+        _workbook.save(filename=f"{_output_directory}{_log_filename}.xlsx")
 
-        if options.gpx:
-            # Append new GPX track point
-            _gpx_segment.points.append(
-                gpxpy.gpx.GPXTrackPoint(latitude=_nmea_plugin.get_last_latitude_entry(),
-                                        longitude=_nmea_plugin.get_last_longitude_entry(),
-                                        time=datetime.fromtimestamp(
-                                            mktime(_time_plugin.get_last_utc_timestamp_entry()))))
+    if options.gpx:
+        # Append new GPX track point
+        _gpx_segment.points.append(
+            gpxpy.gpx.GPXTrackPoint(latitude=_nmea_plugin.get_last_latitude_entry(),
+                                    longitude=_nmea_plugin.get_last_longitude_entry(),
+                                    time=datetime.fromtimestamp(
+                                        mktime(_time_plugin.get_last_utc_timestamp_entry()))))
 
-            # Write the new contents of the GPX file to disk
-            with open(f"{_output_directory}{_log_filename}.gpx", 'w') as file:
-                file.write(f'{_gpx.to_xml()}')
+        # Write the new contents of the GPX file to disk
+        with open(f"{_output_directory}{_log_filename}.gpx", 'w') as file:
+            file.write(f'{_gpx.to_xml()}')
 
-        # Sleep for the specified interval
-        time.sleep(options.interval)
-
-    utils.console_out(f'Disk write worker terminated')
-
-
-def _start_disk_helper_thread():
-    global _disk_write_thread
-    _disk_write_thread = threading.Thread(target=_write_log_data_to_disk)
-    _disk_write_thread.start()
+    # Sleep for the specified interval
+    global _timer
+    _timer = threading.Timer(options.interval, _write_log_data_to_disk)
+    _timer.start()
 
 
 def _initialize():
+    utils.get_logger().debug('Initializing plugins')
+
     global _output_directory
     if not args[0].endswith('/'):
         _output_directory = args[0] + '/'
@@ -109,13 +104,12 @@ def _initialize():
         if options.limited:
             limited_mode_events = NMEAPluginEvents()
             limited_mode_events.on_connect += _start_monitoring
-            limited_mode_events.on_disconnect += _stop_monitoring
-            _nmea_plugin.raise_events(limited_mode_events)
+            limited_mode_events.on_disconnect += _on_nmea_server_disconnect
+            _nmea_plugin.register_for_events(limited_mode_events)
 
 
 def _start_monitoring():
-    global _exit_signal
-    _exit_signal = threading.Event()
+    utils.get_logger().debug('Start monitoring')
 
     suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
     global _log_filename
@@ -163,20 +157,19 @@ def _start_monitoring():
         _gpx_segment = gpxpy.gpx.GPXTrackSegment()
         _gpx_track.segments.append(_gpx_segment)
 
-    global _monitoring_in_progress
-    _monitoring_in_progress = True
+    utils.get_logger().info(f'New session initialized {_log_filename}')
 
-    utils.console_out(f'New session initialized {_log_filename}')
-
-    threading.Timer(config.INITIAL_SNAPSHOT_INTERVAL, _start_disk_helper_thread).start()
+    global _timer
+    _timer = threading.Timer(config.INITIAL_SNAPSHOT_INTERVAL, _write_log_data_to_disk)
+    _timer.start()
 
 
 def _finalize_threads():
-    utils.console_out(f'Waiting for worker threads to finalize...')
+    utils.get_logger().info(f'Waiting for worker threads to finalize...')
     # If the thread is running the wait until it finishes
-    global _disk_write_thread
-    if _disk_write_thread:
-        _disk_write_thread.join()
+    if _timer:
+        _timer.cancel()
+    utils.get_logger().info(f'Disk write worker terminated')
 
     _time_plugin.finalize()
 
@@ -186,27 +179,18 @@ def _finalize_threads():
     if options.victron_server_ip:
         _victron_plugin.finalize()
 
-    utils.console_out(f'Worker threads successfully terminated!')
+    utils.get_logger().info(f'Worker threads successfully terminated!')
 
 
-def _stop_monitoring():
-    global _monitoring_in_progress
-    if not _monitoring_in_progress:
+def _on_nmea_server_disconnect():
+    # if we're not running in limited mode then discard this event
+    if not options.limited:
         return
 
-    utils.console_out(f'Waiting for disk worker thread to finalize...')
-
-    # Send an exit signal to the worker thread
-    _exit_signal.set()
-
-    # If the thread is running the wait until it finishes
-    global _disk_write_thread
-    if _disk_write_thread:
-        _disk_write_thread.join()
-
-    _monitoring_in_progress = False
-
+    _finalize_threads()
     _end_session()
+    # Re-initialize the system components to reset the state of the system
+    _initialize()
 
 
 def _end_session():
@@ -244,7 +228,7 @@ def _end_session():
         # Save the workbook
         summary_workbook.save(filename=f"{_output_directory}{_summary_filename}.xlsx")
 
-    utils.console_out(f'Session {_log_filename} successfully completed!')
+    utils.get_logger().info(f'Session {_log_filename} successfully completed!')
 
 
 if __name__ == '__main__':
@@ -256,7 +240,8 @@ if __name__ == '__main__':
                         csv=config.DEFAULT_CSV_OUTPUT_FLAG, gpx=config.DEFAULT_GPX_OUTPUT_FLAG,
                         summary=config.DEFAULT_SUMMARY_OUTPUT_FLAG,
                         summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
-                        verbose=config.DEFAULT_VERBOSE_FLAG, limited=config.DEFAULT_LIMITED_FLAG)
+                        verbose=config.DEFAULT_VERBOSE_FLAG, limited=config.DEFAULT_LIMITED_FLAG,
+                        log=config.LOG_LEVEL)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
@@ -280,10 +265,15 @@ if __name__ == '__main__':
                       help=f'Append Victron system metrics from the specified device IP')
     parser.add_option('--limited-mode', action='store_true', dest='limited',
                       help=f'Sessions are only initialized when the NMEA server is up')
+    parser.add_option('--log', dest='log', type='string',
+                      help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
     (options, args) = parser.parse_args()
 
-    # If the output directory is not provided
-    if len(args) == 0:
+    log_numeric_level = getattr(logging, options.log.upper(), None)
+    if not isinstance(log_numeric_level, int):
+        print(f'Invalid argument: Log level "{options.log}"')
+        parser.print_help()
+    elif len(args) == 0:  # If the output directory is not provided
         print(f'Invalid argument: Output directory is required\r\n')
         parser.print_help()
     elif not os.path.exists(args[0]):
@@ -302,7 +292,24 @@ if __name__ == '__main__':
         print(f'Invalid argument: Specified disk write interval cannot be less than ' +
               f'{config.INITIAL_SNAPSHOT_INTERVAL} seconds')
     else:
-        utils._verbose_output = options.verbose
+        if options.verbose:
+            # Initialize the logging module
+            log_directory = ''
+            if not args[0].endswith('/'):
+                log_directory = args[0] + '/' + config.LOG_FILENAME
+            else:
+                log_directory = args[0] + config.LOG_FILENAME
+
+            formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+            file_handler = logging.FileHandler(log_directory, mode='w', encoding='utf-8')
+            file_handler.setFormatter(formatter)
+            stream_handler = logging.StreamHandler(stream=sys.stdout)
+            stream_handler.setFormatter(formatter)
+            logging.getLogger(config.LOGGER_NAME).setLevel(log_numeric_level)
+            logging.getLogger(config.LOGGER_NAME).addHandler(file_handler)
+            logging.getLogger(config.LOGGER_NAME).addHandler(stream_handler)
+        else:
+            logging.getLogger(config.LOGGER_NAME).disabled = True
 
         _initialize()
 
@@ -313,8 +320,7 @@ if __name__ == '__main__':
             while True:  # enable children threads to exit the main thread, too
                 time.sleep(0.5)  # let it breathe a little
         except KeyboardInterrupt:  # on keyboard interrupt...
-            _exit_signal.set()  # send signal to all listening threads
-            utils.console_out("Ctrl+C signal detected!")
+            utils.get_logger().warning("Ctrl+C signal detected!")
         finally:
             _finalize_threads()
             if not options.limited:

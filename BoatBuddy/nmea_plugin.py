@@ -228,15 +228,15 @@ class NMEAPlugin(GenericPlugin):
 
     def _main_thread(self):
         while not self._exit_signal.is_set():
-            utils.console_out(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
-                              f'port {self._server_port}...')
+            utils.get_logger().info(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
+                                    f'port {self._server_port}...')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.settimeout(config.SOCKET_TIMEOUT)
 
             try:
                 client.connect((self._server_ip, self._server_port))
 
-                utils.console_out(f'Connection to NMEA0183 server established')
+                utils.get_logger().info(f'Connection to NMEA0183 server established')
 
                 if self._events:
                     self._events.on_connect()
@@ -244,16 +244,17 @@ class NMEAPlugin(GenericPlugin):
                 while True:
                     data = client.recv(config.BUFFER_SIZE)
                     if data is None:
-                        utils.console_out('No NMEA0183 data received')
+                        utils.get_logger().info('No NMEA0183 data received')
                         break
 
                     str_data = data.decode().rstrip('\r\n')
+                    utils.get_logger().debug(str_data)
                     self._process_data(str_data)
 
             except TimeoutError:
-                utils.console_out(f'Connection to server {self._server_ip} is lost!')
+                utils.get_logger().info(f'Connection to server {self._server_ip} is lost!')
             except OSError:
-                utils.console_out(f'Server {self._server_ip} is down!')
+                utils.get_logger().info(f'Server {self._server_ip} is down!')
             finally:
                 client.close()
                 if self._events:
@@ -272,17 +273,17 @@ class NMEAPlugin(GenericPlugin):
         if str_csv_list_type == "$IIHDG":
             if csv_list[1] != '':
                 self._heading = math.floor(float(csv_list[1]))
-                utils.console_out(f'Detected heading {self._heading} degrees (True north)')
+                utils.get_logger().info(f'Detected heading {self._heading} degrees (True north)')
         elif str_csv_list_type == "$GPGPU":
             if csv_list[2] != '' and csv_list[3] != '' and csv_list[4] != '' and csv_list[5] != '':
                 self._gps_latitude = utils.get_latitude(csv_list[2], csv_list[3])
                 self._gps_longitude = utils.get_longitude(csv_list[4], csv_list[5])
-                utils.console_out(
+                utils.get_logger().debug(
                     f'Detected GPS coordinates Latitude: {self._gps_latitude} Longitude: {self._gps_longitude}')
         elif str_csv_list_type == "$SDMTW":
             if csv_list[1] != '':
                 self._water_temperature = float(csv_list[1])
-                utils.console_out(f'Detected Temperature {self._water_temperature} Celsius')
+                utils.get_logger().debug(f'Detected Temperature {self._water_temperature} Celsius')
         elif str_csv_list_type == "$SDDPT":
             if csv_list[1] != '':
                 if csv_list[2] != '':
@@ -290,16 +291,16 @@ class NMEAPlugin(GenericPlugin):
                 else:
                     self._depth = float(csv_list[1])
                 self._depth = int(self._depth * 10) / 10
-                utils.console_out(f'Detected depth {self._depth} meters')
+                utils.get_logger().debug(f'Detected depth {self._depth} meters')
         elif str_csv_list_type == "$GPVTG":
             if csv_list[5] != '':
                 self._speed_over_ground = csv_list[5]
-                utils.console_out(f'Detected speed over ground {self._speed_over_ground} knots')
+                utils.get_logger().debug(f'Detected speed over ground {self._speed_over_ground} knots')
         elif str_csv_list_type == "$WIMWD":
             if csv_list[1] != '' and csv_list[5] != '':
                 self._true_wind_direction = math.floor(float(csv_list[1]))
                 self._true_wind_speed = csv_list[5]
-                utils.console_out(
+                utils.get_logger().debug(
                     f'Detected true wind direction {self._true_wind_direction} degrees (True north) ' +
                     f'and speed {self._true_wind_speed} knots')
         elif str_csv_list_type == "$WIMWV":
@@ -307,13 +308,13 @@ class NMEAPlugin(GenericPlugin):
                 if self._true_wind_direction != "":
                     self._apparent_wind_angle = math.floor(float(csv_list[1]))
                 self._apparent_wind_speed = csv_list[3]
-                utils.console_out(
+                utils.get_logger().debug(
                     f'Detected apparent wind angle {self._apparent_wind_angle} degrees and ' +
                     f'speed {self._apparent_wind_speed} knots')
         elif str_csv_list_type == "$SDVHW":
             if csv_list[5] != '':
                 self._speed_over_water = csv_list[5]
-                utils.console_out(f'Detected speed over water {self._speed_over_water} knots')
+                utils.get_logger().debug(f'Detected speed over water {self._speed_over_water} knots')
 
     def get_last_latitude_entry(self):
         if len(self._log_entries) > 0:
@@ -330,7 +331,7 @@ class NMEAPlugin(GenericPlugin):
     def finalize(self):
         self._exit_signal.set()
         self._nmea_server_thread.join()
-        utils.console_out("NMEA plugin worker terminated")
+        utils.get_logger().info("NMEA plugin worker terminated")
 
-    def raise_events(self, events):
+    def register_for_events(self, events):
         self._events = events

@@ -1,3 +1,10 @@
+# General
+LOG_FILENAME = 'BoatBuddy.log'
+LOGGER_NAME = 'BoatBuddy'
+LOG_LEVEL = 'DEBUG'  # Log level DEBUG, INFO, WARNING, ERROR, CRITICAL
+INITIAL_SNAPSHOT_INTERVAL = 10
+DEFAULT_DISK_WRITE_INTERVAL = 900  # Entry disk write interval in seconds
+
 # NMEA Plugin
 DEFAULT_TCP_PORT = 10110
 BUFFER_SIZE = 4096
@@ -6,10 +13,7 @@ SOCKET_TIMEOUT = 60
 # Victron Plugin
 MODBUS_TCP_PORT = 502
 
-INITIAL_SNAPSHOT_INTERVAL = 10
-# Entry disk write interval in seconds
-DEFAULT_DISK_WRITE_INTERVAL = 900
-
+# Defaults for command line options
 DEFAULT_FILENAME_PREFIX = "Trip_"
 DEFAULT_SUMMARY_FILENAME_PREFIX = "Trip_Summary_"
 DEFAULT_CSV_OUTPUT_FLAG = False
