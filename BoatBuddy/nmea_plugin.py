@@ -105,6 +105,7 @@ class NMEAPlugin(GenericPlugin):
     _apparent_wind_angle = 0
     _speed_over_water = 0.0
     _speed_over_ground = 0.0
+    _gps_fix_captured = False
 
     _exit_signal = threading.Event()
     _nmea_server_thread = threading.Thread()
@@ -170,29 +171,51 @@ class NMEAPlugin(GenericPlugin):
             first_entry = self._log_entries[0]
             last_entry = self._log_entries[len(self._log_entries) - 1]
 
+            # Collect GPS coordinates from the first entry that has them until the last one
+            first_gps_latitude_entry = Latitude()
+            first_gps_longitude_entry = Longitude()
+            n = 0
+            while n < len(self._log_entries):
+                entry = self._log_entries[n]
+                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()) != LatLon(Latitude(), Longitude()):
+                    first_gps_latitude_entry = entry.get_gps_latitude()
+                    first_gps_longitude_entry = entry.get_gps_longitude()
+                    break
+                n = n + 1
+
+            last_gps_latitude_entry = Latitude()
+            last_gps_longitude_entry = Longitude()
+            n = len(self._log_entries)
+            while n > 0:
+                entry = self._log_entries[n - 1]
+                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()) != LatLon(Latitude(), Longitude()):
+                    last_gps_latitude_entry = entry.get_gps_latitude()
+                    last_gps_longitude_entry = entry.get_gps_longitude()
+                    break
+                n = n - 1
+
             # Try to fetch the starting and ending location cities
             geolocator = Nominatim(user_agent="geoapiExercises")
-            starting_location = geolocator.reverse(f'{first_entry.get_gps_latitude()}' + ',' +
-                                                   f'{first_entry.get_gps_longitude()}')
+            starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
+                                                   f'{first_gps_longitude_entry}')
             starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + \
                                     starting_location.raw['address'].get('country', '')
             log_summary_list.append(starting_location_str)
 
-            ending_location = geolocator.reverse(f'{last_entry.get_gps_latitude()}' + ',' +
-                                                 f'{last_entry.get_gps_longitude()}')
+            ending_location = geolocator.reverse(f'{last_gps_latitude_entry}' + ',' +
+                                                 f'{last_gps_longitude_entry}')
             ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + \
                                   ending_location.raw['address'].get('country', '')
             log_summary_list.append(ending_location_str)
 
-            # Collect GPS coordinates
-            log_summary_list.append(first_entry.get_gps_latitude().to_string("d%°%m%\'%S%\" %H"))
-            log_summary_list.append(first_entry.get_gps_longitude().to_string("d%°%m%\'%S%\" %H"))
-            log_summary_list.append(last_entry.get_gps_latitude().to_string("d%°%m%\'%S%\" %H"))
-            log_summary_list.append(last_entry.get_gps_longitude().to_string("d%°%m%\'%S%\" %H"))
+            log_summary_list.append(first_gps_latitude_entry.to_string("d%°%m%\'%S%\" %H"))
+            log_summary_list.append(first_gps_longitude_entry.to_string("d%°%m%\'%S%\" %H"))
+            log_summary_list.append(last_gps_latitude_entry.to_string("d%°%m%\'%S%\" %H"))
+            log_summary_list.append(last_gps_longitude_entry.to_string("d%°%m%\'%S%\" %H"))
 
             # Calculate travelled distance and heading
-            latlon_start = LatLon(first_entry.get_gps_latitude(), first_entry.get_gps_longitude())
-            latlon_end = LatLon(last_entry.get_gps_latitude(), last_entry.get_gps_longitude())
+            latlon_start = LatLon(first_gps_latitude_entry, first_gps_longitude_entry)
+            latlon_end = LatLon(last_gps_latitude_entry, last_gps_longitude_entry)
             distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
             log_summary_list.append(distance)
             heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
@@ -275,11 +298,12 @@ class NMEAPlugin(GenericPlugin):
         if str_csv_list_type == "$IIHDG":
             if csv_list[1] != '':
                 self._heading = math.floor(float(csv_list[1]))
-                utils.get_logger().info(f'Detected heading {self._heading} degrees (True north)')
-        elif str_csv_list_type == "$GPGPU":
+                utils.get_logger().debug(f'Detected heading {self._heading} degrees (True north)')
+        elif str_csv_list_type == "$GPGGA":
             if csv_list[2] != '' and csv_list[3] != '' and csv_list[4] != '' and csv_list[5] != '':
                 self._gps_latitude = utils.get_latitude(csv_list[2], csv_list[3])
                 self._gps_longitude = utils.get_longitude(csv_list[4], csv_list[5])
+                self._gps_fix_captured = True
                 utils.get_logger().debug(
                     f'Detected GPS coordinates Latitude: {self._gps_latitude} Longitude: {self._gps_longitude}')
         elif str_csv_list_type == "$SDMTW":
@@ -329,6 +353,9 @@ class NMEAPlugin(GenericPlugin):
             return self._log_entries[len(self._log_entries) - 1].get_gps_longitude()
         else:
             return self._gps_longitude
+
+    def is_gps_fix_captured(self):
+        return self._gps_fix_captured
 
     def finalize(self):
         self._exit_signal.set()

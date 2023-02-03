@@ -61,17 +61,18 @@ def _write_log_data_to_disk():
         # Save the workbook
         _workbook.save(filename=f"{_output_directory}{_log_filename}.xlsx")
 
-    if options.gpx:
-        # Append new GPX track point
-        _gpx_segment.points.append(
-            gpxpy.gpx.GPXTrackPoint(latitude=_nmea_plugin.get_last_latitude_entry(),
-                                    longitude=_nmea_plugin.get_last_longitude_entry(),
-                                    time=datetime.fromtimestamp(
-                                        mktime(_time_plugin.get_last_utc_timestamp_entry()))))
+    if options.gpx and _nmea_plugin:
+        # If we have valid coordinates then append new GPX track point
+        if _nmea_plugin.is_gps_fix_captured():
+            _gpx_segment.points.append(
+                gpxpy.gpx.GPXTrackPoint(latitude=_nmea_plugin.get_last_latitude_entry(),
+                                        longitude=_nmea_plugin.get_last_longitude_entry(),
+                                        time=datetime.fromtimestamp(
+                                            mktime(_time_plugin.get_last_utc_timestamp_entry()))))
 
-        # Write the new contents of the GPX file to disk
-        with open(f"{_output_directory}{_log_filename}.gpx", 'w') as file:
-            file.write(f'{_gpx.to_xml()}')
+            # Write the new contents of the GPX file to disk
+            with open(f"{_output_directory}{_log_filename}.gpx", 'w') as file:
+                file.write(f'{_gpx.to_xml()}')
 
     # Sleep for the specified interval
     global _timer
