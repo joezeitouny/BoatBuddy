@@ -168,7 +168,7 @@ def _start_monitoring():
 
     utils.console_out(f'New session initialized {_log_filename}')
 
-    threading.Timer(options.interval, _start_disk_helper_thread).start()
+    threading.Timer(config.INITIAL_SNAPSHOT_INTERVAL, _start_disk_helper_thread).start()
 
 
 def _finalize_threads():
@@ -268,7 +268,7 @@ if __name__ == '__main__':
     parser.add_option('--csv', action='store_true', dest='csv', help='Generate a comma separated list (CSV) file.')
     parser.add_option('--gpx', action='store_true', dest='gpx', help=f'Generate a GPX file.')
     parser.add_option('-f', '--file', dest='filename', type='string',
-                      help='Output filename prefix. Default is: {config.DEFAULT_FILENAME_PREFIX}')
+                      help=f'Output filename prefix. Default is: {config.DEFAULT_FILENAME_PREFIX}')
     parser.add_option('--summary', action='store_true', dest='summary',
                       help=f'Generate a trip summary excel workbook at the end of the session.')
     parser.add_option('--summary-filename-prefix', dest='summary_filename', type='string',
@@ -284,20 +284,23 @@ if __name__ == '__main__':
 
     # If the output directory is not provided
     if len(args) == 0:
-        print(f'Error: Output directory is required\r\n')
+        print(f'Invalid argument: Output directory is required\r\n')
         parser.print_help()
     elif not os.path.exists(args[0]):
-        print(f'Error: Valid output directory is required\r\n')
+        print(f'Invalid argument: Valid output directory is required\r\n')
         parser.print_help()
     elif not options.excel and not options.gpx and not options.csv and not options.summary:
-        print(f'Error: At least one output medium needs to be specified\r\n')
+        print(f'Invalid argument: At least one output medium needs to be specified\r\n')
         parser.print_help()
     elif not options.nmea_server_ip and not options.victron_server_ip:
-        print(f'Error: At least one system metric needs to be specified (NMEA0183, Victron...)\r\n')
+        print(f'Invalid argument: At least one system metric needs to be specified (NMEA0183, Victron...)\r\n')
         parser.print_help()
     elif options.limited and not options.nmea_server_ip:
-        print(f'Error: Cannot use the limited mode without providing NMEA0183 configuration parameters\r\n')
+        print(f'Invalid argument: Cannot use the limited mode without providing NMEA0183 configuration parameters\r\n')
         parser.print_help()
+    elif options.interval < config.INITIAL_SNAPSHOT_INTERVAL:
+        print(f'Invalid argument: Specified disk write interval cannot be less than ' +
+              f'{config.INITIAL_SNAPSHOT_INTERVAL} seconds')
     else:
         utils._verbose_output = options.verbose
 

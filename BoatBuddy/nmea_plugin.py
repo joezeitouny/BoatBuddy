@@ -231,7 +231,7 @@ class NMEAPlugin(GenericPlugin):
             utils.console_out(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
                               f'port {self._server_port}...')
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.settimeout(config.DEFAULT_SOCKET_TIMEOUT)
+            client.settimeout(config.SOCKET_TIMEOUT)
 
             try:
                 client.connect((self._server_ip, self._server_port))
@@ -242,7 +242,7 @@ class NMEAPlugin(GenericPlugin):
                     self._events.on_connect()
 
                 while True:
-                    data = client.recv(config.DEFAULT_BUFFER_SIZE)
+                    data = client.recv(config.BUFFER_SIZE)
                     if data is None:
                         utils.console_out('No NMEA0183 data received')
                         break
