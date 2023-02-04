@@ -134,13 +134,16 @@ class NMEAPlugin(GenericPlugin):
         cumulative_distance = 0.0
         distance_from_previous_entry = 0.0
         entries_count = len(self._log_entries)
-        if self._gps_latitude and self._gps_longitude and entries_count > 0:
+        # Check first if we currently have a GPS fix and that there is at least one previously logged entry
+        if self.is_gps_fix_captured() and entries_count > 0:
             latlon_start = LatLon(self._log_entries[entries_count - 1].get_gps_latitude(),
                                   self._log_entries[entries_count - 1].get_gps_longitude())
-            latlon_end = LatLon(self._gps_latitude, self._gps_longitude)
-            distance_from_previous_entry = round(float(latlon_end.distance(latlon_start) / 1.852), 1)
-            cumulative_distance = round(float(self._log_entries[entries_count - 1].get_cumulative_distance())
-                                        + distance_from_previous_entry, 1)
+            # Only calculate the distance and cumulative distance metrics if the last entry has a valid GPS fix
+            if latlon_start.to_string() != LatLon(Latitude(), Longitude()).to_string():
+                latlon_end = LatLon(self._gps_latitude, self._gps_longitude)
+                distance_from_previous_entry = round(float(latlon_end.distance(latlon_start) / 1.852), 1)
+                cumulative_distance = round(float(self._log_entries[entries_count - 1].get_cumulative_distance())
+                                            + distance_from_previous_entry, 1)
 
         # Create a new entry
         entry = NMEAEntry(self._heading, self._true_wind_speed, self._true_wind_direction,
@@ -171,24 +174,27 @@ class NMEAPlugin(GenericPlugin):
             first_entry = self._log_entries[0]
             last_entry = self._log_entries[len(self._log_entries) - 1]
 
-            # Collect GPS coordinates from the first entry that has them until the last one
+            # Collect the GPS coordinates from the first entry which has valid ones
             first_gps_latitude_entry = Latitude()
             first_gps_longitude_entry = Longitude()
             n = 0
             while n < len(self._log_entries):
                 entry = self._log_entries[n]
-                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()) != LatLon(Latitude(), Longitude()):
+                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string() \
+                        != LatLon(Latitude(), Longitude()).to_string():
                     first_gps_latitude_entry = entry.get_gps_latitude()
                     first_gps_longitude_entry = entry.get_gps_longitude()
                     break
                 n = n + 1
 
+            # Collect the GPS coordinates from the last entry which has valid ones
             last_gps_latitude_entry = Latitude()
             last_gps_longitude_entry = Longitude()
             n = len(self._log_entries)
             while n > 0:
                 entry = self._log_entries[n - 1]
-                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()) != LatLon(Latitude(), Longitude()):
+                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string() \
+                        != LatLon(Latitude(), Longitude()).to_string():
                     last_gps_latitude_entry = entry.get_gps_latitude()
                     last_gps_longitude_entry = entry.get_gps_longitude()
                     break
@@ -196,16 +202,25 @@ class NMEAPlugin(GenericPlugin):
 
             # Try to fetch the starting and ending location cities
             geolocator = Nominatim(user_agent="geoapiExercises")
-            starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
-                                                   f'{first_gps_longitude_entry}')
-            starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + \
-                                    starting_location.raw['address'].get('country', '')
+            starting_location_str = ''
+            try:
+                starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
+                                                       f'{first_gps_longitude_entry}')
+                starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + \
+                                        starting_location.raw['address'].get('country', '')
+
+            except Exception:
+                pass
             log_summary_list.append(starting_location_str)
 
-            ending_location = geolocator.reverse(f'{last_gps_latitude_entry}' + ',' +
-                                                 f'{last_gps_longitude_entry}')
-            ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + \
-                                  ending_location.raw['address'].get('country', '')
+            ending_location_str = ''
+            try:
+                ending_location = geolocator.reverse(f'{last_gps_latitude_entry}' + ',' +
+                                                     f'{last_gps_longitude_entry}')
+                ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + \
+                                      ending_location.raw['address'].get('country', '')
+            except Exception:
+                pass
             log_summary_list.append(ending_location_str)
 
             log_summary_list.append(first_gps_latitude_entry.to_string("d%°%m%\'%S%\" %H"))
@@ -216,10 +231,14 @@ class NMEAPlugin(GenericPlugin):
             # Calculate travelled distance and heading
             latlon_start = LatLon(first_gps_latitude_entry, first_gps_longitude_entry)
             latlon_end = LatLon(last_gps_latitude_entry, last_gps_longitude_entry)
-            distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
-            log_summary_list.append(distance)
-            heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
-            log_summary_list.append(heading)
+            if latlon_start.to_string() != latlon_end.to_string():
+                distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
+                log_summary_list.append(distance)
+                heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
+                log_summary_list.append(heading)
+            else:
+                log_summary_list.append(0)
+                log_summary_list.append('')
 
             # Calculate averages
             sum_wind_speed = 0
@@ -280,6 +299,7 @@ class NMEAPlugin(GenericPlugin):
                 utils.get_logger().info(f'Server {self._server_ip} is down!')
             finally:
                 client.close()
+                self._reset_metadata_values()
                 if self._exit_signal.is_set():
                     utils.get_logger().info('NMEA plugin instance is ready to be destroyed')
                 elif self._events:
@@ -331,8 +351,9 @@ class NMEAPlugin(GenericPlugin):
                     f'and speed {self._true_wind_speed} knots')
         elif str_csv_list_type == "$WIMWV":
             if csv_list[1] != '' and csv_list[3] != '':
-                if self._true_wind_direction != "":
-                    self._apparent_wind_angle = math.floor(float(csv_list[1]))
+                self._apparent_wind_angle = math.floor(float(csv_list[1]))
+                if self._apparent_wind_angle > 180:
+                    self._apparent_wind_angle = (360 - self._apparent_wind_angle) * -1
                 self._apparent_wind_speed = csv_list[3]
                 utils.get_logger().debug(
                     f'Detected apparent wind angle {self._apparent_wind_angle} degrees and ' +
@@ -363,3 +384,17 @@ class NMEAPlugin(GenericPlugin):
 
     def register_for_events(self, events):
         self._events = events
+
+    def _reset_metadata_values(self):
+        self._water_temperature = 0.0
+        self._depth = 0.0
+        self._heading = 0
+        self._gps_latitude = Latitude()
+        self._gps_longitude = Longitude()
+        self._true_wind_speed = 0
+        self._true_wind_direction = 0
+        self._apparent_wind_speed = 0.0
+        self._apparent_wind_angle = 0
+        self._speed_over_water = 0.0
+        self._speed_over_ground = 0.0
+        self._gps_fix_captured = False
