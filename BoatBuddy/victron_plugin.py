@@ -1,3 +1,4 @@
+import numpy as np
 from pyModbusTCP.client import ModbusClient
 
 from BoatBuddy import config
@@ -100,7 +101,7 @@ class VictronPlugin(GenericPlugin):
             c = ModbusClient(host=server_ip, port=server_port, unit_id=100, auto_open=True, auto_close=True)
 
             grid_power = int(c.read_holding_registers(820, 1)[0])
-            generator_power = int(c.read_holding_registers(823, 1)[0])
+            generator_power = int(np.int16(c.read_holding_registers(823, 1)[0]))
 
             input_source_string = ''
             input_source = int(c.read_holding_registers(826, 1)[0])
@@ -127,11 +128,11 @@ class VictronPlugin(GenericPlugin):
                 battery_state_string = 'discharging'
 
             battery_voltage = int(c.read_holding_registers(840, 1)[0]) / 10
-            battery_current = int(c.read_holding_registers(841, 1)[0]) / 10
-            battery_power = int(c.read_holding_registers(842, 1)[0])
+            battery_current = int(np.int16(c.read_holding_registers(841, 1)[0])) / 10
+            battery_power = int(np.int16(c.read_holding_registers(842, 1)[0]))
             battery_soc = int(c.read_holding_registers(843, 1)[0])
             pv_power = int(c.read_holding_registers(850, 1)[0])
-            pv_current = int(c.read_holding_registers(851, 1)[0]) / 10
+            pv_current = int(np.int16(c.read_holding_registers(851, 1)[0])) / 10
 
             # Get starter battery voltage
             c.unit_id = 223
@@ -140,7 +141,7 @@ class VictronPlugin(GenericPlugin):
             # Get VE.Bus metrics
             c.unit_id = 227
             ac_input_voltage = int(c.read_holding_registers(3, 1)[0]) / 10
-            ac_input_current = int(c.read_holding_registers(6, 1)[0]) / 10
+            ac_input_current = int(np.int16(c.read_holding_registers(6, 1)[0])) / 10
             ac_input_frequency = int(c.read_holding_registers(9, 1)[0]) / 100
 
             ve_bus_state_string = ''
