@@ -9,7 +9,7 @@ class VictronEntry:
     def __init__(self, input_source_string, grid_power, generator_power, ac_input_voltage, ac_input_current,
                  ac_input_frequency, ve_bus_state_string, ac_consumption, battery_voltage,
                  battery_current, battery_power, battery_soc, battery_state_string,
-                 pv_power, pv_current, starter_battery_voltage):
+                 pv_power, pv_current, starter_battery_voltage, tank1_level, tank1_type, tank2_level, tank2_type):
         self._input_source_string = input_source_string
         self._grid_power = grid_power
         self._generator_power = generator_power
@@ -26,6 +26,10 @@ class VictronEntry:
         self._pv_power = pv_power
         self._pv_current = pv_current
         self._starter_battery_voltage = starter_battery_voltage
+        self._tank1_level = tank1_level
+        self._tank1_type = tank1_type
+        self._tank2_level = tank2_level
+        self._tank2_type = tank2_type
 
     def __str__(self):
         return utils.get_comma_separated_string(self.get_values())
@@ -36,7 +40,8 @@ class VictronEntry:
                 f'{self._ve_bus_state_string}', f'{self._ac_consumption}', f'{self._battery_voltage}',
                 f'{self._battery_current}', f'{self._battery_power}', f'{self._battery_soc}',
                 f'{self._battery_state_string}',
-                f'{self._pv_power}', f'{self._pv_current}', f'{self._starter_battery_voltage}']
+                f'{self._pv_power}', f'{self._pv_current}', f'{self._starter_battery_voltage}',
+                f'{self._tank1_level}', f'{self._tank1_type}', f'{self._tank2_level}', f'{self._tank2_type}']
 
     def get_battery_voltage(self):
         return self._battery_voltage
@@ -59,6 +64,18 @@ class VictronEntry:
     def get_ac_consumption_power(self):
         return self._ac_consumption
 
+    def get_tank1_level(self):
+        return self._tank1_level
+
+    def get_tank1_type(self):
+        return self._tank1_type
+
+    def get_tank2_level(self):
+        return self._tank2_level
+
+    def get_tank2_type(self):
+        return self._tank2_type
+
 
 class VictronPlugin(GenericPlugin):
     _log_entries = []
@@ -72,7 +89,7 @@ class VictronPlugin(GenericPlugin):
                 'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
                 'VE.Bus State', 'AC Consumption (W)', 'Battery Voltage (V)', 'Battery Current (A)',
                 'Battery Power (W)', 'Battery SOC', 'Battery state', 'PV Power (W)', 'PV Current (A)',
-                'Starter Battery Voltage (V)']
+                'Starter Battery Voltage (V)', 'Tank 1 Level (%)', 'Tank 1 Type', 'Tank 2 Level (%)', 'Tank 2 Type']
 
     def take_snapshot(self):
         server_ip = f'{self._args.victron_server_ip}'
@@ -155,6 +172,66 @@ class VictronPlugin(GenericPlugin):
             elif ve_bus_state == 252:
                 ve_bus_state_string = 'External control'
 
+            c.unit_id = 20
+            tank1_level = int(c.read_holding_registers(3004, 1)[0]) / 10
+            tank1_type = int(c.read_holding_registers(3003, 1)[0])
+            tank1_type_string = ''
+            # 0=Fuel;1=Fresh water;2=Waste water;3=Live well;4=Oil;5=Black water (sewage);
+            # 6=Gasoline;7=Diesel;8=LPG;9=LNG;10=Hydraulic oil;11=Raw water
+            if tank1_type == 0:
+                tank1_type_string = 'Fuel'
+            elif tank1_type == 1:
+                tank1_type_string = 'Fresh water'
+            elif tank1_type == 2:
+                tank1_type_string = 'Waste water'
+            elif tank1_type == 3:
+                tank1_type_string = 'Live well'
+            elif tank1_type == 4:
+                tank1_type_string = 'Oil'
+            elif tank1_type == 5:
+                tank1_type_string = 'Black water (sewage)'
+            elif tank1_type == 6:
+                tank1_type_string = 'Gasoline'
+            elif tank1_type == 7:
+                tank1_type_string = 'Diesel'
+            elif tank1_type == 8:
+                tank1_type_string = 'LPG'
+            elif tank1_type == 9:
+                tank1_type_string = 'LNG'
+            elif tank1_type == 10:
+                tank1_type_string = 'Hydraulic oil'
+            elif tank1_type == 11:
+                tank1_type_string = 'Raw water'
+
+            c.unit_id = 21
+            tank2_level = int(c.read_holding_registers(3004, 1)[0]) / 10
+            tank2_type = int(c.read_holding_registers(3003, 1)[0])
+            tank2_type_string = ''
+            if tank2_type == 0:
+                tank2_type_string = 'Fuel'
+            elif tank2_type == 1:
+                tank2_type_string = 'Fresh water'
+            elif tank2_type == 2:
+                tank2_type_string = 'Waste water'
+            elif tank2_type == 3:
+                tank2_type_string = 'Live well'
+            elif tank2_type == 4:
+                tank2_type_string = 'Oil'
+            elif tank2_type == 5:
+                tank2_type_string = 'Black water (sewage)'
+            elif tank2_type == 6:
+                tank2_type_string = 'Gasoline'
+            elif tank2_type == 7:
+                tank2_type_string = 'Diesel'
+            elif tank2_type == 8:
+                tank2_type_string = 'LPG'
+            elif tank2_type == 9:
+                tank2_type_string = 'LNG'
+            elif tank2_type == 10:
+                tank2_type_string = 'Hydraulic oil'
+            elif tank2_type == 11:
+                tank2_type_string = 'Raw water'
+
             utils.get_logger().debug(f'Active Input source: {input_source_string} Grid Power: {grid_power} W ' +
                                      f'Generator Power: {generator_power} W AC Consumption: {ac_consumption} W')
             utils.get_logger().debug(f'AC input 1 {ac_input_voltage} V {ac_input_current} A {ac_input_frequency} Hz ' +
@@ -164,11 +241,14 @@ class VictronPlugin(GenericPlugin):
                 f'{battery_soc} % {battery_state_string}')
             utils.get_logger().debug(f'PV {pv_power} W {pv_current} A')
             utils.get_logger().debug(f'Starter battery voltage: {starter_battery_voltage} V')
+            utils.get_logger().debug(f'Tank 1 Level: {tank1_level} Type: {tank1_type_string}')
+            utils.get_logger().debug(f'Tank 2 Level: {tank2_level} Type: {tank2_type_string}')
 
             entry = VictronEntry(input_source_string, grid_power, generator_power, ac_input_voltage,
                                  ac_input_current, ac_input_frequency, ve_bus_state_string, ac_consumption,
                                  battery_voltage, battery_current, battery_power, battery_soc, battery_state_string,
-                                 pv_power, pv_current, starter_battery_voltage)
+                                 pv_power, pv_current, starter_battery_voltage, tank1_level, tank1_type_string,
+                                 tank2_level, tank2_type_string)
             self._log_entries.append(entry)
         except ValueError:
             utils.get_logger().info("Error with host or port params")
@@ -193,7 +273,9 @@ class VictronPlugin(GenericPlugin):
                 "PV max power (W)", "PV average power",
                 "PV max current (A)", "PV average current (A)",
                 "Starter battery max voltage (V)", "Starter battery min voltage (V)",
-                "Starter battery average voltage", "AC Consumption max (W)", "AC Consumption average (W)"]
+                "Starter battery average voltage", "AC Consumption max (W)", "AC Consumption average (W)",
+                "Tank 1 max level", "Tank 1 min level", "Tank 1 average level",
+                "Tank 2 max level", "Tank 2 min level", "Tank 2 average level"]
 
     def get_summary_values(self):
         log_summary_list = []
@@ -216,16 +298,24 @@ class VictronPlugin(GenericPlugin):
             sum_starter_battery_voltage = 0
             ac_consumption_max_power = 0
             sum_ac_consumption_power = 0
+            tank1_min_level = 0
+            tank1_max_level = 0
+            sum_tank1_level = 0
+            tank2_min_level = 0
+            tank2_max_level = 0
+            sum_tank2_level = 0
             count = len(self._log_entries)
             for entry in self._log_entries:
                 # Sum up all values that will be averaged later
                 sum_housing_battery_voltage += float(entry.get_battery_voltage())
-                sum_housing_battery_current += int(entry.get_battery_current())
+                sum_housing_battery_current += float(entry.get_battery_current())
                 sum_housing_battery_power += float(entry.get_battery_power())
                 sum_pv_power += float(entry.get_pv_power())
                 sum_pv_current += float(entry.get_pv_current())
                 sum_starter_battery_voltage += float(entry.get_starter_battery_voltage())
                 sum_ac_consumption_power += float(entry.get_ac_consumption_power())
+                sum_tank1_level += int(entry.get_tank1_level())
+                sum_tank2_level += int(entry.get_tank2_level())
 
                 # Collect extremes
                 housing_battery_max_voltage = utils.get_biggest_number(float(entry.get_battery_voltage()),
@@ -250,6 +340,17 @@ class VictronPlugin(GenericPlugin):
                                                                             starter_battery_min_voltage)
                 ac_consumption_max_power = utils.get_biggest_number(float(entry.get_ac_consumption_power()),
                                                                     ac_consumption_max_power)
+                if tank1_min_level == 0:
+                    tank1_min_level = float(entry.get_tank1_level())
+                else:
+                    tank1_min_level = utils.get_smallest_number(float(entry.get_tank1_level()), tank1_min_level)
+                tank1_max_level = utils.get_biggest_number(float(entry.get_tank1_level()), tank1_max_level)
+
+                if tank2_min_level == 0:
+                    tank2_min_level = float(entry.get_tank2_level())
+                else:
+                    tank2_min_level = utils.get_smallest_number(float(entry.get_tank2_level()), tank2_min_level)
+                tank2_max_level = utils.get_biggest_number(float(entry.get_tank2_level()), tank2_max_level)
 
             log_summary_list.append(housing_battery_max_voltage)
             log_summary_list.append(housing_battery_min_voltage)
@@ -267,5 +368,11 @@ class VictronPlugin(GenericPlugin):
             log_summary_list.append(round(sum_starter_battery_voltage / count, 2))
             log_summary_list.append(ac_consumption_max_power)
             log_summary_list.append(round(sum_ac_consumption_power / count))
+            log_summary_list.append(tank1_max_level)
+            log_summary_list.append(tank1_min_level)
+            log_summary_list.append(round(sum_tank1_level / count))
+            log_summary_list.append(tank2_max_level)
+            log_summary_list.append(tank2_min_level)
+            log_summary_list.append(round(sum_tank2_level / count))
 
         return log_summary_list
