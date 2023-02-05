@@ -1,10 +1,10 @@
 import logging
 import optparse
 import os
-import sys
 import threading
 import time
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 from time import mktime
 
 import gpxpy
@@ -304,20 +304,19 @@ if __name__ == '__main__':
     else:
         if options.verbose:
             # Initialize the logging module
-            log_directory = ''
+            log_filename = ''
             if not args[0].endswith('/'):
-                log_directory = args[0] + '/' + config.LOG_FILENAME
+                log_filename = args[0] + '/' + config.LOG_FILENAME
             else:
-                log_directory = args[0] + config.LOG_FILENAME
+                log_filename = args[0] + config.LOG_FILENAME
 
-            formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-            file_handler = logging.FileHandler(log_directory, mode='w', encoding='utf-8')
+            formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
+            # Limit log file size
+            file_handler = RotatingFileHandler(log_filename, encoding='utf-8', maxBytes=config.LOG_FILE_SIZE,
+                                               backupCount=1)
             file_handler.setFormatter(formatter)
-            stream_handler = logging.StreamHandler(stream=sys.stdout)
-            stream_handler.setFormatter(formatter)
             logging.getLogger(config.LOGGER_NAME).setLevel(log_numeric_level)
             logging.getLogger(config.LOGGER_NAME).addHandler(file_handler)
-            logging.getLogger(config.LOGGER_NAME).addHandler(stream_handler)
         else:
             logging.getLogger(config.LOGGER_NAME).disabled = True
 
