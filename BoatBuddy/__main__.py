@@ -144,7 +144,8 @@ def _start_collecting_metrics():
         # Create the header row
         _sheet.append(column_headers)
 
-    if options.gpx:
+    # Only write to GPX files if the GPX and the NMEA options are both set
+    if options.gpx and options.nmea_server_ip:
         # Creating a new GPX object
         global _gpx
         _gpx = gpxpy.gpx.GPX()
