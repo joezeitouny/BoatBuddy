@@ -22,7 +22,8 @@ dependencies = [
     "latloncalc ~= 1.5.3",
     "openpyxl ~= 3.0.10",
     "pyModbusTCP ~= 0.2.0",
-    "Events ~= 0.4"
+    "Events ~= 0.4",
+    "numpy ~= 1.24.1"
 ]
 [project.urls]
 "Homepage" = "https://github.com/joezeitouny/BoatBuddy"
