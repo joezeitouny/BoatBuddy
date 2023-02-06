@@ -33,7 +33,7 @@ class ConsoleManager:
     def make_header(self) -> Layout:
         application_name = utils.get_application_name()
         application_version = utils.get_application_version()
-        curr_time = time.strftime("%H:%M:%S", time.localtime())
+        curr_time = time.strftime("%H:%M", time.localtime())
         status = self._plugin_manager.get_status()
         status_string = ''
         status_style = 'white'
@@ -48,7 +48,7 @@ class ConsoleManager:
         grid = Table.grid(expand=True)
         grid.add_column(justify="left", style=status_style)
         grid.add_column(justify="center", ratio=1, style='blue')
-        grid.add_column(justify="right")
+        grid.add_column(justify="right", style="yellow")
         grid.add_row(
             f'Status: {status_string}',
             f'[b]{application_name} (version {application_version})[/b]',
