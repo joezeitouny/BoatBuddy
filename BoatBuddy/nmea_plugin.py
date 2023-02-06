@@ -129,7 +129,7 @@ class NMEAPlugin(GenericPlugin):
                 "Depth (meters)", "Speed Over Ground (knots)", "Speed Over Water (knots)",
                 "Distance From Previous Entry (miles)", "Cumulative Distance (miles)"]
 
-    def take_snapshot(self):
+    def take_snapshot(self, store_entry):
         # Calculate the distance traveled so far and the distance from the last recorded entry
         cumulative_distance = 0.0
         distance_from_previous_entry = 0.0
@@ -152,7 +152,10 @@ class NMEAPlugin(GenericPlugin):
                           distance_from_previous_entry, cumulative_distance)
 
         # Add it to the list of entries in memory
-        self._log_entries.append(entry)
+        if store_entry:
+            self._log_entries.append(entry)
+
+        return entry
 
     def get_metadata_values(self):
         # Return last entry values
@@ -262,6 +265,9 @@ class NMEAPlugin(GenericPlugin):
             log_summary_list.append(round(sum_depth / count, 1))
             log_summary_list.append(round(sum_speed_over_ground / count, 1))
             log_summary_list.append(round(sum_speed_over_water / count, 1))
+        else:
+            log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A',
+                                'N/A', 'N/A', 'N/A', 'N/A']
 
         return log_summary_list
 

@@ -4,9 +4,47 @@ from latloncalc.latlon import Latitude, Longitude
 
 from BoatBuddy import config
 
+log_filename = ''
+
+
+def get_application_version():
+    return config.APPLICATION_VERSION
+
+
+def get_application_name():
+    return config.APPLICATION_NAME
+
 
 def get_logger():
     return logging.getLogger(config.LOGGER_NAME)
+
+
+def set_log_filename(filename):
+    global log_filename
+    log_filename = filename
+
+
+def get_last_log_entries(count) -> []:
+    lines = []
+    with open(log_filename) as file:
+        # loop to read iterate
+        # last n lines and print it
+        for line in (file.readlines()[-count:]):
+            lines.append(line.rstrip('\r\n'))
+
+    if len(lines) > 0:
+        lines.reverse()
+
+    return lines
+
+
+def get_key_value_list(keys, values) -> {}:
+    key_value_list = {}
+    counter = 0
+    for key in keys:
+        key_value_list[key] = values[counter]
+        counter += 1
+    return key_value_list
 
 
 def get_comma_separated_string(values_list):

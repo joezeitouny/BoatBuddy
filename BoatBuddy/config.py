@@ -1,4 +1,6 @@
 # General
+APPLICATION_NAME = 'BoatBuddy'
+APPLICATION_VERSION = '0.0.9'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'

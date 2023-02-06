@@ -92,7 +92,7 @@ class VictronPlugin(GenericPlugin):
                 'Battery Power (W)', 'Battery SOC', 'Battery state', 'PV Power (W)', 'PV Current (A)',
                 'Starter Battery Voltage (V)', 'Tank 1 Level (%)', 'Tank 1 Type', 'Tank 2 Level (%)', 'Tank 2 Type']
 
-    def take_snapshot(self):
+    def take_snapshot(self, store_entry):
         server_ip = f'{self._args.victron_server_ip}'
         server_port = config.MODBUS_TCP_PORT
 
@@ -250,9 +250,14 @@ class VictronPlugin(GenericPlugin):
                                  battery_voltage, battery_current, battery_power, battery_soc, battery_state_string,
                                  pv_power, pv_current, starter_battery_voltage, tank1_level, tank1_type_string,
                                  tank2_level, tank2_type_string)
-            self._log_entries.append(entry)
+
+            if store_entry:
+                self._log_entries.append(entry)
+
+            return entry
         except ValueError:
             utils.get_logger().info("Error with host or port params")
+            return None
 
     def get_metadata_values(self):
         if len(self._log_entries) > 0:
@@ -375,5 +380,9 @@ class VictronPlugin(GenericPlugin):
             log_summary_list.append(tank2_max_level)
             log_summary_list.append(tank2_min_level)
             log_summary_list.append(round(sum_tank2_level / count))
+        else:
+            log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A',
+                                'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A',
+                                'N/A', 'N/A']
 
         return log_summary_list

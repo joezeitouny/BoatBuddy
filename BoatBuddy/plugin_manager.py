@@ -1,6 +1,7 @@
 import threading
 import time
 from datetime import datetime
+from enum import Enum
 from time import mktime
 
 import gpxpy
@@ -12,6 +13,11 @@ from BoatBuddy import utils
 from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.victron_plugin import VictronPlugin
+
+
+class PluginManagerStatus(Enum):
+    IDLE = 1
+    SESSION_ACTIVE = 2
 
 
 class PluginManager:
@@ -41,31 +47,21 @@ class PluginManager:
         if not options.limited:
             self._start_collecting_metrics()
 
-        try:
-            while True:  # enable children threads to exit the main thread, too
-                time.sleep(0.5)  # let it breathe a little
-        except KeyboardInterrupt:  # on keyboard interrupt...
-            utils.get_logger().warning("Ctrl+C signal detected!")
-        finally:
-            self._prepare_to_shutdown()
-            if self._is_session_active:
-                self._end_session()
-
     def _write_log_data_to_disk(self):
         # Write contents to disk
         utils.get_logger().info("Writing collected data to disk")
 
         column_values = []
 
-        self._time_plugin.take_snapshot()
+        self._time_plugin.take_snapshot(store_entry=True)
         column_values += self._time_plugin.get_metadata_values()
 
         if self._nmea_plugin:
-            self._nmea_plugin.take_snapshot()
+            self._nmea_plugin.take_snapshot(store_entry=True)
             column_values += self._nmea_plugin.get_metadata_values()
 
         if self._victron_plugin:
-            self._victron_plugin.take_snapshot()
+            self._victron_plugin.take_snapshot(store_entry=True)
             column_values += self._victron_plugin.get_metadata_values()
 
         # Append the last added entry to the file on disk
@@ -237,3 +233,54 @@ class PluginManager:
         utils.get_logger().info(f'Session {self._log_filename} successfully completed!')
 
         self._is_session_active = False
+
+    def get_status(self):
+        if self._is_session_active:
+            return PluginManagerStatus.SESSION_ACTIVE
+
+        return PluginManagerStatus.IDLE
+
+    def finalize(self):
+        self._prepare_to_shutdown()
+        if self._is_session_active:
+            self._end_session()
+
+    def get_nmea_metrics(self) -> {}:
+        entry_key_value_list = {}
+        entry = self._nmea_plugin.take_snapshot(store_entry=False)
+        if entry is not None:
+            entry_key_value_list = utils.get_key_value_list(self._nmea_plugin.get_metadata_headers(),
+                                                            entry.get_values())
+
+        return entry_key_value_list
+
+    def get_victron_metrics(self) -> {}:
+        entry_key_value_list = {}
+        entry = self._victron_plugin.take_snapshot(store_entry=False)
+        if entry is not None:
+            entry_key_value_list = utils.get_key_value_list(self._victron_plugin.get_metadata_headers(),
+                                                            entry.get_values())
+
+        return entry_key_value_list
+
+    def get_session_name(self):
+        return self._log_filename
+
+    def get_summary_metrics(self) -> {}:
+        summary_key_value_list = {}
+
+        time_dictionary = utils.get_key_value_list(self._time_plugin.get_summary_headers(),
+                                                   self._time_plugin.get_summary_values())
+        summary_key_value_list.update(time_dictionary)
+
+        if self._options.nmea_server_ip:
+            nmea_dictionary = utils.get_key_value_list(self._nmea_plugin.get_summary_headers(),
+                                                       self._nmea_plugin.get_summary_values())
+            summary_key_value_list.update(nmea_dictionary)
+
+        if self._options.victron_server_ip:
+            victron_dictionary = utils.get_key_value_list(self._victron_plugin.get_summary_headers(),
+                                                          self._victron_plugin.get_summary_values())
+            summary_key_value_list.update(victron_dictionary)
+
+        return summary_key_value_list

@@ -8,7 +8,7 @@ class GenericPlugin:
         return []
 
     # Collect all current data in an object in memory (add that object to a list instance if needed)
-    def take_snapshot(self):
+    def take_snapshot(self, store_entry):
         raise NotImplementedError("Method needs to be implemented")
 
     def get_metadata_values(self):

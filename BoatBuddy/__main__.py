@@ -4,6 +4,8 @@ import os
 from logging.handlers import RotatingFileHandler
 
 from BoatBuddy import config
+from BoatBuddy import utils
+from BoatBuddy.console_manager import ConsoleManager
 from BoatBuddy.plugin_manager import PluginManager
 
 if __name__ == '__main__':
@@ -78,11 +80,14 @@ if __name__ == '__main__':
             formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
             # Limit log file size
             file_handler = RotatingFileHandler(log_filename, encoding='utf-8', maxBytes=config.LOG_FILE_SIZE,
-                                               backupCount=1)
+                                               backupCount=0)
             file_handler.setFormatter(formatter)
             logging.getLogger(config.LOGGER_NAME).setLevel(log_numeric_level)
             logging.getLogger(config.LOGGER_NAME).addHandler(file_handler)
+
+            utils.set_log_filename(log_filename)
         else:
             logging.getLogger(config.LOGGER_NAME).disabled = True
 
-        PluginManager(options, args)
+        plugin_manager = PluginManager(options, args)
+        ConsoleManager(options, args, plugin_manager)
