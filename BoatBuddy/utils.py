@@ -39,11 +39,24 @@ def get_last_log_entries(count) -> []:
 
 
 def get_key_value_list(keys, values) -> {}:
+    if not keys or not values:
+        return {}
+
     key_value_list = {}
     counter = 0
     for key in keys:
         key_value_list[key] = values[counter]
         counter += 1
+    return key_value_list
+
+
+def get_filtered_key_value_list(original_key_value_list, filter_list) -> {}:
+    if not original_key_value_list or not filter_list:
+        return {}
+
+    key_value_list = {}
+    for key in filter_list:
+        key_value_list[key] = original_key_value_list[key]
     return key_value_list
 
 

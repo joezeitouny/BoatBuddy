@@ -245,42 +245,47 @@ class PluginManager:
         if self._is_session_active:
             self._end_session()
 
-    def get_nmea_metrics(self) -> {}:
+    def get_filtered_nmea_metrics(self) -> {}:
         entry_key_value_list = {}
         entry = self._nmea_plugin.take_snapshot(store_entry=False)
         if entry is not None:
             entry_key_value_list = utils.get_key_value_list(self._nmea_plugin.get_metadata_headers(),
                                                             entry.get_values())
+            entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list, config.NMEA_METRICS)
 
         return entry_key_value_list
 
-    def get_victron_metrics(self) -> {}:
+    def get_filtered_victron_metrics(self) -> {}:
         entry_key_value_list = {}
         entry = self._victron_plugin.take_snapshot(store_entry=False)
         if entry is not None:
             entry_key_value_list = utils.get_key_value_list(self._victron_plugin.get_metadata_headers(),
                                                             entry.get_values())
+            entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list, config.VICTRON_METRICS)
 
         return entry_key_value_list
 
     def get_session_name(self):
         return self._log_filename
 
-    def get_summary_metrics(self) -> {}:
-        summary_key_value_list = {}
+    def get_filtered_session_clock_metrics(self):
+        return utils.get_filtered_key_value_list(utils.get_key_value_list(self._time_plugin.get_summary_headers(),
+                                                                          self._time_plugin.get_summary_values()),
+                                                 config.SESSION_HEADER)
 
-        time_dictionary = utils.get_key_value_list(self._time_plugin.get_summary_headers(),
-                                                   self._time_plugin.get_summary_values())
-        summary_key_value_list.update(time_dictionary)
+    def get_filtered_summary_metrics(self) -> {}:
+        summary_key_value_list = {}
 
         if self._options.nmea_server_ip:
             nmea_dictionary = utils.get_key_value_list(self._nmea_plugin.get_summary_headers(),
                                                        self._nmea_plugin.get_summary_values())
+            nmea_dictionary = utils.get_filtered_key_value_list(nmea_dictionary, config.NMEA_SUMMARY)
             summary_key_value_list.update(nmea_dictionary)
 
         if self._options.victron_server_ip:
             victron_dictionary = utils.get_key_value_list(self._victron_plugin.get_summary_headers(),
                                                           self._victron_plugin.get_summary_values())
+            victron_dictionary = utils.get_filtered_key_value_list(victron_dictionary, config.VICTRON_SUMMARY)
             summary_key_value_list.update(victron_dictionary)
 
         return summary_key_value_list

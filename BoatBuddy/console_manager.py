@@ -57,12 +57,53 @@ class ConsoleManager:
         return Layout(grid)
 
     def make_summary(self) -> Layout:
-        summary_table = Table.grid(expand=True)
-        summary_table.add_column()
-        summary_key_value_list = self._plugin_manager.get_summary_metrics()
-        for key in summary_key_value_list:
-            summary_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}')
-        return Layout(Panel(summary_table, title=f'{self._plugin_manager.get_session_name()} Summary'))
+        layout = Layout()
+        layout.split_column(
+            Layout(name="summary_header", size=4),
+            Layout(name="summary_body", ratio=1),
+        )
+
+        summary_header_table = Table.grid(expand=True)
+        summary_header_table.add_column()
+        summary_header_table.add_column()
+        summary_header_key_value_list = self._plugin_manager.get_filtered_session_clock_metrics()
+        counter = 0
+        while counter < len(summary_header_key_value_list):
+            key = list(summary_header_key_value_list.keys())[counter]
+
+            if counter + 1 < len(summary_header_key_value_list):
+                next_key = list(summary_header_key_value_list.keys())[counter + 1]
+                summary_header_table.add_row(f'[b]{key}[/b]: {summary_header_key_value_list[key]}',
+                                             f'[b]{next_key}[/b]: {summary_header_key_value_list[next_key]}')
+            else:
+                summary_header_table.add_row(f'[b]{key}[/b]: {summary_header_key_value_list[key]}', '')
+            counter += 2
+
+        layout["summary_header"].update(
+            Layout(Panel(summary_header_table, title=f'{self._plugin_manager.get_session_name()}')))
+
+        summary_body_table = Table.grid(expand=True)
+        summary_body_table.add_column()
+        summary_body_table.add_column()
+        summary_key_value_list = self._plugin_manager.get_filtered_summary_metrics()
+        counter = 0
+        while counter < len(summary_key_value_list):
+            key = list(summary_key_value_list.keys())[counter]
+
+            if counter + 1 < len(summary_key_value_list):
+                next_key = list(summary_key_value_list.keys())[counter + 1]
+                summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}',
+                                           f'[b]{next_key}[/b]: {summary_key_value_list[next_key]}')
+            else:
+                summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}', '')
+            counter += 2
+
+        # for key in summary_key_value_list:
+        #     summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}')
+
+        layout["summary_body"].update(Layout(Panel(summary_body_table,
+                                                   title=f'{self._plugin_manager.get_session_name()} Summary')))
+        return layout
 
     @staticmethod
     def make_footer() -> Panel:
@@ -97,7 +138,7 @@ class ConsoleManager:
                 layout["body"].split_row(
                     Layout(name="victron"),
                     Layout(name="nmea"),
-                    Layout(name="summary")
+                    Layout(name="summary", ratio=2)
                 )
             else:
                 layout["body"].split_row(
@@ -108,14 +149,14 @@ class ConsoleManager:
             # Populate the victron layout
             victron_table = Table.grid(expand=True)
             victron_table.add_column()
-            victron_metrics_key_value_list = self._plugin_manager.get_victron_metrics()
+            victron_metrics_key_value_list = self._plugin_manager.get_filtered_victron_metrics()
             for key in victron_metrics_key_value_list:
                 victron_table.add_row(f'[b]{key}[/b]: {victron_metrics_key_value_list[key]}')
             layout["victron"].update(Panel(victron_table, title='Victron Metrics'))
 
             nmea_table = Table.grid(expand=True)
             nmea_table.add_column()
-            nmea_metrics_key_value_list = self._plugin_manager.get_nmea_metrics()
+            nmea_metrics_key_value_list = self._plugin_manager.get_filtered_nmea_metrics()
             for key in nmea_metrics_key_value_list:
                 nmea_table.add_row(f'[b]{key}[/b]: {nmea_metrics_key_value_list[key]}')
             layout["nmea"].update(Panel(nmea_table, title='NMEA Metrics'))
@@ -123,12 +164,12 @@ class ConsoleManager:
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="nmea"),
-                    Layout(name="summary"),
+                    Layout(name="summary", ratio=2),
                 )
 
             nmea_table = Table.grid(expand=True)
             nmea_table.add_column()
-            nmea_metrics_key_value_list = self._plugin_manager.get_nmea_metrics()
+            nmea_metrics_key_value_list = self._plugin_manager.get_filtered_nmea_metrics()
             for key in nmea_metrics_key_value_list:
                 nmea_table.add_row(f'[b]{key}[/b]: {nmea_metrics_key_value_list[key]}')
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
@@ -139,13 +180,13 @@ class ConsoleManager:
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="victron"),
-                    Layout(name="summary"),
+                    Layout(name="summary", ratio=2),
                 )
 
             # Populate the victron layout
             victron_table = Table.grid(expand=True)
             victron_table.add_column()
-            victron_metrics_key_value_list = self._plugin_manager.get_victron_metrics()
+            victron_metrics_key_value_list = self._plugin_manager.get_filtered_victron_metrics()
             for key in victron_metrics_key_value_list:
                 victron_table.add_row(f'[b]{key}[/b]: {victron_metrics_key_value_list[key]}')
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
