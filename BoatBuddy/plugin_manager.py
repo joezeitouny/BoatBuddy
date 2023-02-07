@@ -44,7 +44,7 @@ class PluginManager:
         self._initialize()
 
         # If normal mode is active then start recording system metrics immediately
-        if not options.limited:
+        if str(options.run_mode).lower() == config.RUN_MODE_CONTINUOUS:
             self._start_collecting_metrics()
 
     def _write_log_data_to_disk(self):
@@ -112,7 +112,7 @@ class PluginManager:
             # initialize the NMEA0183 plugin
             self._nmea_plugin = NMEAPlugin(self._options)
 
-            if self._options.limited:
+            if str(self._options.run_mode).lower() == config.RUN_MODE_AUTO:
                 limited_mode_events = NMEAPluginEvents()
                 limited_mode_events.on_connect += self._start_collecting_metrics
                 limited_mode_events.on_disconnect += self._on_nmea_server_disconnect
@@ -185,7 +185,7 @@ class PluginManager:
 
     def _on_nmea_server_disconnect(self):
         # run through this method implementation only if the application is running in limited mode
-        if not self._options.limited:
+        if not str(self._options.run_mode).lower() == config.RUN_MODE_AUTO:
             return
 
         self._prepare_to_shutdown()

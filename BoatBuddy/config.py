@@ -16,6 +16,11 @@ SOCKET_TIMEOUT = 60
 # Victron Plugin
 MODBUS_TCP_PORT = 502
 
+# Run modes
+RUN_MODE_AUTO = 'auto'
+RUN_MODE_MANUAL = 'manual'
+RUN_MODE_CONTINUOUS = 'continuous'
+
 # Defaults for command line options
 DEFAULT_FILENAME_PREFIX = "Trip_"
 DEFAULT_SUMMARY_FILENAME_PREFIX = "Trip_Summary_"
@@ -24,7 +29,7 @@ DEFAULT_EXCEL_OUTPUT_FLAG = False
 DEFAULT_GPX_OUTPUT_FLAG = False
 DEFAULT_SUMMARY_OUTPUT_FLAG = False
 DEFAULT_VERBOSE_FLAG = False
-DEFAULT_LIMITED_FLAG = False
+DEFAULT_RUN_MODE = RUN_MODE_MANUAL
 
 # Display filters
 SESSION_HEADER = ["Starting Timestamp (UTC)", "Starting Timestamp (Local)", "Duration"]
