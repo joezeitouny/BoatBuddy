@@ -102,7 +102,7 @@ class ConsoleManager:
         #     summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}')
 
         layout["summary_body"].update(Layout(Panel(summary_body_table,
-                                                   title=f'{self._plugin_manager.get_session_name()} Summary')))
+                                                   title=f'Session Summary')))
         return layout
 
     @staticmethod
@@ -111,7 +111,14 @@ class ConsoleManager:
         footer_table.add_column()
         last_log_entries = utils.get_last_log_entries(3)
         for entry in last_log_entries:
-            footer_table.add_row(f'{entry}')
+            colour = 'default'
+            if 'INFO' in str(entry).upper():
+                colour = 'green'
+            elif 'WARNING' in str(entry).upper():
+                colour = 'yellow'
+            elif 'ERROR' in str(entry).upper():
+                colour = 'red'
+            footer_table.add_row(f'[{colour}]{entry}[/{colour}]')
         return Panel(footer_table, title=f'Last 3 log entries')
 
     def make_layout(self) -> Layout:
