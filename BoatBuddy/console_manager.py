@@ -22,7 +22,7 @@ class ConsoleManager:
         with Live(self.make_layout(), refresh_per_second=4) as live:
             try:
                 while True:
-                    time.sleep(0.4)
+                    time.sleep(0.5)
                     live.update(self.make_layout())
             except KeyboardInterrupt:  # on keyboard interrupt...
                 utils.get_logger().warning("Ctrl+C signal detected!")
@@ -121,6 +121,14 @@ class ConsoleManager:
             footer_table.add_row(f'[{colour}]{entry}[/{colour}]')
         return Panel(footer_table, title=f'Last 3 log entries')
 
+    @staticmethod
+    def make_key_value_table(title, key_value_list) -> Panel:
+        table = Table.grid(expand=True)
+        table.add_column()
+        for key in key_value_list:
+            table.add_row(f'[b]{key}[/b]: {key_value_list[key]}')
+        return Panel(table, title=title)
+
     def make_layout(self) -> Layout:
         layout = Layout()
 
@@ -154,52 +162,34 @@ class ConsoleManager:
                 )
 
             # Populate the victron layout
-            victron_table = Table.grid(expand=True)
-            victron_table.add_column()
-            victron_metrics_key_value_list = self._plugin_manager.get_filtered_victron_metrics()
-            for key in victron_metrics_key_value_list:
-                victron_table.add_row(f'[b]{key}[/b]: {victron_metrics_key_value_list[key]}')
-            layout["victron"].update(Panel(victron_table, title='Victron Metrics'))
+            layout["victron"].update(self.make_key_value_table('Victron Metrics',
+                                                               self._plugin_manager.get_filtered_victron_metrics()))
 
-            nmea_table = Table.grid(expand=True)
-            nmea_table.add_column()
-            nmea_metrics_key_value_list = self._plugin_manager.get_filtered_nmea_metrics()
-            for key in nmea_metrics_key_value_list:
-                nmea_table.add_row(f'[b]{key}[/b]: {nmea_metrics_key_value_list[key]}')
-            layout["nmea"].update(Panel(nmea_table, title='NMEA Metrics'))
+            # Populate the NMEA layout
+            layout["nmea"].update(self.make_key_value_table('NMEA Metrics',
+                                                            self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.nmea_server_ip:
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="nmea"),
                     Layout(name="summary", ratio=2),
                 )
-
-            nmea_table = Table.grid(expand=True)
-            nmea_table.add_column()
-            nmea_metrics_key_value_list = self._plugin_manager.get_filtered_nmea_metrics()
-            for key in nmea_metrics_key_value_list:
-                nmea_table.add_row(f'[b]{key}[/b]: {nmea_metrics_key_value_list[key]}')
-            if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
-                layout["nmea"].update(Panel(nmea_table, title='NMEA Metrics'))
+                layout["nmea"].update(self.make_key_value_table('NMEA Metrics',
+                                                                self._plugin_manager.get_filtered_nmea_metrics()))
             else:
-                layout["body"].update(Panel(nmea_table, title='NMEA Metrics'))
+                layout["body"].update(self.make_key_value_table('NMEA Metrics',
+                                                                self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.victron_server_ip:
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="victron"),
                     Layout(name="summary", ratio=2),
                 )
-
-            # Populate the victron layout
-            victron_table = Table.grid(expand=True)
-            victron_table.add_column()
-            victron_metrics_key_value_list = self._plugin_manager.get_filtered_victron_metrics()
-            for key in victron_metrics_key_value_list:
-                victron_table.add_row(f'[b]{key}[/b]: {victron_metrics_key_value_list[key]}')
-            if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
-                layout["victron"].update(Panel(victron_table, title='Victron Metrics'))
+                layout["victron"].update(self.make_key_value_table('Victron Metrics',
+                                                                   self._plugin_manager.get_filtered_victron_metrics()))
             else:
-                layout["body"].update(Panel(victron_table, title='Victron Metrics'))
+                layout["body"].update(self.make_key_value_table('Victron Metrics',
+                                                                self._plugin_manager.get_filtered_victron_metrics()))
         if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
             layout["summary"].update(self.make_summary())
 

@@ -32,9 +32,6 @@ def get_last_log_entries(count) -> []:
         for line in (file.readlines()[-count:]):
             lines.append(line.rstrip('\r\n'))
 
-    if len(lines) > 0:
-        lines.reverse()
-
     return lines
 
 

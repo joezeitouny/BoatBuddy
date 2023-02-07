@@ -80,6 +80,26 @@ class VictronEntry:
 
 class VictronPlugin(GenericPlugin):
     _log_entries = []
+    _grid_power = ''
+    _generator_power = ''
+    _input_source_string = ''
+    _ac_consumption = ''
+    _battery_state_string = ''
+    _battery_voltage = ''
+    _battery_current = ''
+    _battery_power = ''
+    _battery_soc = ''
+    _pv_power = ''
+    _pv_current = ''
+    _starter_battery_voltage = ''
+    _ac_input_voltage = ''
+    _ac_input_current = ''
+    _ac_input_frequency = ''
+    _ve_bus_state_string = ''
+    _tank1_level = ''
+    _tank1_type_string = ''
+    _tank2_level = ''
+    _tank2_type_string = ''
 
     def __init__(self, args):
         # invoking the __init__ of the parent class
@@ -100,164 +120,168 @@ class VictronPlugin(GenericPlugin):
             # TCP auto connect on modbus request, close after it
             c = ModbusClient(host=server_ip, port=server_port, unit_id=100, auto_open=True, auto_close=True)
 
-            grid_power = int(c.read_holding_registers(820, 1)[0])
-            generator_power = int(np.int16(c.read_holding_registers(823, 1)[0]))
+            self._grid_power = int(c.read_holding_registers(820, 1)[0])
+            self._generator_power = int(np.int16(c.read_holding_registers(823, 1)[0]))
 
-            input_source_string = ''
+            self._input_source_string = ''
             input_source = int(c.read_holding_registers(826, 1)[0])
             if input_source == 0:
-                input_source_string = 'Unknown'
+                self._input_source_string = 'Unknown'
             elif input_source == 1:
-                input_source_string = 'Grid'
+                self._input_source_string = 'Grid'
             elif input_source == 2:
-                input_source_string = 'Generator'
+                self._input_source_string = 'Generator'
             elif input_source == 3:
-                input_source_string = 'Shore Power'
+                self._input_source_string = 'Shore Power'
             elif input_source == 240:
-                input_source_string = 'Not Connected'
+                self._input_source_string = 'Not Connected'
 
-            ac_consumption = int(c.read_holding_registers(817, 1)[0])
+            self._ac_consumption = int(c.read_holding_registers(817, 1)[0])
 
-            battery_state_string = ''
+            self._battery_state_string = ''
             battery_state = int(c.read_holding_registers(844, 1)[0])
             if battery_state == 0:
-                battery_state_string = 'idle'
+                self._battery_state_string = 'idle'
             elif battery_state == 1:
-                battery_state_string = 'charging'
+                self._battery_state_string = 'charging'
             elif battery_state == 2:
-                battery_state_string = 'discharging'
+                self._battery_state_string = 'discharging'
 
-            battery_voltage = int(c.read_holding_registers(840, 1)[0]) / 10
-            battery_current = int(np.int16(c.read_holding_registers(841, 1)[0])) / 10
-            battery_power = int(np.int16(c.read_holding_registers(842, 1)[0]))
-            battery_soc = int(c.read_holding_registers(843, 1)[0])
-            pv_power = int(c.read_holding_registers(850, 1)[0])
-            pv_current = int(np.int16(c.read_holding_registers(851, 1)[0])) / 10
+            self._battery_voltage = int(c.read_holding_registers(840, 1)[0]) / 10
+            self._battery_current = int(np.int16(c.read_holding_registers(841, 1)[0])) / 10
+            self._battery_power = int(np.int16(c.read_holding_registers(842, 1)[0]))
+            self._battery_soc = int(c.read_holding_registers(843, 1)[0])
+            self._pv_power = int(c.read_holding_registers(850, 1)[0])
+            self._pv_current = int(np.int16(c.read_holding_registers(851, 1)[0])) / 10
 
             # Get starter battery voltage
             c.unit_id = 223
-            starter_battery_voltage = int(c.read_holding_registers(260, 1)[0]) / 100
+            self._starter_battery_voltage = int(c.read_holding_registers(260, 1)[0]) / 100
 
             # Get VE.Bus metrics
             c.unit_id = 227
-            ac_input_voltage = int(c.read_holding_registers(3, 1)[0]) / 10
-            ac_input_current = int(np.int16(c.read_holding_registers(6, 1)[0])) / 10
-            ac_input_frequency = int(c.read_holding_registers(9, 1)[0]) / 100
+            self._ac_input_voltage = int(c.read_holding_registers(3, 1)[0]) / 10
+            self._ac_input_current = int(np.int16(c.read_holding_registers(6, 1)[0])) / 10
+            self._ac_input_frequency = int(c.read_holding_registers(9, 1)[0]) / 100
 
-            ve_bus_state_string = ''
+            self._ve_bus_state_string = ''
             ve_bus_state = int(c.read_holding_registers(31, 1)[0])
             if ve_bus_state == 0:
-                ve_bus_state_string = 'Off'
+                self._ve_bus_state_string = 'Off'
             elif ve_bus_state == 1:
-                ve_bus_state_string = 'Low Power'
+                self._ve_bus_state_string = 'Low Power'
             elif ve_bus_state == 2:
-                ve_bus_state_string = 'Fault'
+                self._ve_bus_state_string = 'Fault'
             elif ve_bus_state == 3:
-                ve_bus_state_string = 'Bulk'
+                self._ve_bus_state_string = 'Bulk'
             elif ve_bus_state == 4:
-                ve_bus_state_string = 'Absorption'
+                self._ve_bus_state_string = 'Absorption'
             elif ve_bus_state == 5:
-                ve_bus_state_string = 'Float'
+                self._ve_bus_state_string = 'Float'
             elif ve_bus_state == 6:
-                ve_bus_state_string = 'Storage'
+                self._ve_bus_state_string = 'Storage'
             elif ve_bus_state == 7:
-                ve_bus_state_string = 'Equalize'
+                self._ve_bus_state_string = 'Equalize'
             elif ve_bus_state == 8:
-                ve_bus_state_string = 'Passthru'
+                self._ve_bus_state_string = 'Passthru'
             elif ve_bus_state == 9:
-                ve_bus_state_string = 'Inverting'
+                self._ve_bus_state_string = 'Inverting'
             elif ve_bus_state == 10:
-                ve_bus_state_string = 'Power assist'
+                self._ve_bus_state_string = 'Power assist'
             elif ve_bus_state == 11:
-                ve_bus_state_string = 'Power supply'
+                self._ve_bus_state_string = 'Power supply'
             elif ve_bus_state == 252:
-                ve_bus_state_string = 'External control'
+                self._ve_bus_state_string = 'External control'
 
             c.unit_id = 20
-            tank1_level = int(c.read_holding_registers(3004, 1)[0]) / 10
+            self._tank1_level = int(c.read_holding_registers(3004, 1)[0]) / 10
             tank1_type = int(c.read_holding_registers(3003, 1)[0])
-            tank1_type_string = ''
+            self._tank1_type_string = ''
             # 0=Fuel;1=Fresh water;2=Waste water;3=Live well;4=Oil;5=Black water (sewage);
             # 6=Gasoline;7=Diesel;8=LPG;9=LNG;10=Hydraulic oil;11=Raw water
             if tank1_type == 0:
-                tank1_type_string = 'Fuel'
+                self._tank1_type_string = 'Fuel'
             elif tank1_type == 1:
-                tank1_type_string = 'Fresh water'
+                self._tank1_type_string = 'Fresh water'
             elif tank1_type == 2:
-                tank1_type_string = 'Waste water'
+                self._tank1_type_string = 'Waste water'
             elif tank1_type == 3:
-                tank1_type_string = 'Live well'
+                self._tank1_type_string = 'Live well'
             elif tank1_type == 4:
-                tank1_type_string = 'Oil'
+                self._tank1_type_string = 'Oil'
             elif tank1_type == 5:
-                tank1_type_string = 'Black water (sewage)'
+                self._tank1_type_string = 'Black water (sewage)'
             elif tank1_type == 6:
-                tank1_type_string = 'Gasoline'
+                self._tank1_type_string = 'Gasoline'
             elif tank1_type == 7:
-                tank1_type_string = 'Diesel'
+                self._tank1_type_string = 'Diesel'
             elif tank1_type == 8:
-                tank1_type_string = 'LPG'
+                self._tank1_type_string = 'LPG'
             elif tank1_type == 9:
-                tank1_type_string = 'LNG'
+                self._tank1_type_string = 'LNG'
             elif tank1_type == 10:
-                tank1_type_string = 'Hydraulic oil'
+                self._tank1_type_string = 'Hydraulic oil'
             elif tank1_type == 11:
-                tank1_type_string = 'Raw water'
+                self._tank1_type_string = 'Raw water'
 
             c.unit_id = 21
-            tank2_level = int(c.read_holding_registers(3004, 1)[0]) / 10
+            self._tank2_level = int(c.read_holding_registers(3004, 1)[0]) / 10
             tank2_type = int(c.read_holding_registers(3003, 1)[0])
-            tank2_type_string = ''
+            self._tank2_type_string = ''
             if tank2_type == 0:
-                tank2_type_string = 'Fuel'
+                self._tank2_type_string = 'Fuel'
             elif tank2_type == 1:
-                tank2_type_string = 'Fresh water'
+                self._tank2_type_string = 'Fresh water'
             elif tank2_type == 2:
-                tank2_type_string = 'Waste water'
+                self._tank2_type_string = 'Waste water'
             elif tank2_type == 3:
-                tank2_type_string = 'Live well'
+                self._tank2_type_string = 'Live well'
             elif tank2_type == 4:
-                tank2_type_string = 'Oil'
+                self._tank2_type_string = 'Oil'
             elif tank2_type == 5:
-                tank2_type_string = 'Black water (sewage)'
+                self._tank2_type_string = 'Black water (sewage)'
             elif tank2_type == 6:
-                tank2_type_string = 'Gasoline'
+                self._tank2_type_string = 'Gasoline'
             elif tank2_type == 7:
-                tank2_type_string = 'Diesel'
+                self._tank2_type_string = 'Diesel'
             elif tank2_type == 8:
-                tank2_type_string = 'LPG'
+                self._tank2_type_string = 'LPG'
             elif tank2_type == 9:
-                tank2_type_string = 'LNG'
+                self._tank2_type_string = 'LNG'
             elif tank2_type == 10:
-                tank2_type_string = 'Hydraulic oil'
+                self._tank2_type_string = 'Hydraulic oil'
             elif tank2_type == 11:
-                tank2_type_string = 'Raw water'
+                self._tank2_type_string = 'Raw water'
 
-            utils.get_logger().debug(f'Active Input source: {input_source_string} Grid Power: {grid_power} W ' +
-                                     f'Generator Power: {generator_power} W AC Consumption: {ac_consumption} W')
-            utils.get_logger().debug(f'AC input 1 {ac_input_voltage} V {ac_input_current} A {ac_input_frequency} Hz ' +
-                                     f'State: {ve_bus_state_string}')
+            utils.get_logger().debug(f'Active Input source: {self._input_source_string} ' +
+                                     f'Grid Power: {self._grid_power} W ' +
+                                     f'Generator Power: {self._generator_power} W ' +
+                                     f'AC Consumption: {self._ac_consumption} W')
+            utils.get_logger().debug(f'AC input 1 {self._ac_input_voltage} V {self._ac_input_current} A ' +
+                                     f'{self._ac_input_frequency} Hz ' +
+                                     f'State: {self._ve_bus_state_string}')
             utils.get_logger().debug(
-                f'Housing battery stats {battery_voltage} V  {battery_current} A {battery_power} W ' +
-                f'{battery_soc} % {battery_state_string}')
-            utils.get_logger().debug(f'PV {pv_power} W {pv_current} A')
-            utils.get_logger().debug(f'Starter battery voltage: {starter_battery_voltage} V')
-            utils.get_logger().debug(f'Tank 1 Level: {tank1_level} Type: {tank1_type_string}')
-            utils.get_logger().debug(f'Tank 2 Level: {tank2_level} Type: {tank2_type_string}')
-
-            entry = VictronEntry(input_source_string, grid_power, generator_power, ac_input_voltage,
-                                 ac_input_current, ac_input_frequency, ve_bus_state_string, ac_consumption,
-                                 battery_voltage, battery_current, battery_power, battery_soc, battery_state_string,
-                                 pv_power, pv_current, starter_battery_voltage, tank1_level, tank1_type_string,
-                                 tank2_level, tank2_type_string)
-
-            if store_entry:
-                self._log_entries.append(entry)
-
-            return entry
+                f'Housing battery stats {self._battery_voltage} V  {self._battery_current} A {self._battery_power} W ' +
+                f'{self._battery_soc} % {self._battery_state_string}')
+            utils.get_logger().debug(f'PV {self._pv_power} W {self._pv_current} A')
+            utils.get_logger().debug(f'Starter battery voltage: {self._starter_battery_voltage} V')
+            utils.get_logger().debug(f'Tank 1 Level: {self._tank1_level} Type: {self._tank1_type_string}')
+            utils.get_logger().debug(f'Tank 2 Level: {self._tank2_level} Type: {self._tank2_type_string}')
         except ValueError:
-            utils.get_logger().info("Error with host or port params")
-            return None
+            utils.get_logger().info("Error with victron host or port params")
+
+        entry = VictronEntry(self._input_source_string, self._grid_power, self._generator_power,
+                             self._ac_input_voltage, self._ac_input_current, self._ac_input_frequency,
+                             self._ve_bus_state_string, self._ac_consumption, self._battery_voltage,
+                             self._battery_current, self._battery_power, self._battery_soc,
+                             self._battery_state_string, self._pv_power, self._pv_current,
+                             self._starter_battery_voltage, self._tank1_level, self._tank1_type_string,
+                             self._tank2_level, self._tank2_type_string)
+
+        if store_entry:
+            self._log_entries.append(entry)
+
+        return entry
 
     def get_metadata_values(self):
         if len(self._log_entries) > 0:
