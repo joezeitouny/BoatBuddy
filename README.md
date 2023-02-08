@@ -17,7 +17,7 @@ $ pip install BoatBuddy
 - Ability to generate Excel and / or CSV logs
 - Generate GPX file with GPS coordinates combined with timestamps
 - Ability to generate a summary log for each session
-- Sessions can be delimited by the NMEA server availability
+- Sessions can be tied by the NMEA server, Victron system availability or by a specified time interval
 
 ### Usage
 
