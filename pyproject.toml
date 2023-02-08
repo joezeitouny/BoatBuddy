@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "BoatBuddy"
-version = "0.2.1"
+version = "0.2.2"
 authors = [
     { name = "Joe Zeitouny", email = "joezeitouny@gmail.com" },
 ]
@@ -24,8 +24,7 @@ dependencies = [
     "pyModbusTCP ~= 0.2.0",
     "Events ~= 0.4",
     "numpy ~= 1.24.1",
-    "rich ~= 13.3.1",
-    "toml ~= 0.10.2"
+    "rich ~= 13.3.1"
 ]
 [project.urls]
 "Homepage" = "https://github.com/joezeitouny/BoatBuddy"
