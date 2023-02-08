@@ -1,12 +1,17 @@
 import threading
 
 import numpy as np
+from events import Events
 from pyModbusTCP.client import ModbusClient
 
 from BoatBuddy import config
 from BoatBuddy import utils
 from BoatBuddy.generic_plugin import GenericPlugin
 from BoatBuddy.generic_plugin import PluginStatus
+
+
+class VictronPluginEvents(Events):
+    __events__ = ('on_connect', 'on_disconnect',)
 
 
 class VictronEntry:
@@ -83,6 +88,8 @@ class VictronEntry:
 
 class VictronPlugin(GenericPlugin):
     _log_entries = []
+    _events = None
+
     _grid_power = ''
     _generator_power = ''
     _input_source_string = ''
@@ -135,6 +142,9 @@ class VictronPlugin(GenericPlugin):
             utils.get_logger().debug(f'Connection to Victron system {server_ip} is established')
 
             self._plugin_status = PluginStatus.RUNNING
+
+            if self._events:
+                self._events.on_connect()
 
             try:
                 self._grid_power = utils.try_parse_int(c.read_holding_registers(820, 1)[0])
@@ -270,15 +280,21 @@ class VictronPlugin(GenericPlugin):
                 elif tank2_type == 11:
                     self._tank2_type_string = 'Raw water'
             except TypeError:
-                utils.get_logger().info(f'Victron system on {server_ip} is unreachable')
-                self._plugin_status = PluginStatus.DOWN
+                self._handle_connection_exception()
         except ValueError:
-            utils.get_logger().info(f'Victron system on {server_ip} is unreachable')
-            self._plugin_status = PluginStatus.DOWN
+            self._handle_connection_exception()
 
         # Reset the timer
         self._timer = self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
+
+    def _handle_connection_exception(self):
+        utils.get_logger().info(f'Victron system on {self._args.victron_server_ip} is unreachable')
+        self._plugin_status = PluginStatus.DOWN
+
+        # If anyone is listening to events then notify of a disconnection
+        if self._events:
+            self._events.on_disconnect()
 
     def get_metadata_headers(self):
         return ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
@@ -454,3 +470,6 @@ class VictronPlugin(GenericPlugin):
 
     def get_status(self) -> PluginStatus:
         return self._plugin_status
+
+    def register_for_events(self, events):
+        self._events = events

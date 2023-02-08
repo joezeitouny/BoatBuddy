@@ -17,7 +17,7 @@ if __name__ == '__main__':
                         csv=config.DEFAULT_CSV_OUTPUT_FLAG, gpx=config.DEFAULT_GPX_OUTPUT_FLAG,
                         summary=config.DEFAULT_SUMMARY_OUTPUT_FLAG,
                         summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
-                        verbose=config.DEFAULT_VERBOSE_FLAG, run_mode=config.DEFAULT_RUN_MODE,
+                        verbose=config.DEFAULT_VERBOSE_FLAG, run_mode=config.DEFAULT_SESSION_RUN_MODE,
                         log=config.LOG_LEVEL)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
@@ -41,8 +41,8 @@ if __name__ == '__main__':
     parser.add_option('--victron-server-ip', dest='victron_server_ip', type='string',
                       help=f'Append Victron system metrics from the specified device IP')
     parser.add_option('--run-mode', type='string', dest='run_mode',
-                      help=f'Session run mode can be \'auto\' or \'manual\' \'continuous\'. ' +
-                           f'Default is: {config.DEFAULT_RUN_MODE}')
+                      help=f'Session run modes can be [\'auto-victron\', \'auto-nmea\', \'continuous\', ' +
+                           f'\'interval\']. Default is: {config.DEFAULT_SESSION_RUN_MODE}')
     parser.add_option('--log', dest='log', type='string',
                       help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
     (options, args) = parser.parse_args()
@@ -63,9 +63,13 @@ if __name__ == '__main__':
     elif not options.nmea_server_ip and not options.victron_server_ip:
         print(f'Invalid argument: At least one system metric needs to be specified (NMEA0183, Victron...)\r\n')
         parser.print_help()
-    elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO and not options.nmea_server_ip:
-        print(f'Invalid argument: Cannot use the \'auto\' run mode ' +
+    elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA and not options.nmea_server_ip:
+        print(f'Invalid argument: Cannot use the \'auto-nmea\' session run mode ' +
               f'without providing NMEA0183 configuration parameters\r\n')
+        parser.print_help()
+    elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON and not options.victron_server_ip:
+        print(f'Invalid argument: Cannot use the \'auto-victron\' session run mode ' +
+              f'without providing victron server configuration parameters\r\n')
         parser.print_help()
     elif options.interval < config.INITIAL_SNAPSHOT_INTERVAL:
         print(f'Invalid argument: Specified disk write interval cannot be less than ' +

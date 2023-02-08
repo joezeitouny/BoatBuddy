@@ -13,7 +13,7 @@ from BoatBuddy import utils
 from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
-from BoatBuddy.victron_plugin import VictronPlugin
+from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
 
 
 class PluginManagerStatus(Enum):
@@ -54,15 +54,21 @@ class PluginManager:
             # initialize the Victron plugin
             self._victron_plugin = VictronPlugin(self._options)
 
+            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
+                victron_connection_events = VictronPluginEvents()
+                victron_connection_events.on_connect += self._start_session
+                victron_connection_events.on_disconnect += self._on_disconnect
+                self._victron_plugin.register_for_events(victron_connection_events)
+
         if self._options.nmea_server_ip:
             # initialize the NMEA0183 plugin
             self._nmea_plugin = NMEAPlugin(self._options)
 
-            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO:
-                limited_mode_events = NMEAPluginEvents()
-                limited_mode_events.on_connect += self._start_session
-                limited_mode_events.on_disconnect += self._on_nmea_server_disconnect
-                self._nmea_plugin.register_for_events(limited_mode_events)
+            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA:
+                nmea_connection_events = NMEAPluginEvents()
+                nmea_connection_events.on_connect += self._start_session
+                nmea_connection_events.on_disconnect += self._on_disconnect
+                self._nmea_plugin.register_for_events(nmea_connection_events)
 
         # If normal mode is active then start recording system metrics immediately
         if str(options.run_mode).lower() == config.SESSION_RUN_MODE_CONTINUOUS:
@@ -164,9 +170,10 @@ class PluginManager:
 
         self._is_session_active = True
 
-    def _on_nmea_server_disconnect(self):
+    def _on_disconnect(self):
         # run through this method implementation only if the application is running in auto mode
-        if not str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO:
+        if not str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA \
+                and not str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
             return
 
         # End the active session (if any)

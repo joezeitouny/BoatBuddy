@@ -17,9 +17,10 @@ MODBUS_TCP_PORT = 502
 VICTRON_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
 
 # Run modes
-SESSION_RUN_MODE_AUTO = 'auto'
-SESSION_RUN_MODE_MANUAL = 'manual'
+SESSION_RUN_MODE_AUTO_NMEA = 'auto-nmea'
+SESSION_RUN_MODE_AUTO_VICTRON = 'auto-victron'
 SESSION_RUN_MODE_CONTINUOUS = 'continuous'
+SESSION_RUN_MODE_INTERVAL = 'interval'
 
 # Defaults for command line options
 DEFAULT_FILENAME_PREFIX = "Trip_"
@@ -29,7 +30,7 @@ DEFAULT_EXCEL_OUTPUT_FLAG = False
 DEFAULT_GPX_OUTPUT_FLAG = False
 DEFAULT_SUMMARY_OUTPUT_FLAG = False
 DEFAULT_VERBOSE_FLAG = False
-DEFAULT_RUN_MODE = SESSION_RUN_MODE_CONTINUOUS
+DEFAULT_SESSION_RUN_MODE = SESSION_RUN_MODE_CONTINUOUS
 
 # Display filters
 SESSION_HEADER = ["Starting Timestamp (UTC)", "Starting Timestamp (Local)", "Duration"]
