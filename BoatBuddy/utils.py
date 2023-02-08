@@ -1,5 +1,7 @@
 import logging
+import sys
 
+import toml
 from latloncalc.latlon import Latitude, Longitude
 
 from BoatBuddy import config
@@ -8,11 +10,19 @@ log_filename = ''
 
 
 def get_application_version():
-    return config.APPLICATION_VERSION
+    if '_pydevd_bundle' in sys.modules:
+        data = toml.load("../pyproject.toml")  # If the code is running from PyCharm IDE
+    else:
+        data = toml.load("pyproject.toml")
+    return data['project']['version']
 
 
 def get_application_name():
-    return config.APPLICATION_NAME
+    if '_pydevd_bundle' in sys.modules:
+        data = toml.load("../pyproject.toml")  # If the code is running from PyCharm IDE
+    else:
+        data = toml.load("pyproject.toml")
+    return data['project']['name']
 
 
 def get_logger():
