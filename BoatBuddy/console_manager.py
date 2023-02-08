@@ -162,11 +162,11 @@ class ConsoleManager:
                 )
 
             # Populate the victron layout
-            layout["victron"].update(self.make_key_value_table('Victron Metrics',
+            layout["victron"].update(self.make_key_value_table('Victron Plugin',
                                                                self._plugin_manager.get_filtered_victron_metrics()))
 
             # Populate the NMEA layout
-            layout["nmea"].update(self.make_key_value_table('NMEA Metrics',
+            layout["nmea"].update(self.make_key_value_table('NMEA Plugin',
                                                             self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.nmea_server_ip:
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
@@ -174,10 +174,10 @@ class ConsoleManager:
                     Layout(name="nmea"),
                     Layout(name="summary", ratio=2),
                 )
-                layout["nmea"].update(self.make_key_value_table('NMEA Metrics',
+                layout["nmea"].update(self.make_key_value_table('NMEA Plugin',
                                                                 self._plugin_manager.get_filtered_nmea_metrics()))
             else:
-                layout["body"].update(self.make_key_value_table('NMEA Metrics',
+                layout["body"].update(self.make_key_value_table('NMEA Plugin',
                                                                 self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.victron_server_ip:
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
@@ -185,10 +185,10 @@ class ConsoleManager:
                     Layout(name="victron"),
                     Layout(name="summary", ratio=2),
                 )
-                layout["victron"].update(self.make_key_value_table('Victron Metrics',
+                layout["victron"].update(self.make_key_value_table('Victron Plugin',
                                                                    self._plugin_manager.get_filtered_victron_metrics()))
             else:
-                layout["body"].update(self.make_key_value_table('Victron Metrics',
+                layout["body"].update(self.make_key_value_table('Victron Plugin',
                                                                 self._plugin_manager.get_filtered_victron_metrics()))
         if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
             layout["summary"].update(self.make_summary())
