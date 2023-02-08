@@ -11,6 +11,7 @@ from latloncalc.latlon import LatLon, Latitude, Longitude
 from BoatBuddy import config
 from BoatBuddy import utils
 from BoatBuddy.generic_plugin import GenericPlugin
+from BoatBuddy.generic_plugin import PluginStatus
 
 
 class NMEAPluginEvents(Events):
@@ -91,8 +92,6 @@ class NMEAEntry:
 
 class NMEAPlugin(GenericPlugin):
     _log_entries = []
-    _server_ip = ''
-    _server_port = 0
 
     _water_temperature = 0.0
     _depth = 0.0
@@ -107,8 +106,6 @@ class NMEAPlugin(GenericPlugin):
     _speed_over_ground = 0.0
     _gps_fix_captured = False
 
-    _exit_signal = threading.Event()
-    _nmea_server_thread = threading.Thread()
     _events = None
 
     def __init__(self, args):
@@ -118,8 +115,10 @@ class NMEAPlugin(GenericPlugin):
         self._server_ip = args.nmea_server_ip
         self._server_port = int(args.nmea_port)
         self._exit_signal = threading.Event()
-        self._nmea_server_thread = threading.Thread(target=self._run_client)
+        self._nmea_server_thread = threading.Thread(target=self.main_loop)
         self._nmea_server_thread.start()
+
+        self._plugin_status = PluginStatus.STARTING
 
     def get_metadata_headers(self):
         return ["True Heading (degrees)", "True Wind Speed (knots)",
@@ -274,7 +273,7 @@ class NMEAPlugin(GenericPlugin):
     def reset_entries(self):
         self._log_entries = []
 
-    def _run_client(self):
+    def main_loop(self):
         while not self._exit_signal.is_set():
             utils.get_logger().info(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
                                     f'port {self._server_port}...')
@@ -285,6 +284,8 @@ class NMEAPlugin(GenericPlugin):
                 client.connect((self._server_ip, self._server_port))
 
                 utils.get_logger().info(f'Connection to NMEA0183 server established')
+
+                self._plugin_status = PluginStatus.RUNNING
 
                 if self._events:
                     self._events.on_connect()
@@ -300,9 +301,11 @@ class NMEAPlugin(GenericPlugin):
                     self._process_data(str_data)
 
             except TimeoutError:
-                utils.get_logger().info(f'Connection to server {self._server_ip} is lost!')
+                utils.get_logger().info(f'Connection to NMEA0183 server {self._server_ip} is lost!')
+                self._plugin_status = PluginStatus.DOWN
             except OSError:
-                utils.get_logger().info(f'Server {self._server_ip} is down!')
+                utils.get_logger().info(f'NMEA0183 Server {self._server_ip} is down!')
+                self._plugin_status = PluginStatus.DOWN
             finally:
                 client.close()
                 self._reset_metadata_values()
@@ -404,3 +407,6 @@ class NMEAPlugin(GenericPlugin):
         self._speed_over_water = 0.0
         self._speed_over_ground = 0.0
         self._gps_fix_captured = False
+
+    def get_status(self) -> PluginStatus:
+        return self._plugin_status

@@ -4,6 +4,7 @@ from time import mktime
 
 from BoatBuddy import utils
 from BoatBuddy.generic_plugin import GenericPlugin
+from BoatBuddy.generic_plugin import PluginStatus
 
 
 class ClockEntry:
@@ -85,3 +86,6 @@ class ClockPlugin(GenericPlugin):
             return self._log_entries[len(self._log_entries) - 1].get_utc_timestamp()
         else:
             return time.gmtime()
+
+    def get_status(self) -> PluginStatus:
+        return PluginStatus.RUNNING

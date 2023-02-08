@@ -1,3 +1,12 @@
+from enum import Enum
+
+
+class PluginStatus(Enum):
+    STARTING = 1
+    RUNNING = 2
+    DOWN = 3
+
+
 class GenericPlugin:
     _args = None
 
@@ -6,6 +15,9 @@ class GenericPlugin:
 
     def get_metadata_headers(self):
         return []
+
+    def main_loop(self):
+        raise NotImplementedError("Method needs to be implemented")
 
     # Collect all current data in an object in memory (add that object to a list instance if needed)
     def take_snapshot(self, store_entry):
@@ -29,3 +41,6 @@ class GenericPlugin:
 
     def register_for_events(self, events):
         pass
+
+    def get_status(self) -> PluginStatus:
+        raise NotImplementedError("Method needs to be implemented")

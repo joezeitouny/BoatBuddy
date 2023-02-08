@@ -13,6 +13,7 @@ SOCKET_TIMEOUT = 60
 
 # Victron Plugin
 MODBUS_TCP_PORT = 502
+VICTRON_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
 
 # Run modes
 RUN_MODE_AUTO = 'auto'

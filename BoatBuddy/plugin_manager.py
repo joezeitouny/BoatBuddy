@@ -11,6 +11,7 @@ import openpyxl
 from BoatBuddy import config
 from BoatBuddy import utils
 from BoatBuddy.clock_plugin import ClockPlugin
+from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.victron_plugin import VictronPlugin
 
@@ -34,8 +35,6 @@ class PluginManager:
     _summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
     _timer = None
     _is_session_active = False
-    _options = None
-    _args = None
 
     def __init__(self, options, args):
         self._options = options
@@ -289,3 +288,15 @@ class PluginManager:
             summary_key_value_list.update(victron_dictionary)
 
         return summary_key_value_list
+
+    def get_victron_plugin_status(self) -> PluginStatus:
+        if not self._options.victron_server_ip:
+            return PluginStatus.DOWN
+
+        return self._victron_plugin.get_status()
+
+    def get_nmea_plugin_status(self) -> PluginStatus:
+        if not self._options.nmea_server_ip:
+            return PluginStatus.DOWN
+
+        return self._nmea_plugin.get_status()

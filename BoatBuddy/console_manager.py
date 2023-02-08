@@ -7,15 +7,17 @@ from rich.panel import Panel
 from rich.table import Table
 
 from BoatBuddy import utils
+from BoatBuddy.generic_plugin import PluginStatus
+from BoatBuddy.plugin_manager import PluginManager
 from BoatBuddy.plugin_manager import PluginManagerStatus
 
 
 class ConsoleManager:
 
-    def __init__(self, options, args, plugin_manager):
+    def __init__(self, options, args, manager: PluginManager):
         self._options = options
         self._args = args
-        self._plugin_manager = plugin_manager
+        self._plugin_manager = manager
 
         self._console = Console()
 
@@ -98,9 +100,6 @@ class ConsoleManager:
                 summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}', '')
             counter += 2
 
-        # for key in summary_key_value_list:
-        #     summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}')
-
         layout["summary_body"].update(Layout(Panel(summary_body_table,
                                                    title=f'Session Summary')))
         return layout
@@ -162,33 +161,65 @@ class ConsoleManager:
                 )
 
             # Populate the victron layout
-            layout["victron"].update(self.make_key_value_table('Victron Plugin',
+            plugin_status_str = ''
+            plugin_status = self._plugin_manager.get_victron_plugin_status()
+            if plugin_status == PluginStatus.DOWN:
+                plugin_status_str = ' [red](Down)[/red]'
+            elif plugin_status == PluginStatus.STARTING:
+                plugin_status_str = ' [yellow](Starting)[/yellow]'
+            elif plugin_status == PluginStatus.RUNNING:
+                plugin_status_str = ' [green](Running)[/green]'
+            layout["victron"].update(self.make_key_value_table('Victron Plugin' + plugin_status_str,
                                                                self._plugin_manager.get_filtered_victron_metrics()))
 
             # Populate the NMEA layout
-            layout["nmea"].update(self.make_key_value_table('NMEA Plugin',
+            plugin_status_str = ''
+            plugin_status = self._plugin_manager.get_nmea_plugin_status()
+            if plugin_status == PluginStatus.DOWN:
+                plugin_status_str = ' [red](Down)[/red]'
+            elif plugin_status == PluginStatus.STARTING:
+                plugin_status_str = ' [yellow](Starting)[/yellow]'
+            elif plugin_status == PluginStatus.RUNNING:
+                plugin_status_str = ' [green](Running)[/green]'
+            layout["nmea"].update(self.make_key_value_table('NMEA Plugin' + plugin_status_str,
                                                             self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.nmea_server_ip:
+            plugin_status_str = ''
+            plugin_status = self._plugin_manager.get_nmea_plugin_status()
+            if plugin_status == PluginStatus.DOWN:
+                plugin_status_str = ' [red](Down)[/red]'
+            elif plugin_status == PluginStatus.STARTING:
+                plugin_status_str = ' [yellow](Starting)[/yellow]'
+            elif plugin_status == PluginStatus.RUNNING:
+                plugin_status_str = ' [green](Running)[/green]'
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="nmea"),
                     Layout(name="summary", ratio=2),
                 )
-                layout["nmea"].update(self.make_key_value_table('NMEA Plugin',
+                layout["nmea"].update(self.make_key_value_table('NMEA Plugin' + plugin_status_str,
                                                                 self._plugin_manager.get_filtered_nmea_metrics()))
             else:
-                layout["body"].update(self.make_key_value_table('NMEA Plugin',
+                layout["body"].update(self.make_key_value_table('NMEA Plugin' + plugin_status_str,
                                                                 self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.victron_server_ip:
+            plugin_status_str = ''
+            plugin_status = self._plugin_manager.get_victron_plugin_status()
+            if plugin_status == PluginStatus.DOWN:
+                plugin_status_str = ' [red](Down)[/red]'
+            elif plugin_status == PluginStatus.STARTING:
+                plugin_status_str = ' [yellow](Starting)[/yellow]'
+            elif plugin_status == PluginStatus.RUNNING:
+                plugin_status_str = ' [green](Running)[/green]'
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="victron"),
                     Layout(name="summary", ratio=2),
                 )
-                layout["victron"].update(self.make_key_value_table('Victron Plugin',
+                layout["victron"].update(self.make_key_value_table('Victron Plugin' + plugin_status_str,
                                                                    self._plugin_manager.get_filtered_victron_metrics()))
             else:
-                layout["body"].update(self.make_key_value_table('Victron Plugin',
+                layout["body"].update(self.make_key_value_table('Victron Plugin' + plugin_status_str,
                                                                 self._plugin_manager.get_filtered_victron_metrics()))
         if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
             layout["summary"].update(self.make_summary())

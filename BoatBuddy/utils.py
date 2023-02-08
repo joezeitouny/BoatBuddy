@@ -25,6 +25,30 @@ def get_application_name():
     return data['project']['name']
 
 
+def try_parse_int(value) -> int:
+    if not value:
+        return 0
+
+    result = 0
+    try:
+        result = int(value)
+    except ValueError:
+        pass
+    return result
+
+
+def try_parse_float(value) -> float:
+    if not value:
+        return 0.0
+
+    result = 0.0
+    try:
+        result = float(value)
+    except ValueError:
+        pass
+    return result
+
+
 def get_logger():
     return logging.getLogger(config.LOGGER_NAME)
 
