@@ -40,11 +40,33 @@ class PluginManager:
         self._options = options
         self._args = args
 
-        self._initialize()
+        if not self._args[0].endswith('/'):
+            self._output_directory = self._args[0] + '/'
+        else:
+            self._output_directory = self._args[0]
+
+        utils.get_logger().debug('Initializing plugins')
+
+        # initialize the common time plugin
+        self._time_plugin = ClockPlugin(self._options)
+
+        if self._options.victron_server_ip:
+            # initialize the Victron plugin
+            self._victron_plugin = VictronPlugin(self._options)
+
+        if self._options.nmea_server_ip:
+            # initialize the NMEA0183 plugin
+            self._nmea_plugin = NMEAPlugin(self._options)
+
+            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO:
+                limited_mode_events = NMEAPluginEvents()
+                limited_mode_events.on_connect += self._start_session
+                limited_mode_events.on_disconnect += self._on_nmea_server_disconnect
+                self._nmea_plugin.register_for_events(limited_mode_events)
 
         # If normal mode is active then start recording system metrics immediately
-        if str(options.run_mode).lower() == config.RUN_MODE_CONTINUOUS:
-            self._start_collecting_metrics()
+        if str(options.run_mode).lower() == config.SESSION_RUN_MODE_CONTINUOUS:
+            self._start_session()
 
     def _write_log_data_to_disk(self):
         # Write contents to disk
@@ -92,32 +114,7 @@ class PluginManager:
         self._timer = threading.Timer(self._options.interval, self._write_log_data_to_disk)
         self._timer.start()
 
-    def _initialize(self):
-        utils.get_logger().debug('Initializing plugins')
-
-        if not self._args[0].endswith('/'):
-            self._output_directory = self._args[0] + '/'
-        else:
-            self._output_directory = self._args[0]
-
-        # initialize the common time plugin
-        self._time_plugin = ClockPlugin(self._options)
-
-        if self._options.victron_server_ip:
-            # initialize the Victron plugin
-            self._victron_plugin = VictronPlugin(self._options)
-
-        if self._options.nmea_server_ip:
-            # initialize the NMEA0183 plugin
-            self._nmea_plugin = NMEAPlugin(self._options)
-
-            if str(self._options.run_mode).lower() == config.RUN_MODE_AUTO:
-                limited_mode_events = NMEAPluginEvents()
-                limited_mode_events.on_connect += self._start_collecting_metrics
-                limited_mode_events.on_disconnect += self._on_nmea_server_disconnect
-                self._nmea_plugin.register_for_events(limited_mode_events)
-
-    def _start_collecting_metrics(self):
+    def _start_session(self):
         utils.get_logger().debug('Start collecting system metrics')
 
         suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
@@ -167,34 +164,20 @@ class PluginManager:
 
         self._is_session_active = True
 
-    def _prepare_to_shutdown(self):
-        utils.get_logger().info(f'Waiting for worker threads to finalize...')
-        # If the thread is running the wait until it finishes
-        if self._timer:
-            self._timer.cancel()
-        utils.get_logger().info(f'Disk write worker terminated')
-
-        self._time_plugin.finalize()
-
-        if self._options.victron_server_ip:
-            self._victron_plugin.finalize()
-
-        if self._options.nmea_server_ip:
-            self._nmea_plugin.finalize()
-
     def _on_nmea_server_disconnect(self):
-        # run through this method implementation only if the application is running in limited mode
-        if not str(self._options.run_mode).lower() == config.RUN_MODE_AUTO:
+        # run through this method implementation only if the application is running in auto mode
+        if not str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO:
             return
 
-        self._prepare_to_shutdown()
-
+        # End the active session (if any)
         if self._is_session_active:
             self._end_session()
-        # Re-initialize the system components to reset the state of the system
-        self._initialize()
 
     def _end_session(self):
+        # Stop the worker thread timer
+        if self._timer:
+            self._timer.cancel()
+
         # if the summary option is set then build a log summary excel workbook
         if self._options.summary:
             # Create an Excel workbook
@@ -240,9 +223,18 @@ class PluginManager:
         return PluginManagerStatus.IDLE
 
     def finalize(self):
-        self._prepare_to_shutdown()
         if self._is_session_active:
             self._end_session()
+
+        utils.get_logger().info(f'Waiting for worker threads to finalize...')
+
+        self._time_plugin.finalize()
+
+        if self._options.victron_server_ip:
+            self._victron_plugin.finalize()
+
+        if self._options.nmea_server_ip:
+            self._nmea_plugin.finalize()
 
     def get_filtered_nmea_metrics(self) -> {}:
         entry_key_value_list = {}

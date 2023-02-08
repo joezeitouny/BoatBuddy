@@ -115,23 +115,28 @@ class VictronPlugin(GenericPlugin):
 
     def main_loop(self):
         if self._exit_signal.is_set():
+            self._plugin_status = PluginStatus.DOWN
             utils.get_logger().info('Victron plugin instance is ready to be destroyed')
-        else:
-            server_ip = f'{self._args.victron_server_ip}'
-            server_port = config.MODBUS_TCP_PORT
+            return
+
+        self._plugin_status = PluginStatus.STARTING
+
+        server_ip = f'{self._args.victron_server_ip}'
+        server_port = config.MODBUS_TCP_PORT
+
+        try:
+            # TCP auto connect on modbus request, close after it
+            c = ModbusClient(host=server_ip, port=server_port, unit_id=100, auto_open=True, auto_close=True)
+
+            # Try to make a test inquiry to the system before proceeding any further
+            if c.read_holding_registers(820, 1) is None:
+                raise ValueError()
+
+            utils.get_logger().debug(f'Connection to Victron system {server_ip} is established')
+
+            self._plugin_status = PluginStatus.RUNNING
 
             try:
-                # TCP auto connect on modbus request, close after it
-                c = ModbusClient(host=server_ip, port=server_port, unit_id=100, auto_open=True, auto_close=True)
-
-                # Try to make a test inquiry to the system
-                if c.read_holding_registers(820, 1) is None:
-                    raise ValueError()
-
-                utils.get_logger().info(f'Connection to Victron system {server_ip} is established')
-
-                self._plugin_status = PluginStatus.RUNNING
-
                 self._grid_power = utils.try_parse_int(c.read_holding_registers(820, 1)[0])
                 self._generator_power = utils.try_parse_int(np.int16(c.read_holding_registers(823, 1)[0]))
 
@@ -264,13 +269,16 @@ class VictronPlugin(GenericPlugin):
                     self._tank2_type_string = 'Hydraulic oil'
                 elif tank2_type == 11:
                     self._tank2_type_string = 'Raw water'
-            except ValueError:
-                utils.get_logger().info(f'Victron system {server_ip} is unreachable')
+            except TypeError:
+                utils.get_logger().info(f'Victron system on {server_ip} is unreachable')
                 self._plugin_status = PluginStatus.DOWN
+        except ValueError:
+            utils.get_logger().info(f'Victron system on {server_ip} is unreachable')
+            self._plugin_status = PluginStatus.DOWN
 
-            # Reset the timer
-            self._timer = self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
-            self._timer.start()
+        # Reset the timer
+        self._timer = self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
+        self._timer.start()
 
     def get_metadata_headers(self):
         return ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',

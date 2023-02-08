@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_option('--victron-server-ip', dest='victron_server_ip', type='string',
                       help=f'Append Victron system metrics from the specified device IP')
     parser.add_option('--run-mode', type='string', dest='run_mode',
-                      help=f'Run mode can be \'auto\' or \'manual\' \'continuous\'. ' +
+                      help=f'Session run mode can be \'auto\' or \'manual\' \'continuous\'. ' +
                            f'Default is: {config.DEFAULT_RUN_MODE}')
     parser.add_option('--log', dest='log', type='string',
                       help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     elif not options.nmea_server_ip and not options.victron_server_ip:
         print(f'Invalid argument: At least one system metric needs to be specified (NMEA0183, Victron...)\r\n')
         parser.print_help()
-    elif str(options.run_mode).lower() == config.RUN_MODE_AUTO and not options.nmea_server_ip:
+    elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO and not options.nmea_server_ip:
         print(f'Invalid argument: Cannot use the \'auto\' run mode ' +
               f'without providing NMEA0183 configuration parameters\r\n')
         parser.print_help()
