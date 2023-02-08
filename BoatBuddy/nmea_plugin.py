@@ -116,7 +116,7 @@ class NMEAPlugin(GenericPlugin):
         self._server_ip = args.nmea_server_ip
         self._server_port = int(args.nmea_port)
         self._exit_signal = threading.Event()
-        self._timer = self._timer = threading.Timer(config.NMEA_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(config.NMEA_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
         self._plugin_status = PluginStatus.STARTING

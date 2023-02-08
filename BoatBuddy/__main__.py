@@ -18,12 +18,12 @@ if __name__ == '__main__':
                         summary=config.DEFAULT_SUMMARY_OUTPUT_FLAG,
                         summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
                         verbose=config.DEFAULT_VERBOSE_FLAG, run_mode=config.DEFAULT_SESSION_RUN_MODE,
-                        log=config.LOG_LEVEL)
+                        run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log=config.LOG_LEVEL)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
                                                                                f'Default is: {config.DEFAULT_TCP_PORT}')
-    parser.add_option('-i', '--interval', type='float', dest='interval',
+    parser.add_option('-i', '--interval', type='int', dest='interval',
                       help=f'Disk write interval (in seconds). Default is: ' +
                            f'{config.DEFAULT_DISK_WRITE_INTERVAL} seconds')
     parser.add_option('--excel', action='store_true', dest='excel', help='Generate an Excel workbook.')
@@ -41,8 +41,11 @@ if __name__ == '__main__':
     parser.add_option('--victron-server-ip', dest='victron_server_ip', type='string',
                       help=f'Append Victron system metrics from the specified device IP')
     parser.add_option('--run-mode', type='string', dest='run_mode',
-                      help=f'Session run modes can be [\'auto-victron\', \'auto-nmea\', \'continuous\', ' +
-                           f'\'interval\']. Default is: {config.DEFAULT_SESSION_RUN_MODE}')
+                      help=f'Session run modes can be: \'auto-victron\', \'auto-nmea\', \'continuous\', ' +
+                           f'\'interval\'. Default is: {config.DEFAULT_SESSION_RUN_MODE}')
+    parser.add_option('--run-mode-interval', type='int', dest='run_mode_interval',
+                      help=f'Session interval (in seconds) to be applied when run mode \'interval\' is specified.' +
+                           f' Default is: {config.DEFAULT_SESSION_INTERVAL}')
     parser.add_option('--log', dest='log', type='string',
                       help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
     (options, args) = parser.parse_args()
@@ -74,6 +77,9 @@ if __name__ == '__main__':
     elif options.interval < config.INITIAL_SNAPSHOT_INTERVAL:
         print(f'Invalid argument: Specified disk write interval cannot be less than ' +
               f'{config.INITIAL_SNAPSHOT_INTERVAL} seconds')
+    elif options.run_mode_interval < options.interval:
+        print(f'Invalid argument: Specified run mode interval time cannot be less than the value chosen for ' +
+              f'disk write interval which is {options.interval} seconds')
     else:
         if options.verbose:
             # Initialize the logging module

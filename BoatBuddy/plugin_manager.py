@@ -35,6 +35,7 @@ class PluginManager:
     _summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
     _timer = None
     _is_session_active = False
+    _session_timer = None
 
     def __init__(self, options, args):
         self._options = options
@@ -71,8 +72,24 @@ class PluginManager:
                 self._nmea_plugin.register_for_events(nmea_connection_events)
 
         # If normal mode is active then start recording system metrics immediately
-        if str(options.run_mode).lower() == config.SESSION_RUN_MODE_CONTINUOUS:
+        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_CONTINUOUS \
+                or str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_INTERVAL:
             self._start_session()
+
+            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_INTERVAL:
+                self._session_timer = threading.Timer(self._options.run_mode_interval, self._session_timer_elapsed)
+                self._session_timer.start()
+
+    def _session_timer_elapsed(self):
+        # End the current session
+        self._end_session()
+
+        # Start a new session
+        self._start_session()
+
+        # Restart the session interval timer
+        self._session_timer = threading.Timer(self._options.run_mode_interval, self._session_timer_elapsed)
+        self._session_timer.start()
 
     def _write_log_data_to_disk(self):
         # Write contents to disk
@@ -232,6 +249,9 @@ class PluginManager:
     def finalize(self):
         if self._is_session_active:
             self._end_session()
+
+        if self._session_timer:
+            self._session_timer.cancel()
 
         utils.get_logger().info(f'Waiting for worker threads to finalize...')
 

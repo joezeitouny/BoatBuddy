@@ -31,6 +31,8 @@ DEFAULT_GPX_OUTPUT_FLAG = False
 DEFAULT_SUMMARY_OUTPUT_FLAG = False
 DEFAULT_VERBOSE_FLAG = False
 DEFAULT_SESSION_RUN_MODE = SESSION_RUN_MODE_CONTINUOUS
+# Time in seconds between each session is finalized when running in interval mode
+DEFAULT_SESSION_INTERVAL = 60 * 60 * 24  # default is every 24h
 
 # Display filters
 SESSION_HEADER = ["Starting Timestamp (UTC)", "Starting Timestamp (Local)", "Duration"]
