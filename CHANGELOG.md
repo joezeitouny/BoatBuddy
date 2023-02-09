@@ -1,3 +1,9 @@
+## 0.2.3 (2023-02-09)
+
+* Fixed an issue where the Victron plugin keeps on creating new sessions when running the session in auto-victron mode
+* Ported the fix above to the NMEA plugin
+* Version bump to 0.2.3
+
 ## 0.2.2 (2023-02-08)
 
 * Reverted back the code around retrieving the application name and version
