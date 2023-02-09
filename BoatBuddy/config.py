@@ -1,11 +1,11 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.2.6'
+APPLICATION_VERSION = '0.2.7'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
 LOG_LEVEL = 'INFO'  # Log level DEBUG, INFO, WARNING, ERROR, CRITICAL
-INITIAL_SNAPSHOT_INTERVAL = 10  # Time to wait for the first snapshot to be taken after the session starts in seconds
+INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 DEFAULT_DISK_WRITE_INTERVAL = 900  # Entry disk write interval in seconds (15 minutes = 900 seconds)
 
 # NMEA Plugin

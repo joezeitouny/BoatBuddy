@@ -1,3 +1,9 @@
+## 0.2.7 (2023-02-09)
+
+* Reduced the initial snapshot interval from 10 to 1 second
+* Animated the session status bar indicator in the rich console
+* Version bump to 0.2.7
+
 ## 0.2.6 (2023-02-09)
 
 * Changed the names used in the clock plugin fields from Timestamp to Time

@@ -4,7 +4,10 @@ from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
 from rich.panel import Panel
+from rich.spinner import Spinner
+from rich.style import Style
 from rich.table import Table
+from rich.text import Text
 
 from BoatBuddy import utils, config
 from BoatBuddy.generic_plugin import PluginStatus
@@ -39,19 +42,20 @@ class ConsoleManager:
         status_string = ''
         status_style = 'white'
 
+        status_renderable = None
         if status == PluginManagerStatus.IDLE:
-            status_string = 'Idle'
-            status_style = 'yellow'
+            status_style = Style(color='bright_white', bgcolor='yellow')
+            status_renderable = Spinner('simpleDots', text=Text('Idle', style=status_style))
         elif status == PluginManagerStatus.SESSION_ACTIVE:
-            status_string = 'Session active'
-            status_style = 'red'
+            status_style = Style(color='bright_white', bgcolor='red')
+            status_renderable = Spinner('earth', text=Text('Session active', style=status_style))
 
         grid = Table.grid(expand=True)
-        grid.add_column(justify="left", style=status_style)
+        grid.add_column(justify="left")
         grid.add_column(justify="center", ratio=1, style='blue')
         grid.add_column(justify="right", style="yellow")
         grid.add_row(
-            f'Status: {status_string}',
+            status_renderable,
             f'[b]{application_name} (version {application_version})[/b]',
             f'Local time: {curr_time}'
         )
