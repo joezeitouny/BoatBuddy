@@ -288,8 +288,6 @@ class NMEAPlugin(GenericPlugin):
             utils.get_logger().info('NMEA plugin instance is ready to be destroyed')
             return
 
-        self._plugin_status = PluginStatus.STARTING
-
         utils.get_logger().debug(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
                                  f'port {self._server_port}...')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -300,10 +298,11 @@ class NMEAPlugin(GenericPlugin):
 
             utils.get_logger().debug(f'Connection to NMEA0183 server established')
 
-            self._plugin_status = PluginStatus.RUNNING
+            if self._plugin_status != PluginStatus.RUNNING:
+                self._plugin_status = PluginStatus.RUNNING
 
-            if self._events:
-                self._events.on_connect()
+                if self._events:
+                    self._events.on_connect()
 
             # Start receiving and processing data
             self._process_data_thread = threading.Thread(target=self._process_data_loop)
@@ -344,11 +343,13 @@ class NMEAPlugin(GenericPlugin):
 
     def _handle_connection_exception(self):
         utils.get_logger().info(f'NMEA0183 Server on {self._server_ip} is down!')
-        self._plugin_status = PluginStatus.DOWN
 
-        # If anyone is listening to events then notify of a disconnection
-        if self._events:
-            self._events.on_disconnect()
+        if self._plugin_status == PluginStatus.RUNNING:
+            self._plugin_status = PluginStatus.DOWN
+
+            # If anyone is listening to events then notify of a disconnection
+            if self._events:
+                self._events.on_disconnect()
 
         # Restart the main timer if the connection is lost
         self._timer = self._timer = threading.Timer(config.NMEA_TIMER_INTERVAL, self.main_loop)
