@@ -3,8 +3,7 @@ import optparse
 import os
 from logging.handlers import RotatingFileHandler
 
-from BoatBuddy import config
-from BoatBuddy import utils
+from BoatBuddy import config, utils
 from BoatBuddy.console_manager import ConsoleManager
 from BoatBuddy.plugin_manager import PluginManager
 

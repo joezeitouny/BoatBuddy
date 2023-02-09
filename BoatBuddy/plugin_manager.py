@@ -8,8 +8,7 @@ import gpxpy
 import gpxpy.gpx
 import openpyxl
 
-from BoatBuddy import config
-from BoatBuddy import utils
+from BoatBuddy import config, utils
 from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
@@ -33,7 +32,7 @@ class PluginManager:
     _gpx_track = None
     _gpx_segment = None
     _summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
-    _timer = None
+    _disk_write_timer = None
     _is_session_active = False
     _session_timer = None
 
@@ -58,7 +57,7 @@ class PluginManager:
             if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
                 victron_connection_events = VictronPluginEvents()
                 victron_connection_events.on_connect += self._start_session
-                victron_connection_events.on_disconnect += self._on_disconnect
+                victron_connection_events.on_disconnect += self._end_session
                 self._victron_plugin.register_for_events(victron_connection_events)
 
         if self._options.nmea_server_ip:
@@ -68,7 +67,7 @@ class PluginManager:
             if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA:
                 nmea_connection_events = NMEAPluginEvents()
                 nmea_connection_events.on_connect += self._start_session
-                nmea_connection_events.on_disconnect += self._on_disconnect
+                nmea_connection_events.on_disconnect += self._end_session
                 self._nmea_plugin.register_for_events(nmea_connection_events)
 
         # If normal mode is active then start recording system metrics immediately
@@ -91,9 +90,9 @@ class PluginManager:
         self._session_timer = threading.Timer(self._options.run_mode_interval, self._session_timer_elapsed)
         self._session_timer.start()
 
-    def _write_log_data_to_disk(self):
+    def _write_collected_data_to_disk(self):
         # Write contents to disk
-        utils.get_logger().info("Writing collected data to disk")
+        utils.get_logger().info("Taking a snapshot of the last data collected and persisting it to disk")
 
         column_values = []
 
@@ -134,8 +133,8 @@ class PluginManager:
                     file.write(f'{self._gpx.to_xml()}')
 
         # Sleep for the specified interval
-        self._timer = threading.Timer(self._options.interval, self._write_log_data_to_disk)
-        self._timer.start()
+        self._disk_write_timer = threading.Timer(self._options.interval, self._write_collected_data_to_disk)
+        self._disk_write_timer.start()
 
     def _start_session(self):
         utils.get_logger().debug('Start collecting system metrics')
@@ -182,25 +181,19 @@ class PluginManager:
 
         utils.get_logger().info(f'New session initialized {self._log_filename}')
 
-        self._timer = threading.Timer(config.INITIAL_SNAPSHOT_INTERVAL, self._write_log_data_to_disk)
-        self._timer.start()
+        self._disk_write_timer = threading.Timer(config.INITIAL_SNAPSHOT_INTERVAL, self._write_collected_data_to_disk)
+        self._disk_write_timer.start()
 
         self._is_session_active = True
 
-    def _on_disconnect(self):
-        # run through this method implementation only if the application is running in auto mode
-        if not str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA \
-                and not str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
+    def _end_session(self):
+        # If there is no active session then exit
+        if not self._is_session_active:
             return
 
-        # End the active session (if any)
-        if self._is_session_active:
-            self._end_session()
-
-    def _end_session(self):
         # Stop the worker thread timer
-        if self._timer:
-            self._timer.cancel()
+        if self._disk_write_timer:
+            self._disk_write_timer.cancel()
 
         # if the summary option is set then build a log summary excel workbook
         if self._options.summary:
@@ -247,8 +240,7 @@ class PluginManager:
         return PluginManagerStatus.IDLE
 
     def finalize(self):
-        if self._is_session_active:
-            self._end_session()
+        self._end_session()
 
         if self._session_timer:
             self._session_timer.cancel()

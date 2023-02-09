@@ -8,10 +8,8 @@ from events import Events
 from geopy.geocoders import Nominatim
 from latloncalc.latlon import LatLon, Latitude, Longitude
 
-from BoatBuddy import config
-from BoatBuddy import utils
-from BoatBuddy.generic_plugin import GenericPlugin
-from BoatBuddy.generic_plugin import PluginStatus
+from BoatBuddy import config, utils
+from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
 class NMEAPluginEvents(Events):
@@ -344,7 +342,7 @@ class NMEAPlugin(GenericPlugin):
     def _handle_connection_exception(self):
         utils.get_logger().info(f'NMEA0183 Server on {self._server_ip} is down!')
 
-        if self._plugin_status == PluginStatus.RUNNING:
+        if self._plugin_status != PluginStatus.DOWN:
             self._plugin_status = PluginStatus.DOWN
 
             # If anyone is listening to events then notify of a disconnection

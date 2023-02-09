@@ -4,10 +4,8 @@ import numpy as np
 from events import Events
 from pyModbusTCP.client import ModbusClient
 
-from BoatBuddy import config
-from BoatBuddy import utils
-from BoatBuddy.generic_plugin import GenericPlugin
-from BoatBuddy.generic_plugin import PluginStatus
+from BoatBuddy import config, utils
+from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
 class VictronPluginEvents(Events):
@@ -290,7 +288,7 @@ class VictronPlugin(GenericPlugin):
     def _handle_connection_exception(self):
         utils.get_logger().info(f'Victron system on {self._args.victron_server_ip} is unreachable')
 
-        if self._plugin_status == PluginStatus.RUNNING:
+        if self._plugin_status != PluginStatus.DOWN:
             self._plugin_status = PluginStatus.DOWN
 
             # If anyone is listening to events then notify of a disconnection

@@ -1,3 +1,10 @@
+## 0.2.5 (2023-02-09)
+
+* Cleaned up the code in the plugin manager file
+* Improved the implementation of the state machine inside the Victron and NMEA plugins
+* Cleaned up the import statements in the modules
+* Version bump to 0.2.5
+
 ## 0.2.4 (2023-02-09)
 
 * Removed unused import statement in the console manager

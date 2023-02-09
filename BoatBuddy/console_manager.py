@@ -8,8 +8,7 @@ from rich.table import Table
 
 from BoatBuddy import utils
 from BoatBuddy.generic_plugin import PluginStatus
-from BoatBuddy.plugin_manager import PluginManager
-from BoatBuddy.plugin_manager import PluginManagerStatus
+from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 
 
 class ConsoleManager:

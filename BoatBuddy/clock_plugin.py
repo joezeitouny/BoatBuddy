@@ -3,8 +3,7 @@ from datetime import datetime
 from time import mktime
 
 from BoatBuddy import utils
-from BoatBuddy.generic_plugin import GenericPlugin
-from BoatBuddy.generic_plugin import PluginStatus
+from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
 class ClockEntry:
