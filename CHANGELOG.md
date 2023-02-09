@@ -1,3 +1,8 @@
+## 0.2.4 (2023-02-09)
+
+* Removed unused import statement in the console manager
+* Version bump to 0.2.4
+
 ## 0.2.3 (2023-02-09)
 
 * Fixed an issue where the Victron plugin keeps on creating new sessions when running the session in auto-victron mode
