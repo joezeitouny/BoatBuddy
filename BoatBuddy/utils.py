@@ -39,6 +39,19 @@ def try_parse_float(value) -> float:
     return result
 
 
+def get_colour_for_key_value_in_dictionary(collection: dict, key: str, value: float) -> str:
+    colour_result = 'default'
+
+    if key in collection.keys():
+        configuration = collection[key]
+        for colour_key in configuration:
+            if configuration[colour_key][1] >= try_parse_float(value) > configuration[colour_key][0]:
+                colour_result = colour_key
+                break
+
+    return colour_result
+
+
 def get_logger():
     return logging.getLogger(config.LOGGER_NAME)
 

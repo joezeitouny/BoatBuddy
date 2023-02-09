@@ -1,3 +1,9 @@
+## 0.2.6 (2023-02-09)
+
+* Changed the names used in the clock plugin fields from Timestamp to Time
+* Added the ability to colour metrics values differently based configured ranges
+* Version bump to 0.2.6
+
 ## 0.2.5 (2023-02-09)
 
 * Cleaned up the code in the plugin manager file

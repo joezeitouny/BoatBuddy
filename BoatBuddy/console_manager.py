@@ -6,7 +6,7 @@ from rich.live import Live
 from rich.panel import Panel
 from rich.table import Table
 
-from BoatBuddy import utils
+from BoatBuddy import utils, config
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 
@@ -124,7 +124,9 @@ class ConsoleManager:
         table = Table.grid(expand=True)
         table.add_column()
         for key in key_value_list:
-            table.add_row(f'[b]{key}[/b]: {key_value_list[key]}')
+            colour = utils.get_colour_for_key_value_in_dictionary(config.COLOURING_SCHEME, key, key_value_list[key])
+            table.add_row(f'[b]{key}[/b]: ' +
+                          f'[{colour}]{key_value_list[key]}[/{colour}]')
         return Panel(table, title=title)
 
     def make_layout(self) -> Layout:

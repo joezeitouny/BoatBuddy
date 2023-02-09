@@ -33,7 +33,7 @@ class ClockPlugin(GenericPlugin):
         GenericPlugin.__init__(self, args)
 
     def get_metadata_headers(self):
-        return ["UTC Timestamp", "Local Timestamp"]
+        return ["UTC Time", "Local Time"]
 
     def take_snapshot(self, store_entry):
         entry = ClockEntry(time.gmtime(), time.localtime())
@@ -49,8 +49,8 @@ class ClockPlugin(GenericPlugin):
         return self._log_entries[len(self._log_entries) - 1].get_values()
 
     def get_summary_headers(self):
-        return ["Starting Timestamp (UTC)", "Starting Timestamp (Local)", "Ending Timestamp (UTC)",
-                "Ending Timestamp (Local)", "Duration"]
+        return ["Starting Time (UTC)", "Starting Time (Local)", "Ending Time (UTC)",
+                "Ending Time (Local)", "Duration"]
 
     def get_summary_values(self):
         log_summary_list = []
