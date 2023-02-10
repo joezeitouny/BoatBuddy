@@ -138,7 +138,7 @@ class PluginManager:
 
     def _start_session(self):
         # Play the session started chime
-        utils.play_sound_async('./resources/session_started.mp3')
+        utils.play_sound_async('/resources/session_started.mp3')
 
         utils.get_logger().debug('Start collecting system metrics')
 
@@ -237,7 +237,7 @@ class PluginManager:
         self._is_session_active = False
 
         # Play the session ended chime
-        utils.play_sound_async('./resources/session_ended.wav')
+        utils.play_sound_async('/resources/session_ended.wav')
 
     def get_status(self):
         if self._is_session_active:

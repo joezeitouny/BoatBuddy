@@ -1,4 +1,5 @@
 import logging
+import os
 from threading import Thread
 
 from latloncalc.latlon import Latitude, Longitude
@@ -30,7 +31,8 @@ def play_sound_async(filename):
 
 
 def play_sound(filename):
-    playsound(filename)
+    full_path = os.path.dirname(os.path.abspath(__file__)) + filename
+    playsound(full_path)
 
 
 def try_parse_int(value) -> int:

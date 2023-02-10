@@ -1,3 +1,8 @@
+## 0.2.10 (2023-02-10)
+
+* Fixed the sound not playing when running inside a package
+* Version bump to 0.2.10
+
 ## 0.2.9 (2023-02-10)
 
 * Fixed the filenames used to play sounds from the resources folder
