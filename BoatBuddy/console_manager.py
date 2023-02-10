@@ -129,7 +129,7 @@ class ConsoleManager:
         table.add_column()
         for key in key_value_list:
             colour = utils.get_colour_for_key_value_in_dictionary(config.COLOURING_SCHEME, key, key_value_list[key])
-            table.add_row(f'[b]{key}[/b]: ' +
+            table.add_row(f'[b][{colour}]{key}[/{colour}][/b]: ' +
                           f'[{colour}]{key_value_list[key]}[/{colour}]')
         return Panel(table, title=title)
 
