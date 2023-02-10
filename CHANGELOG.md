@@ -1,3 +1,12 @@
+## 0.2.8 (2023-02-10)
+
+* Improved the colouring of the rows in the rich console
+* Added --no-sound command line option to suppress application sounds
+* Moved the playsound function to the utils file and created an async version of it
+* Moved the constant lists out of the plugin files to the config file
+* Added sound notifications for when the application starts and when a session starts or ends
+* Version bump to 0.2.8
+
 ## 0.2.7 (2023-02-09)
 
 * Reduced the initial snapshot interval from 10 to 1 second
