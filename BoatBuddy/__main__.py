@@ -3,8 +3,6 @@ import optparse
 import os
 from logging.handlers import RotatingFileHandler
 
-from playsound import playsound
-
 from BoatBuddy import config, utils
 from BoatBuddy.console_manager import ConsoleManager
 from BoatBuddy.plugin_manager import PluginManager
@@ -19,7 +17,8 @@ if __name__ == '__main__':
                         summary=config.DEFAULT_SUMMARY_OUTPUT_FLAG,
                         summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
                         verbose=config.DEFAULT_VERBOSE_FLAG, run_mode=config.DEFAULT_SESSION_RUN_MODE,
-                        run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log=config.LOG_LEVEL)
+                        run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log=config.LOG_LEVEL,
+                        no_sound=config.DEFAULT_NO_SOUND)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
@@ -49,6 +48,7 @@ if __name__ == '__main__':
                            f' Default is: {config.DEFAULT_SESSION_INTERVAL}')
     parser.add_option('--log', dest='log', type='string',
                       help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
+    parser.add_option('--no-sound', dest='no_sound', action='store_true', help=f'Suppress all application sounds')
     (options, args) = parser.parse_args()
 
     log_numeric_level = getattr(logging, options.log.upper(), None)
@@ -102,8 +102,10 @@ if __name__ == '__main__':
         else:
             logging.getLogger(config.LOGGER_NAME).disabled = True
 
-        # Play the startup chime
-        playsound('resources/start.mp3')
+        utils.store_command_line_options(options)
+
+        # Play the application started chime
+        utils.play_sound_async('resources/application_started.mp3')
 
         plugin_manager = PluginManager(options, args)
         ConsoleManager(options, args, plugin_manager)

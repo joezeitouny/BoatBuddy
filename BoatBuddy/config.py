@@ -35,44 +35,82 @@ DEFAULT_VERBOSE_FLAG = False
 DEFAULT_SESSION_RUN_MODE = SESSION_RUN_MODE_CONTINUOUS
 # Time in seconds between each session is finalized when running in interval mode
 DEFAULT_SESSION_INTERVAL = 60 * 60 * 24  # default is every 24h
+DEFAULT_NO_SOUND = False
 
 # Display colouring template
-COLOURING_SCHEME = {'Tank 1 Level (%)': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
-                    'Tank 2 Level (%)': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
-                    'Battery SOC': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
-                    'Battery Voltage (V)': {'yellow': [12.6, 12.8], 'green': [12.8, 15], 'red': [0, 12.6]},
-                    'Starter Battery Voltage (V)': {'yellow': [12.6, 12.8], 'green': [12.8, 15], 'red': [0, 12.6]},
-                    'True Wind Speed (knots)': {'yellow': [15, 20], 'green': [0, 15], 'red': [20, 100]},
-                    'Apparent Wind Speed (knots)': {'yellow': [15, 20], 'green': [0, 15], 'red': [20, 100]},
+COLOURING_SCHEME = {'Tank 1 lvl (%)': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
+                    'Tank 2 lvl (%)': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
+                    'Batt. SOC': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
+                    'Batt. Voltage (V)': {'yellow': [12.6, 12.8], 'green': [12.8, 15], 'red': [0, 12.6]},
+                    'Starter Batt. Voltage (V)': {'yellow': [12.6, 12.8], 'green': [12.8, 15], 'red': [0, 12.6]},
+                    'TWS (kts)': {'yellow': [15, 20], 'green': [0, 15], 'red': [20, 100]},
+                    'AWS (kts)': {'yellow': [15, 20], 'green': [0, 15], 'red': [20, 100]},
                     'Depth (meters)': {'yellow': [4, 20], 'green': [20, 400], 'red': [0, 4]}}
 
 # Display filters
-SESSION_HEADER = ['Starting Time (UTC)', 'Starting Time (Local)', 'Duration']
-VICTRON_SUMMARY = ['Housing battery max voltage (V)', 'Housing battery min voltage (V)',
-                   'Housing battery average voltage (V)', 'Housing battery max current (A)',
-                   'Housing battery average current (A)', 'Housing battery max power (W)',
-                   'Housing battery average power (W)',
-                   'PV max power (W)', 'PV average power',
-                   'PV max current (A)', 'PV average current (A)',
-                   'Starter battery max voltage (V)', 'Starter battery min voltage (V)',
-                   'Starter battery average voltage',
-                   'Tank 1 max level', 'Tank 1 min level', 'Tank 1 average level',
-                   'Tank 2 max level', 'Tank 2 min level', 'Tank 2 average level']
-NMEA_SUMMARY = ['Starting Location (City, Country)',
-                'Starting GPS Latitude (d°m\'S\" H)',
-                'Starting GPS Longitude (d°m\'S\" H)', 'Ending GPS Latitude (d°m\'S\" H)',
-                'Ending GPS Longitude (d°m\'S\" H)', 'Distance (miles)', 'Heading (degrees)',
-                'Average Wind Speed (knots)', 'Average Wind Direction (degrees)',
-                'Average Water Temperature (°C)', 'Average Depth (meters)',
-                'Average Speed Over Ground (knots)', 'Average Speed Over Water (knots)']
-VICTRON_METRICS = ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
-                   'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
-                   'VE.Bus State', 'AC Consumption (W)', 'Battery Voltage (V)', 'Battery Current (A)',
-                   'Battery Power (W)', 'Battery SOC', 'Battery state', 'PV Power (W)', 'PV Current (A)',
-                   'Starter Battery Voltage (V)', 'Tank 1 Level (%)', 'Tank 1 Type', 'Tank 2 Level (%)', 'Tank 2 Type']
-NMEA_METRICS = ['True Heading (degrees)', 'True Wind Speed (knots)',
-                'True Wind Direction (degrees)', 'Apparent Wind Speed (knots)',
-                'Apparent Wind Angle (Relative degrees)', 'GPS Longitude (d°m\'S\" H)',
-                'GPS Latitude (d°m\'S\" H)', 'Water Temperature (°C)',
-                'Depth (meters)', 'Speed Over Ground (knots)', 'Speed Over Water (knots)',
-                'Distance From Previous Entry (miles)', 'Cumulative Distance (miles)']
+FILTERED_SESSION_HEADER = ['Start Time (UTC)', 'Start Time (Local)', 'Duration']
+FILTERED_VICTRON_SUMMARY = ['Batt. max voltage (V)', 'Batt. min voltage (V)',
+                            'Batt. avg. voltage (V)', 'Batt. max current (A)',
+                            'Batt. avg. current (A)', 'Batt. max power (W)',
+                            'Batt. avg. power (W)',
+                            'PV max power (W)', 'PV avg. power',
+                            'PV max current (A)', 'PV avg. current (A)',
+                            'Starter batt. max voltage (V)', 'Starter batt. min voltage (V)',
+                            'Starter batt. avg. voltage',
+                            'Tank 1 max lvl', 'Tank 1 min lvl', 'Tank 1 avg. lvl',
+                            'Tank 2 max lvl', 'Tank 2 min lvl', 'Tank 2 avg. lvl']
+FILTERED_NMEA_SUMMARY = ['Start Location (City, Country)',
+                         'Start GPS Lat (d°m\'S\" H)',
+                         'Start GPS Lon (d°m\'S\" H)', 'End GPS Lat (d°m\'S\" H)',
+                         'End GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)',
+                         'Avg. Wind Speed (kts)', 'Avg. Wind Direction (°)',
+                         'Avg. Water Temp. (°C)', 'Avg. Depth (m)',
+                         'Avg. SOG (kts)', 'Avg. SOW (kts)']
+FILTERED_VICTRON_METRICS = ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
+                            'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
+                            'VE.Bus State', 'AC Consumption (W)', 'Batt. Voltage (V)', 'Batt. Current (A)',
+                            'Batt. Power (W)', 'Batt. SOC', 'Batt. state', 'PV Power (W)', 'PV Current (A)',
+                            'Starter Batt. Voltage (V)', 'Tank 1 lvl (%)', 'Tank 1 Type', 'Tank 2 lvl (%)',
+                            'Tank 2 Type']
+FILTERED_NMEA_METRICS = ['True Hdg. (°)', 'TWS (kts)',
+                         'TWD (°)', 'AWS (kts)',
+                         'AWA (Relative °)', 'GPS Lon (d°m\'S\" H)',
+                         'GPS Lat (d°m\'S\" H)', 'Water Temp. (°C)',
+                         'Depth (m)', 'SOG (kts)', 'SOW (kts)',
+                         'Dst. from last entry (miles)', 'Cumulative Dst. (miles)']
+
+# Default headers (change with caution)
+CLOCK_PLUGIN_METADATA_HEADERS = ["UTC Time", "Local Time"]
+CLOCK_PLUGIN_SUMMARY_HEADERS = ["Start Time (UTC)", "Start Time (Local)", "End Time (UTC)", "End Time (Local)",
+                                "Duration"]
+NMEA_PLUGIN_METADATA_HEADERS = ["True Hdg. (°)", "TWS (kts)",
+                                "TWD (°)", "AWS (kts)",
+                                "AWA (Relative °)", "GPS Lon (d°m\'S\" H)",
+                                "GPS Lat (d°m\'S\" H)", "Water Temp. (°C)",
+                                "Depth (m)", "SOG (kts)", "SOW (kts)",
+                                "Dst. from last entry (miles)", "Cumulative Dst. (miles)"]
+NMEA_PLUGIN_SUMMARY_HEADERS = ["Start Location (City, Country)",
+                               "End Location (City, Country)", "Start GPS Lat (d°m\'S\" H)",
+                               "Start GPS Lon (d°m\'S\" H)", "End GPS Lat (d°m\'S\" H)",
+                               "End GPS Lon (d°m\'S\" H)", "Dst. (miles)", "Hdg. (°)",
+                               "Avg. Wind Speed (kts)", "Avg. Wind Direction (°)",
+                               "Avg. Water Temp. (°C)", "Avg. Depth (m)",
+                               "Avg. SOG (kts)", "Avg. SOW (kts)"]
+VICTRON_PLUGIN_METADATA_HEADERS = ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
+                                   'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
+                                   'VE.Bus State', 'AC Consumption (W)', 'Batt. Voltage (V)', 'Batt. Current (A)',
+                                   'Batt. Power (W)', 'Batt. SOC', 'Batt. state', 'PV Power (W)',
+                                   'PV Current (A)',
+                                   'Starter Batt. Voltage (V)', 'Tank 1 lvl (%)', 'Tank 1 Type', 'Tank 2 lvl (%)',
+                                   'Tank 2 Type']
+VICTRON_PLUGINS_SUMMARY_HEADERS = ["Batt. max voltage (V)", "Batt. min voltage (V)",
+                                   "Batt. avg. voltage (V)", "Batt. max current (A)",
+                                   "Batt. avg. current (A)", "Batt. max power (W)",
+                                   "Batt. avg. power (W)",
+                                   "PV max power (W)", "PV avg. power",
+                                   "PV max current (A)", "PV avg. current (A)",
+                                   "Starter batt. max voltage (V)", "Starter batt. min voltage (V)",
+                                   "Starter batt. avg. voltage", "AC Consumption max (W)",
+                                   "AC Consumption avg. (W)",
+                                   "Tank 1 max lvl", "Tank 1 min lvl", "Tank 1 avg. lvl",
+                                   "Tank 2 max lvl", "Tank 2 min lvl", "Tank 2 avg. lvl"]

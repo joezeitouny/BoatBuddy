@@ -120,12 +120,7 @@ class NMEAPlugin(GenericPlugin):
         self._plugin_status = PluginStatus.STARTING
 
     def get_metadata_headers(self):
-        return ["True Heading (degrees)", "True Wind Speed (knots)",
-                "True Wind Direction (degrees)", "Apparent Wind Speed (knots)",
-                "Apparent Wind Angle (Relative degrees)", "GPS Longitude (d°m\'S\" H)",
-                "GPS Latitude (d°m\'S\" H)", "Water Temperature (°C)",
-                "Depth (meters)", "Speed Over Ground (knots)", "Speed Over Water (knots)",
-                "Distance From Previous Entry (miles)", "Cumulative Distance (miles)"]
+        return config.NMEA_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         # Calculate the distance traveled so far and the distance from the last recorded entry
@@ -160,13 +155,7 @@ class NMEAPlugin(GenericPlugin):
         return self._log_entries[len(self._log_entries) - 1].get_values()
 
     def get_summary_headers(self):
-        return ["Starting Location (City, Country)",
-                "Ending Location (City, Country)", "Starting GPS Latitude (d°m\'S\" H)",
-                "Starting GPS Longitude (d°m\'S\" H)", "Ending GPS Latitude (d°m\'S\" H)",
-                "Ending GPS Longitude (d°m\'S\" H)", "Distance (miles)", "Heading (degrees)",
-                "Average Wind Speed (knots)", "Average Wind Direction (degrees)",
-                "Average Water Temperature (°C)", "Average Depth (meters)",
-                "Average Speed Over Ground (knots)", "Average Speed Over Water (knots)"]
+        return config.NMEA_PLUGIN_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
         log_summary_list = []

@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 from time import mktime
 
-from BoatBuddy import utils
+from BoatBuddy import utils, config
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
@@ -33,7 +33,7 @@ class ClockPlugin(GenericPlugin):
         GenericPlugin.__init__(self, args)
 
     def get_metadata_headers(self):
-        return ["UTC Time", "Local Time"]
+        return config.CLOCK_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         entry = ClockEntry(time.gmtime(), time.localtime())
@@ -49,8 +49,7 @@ class ClockPlugin(GenericPlugin):
         return self._log_entries[len(self._log_entries) - 1].get_values()
 
     def get_summary_headers(self):
-        return ["Starting Time (UTC)", "Starting Time (Local)", "Ending Time (UTC)",
-                "Ending Time (Local)", "Duration"]
+        return config.CLOCK_PLUGIN_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
         log_summary_list = []

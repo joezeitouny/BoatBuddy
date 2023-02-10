@@ -296,11 +296,7 @@ class VictronPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
     def get_metadata_headers(self):
-        return ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
-                'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
-                'VE.Bus State', 'AC Consumption (W)', 'Battery Voltage (V)', 'Battery Current (A)',
-                'Battery Power (W)', 'Battery SOC', 'Battery state', 'PV Power (W)', 'PV Current (A)',
-                'Starter Battery Voltage (V)', 'Tank 1 Level (%)', 'Tank 1 Type', 'Tank 2 Level (%)', 'Tank 2 Type']
+        return config.VICTRON_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         entry = VictronEntry(self._input_source_string, self._grid_power, self._generator_power,
@@ -348,16 +344,7 @@ class VictronPlugin(GenericPlugin):
         utils.get_logger().info("Victron plugin worker thread notified...")
 
     def get_summary_headers(self):
-        return ["Housing battery max voltage (V)", "Housing battery min voltage (V)",
-                "Housing battery average voltage (V)", "Housing battery max current (A)",
-                "Housing battery average current (A)", "Housing battery max power (W)",
-                "Housing battery average power (W)",
-                "PV max power (W)", "PV average power",
-                "PV max current (A)", "PV average current (A)",
-                "Starter battery max voltage (V)", "Starter battery min voltage (V)",
-                "Starter battery average voltage", "AC Consumption max (W)", "AC Consumption average (W)",
-                "Tank 1 max level", "Tank 1 min level", "Tank 1 average level",
-                "Tank 2 max level", "Tank 2 min level", "Tank 2 average level"]
+        return config.VICTRON_PLUGINS_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
         log_summary_list = []

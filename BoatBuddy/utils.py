@@ -1,10 +1,18 @@
 import logging
+from threading import Thread
 
 from latloncalc.latlon import Latitude, Longitude
+from playsound import playsound
 
 from BoatBuddy import config
 
 log_filename = ''
+command_line_options = None
+
+
+def store_command_line_options(options):
+    global command_line_options
+    command_line_options = options
 
 
 def get_application_version():
@@ -13,6 +21,16 @@ def get_application_version():
 
 def get_application_name():
     return config.APPLICATION_NAME
+
+
+def play_sound_async(filename):
+    if command_line_options and not command_line_options.no_sound:
+        new_thread = Thread(target=play_sound, args=(filename,))
+        new_thread.start()
+
+
+def play_sound(filename):
+    playsound(filename)
 
 
 def try_parse_int(value) -> int:
@@ -79,7 +97,7 @@ def get_key_value_list(keys, values) -> {}:
     key_value_list = {}
     counter = 0
     for key in keys:
-        key_value_list[key] = values[counter]
+        key_value_list[key] = str(values[counter])
         counter += 1
     return key_value_list
 
@@ -90,7 +108,7 @@ def get_filtered_key_value_list(original_key_value_list, filter_list) -> {}:
 
     key_value_list = {}
     for key in filter_list:
-        key_value_list[key] = original_key_value_list[key]
+        key_value_list[key] = str(original_key_value_list[key])
     return key_value_list
 
 
