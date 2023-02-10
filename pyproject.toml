@@ -24,7 +24,8 @@ dependencies = [
     "pyModbusTCP ~= 0.2.0",
     "Events ~= 0.4",
     "numpy ~= 1.24.1",
-    "rich ~= 13.3.1"
+    "rich ~= 13.3.1",
+    "playsound ~= 1.3.0"
 ]
 [project.urls]
 "Homepage" = "https://github.com/joezeitouny/BoatBuddy"

@@ -7,6 +7,7 @@ from time import mktime
 import gpxpy
 import gpxpy.gpx
 import openpyxl
+from playsound import playsound
 
 from BoatBuddy import config, utils
 from BoatBuddy.clock_plugin import ClockPlugin
@@ -137,6 +138,9 @@ class PluginManager:
         self._disk_write_timer.start()
 
     def _start_session(self):
+        # Play the session started chime
+        playsound('resources/session_started.mp3')
+
         utils.get_logger().debug('Start collecting system metrics')
 
         suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
@@ -232,6 +236,9 @@ class PluginManager:
         utils.get_logger().info(f'Session {self._log_filename} successfully completed!')
 
         self._is_session_active = False
+
+        # Play the session ended chime
+        playsound('resources/session_ended.wav')
 
     def get_status(self):
         if self._is_session_active:

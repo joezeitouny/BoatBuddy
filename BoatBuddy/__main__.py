@@ -3,6 +3,8 @@ import optparse
 import os
 from logging.handlers import RotatingFileHandler
 
+from playsound import playsound
+
 from BoatBuddy import config, utils
 from BoatBuddy.console_manager import ConsoleManager
 from BoatBuddy.plugin_manager import PluginManager
@@ -99,6 +101,9 @@ if __name__ == '__main__':
             utils.set_log_filename(log_filename)
         else:
             logging.getLogger(config.LOGGER_NAME).disabled = True
+
+        # Play the startup chime
+        playsound('resources/start.mp3')
 
         plugin_manager = PluginManager(options, args)
         ConsoleManager(options, args, plugin_manager)
