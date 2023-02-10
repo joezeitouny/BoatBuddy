@@ -105,7 +105,7 @@ if __name__ == '__main__':
         utils.store_command_line_options(options)
 
         # Play the application started chime
-        utils.play_sound_async('resources/application_started.mp3')
+        utils.play_sound_async('./resources/application_started.mp3')
 
         plugin_manager = PluginManager(options, args)
         ConsoleManager(options, args, plugin_manager)

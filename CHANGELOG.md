@@ -1,3 +1,8 @@
+## 0.2.9 (2023-02-10)
+
+* Fixed the filenames used to play sounds from the resources folder
+* Version bump to 0.2.9
+
 ## 0.2.8 (2023-02-10)
 
 * Improved the colouring of the rows in the rich console
