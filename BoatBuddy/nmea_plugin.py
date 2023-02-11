@@ -283,13 +283,8 @@ class NMEAPlugin(GenericPlugin):
         try:
             client.connect((self._server_ip, self._server_port))
 
-            utils.get_logger().debug(f'Connection to NMEA0183 server established')
-
-            if self._plugin_status != PluginStatus.RUNNING:
-                self._plugin_status = PluginStatus.RUNNING
-
-                if self._events:
-                    self._events.on_connect()
+            # Close the client connection
+            client.close()
 
             # Start receiving and processing data
             self._process_data_thread = threading.Thread(target=self._process_data_loop)
@@ -299,9 +294,6 @@ class NMEAPlugin(GenericPlugin):
             self._handle_connection_exception()
         except OSError:
             self._handle_connection_exception()
-
-        # Close the client connection (if any)
-        client.close()
 
     def _process_data_loop(self):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -316,6 +308,13 @@ class NMEAPlugin(GenericPlugin):
                     utils.get_logger().info('No NMEA0183 data received')
                     self._plugin_status = PluginStatus.DOWN
                     break
+
+                if self._plugin_status != PluginStatus.RUNNING:
+                    utils.get_logger().debug(f'Connection to NMEA0183 server established')
+                    self._plugin_status = PluginStatus.RUNNING
+
+                    if self._events:
+                        self._events.on_connect()
 
                 str_data = data.decode().rstrip('\r\n')
                 utils.get_logger().debug(str_data)

@@ -11,15 +11,17 @@ from rich.text import Text
 
 from BoatBuddy import utils, config
 from BoatBuddy.generic_plugin import PluginStatus
+from BoatBuddy.notifications_manager import NotificationsManager
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 
 
 class ConsoleManager:
 
-    def __init__(self, options, args, manager: PluginManager):
+    def __init__(self, options, args, plugin_manager: PluginManager, notifications_manager: NotificationsManager):
         self._options = options
         self._args = args
-        self._plugin_manager = manager
+        self._plugin_manager = plugin_manager
+        self._notifications_manager = notifications_manager
 
         self._console = Console()
 
@@ -33,6 +35,8 @@ class ConsoleManager:
             finally:
                 # Notify the plugin manager
                 self._plugin_manager.finalize()
+                # Notify the notifications manager
+                self._notifications_manager.finalize()
 
     def make_header(self) -> Layout:
         application_name = utils.get_application_name()
@@ -123,14 +127,14 @@ class ConsoleManager:
             footer_table.add_row(f'[{colour}]{entry}[/{colour}]')
         return Panel(footer_table, title=f'Last 3 log entries')
 
-    @staticmethod
-    def make_key_value_table(title, key_value_list) -> Panel:
+    def make_key_value_table(self, title, key_value_list) -> Panel:
         table = Table.grid(expand=True)
         table.add_column()
         for key in key_value_list:
             colour = utils.get_colour_for_key_value_in_dictionary(config.COLOURING_SCHEME, key, key_value_list[key])
             table.add_row(f'[b][{colour}]{key}[/{colour}][/b]: ' +
                           f'[{colour}]{key_value_list[key]}[/{colour}]')
+            self._notifications_manager.process_entry(key, key_value_list[key])
         return Panel(table, title=title)
 
     def make_layout(self) -> Layout:

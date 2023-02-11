@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 
 from BoatBuddy import config, utils
 from BoatBuddy.console_manager import ConsoleManager
+from BoatBuddy.notifications_manager import NotificationsManager
 from BoatBuddy.plugin_manager import PluginManager
 
 if __name__ == '__main__':
@@ -108,4 +109,5 @@ if __name__ == '__main__':
         utils.play_sound_async('/resources/application_started.mp3')
 
         plugin_manager = PluginManager(options, args)
-        ConsoleManager(options, args, plugin_manager)
+        notifications_manager = NotificationsManager()
+        ConsoleManager(options, args, plugin_manager, notifications_manager)

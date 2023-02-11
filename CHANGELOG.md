@@ -1,3 +1,10 @@
+## 0.2.11 (2023-02-11)
+
+* Introduced a notification manager class to handle sound notifications according to configurable user
+* Improved the handling of connection state in the NMEA plugin to tackle false positive situations
+* Create a sound buffer to tackle playback of multiple sounds sequentially
+* Version bump to 0.2.11
+
 ## 0.2.10 (2023-02-10)
 
 * Fixed the sound not playing when running inside a package

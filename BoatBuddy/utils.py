@@ -9,6 +9,8 @@ from BoatBuddy import config
 
 log_filename = ''
 command_line_options = None
+sound_buffer = []
+sound_thread = None
 
 
 def store_command_line_options(options):
@@ -26,12 +28,22 @@ def get_application_name():
 
 def play_sound_async(filename):
     if command_line_options and not command_line_options.no_sound:
-        new_thread = Thread(target=play_sound, args=(filename,))
-        new_thread.start()
+        global sound_thread
+        if sound_thread is None:
+            sound_thread = Thread(target=play_sound_loop)
+            sound_thread.start()
+        sound_buffer.append(filename)
+
+
+def play_sound_loop():
+    while True:
+        if len(sound_buffer):
+            play_sound(sound_buffer.pop(0))
 
 
 def play_sound(filename):
     full_path = os.path.dirname(os.path.abspath(__file__)) + filename
+    get_logger().debug(f'Trying to play a resource with the following path: {full_path}')
     playsound(full_path)
 
 

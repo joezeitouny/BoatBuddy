@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.2.10'
+APPLICATION_VERSION = '0.2.11'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -38,14 +38,33 @@ DEFAULT_SESSION_INTERVAL = 60 * 60 * 24  # default is every 24h
 DEFAULT_NO_SOUND = False
 
 # Display colouring template
-COLOURING_SCHEME = {'Tank 1 lvl (%)': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
-                    'Tank 2 lvl (%)': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
-                    'Batt. SOC': {'yellow': [60, 80], 'green': [80, 100], 'red': [0, 60]},
-                    'Batt. Voltage (V)': {'yellow': [12.6, 12.8], 'green': [12.8, 15], 'red': [0, 12.6]},
-                    'Starter Batt. Voltage (V)': {'yellow': [12.6, 12.8], 'green': [12.8, 15], 'red': [0, 12.6]},
-                    'TWS (kts)': {'yellow': [15, 20], 'green': [0, 15], 'red': [20, 100]},
-                    'AWS (kts)': {'yellow': [15, 20], 'green': [0, 15], 'red': [20, 100]},
-                    'Depth (meters)': {'yellow': [4, 20], 'green': [20, 400], 'red': [0, 4]}}
+COLOURING_SCHEME = {'Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
+                    'Tank 2 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
+                    'Batt. SOC': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
+                    'Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
+                    'Starter Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
+                    'TWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
+                    'AWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
+                    'Depth (m)': {'green': [20, 400], 'yellow': [4, 20], 'red': [0, 4]}}
+NOTIFICATIONS_RULES = {'Tank 1 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once'},
+                                          'alarm': {'range': [0, 60], 'frequency': 'interval',
+                                                    'interval': 60 * 60}},  # Every hour
+                       'Tank 2 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once'},
+                                          'alarm': {'range': [0, 60], 'frequency': 'interval',
+                                                    'interval': 60 * 60 * 4}},  # Every four hours
+                       'Batt. SOC': {'warning': {'range': [60, 80], 'frequency': 'once'},
+                                     'alarm': {'range': [0, 60], 'frequency': 'interval', 'interval': 60 * 60}},
+                       'Batt. Voltage (V)': {
+                           'warning': {'range': [12.6, 12.8], 'frequency': 'once'},
+                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60}},
+                       'Starter Batt. Voltage (V)': {
+                           'warning': {'range': [12.6, 12.8], 'frequency': 'once'},
+                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60}},
+                       'AWS (kts)': {'warning': {'range': [18, 25], 'frequency': 'once'},
+                                     'alarm': {'range': [25, 100], 'frequency': 'interval', 'interval': 60 * 15}},
+                       'Depth (m)': {'warning': {'range': [4, 20], 'frequency': 'once'},
+                                     'alarm': {'range': [0, 4], 'frequency': 'interval', 'interval': 60}}
+                       }
 
 # Display filters
 FILTERED_SESSION_HEADER = ['Start Time (UTC)', 'Start Time (Local)', 'Duration']

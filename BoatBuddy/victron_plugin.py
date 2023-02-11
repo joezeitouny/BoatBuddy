@@ -115,7 +115,7 @@ class VictronPlugin(GenericPlugin):
 
         self._plugin_status = PluginStatus.STARTING
         self._exit_signal = threading.Event()
-        self._timer = self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
     def main_loop(self):

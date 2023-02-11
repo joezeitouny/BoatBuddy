@@ -92,7 +92,7 @@ class PluginManager:
 
     def _write_collected_data_to_disk(self):
         # Write contents to disk
-        utils.get_logger().info("Taking a snapshot of the last data collected and persisting it to disk")
+        utils.get_logger().info("Taking a snapshot and persisting it to disk")
 
         column_values = []
 
