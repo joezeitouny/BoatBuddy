@@ -13,15 +13,18 @@ from BoatBuddy import utils, config
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.notifications_manager import NotificationsManager
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
+from BoatBuddy.sound_manager import SoundManager
 
 
 class ConsoleManager:
 
-    def __init__(self, options, args, plugin_manager: PluginManager, notifications_manager: NotificationsManager):
+    def __init__(self, options, args, plugin_manager: PluginManager, notifications_manager: NotificationsManager,
+                 sound_manager: SoundManager):
         self._options = options
         self._args = args
         self._plugin_manager = plugin_manager
         self._notifications_manager = notifications_manager
+        self._sound_manager = sound_manager
 
         self._console = Console()
 
@@ -37,6 +40,8 @@ class ConsoleManager:
                 self._plugin_manager.finalize()
                 # Notify the notifications manager
                 self._notifications_manager.finalize()
+                # Notify the sound manager
+                self._sound_manager.finalize()
 
     def make_header(self) -> Layout:
         application_name = utils.get_application_name()

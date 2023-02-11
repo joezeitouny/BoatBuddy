@@ -7,6 +7,7 @@ from BoatBuddy import config, utils
 from BoatBuddy.console_manager import ConsoleManager
 from BoatBuddy.notifications_manager import NotificationsManager
 from BoatBuddy.plugin_manager import PluginManager
+from BoatBuddy.sound_manager import SoundManager
 
 if __name__ == '__main__':
     # Create an options list using the Options Parser
@@ -105,9 +106,11 @@ if __name__ == '__main__':
 
         utils.store_command_line_options(options)
 
-        # Play the application started chime
-        utils.play_sound_async('/resources/application_started.mp3')
+        sound_manager = SoundManager(options, args)
 
-        plugin_manager = PluginManager(options, args)
-        notifications_manager = NotificationsManager()
-        ConsoleManager(options, args, plugin_manager, notifications_manager)
+        # Play the application started chime
+        sound_manager.play_sound_async('/resources/application_started.mp3')
+
+        plugin_manager = PluginManager(options, args, sound_manager)
+        notifications_manager = NotificationsManager(sound_manager)
+        ConsoleManager(options, args, plugin_manager, notifications_manager, sound_manager)

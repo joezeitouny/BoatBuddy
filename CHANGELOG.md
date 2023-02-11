@@ -1,3 +1,9 @@
+## 0.2.12 (2023-02-11)
+
+* Moved the code logic for sound playback from the utils file into its own dedicated SoundManager class
+* Introduced notification type 'SOUND' in the notification manager
+* Version bump to 0.2.12
+
 ## 0.2.11 (2023-02-11)
 
 * Introduced a notification manager class to handle sound notifications according to configurable user

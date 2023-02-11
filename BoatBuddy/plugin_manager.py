@@ -12,6 +12,7 @@ from BoatBuddy import config, utils
 from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
+from BoatBuddy.sound_manager import SoundManager
 from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
 
 
@@ -36,9 +37,10 @@ class PluginManager:
     _is_session_active = False
     _session_timer = None
 
-    def __init__(self, options, args):
+    def __init__(self, options, args, sound_manager: SoundManager):
         self._options = options
         self._args = args
+        self._sound_manager = sound_manager
 
         if not self._args[0].endswith('/'):
             self._output_directory = self._args[0] + '/'
@@ -138,7 +140,7 @@ class PluginManager:
 
     def _start_session(self):
         # Play the session started chime
-        utils.play_sound_async('/resources/session_started.mp3')
+        self._sound_manager.play_sound_async('/resources/session_started.mp3')
 
         utils.get_logger().debug('Start collecting system metrics')
 
@@ -237,7 +239,7 @@ class PluginManager:
         self._is_session_active = False
 
         # Play the session ended chime
-        utils.play_sound_async('/resources/session_ended.wav')
+        self._sound_manager.play_sound_async('/resources/session_ended.wav')
 
     def get_status(self):
         if self._is_session_active:
