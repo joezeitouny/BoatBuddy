@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.2.14'
+APPLICATION_VERSION = '0.2.15'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -101,6 +101,7 @@ FILTERED_NMEA_METRICS = ['True Hdg. (°)', 'TWS (kts)',
                          'GPS Lat (d°m\'S\" H)', 'Water Temp. (°C)',
                          'Depth (m)', 'SOG (kts)', 'SOW (kts)',
                          'Dst. from last entry (miles)', 'Cumulative Dst. (miles)']
+FILTERED_GPS_METRICS = ['GPS Lat (d°m\'S\" H)', 'GPS Lon (d°m\'S\" H)', 'Location (City, Country)']
 
 # Default headers (change with caution)
 CLOCK_PLUGIN_METADATA_HEADERS = ['UTC Time', 'Local Time']

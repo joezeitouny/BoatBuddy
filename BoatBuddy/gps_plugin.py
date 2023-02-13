@@ -189,10 +189,8 @@ class GPSPlugin(GenericPlugin):
                     except Exception as e:
                         utils.get_logger().debug(f"Error parsing data stream {e}")
                         continue
-        except ValueError:
-            self._handle_connection_exception()
-        except ConnectionRefusedError as e:
-            self._handle_connection_exception()
+        except Exception as e:
+            self._handle_connection_exception(e)
 
     def _process_data(self, payload):
         if payload is None:

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "BoatBuddy"
-version = "0.2.14"
+version = "0.2.15"
 authors = [
     { name = "Joe Zeitouny", email = "joezeitouny@gmail.com" },
 ]
@@ -17,6 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "pyobjc ~= 9.0.1;sys_platform == 'darwin'",
     "geopy ~= 2.3.0",
     "gpxpy ~= 1.5.0",
     "latloncalc ~= 1.5.3",

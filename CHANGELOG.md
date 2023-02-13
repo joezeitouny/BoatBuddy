@@ -1,3 +1,13 @@
+## 0.2.15 (2023-02-13)
+
+* Added the GPS plugin layout to the rich console
+* Renamed the private methods in the ConsoleManager class
+* Increased the vertical size of the summary header section
+* Reduced the code complexity around creating the sub layouts in the body section
+* Broadened the scope of the exceptions captured in the GPS plugin
+* Reintroduced the pyobjc dependency for darwin platforms only
+* Version bump to 0.2.15
+
 ## 0.2.14 (2023-02-13)
 
 * Removed the pyobjc dependency from the TOML file

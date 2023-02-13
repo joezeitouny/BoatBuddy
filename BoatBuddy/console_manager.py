@@ -28,11 +28,11 @@ class ConsoleManager:
 
         self._console = Console()
 
-        with Live(self.make_layout(), refresh_per_second=4) as live:
+        with Live(self._make_layout(), refresh_per_second=4) as live:
             try:
                 while True:
                     time.sleep(0.5)
-                    live.update(self.make_layout())
+                    live.update(self._make_layout())
             except KeyboardInterrupt:  # on keyboard interrupt...
                 utils.get_logger().warning("Ctrl+C signal detected!")
             finally:
@@ -43,7 +43,7 @@ class ConsoleManager:
                 # Notify the sound manager
                 self._sound_manager.finalize()
 
-    def make_header(self) -> Layout:
+    def _make_header(self) -> Layout:
         application_name = utils.get_application_name()
         application_version = utils.get_application_version()
         curr_time = time.strftime("%H:%M", time.localtime())
@@ -65,15 +65,15 @@ class ConsoleManager:
         grid.add_column(justify="right", style="bright_yellow")
         grid.add_row(
             status_renderable,
-            f'[b]{application_name}[/b] (version {application_version})',
+            f'[b]{application_name} ({application_version})[/b]',
             f'Local time: {curr_time}'
         )
         return Layout(grid)
 
-    def make_summary(self) -> Layout:
+    def _make_summary(self) -> Layout:
         layout = Layout()
         layout.split_column(
-            Layout(name="summary_header", size=4),
+            Layout(name="summary_header", size=5),
             Layout(name="summary_body", ratio=1),
         )
 
@@ -117,7 +117,7 @@ class ConsoleManager:
         return layout
 
     @staticmethod
-    def make_footer() -> Panel:
+    def _make_footer() -> Panel:
         footer_table = Table.grid(expand=True)
         footer_table.add_column()
         last_log_entries = utils.get_last_log_entries(3)
@@ -132,7 +132,7 @@ class ConsoleManager:
             footer_table.add_row(f'[{colour}]{entry}[/{colour}]')
         return Panel(footer_table, title=f'Last 3 log entries')
 
-    def make_key_value_table(self, title, key_value_list) -> Panel:
+    def _make_key_value_table(self, title, key_value_list) -> Panel:
         table = Table.grid(expand=True)
         table.add_column()
         for key in key_value_list:
@@ -146,7 +146,7 @@ class ConsoleManager:
             self._notifications_manager.process_entry(key, key_value_list[key])
         return Panel(table, title=title)
 
-    def make_layout(self) -> Layout:
+    def _make_layout(self) -> Layout:
         layout = Layout()
 
         if self._options.verbose:
@@ -156,63 +156,60 @@ class ConsoleManager:
                 Layout(name="footer", size=5)
             )
 
-            layout["footer"].update(self.make_footer())
+            layout["footer"].update(self._make_footer())
         else:
             layout.split_column(
                 Layout(name="header", size=1),
                 Layout(name="body", ratio=1),
             )
 
-        layout["header"].update(self.make_header())
+        layout["header"].update(self._make_header())
 
-        if self._options.nmea_server_ip and self._options.victron_server_ip:
-            if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
-                layout["body"].split_row(
-                    Layout(name="victron"),
-                    Layout(name="nmea"),
-                    Layout(name="summary", ratio=2)
-                )
-            else:
-                layout["body"].split_row(
-                    Layout(name="victron"),
-                    Layout(name="nmea"),
-                )
+        # Add the plugins layout for the loaded plugins
+        victron_layout = None
+        gps_layout = None
+        nmea_layout = None
+        summary_layout = None
 
+        if self._options.victron_server_ip:
+            victron_layout = Layout(name="victron")
             # Populate the victron layout
             plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_victron_plugin_status())
-            layout["victron"].update(self.make_key_value_table('Victron Plugin ' + plugin_status_str,
-                                                               self._plugin_manager.get_filtered_victron_metrics()))
+            victron_layout.update(self._make_key_value_table('Victron Plugin ' + plugin_status_str,
+                                                             self._plugin_manager.get_filtered_victron_metrics()))
 
+        if self._options.gps:
+            gps_layout = Layout(name="gps")
+            # Populate the NMEA layout
+            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_gps_plugin_status())
+            gps_layout.update(self._make_key_value_table('GPS Plugin ' + plugin_status_str,
+                                                         self._plugin_manager.get_filtered_gps_metrics()))
+
+        if self._options.nmea_server_ip:
+            nmea_layout = Layout(name="nmea")
             # Populate the NMEA layout
             plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_nmea_plugin_status())
-            layout["nmea"].update(self.make_key_value_table('NMEA Plugin ' + plugin_status_str,
-                                                            self._plugin_manager.get_filtered_nmea_metrics()))
-        elif self._options.nmea_server_ip:
-            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_nmea_plugin_status())
-            if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
-                layout["body"].split_row(
-                    Layout(name="nmea"),
-                    Layout(name="summary", ratio=2),
-                )
-                layout["nmea"].update(self.make_key_value_table('NMEA Plugin ' + plugin_status_str,
-                                                                self._plugin_manager.get_filtered_nmea_metrics()))
-            else:
-                layout["body"].update(self.make_key_value_table('NMEA Plugin ' + plugin_status_str,
-                                                                self._plugin_manager.get_filtered_nmea_metrics()))
-        elif self._options.victron_server_ip:
-            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_victron_plugin_status())
-            if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
-                layout["body"].split_row(
-                    Layout(name="victron"),
-                    Layout(name="summary", ratio=2),
-                )
-                layout["victron"].update(self.make_key_value_table('Victron Plugin ' + plugin_status_str,
-                                                                   self._plugin_manager.get_filtered_victron_metrics()))
-            else:
-                layout["body"].update(self.make_key_value_table('Victron Plugin ' + plugin_status_str,
-                                                                self._plugin_manager.get_filtered_victron_metrics()))
+            nmea_layout.update(self._make_key_value_table('NMEA Plugin ' + plugin_status_str,
+                                                          self._plugin_manager.get_filtered_nmea_metrics()))
+
         if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
-            layout["summary"].update(self.make_summary())
+            summary_layout = Layout(name="summary", ratio=2)
+            summary_layout.update(self._make_summary())
+
+        layouts_list = []
+        if victron_layout:
+            layouts_list.append(victron_layout)
+
+        if nmea_layout:
+            layouts_list.append(nmea_layout)
+
+        if gps_layout:
+            layouts_list.append(gps_layout)
+
+        if summary_layout:
+            layouts_list.append(summary_layout)
+
+        layout["body"].split_row(*layouts_list)
 
         return layout
 

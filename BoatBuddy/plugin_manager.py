@@ -348,6 +348,17 @@ class PluginManager:
 
         return entry_key_value_list
 
+    def get_filtered_gps_metrics(self) -> {}:
+        entry_key_value_list = {}
+        entry = self._gps_plugin.take_snapshot(store_entry=False)
+        if entry is not None:
+            entry_key_value_list = utils.get_key_value_list(self._gps_plugin.get_metadata_headers(),
+                                                            entry.get_values())
+            entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list,
+                                                                     config.FILTERED_GPS_METRICS.copy())
+
+        return entry_key_value_list
+
     def get_session_name(self):
         return self._log_filename
 
