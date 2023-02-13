@@ -1,3 +1,9 @@
+## 0.2.16 (2023-02-13)
+
+* Cleaned up the ConsoleManager class
+* The whole top bar turns red now when a session is active
+* Version bump to 0.2.16
+
 ## 0.2.15 (2023-02-13)
 
 * Added the GPS plugin layout to the rich console

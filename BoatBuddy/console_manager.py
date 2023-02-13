@@ -48,16 +48,28 @@ class ConsoleManager:
         application_version = utils.get_application_version()
         curr_time = time.strftime("%H:%M", time.localtime())
         status = self._plugin_manager.get_status()
-        status_string = ''
-        status_style = 'white'
 
         status_renderable = None
+        application_info_renderable = None
+        local_time_renderable = None
         if status == PluginManagerStatus.IDLE:
             status_style = Style(color='bright_white', bgcolor='default')
             status_renderable = Spinner('simpleDots', text=Text('Idle', style=status_style))
+            application_info_style = Style(color='blue', bgcolor='default', bold=True)
+            application_info_renderable = Text(f'{application_name} ({application_version})',
+                                               style=application_info_style)
+            local_time_style = Style(color='bright_yellow', bgcolor='default')
+            local_time_renderable = Text(f'Local time: {curr_time}',
+                                         style=local_time_style)
         elif status == PluginManagerStatus.SESSION_ACTIVE:
             status_style = Style(color='bright_white', bgcolor='red')
             status_renderable = Spinner('earth', text=Text('Session active', style=status_style))
+            application_info_style = Style(color='bright_white', bgcolor='red', bold=True)
+            application_info_renderable = Text(f'{application_name} ({application_version})',
+                                               style=application_info_style)
+            local_time_style = Style(color='bright_white', bgcolor='red')
+            local_time_renderable = Text(f'Local time: {curr_time}',
+                                         style=local_time_style)
 
         grid = Table.grid(expand=True)
         grid.add_column(justify="left")
@@ -65,8 +77,8 @@ class ConsoleManager:
         grid.add_column(justify="right", style="bright_yellow")
         grid.add_row(
             status_renderable,
-            f'[b]{application_name} ({application_version})[/b]',
-            f'Local time: {curr_time}'
+            application_info_renderable,
+            local_time_renderable
         )
         return Layout(grid)
 
