@@ -35,5 +35,5 @@ class SoundManager:
     @staticmethod
     def _play_sound(filename):
         full_path = os.path.dirname(os.path.abspath(__file__)) + filename
-        utils.get_logger().debug(f'Trying to play a resource with the following path: {full_path}')
+        utils.get_logger().debug(f'Playing a sound with filename: {full_path}')
         playsound(full_path)

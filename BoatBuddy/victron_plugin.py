@@ -85,38 +85,61 @@ class VictronEntry:
 
 
 class VictronPlugin(GenericPlugin):
-    _log_entries = []
     _events = None
 
-    _grid_power = ''
-    _generator_power = ''
-    _input_source_string = ''
-    _ac_consumption = ''
-    _battery_state_string = ''
-    _battery_voltage = ''
-    _battery_current = ''
-    _battery_power = ''
-    _battery_soc = ''
-    _pv_power = ''
-    _pv_current = ''
-    _starter_battery_voltage = ''
-    _ac_input_voltage = ''
-    _ac_input_current = ''
-    _ac_input_frequency = ''
-    _ve_bus_state_string = ''
-    _tank1_level = ''
-    _tank1_type_string = ''
-    _tank2_level = ''
-    _tank2_type_string = ''
-
-    def __init__(self, args):
+    def __init__(self, options):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, args)
+        GenericPlugin.__init__(self, options)
 
+        # Instance metrics
+        self._grid_power = ''
+        self._generator_power = ''
+        self._input_source_string = ''
+        self._ac_consumption = ''
+        self._battery_state_string = ''
+        self._battery_voltage = ''
+        self._battery_current = ''
+        self._battery_power = ''
+        self._battery_soc = ''
+        self._pv_power = ''
+        self._pv_current = ''
+        self._starter_battery_voltage = ''
+        self._ac_input_voltage = ''
+        self._ac_input_current = ''
+        self._ac_input_frequency = ''
+        self._ve_bus_state_string = ''
+        self._tank1_level = ''
+        self._tank1_type_string = ''
+        self._tank2_level = ''
+        self._tank2_type_string = ''
+
+        # Other instance variables
         self._plugin_status = PluginStatus.STARTING
         self._exit_signal = threading.Event()
         self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
+
+    def reset_instance_metrics(self):
+        self._grid_power = ''
+        self._generator_power = ''
+        self._input_source_string = ''
+        self._ac_consumption = ''
+        self._battery_state_string = ''
+        self._battery_voltage = ''
+        self._battery_current = ''
+        self._battery_power = ''
+        self._battery_soc = ''
+        self._pv_power = ''
+        self._pv_current = ''
+        self._starter_battery_voltage = ''
+        self._ac_input_voltage = ''
+        self._ac_input_current = ''
+        self._ac_input_frequency = ''
+        self._ve_bus_state_string = ''
+        self._tank1_level = ''
+        self._tank1_type_string = ''
+        self._tank2_level = ''
+        self._tank2_type_string = ''
 
     def main_loop(self):
         if self._exit_signal.is_set():
@@ -124,7 +147,7 @@ class VictronPlugin(GenericPlugin):
             utils.get_logger().info('Victron plugin instance is ready to be destroyed')
             return
 
-        server_ip = f'{self._args.victron_server_ip}'
+        server_ip = f'{self._options.victron_server_ip}'
         server_port = config.MODBUS_TCP_PORT
 
         try:
@@ -133,12 +156,14 @@ class VictronPlugin(GenericPlugin):
 
             # Try to make a test inquiry to the system before proceeding any further
             if c.read_holding_registers(820, 1) is None:
-                raise ValueError()
-
-            utils.get_logger().debug(f'Connection to Victron system {server_ip} is established')
+                raise ValueError('Modbus TCP server is unreachable')
 
             if self._plugin_status != PluginStatus.RUNNING:
+                utils.get_logger().info(f'Connection to Victron system on {server_ip} is established')
+
                 self._plugin_status = PluginStatus.RUNNING
+
+                self.reset_instance_metrics()
 
                 if self._events:
                     self._events.on_connect()
@@ -218,7 +243,7 @@ class VictronPlugin(GenericPlugin):
                     self._ve_bus_state_string = 'External control'
 
                 c.unit_id = 20
-                self._tank1_level = utils.try_parse_int(c.read_holding_registers(3004, 1)[0]) / 10
+                self._tank1_level = utils.try_parse_int(utils.try_parse_int(c.read_holding_registers(3004, 1)[0]) / 10)
                 tank1_type = utils.try_parse_int(c.read_holding_registers(3003, 1)[0])
                 self._tank1_type_string = ''
                 # 0=Fuel;1=Fresh water;2=Waste water;3=Live well;4=Oil;5=Black water (sewage);
@@ -249,7 +274,7 @@ class VictronPlugin(GenericPlugin):
                     self._tank1_type_string = 'Raw water'
 
                 c.unit_id = 21
-                self._tank2_level = utils.try_parse_int(c.read_holding_registers(3004, 1)[0]) / 10
+                self._tank2_level = utils.try_parse_int(utils.try_parse_int(c.read_holding_registers(3004, 1)[0]) / 10)
                 tank2_type = utils.try_parse_int(c.read_holding_registers(3003, 1)[0])
                 self._tank2_type_string = ''
                 if tank2_type == 0:
@@ -276,19 +301,20 @@ class VictronPlugin(GenericPlugin):
                     self._tank2_type_string = 'Hydraulic oil'
                 elif tank2_type == 11:
                     self._tank2_type_string = 'Raw water'
-            except TypeError:
-                self._handle_connection_exception()
-        except ValueError:
-            self._handle_connection_exception()
+            except Exception as e:
+                self._handle_connection_exception(e)
+        except Exception as e:
+            self._handle_connection_exception(e)
 
         # Reset the timer
         self._timer = self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
-    def _handle_connection_exception(self):
-        utils.get_logger().info(f'Victron system on {self._args.victron_server_ip} is unreachable')
-
+    def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
+            utils.get_logger().info(
+                f'Problem with Victron system on {self._options.victron_server_ip}. Details: {message}')
+
             self._plugin_status = PluginStatus.DOWN
 
             # If anyone is listening to events then notify of a disconnection
@@ -333,9 +359,6 @@ class VictronPlugin(GenericPlugin):
             return self._log_entries[len(self._log_entries) - 1].get_values()
         else:
             return []
-
-    def reset_entries(self):
-        self._log_entries = []
 
     def finalize(self):
         self._exit_signal.set()

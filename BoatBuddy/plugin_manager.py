@@ -11,6 +11,7 @@ import openpyxl
 from BoatBuddy import config, utils
 from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.generic_plugin import PluginStatus
+from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.sound_manager import SoundManager
 from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
@@ -27,6 +28,7 @@ class PluginManager:
     _time_plugin = None
     _nmea_plugin = None
     _victron_plugin = None
+    _gps_plugin = None
     _workbook = None
     _sheet = None
     _gpx = None
@@ -51,6 +53,15 @@ class PluginManager:
 
         # initialize the common time plugin
         self._time_plugin = ClockPlugin(self._options)
+
+        if self._options.gps:
+            self._gps_plugin = GPSPlugin(self._options)
+
+            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS:
+                gps_connection_events = GPSPluginEvents()
+                gps_connection_events.on_connect += self._start_session
+                gps_connection_events.on_disconnect += self._end_session
+                self._gps_plugin.register_for_events(gps_connection_events)
 
         if self._options.victron_server_ip:
             # initialize the Victron plugin
@@ -101,6 +112,10 @@ class PluginManager:
         self._time_plugin.take_snapshot(store_entry=True)
         column_values += self._time_plugin.get_metadata_values()
 
+        if self._gps_plugin:
+            self._gps_plugin.take_snapshot(store_entry=True)
+            column_values += self._gps_plugin.get_metadata_values()
+
         if self._nmea_plugin:
             self._nmea_plugin.take_snapshot(store_entry=True)
             column_values += self._nmea_plugin.get_metadata_values()
@@ -111,19 +126,27 @@ class PluginManager:
 
         # Append the last added entry to the file on disk
         if self._options.csv:
-            with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
-                file.write(f'{utils.get_comma_separated_string(column_values)}\r\n')
+            try:
+                with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
+                    file.write(f'{utils.get_comma_separated_string(column_values)}\r\n')
+            except Exception as e:
+                utils.get_logger().error(f'Could not write to csv file with filename ' +
+                                         f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
 
         if self._options.excel:
             # Add the name and price to the sheet
             self._sheet.append(column_values)
 
             # Save the workbook
-            self._workbook.save(filename=f"{self._output_directory}{self._log_filename}.xlsx")
+            try:
+                self._workbook.save(filename=f"{self._output_directory}{self._log_filename}.xlsx")
+            except Exception as e:
+                utils.get_logger().error(f'Could not write to excel file with filename ' +
+                                         f'{self._output_directory}{self._log_filename}.xlsx. Details: {e}')
 
-        if self._options.gpx and self._nmea_plugin:
+        if self._options.gpx:
             # If we have valid coordinates then append new GPX track point
-            if self._nmea_plugin.is_gps_fix_captured():
+            if self._nmea_plugin and self._nmea_plugin.is_gps_fix_captured():
                 self._gpx_segment.points.append(
                     gpxpy.gpx.GPXTrackPoint(latitude=self._nmea_plugin.get_last_latitude_entry(),
                                             longitude=self._nmea_plugin.get_last_longitude_entry(),
@@ -131,8 +154,26 @@ class PluginManager:
                                                 mktime(self._time_plugin.get_last_utc_timestamp_entry()))))
 
                 # Write the new contents of the GPX file to disk
-                with open(f"{self._output_directory}{self._log_filename}.gpx", 'w') as file:
-                    file.write(f'{self._gpx.to_xml()}')
+                try:
+                    with open(f"{self._output_directory}{self._log_filename}.gpx", 'w') as file:
+                        file.write(f'{self._gpx.to_xml()}')
+                except Exception as e:
+                    utils.get_logger().error(f'Could not write to gpx file with filename ' +
+                                             f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
+            elif self._gps_plugin and self._gps_plugin.is_gps_fix_captured():
+                self._gpx_segment.points.append(
+                    gpxpy.gpx.GPXTrackPoint(latitude=self._gps_plugin.get_last_latitude_entry(),
+                                            longitude=self._gps_plugin.get_last_longitude_entry(),
+                                            time=datetime.fromtimestamp(
+                                                mktime(self._time_plugin.get_last_utc_timestamp_entry()))))
+
+                # Write the new contents of the GPX file to disk
+                try:
+                    with open(f"{self._output_directory}{self._log_filename}.gpx", 'w') as file:
+                        file.write(f'{self._gpx.to_xml()}')
+                except Exception as e:
+                    utils.get_logger().error(f'Could not write to gpx file with filename ' +
+                                             f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
 
         # Sleep for the specified interval
         self._disk_write_timer = threading.Timer(self._options.interval, self._write_collected_data_to_disk)
@@ -150,16 +191,23 @@ class PluginManager:
 
         column_headers = self._time_plugin.get_metadata_headers()
 
-        if self._options.nmea_server_ip:
+        if self._gps_plugin:
+            column_headers += self._gps_plugin.get_metadata_headers()
+
+        if self._nmea_plugin:
             column_headers += self._nmea_plugin.get_metadata_headers()
 
-        if self._options.victron_server_ip:
+        if self._victron_plugin:
             column_headers += self._victron_plugin.get_metadata_headers()
 
         if self._options.csv:
             # Add the columns headers to the beginning of the csv file
-            with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
-                file.write(f'{utils.get_comma_separated_string(column_headers)}\r\n')
+            try:
+                with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
+                    file.write(f'{utils.get_comma_separated_string(column_headers)}\r\n')
+            except Exception as e:
+                utils.get_logger().error(f'Could not write to csv file with filename ' +
+                                         f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
 
         if self._options.excel:
             # Create an Excel workbook
@@ -172,7 +220,7 @@ class PluginManager:
             self._sheet.append(column_headers)
 
         # Only write to GPX files if the GPX and the NMEA options are both set
-        if self._options.gpx and self._options.nmea_server_ip:
+        if self._options.gpx and (self._nmea_plugin or self._gps_plugin):
             # Creating a new GPX object
             self._gpx = gpxpy.gpx.GPX()
 
@@ -210,29 +258,41 @@ class PluginManager:
 
             # Create the header row
             column_headers = self._time_plugin.get_summary_headers()
-            if self._options.nmea_server_ip:
+
+            if self._gps_plugin:
+                column_headers += self._gps_plugin.get_summary_headers()
+
+            if self._nmea_plugin:
                 column_headers += self._nmea_plugin.get_summary_headers()
 
-            if self._options.victron_server_ip:
+            if self._victron_plugin:
                 column_headers += self._victron_plugin.get_summary_headers()
             summary_sheet.append(column_headers)
 
             log_summary_list = self._time_plugin.get_summary_values()
-            self._time_plugin.reset_entries()
+            self._time_plugin.clear_entries()
 
-            if self._options.nmea_server_ip:
+            if self._gps_plugin:
+                log_summary_list += self._gps_plugin.get_summary_values()
+                self._gps_plugin.clear_entries()
+
+            if self._nmea_plugin:
                 log_summary_list += self._nmea_plugin.get_summary_values()
-                self._nmea_plugin.reset_entries()
+                self._nmea_plugin.clear_entries()
 
-            if self._options.victron_server_ip:
+            if self._victron_plugin:
                 log_summary_list += self._victron_plugin.get_summary_values()
-                self._victron_plugin.reset_entries()
+                self._victron_plugin.clear_entries()
 
             # Add the name and price to the sheet
             summary_sheet.append(log_summary_list)
 
             # Save the workbook
-            summary_workbook.save(filename=f"{self._output_directory}{self._summary_filename}.xlsx")
+            try:
+                summary_workbook.save(filename=f"{self._output_directory}{self._summary_filename}.xlsx")
+            except Exception as e:
+                utils.get_logger().error(f'Could not write to excel file with filename ' +
+                                         f'{self._output_directory}{self._log_filename}.xlsx. Details: {e}')
 
         utils.get_logger().info(f'Session {self._log_filename} successfully completed!')
 
@@ -257,10 +317,13 @@ class PluginManager:
 
         self._time_plugin.finalize()
 
-        if self._options.victron_server_ip:
+        if self._gps_plugin:
+            self._gps_plugin.finalize()
+
+        if self._victron_plugin:
             self._victron_plugin.finalize()
 
-        if self._options.nmea_server_ip:
+        if self._nmea_plugin:
             self._nmea_plugin.finalize()
 
     def get_filtered_nmea_metrics(self) -> {}:
@@ -296,13 +359,13 @@ class PluginManager:
     def get_filtered_summary_metrics(self) -> {}:
         summary_key_value_list = {}
 
-        if self._options.nmea_server_ip:
+        if self._nmea_plugin:
             nmea_dictionary = utils.get_key_value_list(self._nmea_plugin.get_summary_headers(),
                                                        self._nmea_plugin.get_summary_values())
             nmea_dictionary = utils.get_filtered_key_value_list(nmea_dictionary, config.FILTERED_NMEA_SUMMARY.copy())
             summary_key_value_list.update(nmea_dictionary)
 
-        if self._options.victron_server_ip:
+        if self._victron_plugin:
             victron_dictionary = utils.get_key_value_list(self._victron_plugin.get_summary_headers(),
                                                           self._victron_plugin.get_summary_values())
             victron_dictionary = utils.get_filtered_key_value_list(victron_dictionary,
@@ -312,13 +375,19 @@ class PluginManager:
         return summary_key_value_list
 
     def get_victron_plugin_status(self) -> PluginStatus:
-        if not self._options.victron_server_ip:
+        if not self._victron_plugin:
             return PluginStatus.DOWN
 
         return self._victron_plugin.get_status()
 
     def get_nmea_plugin_status(self) -> PluginStatus:
-        if not self._options.nmea_server_ip:
+        if not self._nmea_plugin:
             return PluginStatus.DOWN
 
         return self._nmea_plugin.get_status()
+
+    def get_gps_plugin_status(self) -> PluginStatus:
+        if not self._gps_plugin:
+            return PluginStatus.DOWN
+
+        return self._gps_plugin.get_status()

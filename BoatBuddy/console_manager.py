@@ -53,7 +53,7 @@ class ConsoleManager:
 
         status_renderable = None
         if status == PluginManagerStatus.IDLE:
-            status_style = Style(color='bright_white', bgcolor='yellow')
+            status_style = Style(color='bright_white', bgcolor='default')
             status_renderable = Spinner('simpleDots', text=Text('Idle', style=status_style))
         elif status == PluginManagerStatus.SESSION_ACTIVE:
             status_style = Style(color='bright_white', bgcolor='red')
@@ -62,10 +62,10 @@ class ConsoleManager:
         grid = Table.grid(expand=True)
         grid.add_column(justify="left")
         grid.add_column(justify="center", ratio=1, style='blue')
-        grid.add_column(justify="right", style="yellow")
+        grid.add_column(justify="right", style="bright_yellow")
         grid.add_row(
             status_renderable,
-            f'[b]{application_name} (version {application_version})[/b]',
+            f'[b]{application_name}[/b] (version {application_version})',
             f'Local time: {curr_time}'
         )
         return Layout(grid)
@@ -87,10 +87,10 @@ class ConsoleManager:
 
             if counter + 1 < len(summary_header_key_value_list):
                 next_key = list(summary_header_key_value_list.keys())[counter + 1]
-                summary_header_table.add_row(f'[b]{key}[/b]: {summary_header_key_value_list[key]}',
-                                             f'[b]{next_key}[/b]: {summary_header_key_value_list[next_key]}')
+                summary_header_table.add_row(f'{key}: {summary_header_key_value_list[key]}',
+                                             f'{next_key}: {summary_header_key_value_list[next_key]}')
             else:
-                summary_header_table.add_row(f'[b]{key}[/b]: {summary_header_key_value_list[key]}', '')
+                summary_header_table.add_row(f'{key}: {summary_header_key_value_list[key]}', '')
             counter += 2
 
         layout["summary_header"].update(
@@ -106,10 +106,10 @@ class ConsoleManager:
 
             if counter + 1 < len(summary_key_value_list):
                 next_key = list(summary_key_value_list.keys())[counter + 1]
-                summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}',
-                                           f'[b]{next_key}[/b]: {summary_key_value_list[next_key]}')
+                summary_body_table.add_row(f'{key}: {summary_key_value_list[key]}',
+                                           f'{next_key}: {summary_key_value_list[next_key]}')
             else:
-                summary_body_table.add_row(f'[b]{key}[/b]: {summary_key_value_list[key]}', '')
+                summary_body_table.add_row(f'{key}: {summary_key_value_list[key]}', '')
             counter += 2
 
         layout["summary_body"].update(Layout(Panel(summary_body_table,
@@ -137,8 +137,12 @@ class ConsoleManager:
         table.add_column()
         for key in key_value_list:
             colour = utils.get_colour_for_key_value_in_dictionary(config.COLOURING_SCHEME, key, key_value_list[key])
-            table.add_row(f'[b][{colour}]{key}[/{colour}][/b]: ' +
-                          f'[{colour}]{key_value_list[key]}[/{colour}]')
+            if colour != 'default':
+                table.add_row(f'[b][{colour}]{key}[/{colour}]: ' +
+                              f'[{colour}]{key_value_list[key]}[/{colour}][/b]')
+            else:
+                table.add_row(f'[{colour}]{key}[/{colour}]: ' +
+                              f'[{colour}]{key_value_list[key]}[/{colour}]')
             self._notifications_manager.process_entry(key, key_value_list[key])
         return Panel(table, title=title)
 
@@ -175,67 +179,50 @@ class ConsoleManager:
                 )
 
             # Populate the victron layout
-            plugin_status_str = ''
-            plugin_status = self._plugin_manager.get_victron_plugin_status()
-            if plugin_status == PluginStatus.DOWN:
-                plugin_status_str = ' [red](Down)[/red]'
-            elif plugin_status == PluginStatus.STARTING:
-                plugin_status_str = ' [yellow](Starting)[/yellow]'
-            elif plugin_status == PluginStatus.RUNNING:
-                plugin_status_str = ' [green](Running)[/green]'
-            layout["victron"].update(self.make_key_value_table('Victron Plugin' + plugin_status_str,
+            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_victron_plugin_status())
+            layout["victron"].update(self.make_key_value_table('Victron Plugin ' + plugin_status_str,
                                                                self._plugin_manager.get_filtered_victron_metrics()))
 
             # Populate the NMEA layout
-            plugin_status_str = ''
-            plugin_status = self._plugin_manager.get_nmea_plugin_status()
-            if plugin_status == PluginStatus.DOWN:
-                plugin_status_str = ' [red](Down)[/red]'
-            elif plugin_status == PluginStatus.STARTING:
-                plugin_status_str = ' [yellow](Starting)[/yellow]'
-            elif plugin_status == PluginStatus.RUNNING:
-                plugin_status_str = ' [green](Running)[/green]'
-            layout["nmea"].update(self.make_key_value_table('NMEA Plugin' + plugin_status_str,
+            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_nmea_plugin_status())
+            layout["nmea"].update(self.make_key_value_table('NMEA Plugin ' + plugin_status_str,
                                                             self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.nmea_server_ip:
-            plugin_status_str = ''
-            plugin_status = self._plugin_manager.get_nmea_plugin_status()
-            if plugin_status == PluginStatus.DOWN:
-                plugin_status_str = ' [red](Down)[/red]'
-            elif plugin_status == PluginStatus.STARTING:
-                plugin_status_str = ' [yellow](Starting)[/yellow]'
-            elif plugin_status == PluginStatus.RUNNING:
-                plugin_status_str = ' [green](Running)[/green]'
+            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_nmea_plugin_status())
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="nmea"),
                     Layout(name="summary", ratio=2),
                 )
-                layout["nmea"].update(self.make_key_value_table('NMEA Plugin' + plugin_status_str,
+                layout["nmea"].update(self.make_key_value_table('NMEA Plugin ' + plugin_status_str,
                                                                 self._plugin_manager.get_filtered_nmea_metrics()))
             else:
-                layout["body"].update(self.make_key_value_table('NMEA Plugin' + plugin_status_str,
+                layout["body"].update(self.make_key_value_table('NMEA Plugin ' + plugin_status_str,
                                                                 self._plugin_manager.get_filtered_nmea_metrics()))
         elif self._options.victron_server_ip:
-            plugin_status_str = ''
-            plugin_status = self._plugin_manager.get_victron_plugin_status()
-            if plugin_status == PluginStatus.DOWN:
-                plugin_status_str = ' [red](Down)[/red]'
-            elif plugin_status == PluginStatus.STARTING:
-                plugin_status_str = ' [yellow](Starting)[/yellow]'
-            elif plugin_status == PluginStatus.RUNNING:
-                plugin_status_str = ' [green](Running)[/green]'
+            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_victron_plugin_status())
             if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
                 layout["body"].split_row(
                     Layout(name="victron"),
                     Layout(name="summary", ratio=2),
                 )
-                layout["victron"].update(self.make_key_value_table('Victron Plugin' + plugin_status_str,
+                layout["victron"].update(self.make_key_value_table('Victron Plugin ' + plugin_status_str,
                                                                    self._plugin_manager.get_filtered_victron_metrics()))
             else:
-                layout["body"].update(self.make_key_value_table('Victron Plugin' + plugin_status_str,
+                layout["body"].update(self.make_key_value_table('Victron Plugin ' + plugin_status_str,
                                                                 self._plugin_manager.get_filtered_victron_metrics()))
         if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
             layout["summary"].update(self.make_summary())
 
         return layout
+
+    @staticmethod
+    def _get_plugin_status_str(plugin_status: PluginStatus):
+        plugin_status_str = ''
+        if plugin_status == PluginStatus.DOWN:
+            plugin_status_str = '[red](Down)[/red]'
+        elif plugin_status == PluginStatus.STARTING:
+            plugin_status_str = '[bright_yellow](Starting)[/bright_yellow]'
+        elif plugin_status == PluginStatus.RUNNING:
+            plugin_status_str = '[green](Running)[/green]'
+        return plugin_status_str

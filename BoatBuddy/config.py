@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.2.12'
+APPLICATION_VERSION = '0.2.13'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -18,9 +18,13 @@ NMEA_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait betwee
 MODBUS_TCP_PORT = 502
 VICTRON_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
 
+# GPS Plugin
+GPS_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
+
 # Run modes
 SESSION_RUN_MODE_AUTO_NMEA = 'auto-nmea'
 SESSION_RUN_MODE_AUTO_VICTRON = 'auto-victron'
+SESSION_RUN_MODE_AUTO_GPS = 'auto-gps'
 SESSION_RUN_MODE_CONTINUOUS = 'continuous'
 SESSION_RUN_MODE_INTERVAL = 'interval'
 
@@ -99,22 +103,26 @@ FILTERED_NMEA_METRICS = ['True Hdg. (°)', 'TWS (kts)',
                          'Dst. from last entry (miles)', 'Cumulative Dst. (miles)']
 
 # Default headers (change with caution)
-CLOCK_PLUGIN_METADATA_HEADERS = ["UTC Time", "Local Time"]
-CLOCK_PLUGIN_SUMMARY_HEADERS = ["Start Time (UTC)", "Start Time (Local)", "End Time (UTC)", "End Time (Local)",
-                                "Duration"]
-NMEA_PLUGIN_METADATA_HEADERS = ["True Hdg. (°)", "TWS (kts)",
-                                "TWD (°)", "AWS (kts)",
-                                "AWA (Relative °)", "GPS Lon (d°m\'S\" H)",
-                                "GPS Lat (d°m\'S\" H)", "Water Temp. (°C)",
-                                "Depth (m)", "SOG (kts)", "SOW (kts)",
-                                "Dst. from last entry (miles)", "Cumulative Dst. (miles)"]
-NMEA_PLUGIN_SUMMARY_HEADERS = ["Start Location (City, Country)",
-                               "End Location (City, Country)", "Start GPS Lat (d°m\'S\" H)",
-                               "Start GPS Lon (d°m\'S\" H)", "End GPS Lat (d°m\'S\" H)",
-                               "End GPS Lon (d°m\'S\" H)", "Dst. (miles)", "Hdg. (°)",
-                               "Avg. Wind Speed (kts)", "Avg. Wind Direction (°)",
-                               "Avg. Water Temp. (°C)", "Avg. Depth (m)",
-                               "Avg. SOG (kts)", "Avg. SOW (kts)"]
+CLOCK_PLUGIN_METADATA_HEADERS = ['UTC Time', 'Local Time']
+CLOCK_PLUGIN_SUMMARY_HEADERS = ['Start Time (UTC)', 'Start Time (Local)', 'End Time (UTC)', 'End Time (Local)',
+                                'Duration']
+GPS_PLUGIN_METADATA_HEADERS = ['GPS Lat (d°m\'S\" H)', 'GPS Lon (d°m\'S\" H)', 'Location (City, Country)']
+GPS_PLUGIN_SUMMARY_HEADERS = ['Start Location (City, Country)', 'End Location (City, Country)',
+                              'Start GPS Lat (d°m\'S\" H)', 'Start GPS Lon (d°m\'S\" H)', 'End GPS Lat (d°m\'S\" H)',
+                              'End GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)']
+NMEA_PLUGIN_METADATA_HEADERS = ['True Hdg. (°)', 'TWS (kts)',
+                                'TWD (°)', 'AWS (kts)',
+                                'AWA (Relative °)', 'GPS Lon (d°m\'S\" H)',
+                                'GPS Lat (d°m\'S\" H)', 'Water Temp. (°C)',
+                                'Depth (m)', 'SOG (kts)', 'SOW (kts)',
+                                'Dst. from last entry (miles)', 'Cumulative Dst. (miles)']
+NMEA_PLUGIN_SUMMARY_HEADERS = ['Start Location (City, Country)',
+                               'End Location (City, Country)', 'Start GPS Lat (d°m\'S\" H)',
+                               'Start GPS Lon (d°m\'S\" H)', 'End GPS Lat (d°m\'S\" H)',
+                               'End GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)',
+                               'Avg. Wind Speed (kts)', 'Avg. Wind Direction (°)',
+                               'Avg. Water Temp. (°C)', 'Avg. Depth (m)',
+                               'Avg. SOG (kts)', 'Avg. SOW (kts)']
 VICTRON_PLUGIN_METADATA_HEADERS = ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
                                    'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
                                    'VE.Bus State', 'AC Consumption (W)', 'Batt. Voltage (V)', 'Batt. Current (A)',
@@ -122,14 +130,14 @@ VICTRON_PLUGIN_METADATA_HEADERS = ['Active Input source', 'Grid 1 power (W)', 'G
                                    'PV Current (A)',
                                    'Starter Batt. Voltage (V)', 'Tank 1 lvl (%)', 'Tank 1 Type', 'Tank 2 lvl (%)',
                                    'Tank 2 Type']
-VICTRON_PLUGINS_SUMMARY_HEADERS = ["Batt. max voltage (V)", "Batt. min voltage (V)",
-                                   "Batt. avg. voltage (V)", "Batt. max current (A)",
-                                   "Batt. avg. current (A)", "Batt. max power (W)",
-                                   "Batt. avg. power (W)",
-                                   "PV max power (W)", "PV avg. power",
-                                   "PV max current (A)", "PV avg. current (A)",
-                                   "Starter batt. max voltage (V)", "Starter batt. min voltage (V)",
-                                   "Starter batt. avg. voltage", "AC Consumption max (W)",
-                                   "AC Consumption avg. (W)",
-                                   "Tank 1 max lvl", "Tank 1 min lvl", "Tank 1 avg. lvl",
-                                   "Tank 2 max lvl", "Tank 2 min lvl", "Tank 2 avg. lvl"]
+VICTRON_PLUGINS_SUMMARY_HEADERS = ['Batt. max voltage (V)', 'Batt. min voltage (V)',
+                                   'Batt. avg. voltage (V)', 'Batt. max current (A)',
+                                   'Batt. avg. current (A)', 'Batt. max power (W)',
+                                   'Batt. avg. power (W)',
+                                   'PV max power (W)', 'PV avg. power',
+                                   'PV max current (A)', 'PV avg. current (A)',
+                                   'Starter batt. max voltage (V)', 'Starter batt. min voltage (V)',
+                                   'Starter batt. avg. voltage', 'AC Consumption max (W)',
+                                   'AC Consumption avg. (W)',
+                                   'Tank 1 max lvl', 'Tank 1 min lvl', 'Tank 1 avg. lvl',
+                                   'Tank 2 max lvl', 'Tank 2 min lvl', 'Tank 2 avg. lvl']

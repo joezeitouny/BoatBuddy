@@ -5,12 +5,6 @@ from latloncalc.latlon import Latitude, Longitude
 from BoatBuddy import config
 
 log_filename = ''
-command_line_options = None
-
-
-def store_command_line_options(options):
-    global command_line_options
-    command_line_options = options
 
 
 def get_application_version():
@@ -69,11 +63,15 @@ def set_log_filename(filename):
 
 def get_last_log_entries(count) -> []:
     lines = []
-    with open(log_filename) as file:
-        # loop to read iterate
-        # last n lines and print it
-        for line in (file.readlines()[-count:]):
-            lines.append(line.rstrip('\r\n'))
+
+    try:
+        with open(log_filename) as file:
+            # loop to read iterate
+            # last n lines and print it
+            for line in (file.readlines()[-count:]):
+                lines.append(line.rstrip('\r\n'))
+    except Exception as e:
+        get_logger().error(f'Could not open log file with filename {log_filename}. Details: {e}')
 
     return lines
 

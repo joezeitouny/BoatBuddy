@@ -51,6 +51,7 @@ if __name__ == '__main__':
     parser.add_option('--log', dest='log', type='string',
                       help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
     parser.add_option('--no-sound', dest='no_sound', action='store_true', help=f'Suppress all application sounds')
+    parser.add_option('--gps', dest='gps', type='string', help=f'Append GPS metrics from GPS dongle')
     (options, args) = parser.parse_args()
 
     log_numeric_level = getattr(logging, options.log.upper(), None)
@@ -76,6 +77,10 @@ if __name__ == '__main__':
     elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON and not options.victron_server_ip:
         print(f'Invalid argument: Cannot use the \'auto-victron\' session run mode ' +
               f'without providing victron server configuration parameters\r\n')
+        parser.print_help()
+    elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS and not options.gps:
+        print(f'Invalid argument: Cannot use the \'auto-gps\' session run mode ' +
+              f'without providing gps module configuration parameters\r\n')
         parser.print_help()
     elif options.interval < config.INITIAL_SNAPSHOT_INTERVAL:
         print(f'Invalid argument: Specified disk write interval cannot be less than ' +
@@ -103,8 +108,6 @@ if __name__ == '__main__':
             utils.set_log_filename(log_filename)
         else:
             logging.getLogger(config.LOGGER_NAME).disabled = True
-
-        utils.store_command_line_options(options)
 
         sound_manager = SoundManager(options, args)
 

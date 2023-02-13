@@ -56,7 +56,7 @@ class NotificationsManager:
             return
 
         # If an empty value is provided then return
-        if value is None or value == '':
+        if value is None or value == '' or str(value).upper() == 'N/A':
             return
 
         # Next, check if the value is falls within a range where a notification should occur
@@ -73,42 +73,52 @@ class NotificationsManager:
                 return
 
         # If this point in the code is reached then notifications for this entry (if any) should be cleared
-        self.clear_notification(key)
+        self.clear_notification_entry(key)
 
     def schedule_notification(self, key, value, notification_type, severity, configuration_range, frequency,
                               interval=None):
-        # If this is a new key then create a new entry for it in memory
+
         if key not in self._notifications_queue:
-            # Play the notification sound
+            # this is a new notification entry
+            self.process_notification(notification_type, severity)
+            self.add_notification_entry(key, value, notification_type, severity, configuration_range, frequency,
+                                        interval)
+            return
+
+        # If there is already an entry in the que with the same key
+        # and if the range provided is different as what is stored in memory then
+        # this notification is different and needs to be treated as new notification
+        # thus we need clear the old notification entry and schedule a new one
+        if self._notifications_queue[key]['instance'].get_configuration_range() != configuration_range:
+            self.clear_notification_entry(key)
+            self.process_notification(notification_type, severity)
+            self.add_notification_entry(key, value, notification_type, severity, configuration_range, frequency,
+                                        interval)
+
+    def process_notification(self, notification_type, severity):
+        if notification_type == NotificationType.SOUND:
             if severity == 'alarm':
                 self._sound_manager.play_sound_async('/resources/alarm.mp3')
             elif severity == 'warning':
                 self._sound_manager.play_sound_async('/resources/warning.mp3')
 
-            new_notification_entry = NotificationEntry(key, value, notification_type, severity,
-                                                       configuration_range, frequency, interval)
-            if frequency == 'interval':
-                new_timer = threading.Timer(interval, self.notification_loop, args=[key])
-                new_timer.start()
-                self._notifications_queue[key] = {'instance': new_notification_entry, 'timer': new_timer}
-            elif frequency == 'once':
-                self._notifications_queue[key] = {'instance': new_notification_entry, 'timer': None}
-        elif self._notifications_queue[key]['instance'].get_configuration_range() != configuration_range:
-            # if the range provided is the same as what is stored in memory then this notification is already scheduled
-            # Otherwise clear the old notification and schedule a new one
-            self.clear_notification(key)
-            new_notification_entry = NotificationEntry(key, value, notification_type, severity,
-                                                       configuration_range, frequency, interval)
-            if frequency == 'interval':
-                new_timer = threading.Timer(interval, self.notification_loop, args=[key])
-                new_timer.start()
-                self._notifications_queue[key] = {'instance': new_notification_entry, 'timer': new_timer}
-            elif frequency == 'once':
-                self._notifications_queue[key] = {'instance': new_notification_entry, 'timer': None}
+    def add_notification_entry(self, key, value, notification_type, severity, configuration_range, frequency, interval):
+        new_notification_entry = NotificationEntry(key, value, notification_type, severity,
+                                                   configuration_range, frequency, interval)
+        new_timer = None
+        if frequency == 'interval':
+            new_timer = threading.Timer(interval, self.notification_loop, args=[key])
+            new_timer.start()
+        self._notifications_queue[key] = {'instance': new_notification_entry, 'timer': new_timer}
 
-    def clear_notification(self, key):
+        utils.get_logger().info(f'Adding new notification with key \'{key}\', value \'{value}\', ' +
+                                f'severity \'{severity}\'')
+
+    def clear_notification_entry(self, key):
         if key not in self._notifications_queue:
             return
+
+        utils.get_logger().info(f'Clearing notification for key \'{key}\'')
 
         # cancel the timer (if any)
         notification_timer = self._notifications_queue[key]['timer']
@@ -119,13 +129,10 @@ class NotificationsManager:
         self._notifications_queue.pop(key)
 
     def notification_loop(self, key):
-        # Play the notification
         notification_entry = self._notifications_queue[key]['instance']
 
-        if notification_entry.get_severity() == 'alarm':
-            self._sound_manager.play_sound_async('/resources/alarm.mp3')
-        elif notification_entry.get_severity() == 'warning':
-            self._sound_manager.play_sound_async('/resources/warning.mp3')
+        # Process the notification
+        self.process_notification(notification_entry.get_notification_type(), notification_entry.get_severity())
 
         # Reschedule the timer
         self._notifications_queue[key]['timer'] = threading.Timer(notification_entry.get_interval(),

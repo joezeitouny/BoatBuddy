@@ -1,3 +1,15 @@
+## 0.2.13 (2023-02-13)
+
+* Moved the reset_entries function to the GenericPlugin class and renamed it to clear_entries
+* Improved the layout of the rich console to be more readable on small screens
+* Added the GPSPlugin feature (though not thoroughly tested yet)
+* Added exception handlers around parts of the code where exceptions might arise
+* After a connection to the module is re-established the instance variables holding the metrics values are reset
+* Refactored and simplified the code of the NotificationsManager class
+* Cleaned up the code in the utils file
+* Tank 1 and Tank 2 levels are now integer values instead of float
+* Version bump to 0.2.13
+
 ## 0.2.12 (2023-02-11)
 
 * Moved the code logic for sound playback from the utils file into its own dedicated SoundManager class

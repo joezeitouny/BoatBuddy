@@ -26,11 +26,10 @@ class ClockEntry:
 
 
 class ClockPlugin(GenericPlugin):
-    _log_entries = []
 
-    def __init__(self, args):
+    def __init__(self, options):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, args)
+        GenericPlugin.__init__(self, options)
 
     def get_metadata_headers(self):
         return config.CLOCK_PLUGIN_METADATA_HEADERS.copy()
@@ -72,9 +71,6 @@ class ClockPlugin(GenericPlugin):
             log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A']
 
         return log_summary_list
-
-    def reset_entries(self):
-        self._log_entries = []
 
     def finalize(self):
         utils.get_logger().info("Clock plugin instance is ready to be destroyed")

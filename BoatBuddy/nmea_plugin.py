@@ -89,35 +89,48 @@ class NMEAEntry:
 
 
 class NMEAPlugin(GenericPlugin):
-    _log_entries = []
 
-    _water_temperature = 0.0
-    _depth = 0.0
-    _heading = 0
-    _gps_latitude = Latitude()
-    _gps_longitude = Longitude()
-    _true_wind_speed = 0
-    _true_wind_direction = 0
-    _apparent_wind_speed = 0.0
-    _apparent_wind_angle = 0
-    _speed_over_water = 0.0
-    _speed_over_ground = 0.0
-    _gps_fix_captured = False
-
-    _events = None
-    _process_data_thread = threading.Thread()
-
-    def __init__(self, args):
+    def __init__(self, options):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, args)
+        GenericPlugin.__init__(self, options)
 
-        self._server_ip = args.nmea_server_ip
-        self._server_port = int(args.nmea_port)
+        # Instance metrics
+        self._water_temperature = 0.0
+        self._depth = 0.0
+        self._heading = 0
+        self._gps_latitude = Latitude()
+        self._gps_longitude = Longitude()
+        self._true_wind_speed = 0
+        self._true_wind_direction = 0
+        self._apparent_wind_speed = 0.0
+        self._apparent_wind_angle = 0
+        self._speed_over_water = 0.0
+        self._speed_over_ground = 0.0
+        self._gps_fix_captured = False
+
+        # Other instance variables
+        self._plugin_status = PluginStatus.STARTING
+        self._server_ip = options.nmea_server_ip
+        self._server_port = int(options.nmea_port)
+        self._events = None
+        self._process_data_thread = threading.Thread()
         self._exit_signal = threading.Event()
-        self._timer = threading.Timer(config.NMEA_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(1, self.connect_to_server)
         self._timer.start()
 
-        self._plugin_status = PluginStatus.STARTING
+    def reset_instance_metrics(self):
+        self._water_temperature = 0.0
+        self._depth = 0.0
+        self._heading = 0
+        self._gps_latitude = Latitude()
+        self._gps_longitude = Longitude()
+        self._true_wind_speed = 0
+        self._true_wind_direction = 0
+        self._apparent_wind_speed = 0.0
+        self._apparent_wind_angle = 0
+        self._speed_over_water = 0.0
+        self._speed_over_ground = 0.0
+        self._gps_fix_captured = False
 
     def get_metadata_headers(self):
         return config.NMEA_PLUGIN_METADATA_HEADERS.copy()
@@ -161,9 +174,6 @@ class NMEAPlugin(GenericPlugin):
         log_summary_list = []
 
         if len(self._log_entries) > 0:
-            first_entry = self._log_entries[0]
-            last_entry = self._log_entries[len(self._log_entries) - 1]
-
             # Collect the GPS coordinates from the first entry which has valid ones
             first_gps_latitude_entry = Latitude()
             first_gps_longitude_entry = Longitude()
@@ -191,7 +201,7 @@ class NMEAPlugin(GenericPlugin):
                 n = n - 1
 
             # Try to fetch the starting and ending location cities
-            geolocator = Nominatim(user_agent="geoapiExercises")
+            geolocator = Nominatim(user_agent="BoatBuddy")
             starting_location_str = ''
             try:
                 starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
@@ -199,8 +209,8 @@ class NMEAPlugin(GenericPlugin):
                 starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + \
                                         starting_location.raw['address'].get('country', '')
 
-            except Exception:
-                pass
+            except Exception as e:
+                utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
             log_summary_list.append(starting_location_str)
 
             ending_location_str = ''
@@ -209,8 +219,8 @@ class NMEAPlugin(GenericPlugin):
                                                      f'{last_gps_longitude_entry}')
                 ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + \
                                       ending_location.raw['address'].get('country', '')
-            except Exception:
-                pass
+            except Exception as e:
+                utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
             log_summary_list.append(ending_location_str)
 
             log_summary_list.append(first_gps_latitude_entry.to_string("d%°%m%\'%S%\" %H"))
@@ -266,10 +276,7 @@ class NMEAPlugin(GenericPlugin):
 
         return log_summary_list
 
-    def reset_entries(self):
-        self._log_entries = []
-
-    def main_loop(self):
+    def connect_to_server(self):
         if self._exit_signal.is_set():
             self._plugin_status = PluginStatus.DOWN
             utils.get_logger().info('NMEA plugin instance is ready to be destroyed')
@@ -289,11 +296,8 @@ class NMEAPlugin(GenericPlugin):
             # Start receiving and processing data
             self._process_data_thread = threading.Thread(target=self._process_data_loop)
             self._process_data_thread.start()
-
-        except TimeoutError:
-            self._handle_connection_exception()
-        except OSError:
-            self._handle_connection_exception()
+        except Exception as e:
+            self._handle_connection_exception(e)
 
     def _process_data_loop(self):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -305,13 +309,13 @@ class NMEAPlugin(GenericPlugin):
             while not self._exit_signal.is_set():
                 data = client.recv(config.BUFFER_SIZE)
                 if data is None:
-                    utils.get_logger().info('No NMEA0183 data received')
-                    self._plugin_status = PluginStatus.DOWN
-                    break
+                    raise ValueError('No NMEA0183 data received')
 
                 if self._plugin_status != PluginStatus.RUNNING:
-                    utils.get_logger().debug(f'Connection to NMEA0183 server established')
+                    utils.get_logger().info(f'Connection to NMEA0183 server established')
                     self._plugin_status = PluginStatus.RUNNING
+
+                    self.reset_instance_metrics()
 
                     if self._events:
                         self._events.on_connect()
@@ -319,18 +323,16 @@ class NMEAPlugin(GenericPlugin):
                 str_data = data.decode().rstrip('\r\n')
                 utils.get_logger().debug(str_data)
                 self._process_data(str_data)
-        except TimeoutError:
-            self._handle_connection_exception()
-        except OSError:
-            self._handle_connection_exception()
+        except Exception as e:
+            self._handle_connection_exception(e)
 
         # Close the client connection (if any)
         client.close()
 
-    def _handle_connection_exception(self):
-        utils.get_logger().info(f'NMEA0183 Server on {self._server_ip} is down!')
-
+    def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
+            utils.get_logger().info(f'NMEA0183 Server on {self._server_ip} is down. Details: {message}')
+
             self._plugin_status = PluginStatus.DOWN
 
             # If anyone is listening to events then notify of a disconnection
@@ -338,7 +340,7 @@ class NMEAPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
         # Restart the main timer if the connection is lost
-        self._timer = self._timer = threading.Timer(config.NMEA_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(config.NMEA_TIMER_INTERVAL, self.connect_to_server)
         self._timer.start()
 
     def _process_data(self, payload):
