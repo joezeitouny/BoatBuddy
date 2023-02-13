@@ -1,3 +1,8 @@
+## 0.2.14 (2023-02-13)
+
+* Removed the pyobjc dependency from the TOML file
+* Version bump to 0.2.14
+
 ## 0.2.13 (2023-02-13)
 
 * Moved the reset_entries function to the GenericPlugin class and renamed it to clear_entries

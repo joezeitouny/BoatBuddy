@@ -17,7 +17,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pyobjc ~= 9.0.1",
     "geopy ~= 2.3.0",
     "gpxpy ~= 1.5.0",
     "latloncalc ~= 1.5.3",
