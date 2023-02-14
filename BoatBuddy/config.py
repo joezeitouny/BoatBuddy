@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.4.0'
+APPLICATION_VERSION = '0.4.1'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -52,7 +52,7 @@ COLOURING_SCHEME = {'Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], '
                     'TWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
                     'AWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
                     'Depth (m)': {'green': [20, 400], 'yellow': [4, 20], 'red': [0, 4]}}
-NOTIFICATIONS_RULES = {'Tank 1 lvl (%)': {'warning': {'range': [60, 99], 'frequency': 'once',
+NOTIFICATIONS_RULES = {'Tank 1 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once',
                                                       'notifications': ['sound', 'email']},
                                           'alarm': {'range': [0, 60], 'frequency': 'interval',
                                                     'interval': 60 * 60,

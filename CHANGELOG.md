@@ -1,3 +1,8 @@
+## 0.4.1 (2023-02-14)
+
+* Changed the notification range for Tank 1 lvl
+* Version bump to 0.4.1
+
 ## 0.4.0 (2023-02-14)
 
 * Added email notification feature
