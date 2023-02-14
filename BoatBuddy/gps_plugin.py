@@ -27,15 +27,25 @@ class GPSEntry:
         return utils.get_comma_separated_string(self.get_values())
 
     def get_values(self):
-        lon = self._gps_longitude.to_string("d%°%m%\'%S%\" %H")
-        lat = self._gps_latitude.to_string("d%°%m%\'%S%\" %H")
+        lat = ''
+        lon = ''
+        if self._gps_latitude != '':
+            lat = self._gps_latitude.to_string("d%°%m%\'%S%\" %H")
+        if self._gps_longitude != '':
+            lon = self._gps_longitude.to_string("d%°%m%\'%S%\" %H")
         return [lat, lon, self._location]
 
     def get_gps_longitude(self):
-        return self._gps_longitude
+        if self._gps_longitude != '':
+            return self._gps_longitude
+        else:
+            return Longitude()
 
     def get_gps_latitude(self):
-        return self._gps_latitude
+        if self._gps_latitude != '':
+            return self._gps_latitude
+        else:
+            return Latitude()
 
     def get_location(self):
         return self._location
@@ -50,9 +60,10 @@ class GPSPlugin(GenericPlugin):
         GenericPlugin.__init__(self, options)
 
         # Instance metrics
-        self._gps_latitude = Latitude()
-        self._gps_longitude = Longitude()
-        self._location = 'N/A'
+        self._gps_latitude = ''
+        self._gps_longitude = ''
+        self._location = ''
+        self._gps_fix_captured = False
 
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
@@ -61,9 +72,10 @@ class GPSPlugin(GenericPlugin):
         self._timer.start()
 
     def reset_instance_metrics(self):
-        self._gps_latitude = Latitude()
-        self._gps_longitude = Longitude()
-        self._location = 'N/A'
+        self._gps_latitude = ''
+        self._gps_longitude = ''
+        self._location = ''
+        self._gps_fix_captured = False
 
     def get_metadata_headers(self):
         return config.GPS_PLUGIN_METADATA_HEADERS.copy()
@@ -95,8 +107,10 @@ class GPSPlugin(GenericPlugin):
             n = 0
             while n < len(self._log_entries):
                 entry = self._log_entries[n]
-                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string() \
-                        != LatLon(Latitude(), Longitude()).to_string():
+                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
+                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
+                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
+                        != LatLon(Latitude(), Longitude()).to_string("D"):
                     first_gps_latitude_entry = entry.get_gps_latitude()
                     first_gps_longitude_entry = entry.get_gps_longitude()
                     break
@@ -108,8 +122,10 @@ class GPSPlugin(GenericPlugin):
             n = len(self._log_entries)
             while n > 0:
                 entry = self._log_entries[n - 1]
-                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string() \
-                        != LatLon(Latitude(), Longitude()).to_string():
+                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
+                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
+                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
+                        != LatLon(Latitude(), Longitude()).to_string("D"):
                     last_gps_latitude_entry = entry.get_gps_latitude()
                     last_gps_longitude_entry = entry.get_gps_longitude()
                     break
@@ -145,7 +161,7 @@ class GPSPlugin(GenericPlugin):
             # Calculate travelled distance and heading
             latlon_start = LatLon(first_gps_latitude_entry, first_gps_longitude_entry)
             latlon_end = LatLon(last_gps_latitude_entry, last_gps_longitude_entry)
-            if latlon_start.to_string() != latlon_end.to_string():
+            if latlon_start.to_string("D") != latlon_end.to_string("D"):
                 distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
                 log_summary_list.append(distance)
                 heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
@@ -166,7 +182,7 @@ class GPSPlugin(GenericPlugin):
 
         try:
             # Get gps position
-            with Serial(self._options.gps, 9600, bytesize=8, stopbits=1.0, parity='N',
+            with Serial(self._options.gps_serial_port, 4800, bytesize=8, stopbits=1.0, parity='N',
                         xonxoff=0, rtscts=0, timeout=0.1) as self._serial_object:
                 self._stream = BufferedReader(self._serial_object)
 
@@ -199,26 +215,30 @@ class GPSPlugin(GenericPlugin):
         buff = StringIO(payload)
         csv_reader = csv.reader(buff)
         csv_list = list(csv_reader)[0]
-        str_csv_list_type = csv_list[0]
+
+        if not csv_list[0]:
+            return
 
         # Determine the type of data
-        if str_csv_list_type == "$GNGLL":
-            if csv_list[1] != '' and csv_list[2] != '' and csv_list[3] != '' and csv_list[4] != '':
-                self._gps_latitude = utils.get_latitude(csv_list[1], csv_list[2])
-                self._gps_longitude = utils.get_longitude(csv_list[3], csv_list[4])
-                self._gps_fix_captured = True
-                utils.get_logger().debug(
-                    f'Detected GPS coordinates Latitude: {self._gps_latitude} Longitude: {self._gps_longitude}')
+        if not str(csv_list[0]).endswith('GLL'):
+            return
 
-                geolocator = Nominatim(user_agent="BoatBuddy")
-                try:
-                    geo_location = geolocator.reverse(f'{self._gps_latitude}' + ',' +
-                                                      f'{self._gps_longitude}')
-                    self._location = geo_location.raw['address'].get('city', '') + ', ' + geo_location.raw[
-                        'address'].get(
-                        'country', '')
-                except Exception as e:
-                    utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
+        if csv_list[6] and csv_list[6] == 'A':
+            self._gps_latitude = utils.get_latitude(csv_list[1], csv_list[2])
+            self._gps_longitude = utils.get_longitude(csv_list[3], csv_list[4])
+            self._gps_fix_captured = True
+            utils.get_logger().debug(
+                f'Detected GPS coordinates Latitude: {self._gps_latitude} Longitude: {self._gps_longitude}')
+
+            geolocator = Nominatim(user_agent="BoatBuddy")
+            try:
+                geo_location = geolocator.reverse(f'{self._gps_latitude}' + ',' +
+                                                  f'{self._gps_longitude}')
+                self._location = geo_location.raw['address'].get('city', '') + ', ' + geo_location.raw[
+                    'address'].get(
+                    'country', '')
+            except Exception as e:
+                utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
 
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
@@ -247,8 +267,7 @@ class GPSPlugin(GenericPlugin):
         self._events = events
 
     def is_gps_fix_captured(self):
-        return LatLon(self._gps_latitude, self._gps_longitude).to_string() \
-            != LatLon(Latitude(), Longitude()).to_string()
+        return self._gps_fix_captured
 
     def get_last_latitude_entry(self):
         if len(self._log_entries) > 0:

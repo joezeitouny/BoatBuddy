@@ -1,3 +1,17 @@
+## 0.3.0 (2023-02-14)
+
+* Renamed 'gps' commmand line option to 'gps-serial-port'
+* Introduced 'show-log-in-console' command line option
+* Changed the default session run mode to 'manual'
+* Renamed 'Starter Batt...' fields to 'Strt. Batt...'
+* Introduced the option to show or hide log section in the footer of the rich console based on the 'show-log-in-console'
+  command line option value
+* Changed defaults of instance metrics in the NMEA plugin to be empty strings
+* Improved on the logic to compute starting and ending GPS locations and their respective coordinates in the GPS and
+  NMEA plugins
+* Improved the logic that detects when a GPS fix is captured
+* Version bump to 0.3.0
+
 ## 0.2.16 (2023-02-13)
 
 * Cleaned up the ConsoleManager class

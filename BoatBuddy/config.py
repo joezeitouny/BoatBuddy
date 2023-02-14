@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.2.16'
+APPLICATION_VERSION = '0.3.0'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -27,6 +27,7 @@ SESSION_RUN_MODE_AUTO_VICTRON = 'auto-victron'
 SESSION_RUN_MODE_AUTO_GPS = 'auto-gps'
 SESSION_RUN_MODE_CONTINUOUS = 'continuous'
 SESSION_RUN_MODE_INTERVAL = 'interval'
+SESSION_RUN_MODE_MANUAL = 'manual'
 
 # Defaults for command line options
 DEFAULT_FILENAME_PREFIX = 'Trip_'
@@ -36,17 +37,18 @@ DEFAULT_EXCEL_OUTPUT_FLAG = False
 DEFAULT_GPX_OUTPUT_FLAG = False
 DEFAULT_SUMMARY_OUTPUT_FLAG = False
 DEFAULT_VERBOSE_FLAG = False
-DEFAULT_SESSION_RUN_MODE = SESSION_RUN_MODE_CONTINUOUS
+DEFAULT_SESSION_RUN_MODE = SESSION_RUN_MODE_MANUAL
 # Time in seconds between each session is finalized when running in interval mode
 DEFAULT_SESSION_INTERVAL = 60 * 60 * 24  # default is every 24h
 DEFAULT_NO_SOUND = False
+DEFAULT_SHOW_LOG_IN_CONSOLE = False
 
 # Display colouring template
 COLOURING_SCHEME = {'Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
                     'Tank 2 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
                     'Batt. SOC': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
                     'Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
-                    'Starter Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
+                    'Strt. Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
                     'TWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
                     'AWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
                     'Depth (m)': {'green': [20, 400], 'yellow': [4, 20], 'red': [0, 4]}}
@@ -61,7 +63,7 @@ NOTIFICATIONS_RULES = {'Tank 1 lvl (%)': {'warning': {'range': [60, 80], 'freque
                        'Batt. Voltage (V)': {
                            'warning': {'range': [12.6, 12.8], 'frequency': 'once'},
                            'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60}},
-                       'Starter Batt. Voltage (V)': {
+                       'Strt. Batt. Voltage (V)': {
                            'warning': {'range': [12.6, 12.8], 'frequency': 'once'},
                            'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60}},
                        'AWS (kts)': {'warning': {'range': [18, 25], 'frequency': 'once'},
@@ -78,14 +80,13 @@ FILTERED_VICTRON_SUMMARY = ['Batt. max voltage (V)', 'Batt. min voltage (V)',
                             'Batt. avg. power (W)',
                             'PV max power (W)', 'PV avg. power',
                             'PV max current (A)', 'PV avg. current (A)',
-                            'Starter batt. max voltage (V)', 'Starter batt. min voltage (V)',
-                            'Starter batt. avg. voltage',
+                            'Strt. batt. max voltage (V)', 'Strt. batt. min voltage (V)',
+                            'Strt. batt. avg. voltage',
                             'Tank 1 max lvl', 'Tank 1 min lvl', 'Tank 1 avg. lvl',
                             'Tank 2 max lvl', 'Tank 2 min lvl', 'Tank 2 avg. lvl']
 FILTERED_NMEA_SUMMARY = ['Start Location (City, Country)',
                          'Start GPS Lat (d°m\'S\" H)',
-                         'Start GPS Lon (d°m\'S\" H)', 'End GPS Lat (d°m\'S\" H)',
-                         'End GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)',
+                         'Start GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)',
                          'Avg. Wind Speed (kts)', 'Avg. Wind Direction (°)',
                          'Avg. Water Temp. (°C)', 'Avg. Depth (m)',
                          'Avg. SOG (kts)', 'Avg. SOW (kts)']
@@ -93,7 +94,7 @@ FILTERED_VICTRON_METRICS = ['Active Input source', 'Grid 1 power (W)', 'Generato
                             'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
                             'VE.Bus State', 'AC Consumption (W)', 'Batt. Voltage (V)', 'Batt. Current (A)',
                             'Batt. Power (W)', 'Batt. SOC', 'Batt. state', 'PV Power (W)', 'PV Current (A)',
-                            'Starter Batt. Voltage (V)', 'Tank 1 lvl (%)', 'Tank 1 Type', 'Tank 2 lvl (%)',
+                            'Strt. Batt. Voltage (V)', 'Tank 1 lvl (%)', 'Tank 1 Type', 'Tank 2 lvl (%)',
                             'Tank 2 Type']
 FILTERED_NMEA_METRICS = ['True Hdg. (°)', 'TWS (kts)',
                          'TWD (°)', 'AWS (kts)',
@@ -129,7 +130,7 @@ VICTRON_PLUGIN_METADATA_HEADERS = ['Active Input source', 'Grid 1 power (W)', 'G
                                    'VE.Bus State', 'AC Consumption (W)', 'Batt. Voltage (V)', 'Batt. Current (A)',
                                    'Batt. Power (W)', 'Batt. SOC', 'Batt. state', 'PV Power (W)',
                                    'PV Current (A)',
-                                   'Starter Batt. Voltage (V)', 'Tank 1 lvl (%)', 'Tank 1 Type', 'Tank 2 lvl (%)',
+                                   'Strt. Batt. Voltage (V)', 'Tank 1 lvl (%)', 'Tank 1 Type', 'Tank 2 lvl (%)',
                                    'Tank 2 Type']
 VICTRON_PLUGINS_SUMMARY_HEADERS = ['Batt. max voltage (V)', 'Batt. min voltage (V)',
                                    'Batt. avg. voltage (V)', 'Batt. max current (A)',
@@ -137,8 +138,8 @@ VICTRON_PLUGINS_SUMMARY_HEADERS = ['Batt. max voltage (V)', 'Batt. min voltage (
                                    'Batt. avg. power (W)',
                                    'PV max power (W)', 'PV avg. power',
                                    'PV max current (A)', 'PV avg. current (A)',
-                                   'Starter batt. max voltage (V)', 'Starter batt. min voltage (V)',
-                                   'Starter batt. avg. voltage', 'AC Consumption max (W)',
+                                   'Strt. batt. max voltage (V)', 'Strt. batt. min voltage (V)',
+                                   'Strt. batt. avg. voltage', 'AC Consumption max (W)',
                                    'AC Consumption avg. (W)',
                                    'Tank 1 max lvl', 'Tank 1 min lvl', 'Tank 1 avg. lvl',
                                    'Tank 2 max lvl', 'Tank 2 min lvl', 'Tank 2 avg. lvl']

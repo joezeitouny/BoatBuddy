@@ -40,8 +40,12 @@ class NMEAEntry:
         return utils.get_comma_separated_string(self.get_values())
 
     def get_values(self):
-        lon = self._gps_longitude.to_string("d%°%m%\'%S%\" %H")
-        lat = self._gps_latitude.to_string("d%°%m%\'%S%\" %H")
+        lat = ''
+        lon = ''
+        if self._gps_latitude != '':
+            lat = self._gps_latitude.to_string("d%°%m%\'%S%\" %H")
+        if self._gps_longitude != '':
+            lon = self._gps_longitude.to_string("d%°%m%\'%S%\" %H")
         return [f'{self._heading}', f'{self._true_wind_speed}',
                 f'{self._true_wind_direction}', f'{self._apparent_wind_speed}', f'{self._apparent_wind_angle}', lon,
                 lat,
@@ -64,10 +68,16 @@ class NMEAEntry:
         return self._apparent_wind_angle
 
     def get_gps_longitude(self):
-        return self._gps_longitude
+        if self._gps_longitude != '':
+            return self._gps_longitude
+        else:
+            return Longitude()
 
     def get_gps_latitude(self):
-        return self._gps_latitude
+        if self._gps_latitude != '':
+            return self._gps_latitude
+        else:
+            return Latitude()
 
     def get_water_temperature(self):
         return self._water_temperature
@@ -95,17 +105,17 @@ class NMEAPlugin(GenericPlugin):
         GenericPlugin.__init__(self, options)
 
         # Instance metrics
-        self._water_temperature = 0.0
-        self._depth = 0.0
-        self._heading = 0
-        self._gps_latitude = Latitude()
-        self._gps_longitude = Longitude()
-        self._true_wind_speed = 0
-        self._true_wind_direction = 0
-        self._apparent_wind_speed = 0.0
-        self._apparent_wind_angle = 0
-        self._speed_over_water = 0.0
-        self._speed_over_ground = 0.0
+        self._water_temperature = ''
+        self._depth = ''
+        self._heading = ''
+        self._gps_latitude = ''
+        self._gps_longitude = ''
+        self._true_wind_speed = ''
+        self._true_wind_direction = ''
+        self._apparent_wind_speed = ''
+        self._apparent_wind_angle = ''
+        self._speed_over_water = ''
+        self._speed_over_ground = ''
         self._gps_fix_captured = False
 
         # Other instance variables
@@ -119,17 +129,17 @@ class NMEAPlugin(GenericPlugin):
         self._timer.start()
 
     def reset_instance_metrics(self):
-        self._water_temperature = 0.0
-        self._depth = 0.0
-        self._heading = 0
-        self._gps_latitude = Latitude()
-        self._gps_longitude = Longitude()
-        self._true_wind_speed = 0
-        self._true_wind_direction = 0
-        self._apparent_wind_speed = 0.0
-        self._apparent_wind_angle = 0
-        self._speed_over_water = 0.0
-        self._speed_over_ground = 0.0
+        self._water_temperature = ''
+        self._depth = ''
+        self._heading = ''
+        self._gps_latitude = ''
+        self._gps_longitude = ''
+        self._true_wind_speed = ''
+        self._true_wind_direction = ''
+        self._apparent_wind_speed = ''
+        self._apparent_wind_angle = ''
+        self._speed_over_water = ''
+        self._speed_over_ground = ''
         self._gps_fix_captured = False
 
     def get_metadata_headers(self):
@@ -180,8 +190,10 @@ class NMEAPlugin(GenericPlugin):
             n = 0
             while n < len(self._log_entries):
                 entry = self._log_entries[n]
-                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string() \
-                        != LatLon(Latitude(), Longitude()).to_string():
+                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
+                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
+                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
+                        != LatLon(Latitude(), Longitude()).to_string("D"):
                     first_gps_latitude_entry = entry.get_gps_latitude()
                     first_gps_longitude_entry = entry.get_gps_longitude()
                     break
@@ -193,8 +205,10 @@ class NMEAPlugin(GenericPlugin):
             n = len(self._log_entries)
             while n > 0:
                 entry = self._log_entries[n - 1]
-                if LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string() \
-                        != LatLon(Latitude(), Longitude()).to_string():
+                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
+                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
+                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
+                        != LatLon(Latitude(), Longitude()).to_string("D"):
                     last_gps_latitude_entry = entry.get_gps_latitude()
                     last_gps_longitude_entry = entry.get_gps_longitude()
                     break
@@ -231,7 +245,7 @@ class NMEAPlugin(GenericPlugin):
             # Calculate travelled distance and heading
             latlon_start = LatLon(first_gps_latitude_entry, first_gps_longitude_entry)
             latlon_end = LatLon(last_gps_latitude_entry, last_gps_longitude_entry)
-            if latlon_start.to_string() != latlon_end.to_string():
+            if latlon_start.to_string("D") != latlon_end.to_string("D"):
                 distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
                 log_summary_list.append(distance)
                 heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
@@ -250,12 +264,12 @@ class NMEAPlugin(GenericPlugin):
             count = len(self._log_entries)
             if count > 0:
                 for entry in self._log_entries:
-                    sum_wind_speed += float(entry.get_true_wind_speed())
-                    sum_true_wind_direction += int(entry.get_true_wind_direction())
-                    sum_water_temperature += float(entry.get_water_temperature())
-                    sum_depth += float(entry.get_depth())
-                    sum_speed_over_ground += float(entry.get_speed_over_ground())
-                    sum_speed_over_water += float(entry.get_speed_over_water())
+                    sum_wind_speed += utils.try_parse_float(entry.get_true_wind_speed())
+                    sum_true_wind_direction += utils.try_parse_int(entry.get_true_wind_direction())
+                    sum_water_temperature += utils.try_parse_float(entry.get_water_temperature())
+                    sum_depth += utils.try_parse_float(entry.get_depth())
+                    sum_speed_over_ground += utils.try_parse_float(entry.get_speed_over_ground())
+                    sum_speed_over_water += utils.try_parse_float(entry.get_speed_over_water())
 
                 log_summary_list.append(round(sum_wind_speed / count))
                 log_summary_list.append(int(sum_true_wind_direction / count))
@@ -358,7 +372,7 @@ class NMEAPlugin(GenericPlugin):
                 self._heading = math.floor(float(csv_list[1]))
                 utils.get_logger().debug(f'Detected heading {self._heading} degrees (True north)')
         elif str_csv_list_type == "$GPGGA":
-            if csv_list[2] != '' and csv_list[3] != '' and csv_list[4] != '' and csv_list[5] != '':
+            if csv_list[6] == '1' or csv_list[6] == '2':
                 self._gps_latitude = utils.get_latitude(csv_list[2], csv_list[3])
                 self._gps_longitude = utils.get_longitude(csv_list[4], csv_list[5])
                 self._gps_fix_captured = True

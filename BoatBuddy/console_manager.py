@@ -161,7 +161,7 @@ class ConsoleManager:
     def _make_layout(self) -> Layout:
         layout = Layout()
 
-        if self._options.verbose:
+        if self._options.verbose and self._options.show_log_in_console:
             layout.split_column(
                 Layout(name="header", size=1),
                 Layout(name="body", ratio=1),
@@ -190,7 +190,7 @@ class ConsoleManager:
             victron_layout.update(self._make_key_value_table('Victron Plugin ' + plugin_status_str,
                                                              self._plugin_manager.get_filtered_victron_metrics()))
 
-        if self._options.gps:
+        if self._options.gps_serial_port:
             gps_layout = Layout(name="gps")
             # Populate the NMEA layout
             plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_gps_plugin_status())

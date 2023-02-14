@@ -54,7 +54,7 @@ class PluginManager:
         # initialize the common time plugin
         self._time_plugin = ClockPlugin(self._options)
 
-        if self._options.gps:
+        if self._options.gps_serial_port:
             self._gps_plugin = GPSPlugin(self._options)
 
             if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS:
@@ -176,7 +176,7 @@ class PluginManager:
                                              f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
 
         # Sleep for the specified interval
-        self._disk_write_timer = threading.Timer(self._options.interval, self._write_collected_data_to_disk)
+        self._disk_write_timer = threading.Timer(self._options.disk_write_interval, self._write_collected_data_to_disk)
         self._disk_write_timer.start()
 
     def _start_session(self):

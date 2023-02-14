@@ -14,18 +14,18 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.set_usage("python3 -m BoatBuddy OUTPUT_DIRECTORY [options]")
     parser.set_defaults(nmea_port=config.DEFAULT_TCP_PORT, filename=config.DEFAULT_FILENAME_PREFIX,
-                        interval=config.DEFAULT_DISK_WRITE_INTERVAL, excel=config.DEFAULT_EXCEL_OUTPUT_FLAG,
+                        disk_write_interval=config.DEFAULT_DISK_WRITE_INTERVAL, excel=config.DEFAULT_EXCEL_OUTPUT_FLAG,
                         csv=config.DEFAULT_CSV_OUTPUT_FLAG, gpx=config.DEFAULT_GPX_OUTPUT_FLAG,
                         summary=config.DEFAULT_SUMMARY_OUTPUT_FLAG,
                         summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
                         verbose=config.DEFAULT_VERBOSE_FLAG, run_mode=config.DEFAULT_SESSION_RUN_MODE,
                         run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log=config.LOG_LEVEL,
-                        no_sound=config.DEFAULT_NO_SOUND)
+                        no_sound=config.DEFAULT_NO_SOUND, show_log_in_console=config.DEFAULT_SHOW_LOG_IN_CONSOLE)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
                                                                                f'Default is: {config.DEFAULT_TCP_PORT}')
-    parser.add_option('-i', '--interval', type='int', dest='interval',
+    parser.add_option('--disk-write-interval', type='int', dest='disk_write_interval',
                       help=f'Disk write interval (in seconds). Default is: ' +
                            f'{config.DEFAULT_DISK_WRITE_INTERVAL} seconds')
     parser.add_option('--excel', action='store_true', dest='excel', help='Generate an Excel workbook.')
@@ -43,15 +43,20 @@ if __name__ == '__main__':
     parser.add_option('--victron-server-ip', dest='victron_server_ip', type='string',
                       help=f'Append Victron system metrics from the specified device IP')
     parser.add_option('--run-mode', type='string', dest='run_mode',
-                      help=f'Session run modes can be: \'auto-victron\', \'auto-nmea\', \'continuous\', ' +
-                           f'\'interval\'. Default is: {config.DEFAULT_SESSION_RUN_MODE}')
+                      help=f'Session run modes can be: \'auto-victron\', \'auto-nmea\', \'auto-gps\', ' +
+                           f'\'continuous\', \'interval\', \'manual\'. Default is: {config.DEFAULT_SESSION_RUN_MODE}')
     parser.add_option('--run-mode-interval', type='int', dest='run_mode_interval',
                       help=f'Session interval (in seconds) to be applied when run mode \'interval\' is specified.' +
                            f' Default is: {config.DEFAULT_SESSION_INTERVAL}')
     parser.add_option('--log', dest='log', type='string',
                       help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
-    parser.add_option('--no-sound', dest='no_sound', action='store_true', help=f'Suppress all application sounds')
-    parser.add_option('--gps', dest='gps', type='string', help=f'Append GPS metrics from GPS dongle')
+    parser.add_option('--no-sound', dest='no_sound', action='store_true',
+                      help=f'Suppress all application notification sounds')
+    parser.add_option('--gps-serial-port', dest='gps_serial_port', type='string',
+                      help=f'Append GPS metrics from GPS dongle')
+    parser.add_option('--show-log-in-console', dest='show_log_in_console', action='store_true',
+                      help=f'Show last few log entries in the console UI. ' +
+                           f'Default is: {config.DEFAULT_SHOW_LOG_IN_CONSOLE}')
     (options, args) = parser.parse_args()
 
     log_numeric_level = getattr(logging, options.log.upper(), None)
@@ -78,16 +83,16 @@ if __name__ == '__main__':
         print(f'Invalid argument: Cannot use the \'auto-victron\' session run mode ' +
               f'without providing victron server configuration parameters\r\n')
         parser.print_help()
-    elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS and not options.gps:
+    elif str(options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS and not options.gps_serial_port:
         print(f'Invalid argument: Cannot use the \'auto-gps\' session run mode ' +
               f'without providing gps module configuration parameters\r\n')
         parser.print_help()
-    elif options.interval < config.INITIAL_SNAPSHOT_INTERVAL:
+    elif options.disk_write_interval < config.INITIAL_SNAPSHOT_INTERVAL:
         print(f'Invalid argument: Specified disk write interval cannot be less than ' +
               f'{config.INITIAL_SNAPSHOT_INTERVAL} seconds')
-    elif options.run_mode_interval < options.interval:
+    elif options.run_mode_interval < options.disk_write_interval:
         print(f'Invalid argument: Specified run mode interval time cannot be less than the value chosen for ' +
-              f'disk write interval which is {options.interval} seconds')
+              f'disk write interval which is {options.disk_write_interval} seconds')
     else:
         if options.verbose:
             # Initialize the logging module
