@@ -1,3 +1,8 @@
+## 0.4.3 (2023-02-14)
+
+* Fixed Notification rules section in the config file
+* Version bump to 0.4.3
+
 ## 0.4.2 (2023-02-14)
 
 * Added feature to send a report email after the session ends with all the session generated files
