@@ -307,7 +307,7 @@ class VictronPlugin(GenericPlugin):
             self._handle_connection_exception(e)
 
         # Reset the timer
-        self._timer = self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
     def _handle_connection_exception(self, message):

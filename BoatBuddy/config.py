@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.4.1'
+APPLICATION_VERSION = '0.4.2'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -42,6 +42,7 @@ DEFAULT_SESSION_RUN_MODE = SESSION_RUN_MODE_MANUAL
 DEFAULT_SESSION_INTERVAL = 60 * 60 * 24  # default is every 24h
 DEFAULT_NO_SOUND = False
 DEFAULT_SHOW_LOG_IN_CONSOLE = False
+DEFAULT_EMAIL_REPORT = False
 
 # Display colouring template
 COLOURING_SCHEME = {'Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},

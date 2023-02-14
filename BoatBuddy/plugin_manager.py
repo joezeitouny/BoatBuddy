@@ -2,11 +2,13 @@ import threading
 import time
 from datetime import datetime
 from enum import Enum
+from os.path import exists
 from time import mktime
 
 import gpxpy
 import gpxpy.gpx
 import openpyxl
+import yagmail
 
 from BoatBuddy import config, utils
 from BoatBuddy.clock_plugin import ClockPlugin
@@ -300,6 +302,40 @@ class PluginManager:
 
         # Play the session ended chime
         self._sound_manager.play_sound_async('/resources/session_ended.wav')
+
+        # Send a session report if specified
+        if self._options.email_report:
+            try:
+                receiver = self._options.email_address
+                body = f'Please find attached the data files generated from this session\r\n'
+                attachments = []
+
+                if self._options.csv:
+                    attachments.append(f"{self._output_directory}{self._log_filename}.csv")
+
+                if self._options.excel:
+                    attachments.append(f"{self._output_directory}{self._log_filename}.xlsx")
+
+                if self._options.gpx and (self._nmea_plugin or self._gps_plugin):
+                    # Check if the GPX file is generated to cater for the case where no GPS fix was obtained during
+                    # the session
+                    if exists(f"{self._output_directory}{self._log_filename}.gpx"):
+                        attachments.append(f"{self._output_directory}{self._log_filename}.gpx")
+
+                if self._options.summary:
+                    attachments.append(f"{self._output_directory}{self._summary_filename}.xlsx")
+
+                yagmail.register(self._options.email_address, self._options.email_password)
+                yag = yagmail.SMTP(receiver)
+                yag.send(to=receiver,
+                         subject=f'{config.APPLICATION_NAME} - (Session Report) for session {self._log_filename}',
+                         contents=body,
+                         attachments=attachments)
+
+                utils.get_logger().info(f'Email report for session {self._log_filename} successfully sent!')
+            except Exception as e:
+                utils.get_logger().error(f'Error while sending email report for session {self._log_filename}. '
+                                         f'Details: {e}')
 
     def get_status(self):
         if self._is_session_active:

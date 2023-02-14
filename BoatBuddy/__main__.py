@@ -20,7 +20,8 @@ if __name__ == '__main__':
                         summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
                         verbose=config.DEFAULT_VERBOSE_FLAG, run_mode=config.DEFAULT_SESSION_RUN_MODE,
                         run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log_level=config.LOG_LEVEL,
-                        no_sound=config.DEFAULT_NO_SOUND, show_log_in_console=config.DEFAULT_SHOW_LOG_IN_CONSOLE)
+                        no_sound=config.DEFAULT_NO_SOUND, show_log_in_console=config.DEFAULT_SHOW_LOG_IN_CONSOLE,
+                        email_report=config.DEFAULT_EMAIL_REPORT)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
@@ -61,6 +62,8 @@ if __name__ == '__main__':
                       help=f'Email address used when sending out notifications or trip reports')
     parser.add_option('--email-password', dest='email_password', type='string',
                       help=f'Email password used when sending out notifications or trip reports')
+    parser.add_option('--email-report', dest='email_report', action='store_true',
+                      help=f'Send a session report by email after a session ends')
     (options, args) = parser.parse_args()
 
     log_numeric_level = getattr(logging, options.log_level.upper(), None)
@@ -97,6 +100,8 @@ if __name__ == '__main__':
     elif options.run_mode_interval < options.disk_write_interval:
         print(f'Invalid argument: Specified run mode interval time cannot be less than the value chosen for ' +
               f'disk write interval which is {options.disk_write_interval} seconds')
+    elif options.email_report and not options.email_address and not options.email_password:
+        print(f'Invalid argument: Email credentials need to be provided in order to use the email report feature')
     else:
         if options.verbose:
             # Initialize the logging module

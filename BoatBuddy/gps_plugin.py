@@ -189,22 +189,24 @@ class GPSPlugin(GenericPlugin):
                 while not self._exit_signal.is_set():
                     try:
                         raw_data = self._stream.readline()
-                        if raw_data is not None:
-                            if self._plugin_status != PluginStatus.RUNNING:
-                                utils.get_logger().info(f'Connection to GPS module is established')
-                                self._plugin_status = PluginStatus.RUNNING
 
-                                self.reset_instance_metrics()
+                        if raw_data is None:
+                            raise ValueError(f'No data received')
 
-                                if self._events:
-                                    self._events.on_connect()
+                        if self._plugin_status != PluginStatus.RUNNING:
+                            utils.get_logger().info(f'Connection to GPS module is established')
+                            self._plugin_status = PluginStatus.RUNNING
 
-                            str_data = raw_data.decode().rstrip('\r\n')
-                            utils.get_logger().debug(str_data)
-                            self._process_data(str_data)
+                            self.reset_instance_metrics()
+
+                            if self._events:
+                                self._events.on_connect()
+
+                        str_data = raw_data.decode().rstrip('\r\n')
+                        utils.get_logger().debug(str_data)
+                        self._process_data(str_data)
                     except Exception as e:
-                        utils.get_logger().debug(f"Error parsing data stream {e}")
-                        continue
+                        self._handle_connection_exception(e)
         except Exception as e:
             self._handle_connection_exception(e)
 
@@ -214,7 +216,16 @@ class GPSPlugin(GenericPlugin):
 
         buff = StringIO(payload)
         csv_reader = csv.reader(buff)
-        csv_list = list(csv_reader)[0]
+
+        if not csv_reader:
+            return
+
+        csv_reader_list = list(csv_reader)
+
+        if len(csv_reader_list) == 0:
+            return
+
+        csv_list = csv_reader_list[0]
 
         if not csv_list[0]:
             return
@@ -251,7 +262,7 @@ class GPSPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
         # Reset the timer
-        self._timer = self._timer = threading.Timer(config.GPS_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(config.GPS_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
     def finalize(self):

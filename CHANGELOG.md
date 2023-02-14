@@ -1,3 +1,11 @@
+## 0.4.2 (2023-02-14)
+
+* Added feature to send a report email after the session ends with all the session generated files
+* Added 'email-report' command line option
+* Fixed the logic with handling exceptions in the GPS plugin
+* Removed redundant variable assignment in the VictronPlugin class
+* Version bump to 0.4.2
+
 ## 0.4.1 (2023-02-14)
 
 * Changed the notification range for Tank 1 lvl
