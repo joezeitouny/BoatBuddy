@@ -150,11 +150,11 @@ class ConsoleManager:
         for key in key_value_list:
             colour = utils.get_colour_for_key_value_in_dictionary(config.COLOURING_SCHEME, key, key_value_list[key])
             if colour != 'default':
-                table.add_row(f'[b][{colour}]{key}[/{colour}]: ' +
-                              f'[{colour}]{key_value_list[key]}[/{colour}][/b]')
+                table.add_row(f'[b][{colour}]{key}: ' +
+                              f'{key_value_list[key]}[/{colour}][/b]')
             else:
-                table.add_row(f'[{colour}]{key}[/{colour}]: ' +
-                              f'[{colour}]{key_value_list[key]}[/{colour}]')
+                table.add_row(f'[{colour}]{key}: ' +
+                              f'{key_value_list[key]}[/{colour}]')
             self._notifications_manager.process_entry(key, key_value_list[key])
         return Panel(table, title=title)
 
