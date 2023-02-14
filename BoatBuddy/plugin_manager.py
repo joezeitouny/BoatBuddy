@@ -370,6 +370,12 @@ class PluginManager:
     def get_filtered_summary_metrics(self) -> {}:
         summary_key_value_list = {}
 
+        if self._gps_plugin:
+            gps_dictionary = utils.get_key_value_list(self._gps_plugin.get_summary_headers(),
+                                                      self._gps_plugin.get_summary_values())
+            gps_dictionary = utils.get_filtered_key_value_list(gps_dictionary, config.FILTERED_GPS_SUMMARY.copy())
+            summary_key_value_list.update(gps_dictionary)
+
         if self._nmea_plugin:
             nmea_dictionary = utils.get_key_value_list(self._nmea_plugin.get_summary_headers(),
                                                        self._nmea_plugin.get_summary_values())

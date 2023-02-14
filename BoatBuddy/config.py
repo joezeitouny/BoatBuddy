@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.3.0'
+APPLICATION_VERSION = '0.3.1'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -84,12 +84,13 @@ FILTERED_VICTRON_SUMMARY = ['Batt. max voltage (V)', 'Batt. min voltage (V)',
                             'Strt. batt. avg. voltage',
                             'Tank 1 max lvl', 'Tank 1 min lvl', 'Tank 1 avg. lvl',
                             'Tank 2 max lvl', 'Tank 2 min lvl', 'Tank 2 avg. lvl']
-FILTERED_NMEA_SUMMARY = ['Start Location (City, Country)',
-                         'Start GPS Lat (d°m\'S\" H)',
+FILTERED_NMEA_SUMMARY = ['Start Location (City, Country)', 'Start GPS Lat (d°m\'S\" H)',
                          'Start GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)',
                          'Avg. Wind Speed (kts)', 'Avg. Wind Direction (°)',
                          'Avg. Water Temp. (°C)', 'Avg. Depth (m)',
                          'Avg. SOG (kts)', 'Avg. SOW (kts)']
+FILTERED_GPS_SUMMARY = ['Start Location (City, Country)', 'Start GPS Lat (d°m\'S\" H)', 'Start GPS Lon (d°m\'S\" H)',
+                        'Dst. (miles)', 'Hdg. (°)']
 FILTERED_VICTRON_METRICS = ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
                             'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
                             'VE.Bus State', 'AC Consumption (W)', 'Batt. Voltage (V)', 'Batt. Current (A)',

@@ -1,3 +1,8 @@
+## 0.3.1 (2023-02-14)
+
+* Added the missing GPS module summary metrics in the summary section
+* Version bump to 0.3.1
+
 ## 0.3.0 (2023-02-14)
 
 * Renamed 'gps' commmand line option to 'gps-serial-port'
