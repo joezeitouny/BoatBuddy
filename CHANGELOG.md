@@ -1,3 +1,10 @@
+## 0.4.0 (2023-02-14)
+
+* Added email notification feature
+* Added 'email-address' and 'email-password' command line options
+* Changed 'log' to 'log-level' in the list of command line options
+* Version bump to 0.4.0
+
 ## 0.3.1 (2023-02-14)
 
 * Added the missing GPS module summary metrics in the summary section

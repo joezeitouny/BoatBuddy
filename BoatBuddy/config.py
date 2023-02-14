@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.3.1'
+APPLICATION_VERSION = '0.4.0'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -52,24 +52,32 @@ COLOURING_SCHEME = {'Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], '
                     'TWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
                     'AWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
                     'Depth (m)': {'green': [20, 400], 'yellow': [4, 20], 'red': [0, 4]}}
-NOTIFICATIONS_RULES = {'Tank 1 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once'},
+NOTIFICATIONS_RULES = {'Tank 1 lvl (%)': {'warning': {'range': [60, 99], 'frequency': 'once',
+                                                      'notifications': ['sound', 'email']},
                                           'alarm': {'range': [0, 60], 'frequency': 'interval',
-                                                    'interval': 60 * 60}},  # Every hour
+                                                    'interval': 60 * 60,
+                                                    'notifications': ['sound', 'email']}},  # Every hour
                        'Tank 2 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once'},
                                           'alarm': {'range': [0, 60], 'frequency': 'interval',
-                                                    'interval': 60 * 60 * 4}},  # Every four hours
+                                                    'interval': 60 * 60 * 4,
+                                                    'notifications': ['sound', 'email']}},  # Every four hours
                        'Batt. SOC': {'warning': {'range': [60, 80], 'frequency': 'once'},
-                                     'alarm': {'range': [0, 60], 'frequency': 'interval', 'interval': 60 * 60}},
+                                     'alarm': {'range': [0, 60], 'frequency': 'interval', 'interval': 60 * 60,
+                                               'notifications': ['sound', 'email']}},
                        'Batt. Voltage (V)': {
                            'warning': {'range': [12.6, 12.8], 'frequency': 'once'},
-                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60}},
+                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60,
+                                     'notifications': ['sound', 'email']}},
                        'Strt. Batt. Voltage (V)': {
                            'warning': {'range': [12.6, 12.8], 'frequency': 'once'},
-                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60}},
+                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60,
+                                     'notifications': ['sound', 'email']}},
                        'AWS (kts)': {'warning': {'range': [18, 25], 'frequency': 'once'},
-                                     'alarm': {'range': [25, 100], 'frequency': 'interval', 'interval': 60 * 15}},
+                                     'alarm': {'range': [25, 100], 'frequency': 'interval', 'interval': 60 * 15,
+                                               'notifications': ['sound']}},
                        'Depth (m)': {'warning': {'range': [4, 20], 'frequency': 'once'},
-                                     'alarm': {'range': [0, 4], 'frequency': 'interval', 'interval': 60}}
+                                     'alarm': {'range': [0, 4], 'frequency': 'interval', 'interval': 60,
+                                               'notifications': ['sound']}}
                        }
 
 # Display filters

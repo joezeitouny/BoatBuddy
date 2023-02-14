@@ -19,7 +19,7 @@ if __name__ == '__main__':
                         summary=config.DEFAULT_SUMMARY_OUTPUT_FLAG,
                         summary_filename=config.DEFAULT_SUMMARY_FILENAME_PREFIX,
                         verbose=config.DEFAULT_VERBOSE_FLAG, run_mode=config.DEFAULT_SESSION_RUN_MODE,
-                        run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log=config.LOG_LEVEL,
+                        run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log_level=config.LOG_LEVEL,
                         no_sound=config.DEFAULT_NO_SOUND, show_log_in_console=config.DEFAULT_SHOW_LOG_IN_CONSOLE)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     parser.add_option('--run-mode-interval', type='int', dest='run_mode_interval',
                       help=f'Session interval (in seconds) to be applied when run mode \'interval\' is specified.' +
                            f' Default is: {config.DEFAULT_SESSION_INTERVAL}')
-    parser.add_option('--log', dest='log', type='string',
+    parser.add_option('--log-level', dest='log_level', type='string',
                       help=f'Desired log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
     parser.add_option('--no-sound', dest='no_sound', action='store_true',
                       help=f'Suppress all application notification sounds')
@@ -57,11 +57,15 @@ if __name__ == '__main__':
     parser.add_option('--show-log-in-console', dest='show_log_in_console', action='store_true',
                       help=f'Show last few log entries in the console UI. ' +
                            f'Default is: {config.DEFAULT_SHOW_LOG_IN_CONSOLE}')
+    parser.add_option('--email-address', dest='email_address', type='string',
+                      help=f'Email address used when sending out notifications or trip reports')
+    parser.add_option('--email-password', dest='email_password', type='string',
+                      help=f'Email password used when sending out notifications or trip reports')
     (options, args) = parser.parse_args()
 
-    log_numeric_level = getattr(logging, options.log.upper(), None)
+    log_numeric_level = getattr(logging, options.log_level.upper(), None)
     if not isinstance(log_numeric_level, int):
-        print(f'Invalid argument: Log level "{options.log}"')
+        print(f'Invalid argument: Log level "{options.log_level}"')
         parser.print_help()
     elif len(args) == 0:  # If the output directory is not provided
         print(f'Invalid argument: Output directory is required\r\n')
@@ -120,5 +124,5 @@ if __name__ == '__main__':
         sound_manager.play_sound_async('/resources/application_started.mp3')
 
         plugin_manager = PluginManager(options, args, sound_manager)
-        notifications_manager = NotificationsManager(sound_manager)
+        notifications_manager = NotificationsManager(options, args, sound_manager)
         ConsoleManager(options, args, plugin_manager, notifications_manager, sound_manager)
