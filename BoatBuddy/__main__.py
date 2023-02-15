@@ -136,6 +136,6 @@ if __name__ == '__main__':
         # Play the application started chime
         sound_manager.play_sound_async('/resources/application_started.mp3')
 
-        plugin_manager = PluginManager(options, args, sound_manager)
         notifications_manager = NotificationsManager(options, args, sound_manager)
+        plugin_manager = PluginManager(options, args, notifications_manager, sound_manager)
         ConsoleManager(options, args, plugin_manager, notifications_manager, sound_manager)

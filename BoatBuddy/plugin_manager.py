@@ -8,13 +8,13 @@ from time import mktime
 import gpxpy
 import gpxpy.gpx
 import openpyxl
-import yagmail
 
 from BoatBuddy import config, utils
 from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
+from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.sound_manager import SoundManager
 from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
 
@@ -41,9 +41,10 @@ class PluginManager:
     _is_session_active = False
     _session_timer = None
 
-    def __init__(self, options, args, sound_manager: SoundManager):
+    def __init__(self, options, args, notifications_manager: NotificationsManager, sound_manager: SoundManager):
         self._options = options
         self._args = args
+        self._notifications_manager = notifications_manager
         self._sound_manager = sound_manager
 
         if not self._args[0].endswith('/'):
@@ -59,31 +60,28 @@ class PluginManager:
         if self._options.gps_serial_port:
             self._gps_plugin = GPSPlugin(self._options)
 
-            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS:
-                gps_connection_events = GPSPluginEvents()
-                gps_connection_events.on_connect += self._start_session
-                gps_connection_events.on_disconnect += self._end_session
-                self._gps_plugin.register_for_events(gps_connection_events)
+            gps_connection_events = GPSPluginEvents()
+            gps_connection_events.on_connect += self._on_connect_gps_plugin
+            gps_connection_events.on_disconnect += self._on_disconnect_gps_plugin
+            self._gps_plugin.register_for_events(gps_connection_events)
 
         if self._options.victron_server_ip:
             # initialize the Victron plugin
             self._victron_plugin = VictronPlugin(self._options)
 
-            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
-                victron_connection_events = VictronPluginEvents()
-                victron_connection_events.on_connect += self._start_session
-                victron_connection_events.on_disconnect += self._end_session
-                self._victron_plugin.register_for_events(victron_connection_events)
+            victron_connection_events = VictronPluginEvents()
+            victron_connection_events.on_connect += self._on_connect_victron_plugin
+            victron_connection_events.on_disconnect += self._on_disconnect_victron_plugin
+            self._victron_plugin.register_for_events(victron_connection_events)
 
         if self._options.nmea_server_ip:
             # initialize the NMEA0183 plugin
             self._nmea_plugin = NMEAPlugin(self._options)
 
-            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA:
-                nmea_connection_events = NMEAPluginEvents()
-                nmea_connection_events.on_connect += self._start_session
-                nmea_connection_events.on_disconnect += self._end_session
-                self._nmea_plugin.register_for_events(nmea_connection_events)
+            nmea_connection_events = NMEAPluginEvents()
+            nmea_connection_events.on_connect += self._on_connect_nmea_plugin
+            nmea_connection_events.on_disconnect += self._on_disconnect_nmea_plugin
+            self._nmea_plugin.register_for_events(nmea_connection_events)
 
         # If normal mode is active then start recording system metrics immediately
         if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_CONTINUOUS \
@@ -93,6 +91,36 @@ class PluginManager:
             if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_INTERVAL:
                 self._session_timer = threading.Timer(self._options.run_mode_interval, self._session_timer_elapsed)
                 self._session_timer.start()
+
+    def _on_connect_gps_plugin(self):
+        self._notifications_manager.process_entry('gps', 'online', EntryType.MODULE)
+        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS:
+            self._start_session()
+
+    def _on_connect_victron_plugin(self):
+        self._notifications_manager.process_entry('victron', 'online', EntryType.MODULE)
+        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
+            self._start_session()
+
+    def _on_connect_nmea_plugin(self):
+        self._notifications_manager.process_entry('nmea', 'online', EntryType.MODULE)
+        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA:
+            self._start_session()
+
+    def _on_disconnect_gps_plugin(self):
+        self._notifications_manager.process_entry('gps', 'offline', EntryType.MODULE)
+        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS:
+            self._end_session()
+
+    def _on_disconnect_victron_plugin(self):
+        self._notifications_manager.process_entry('victron', 'offline', EntryType.MODULE)
+        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
+            self._end_session()
+
+    def _on_disconnect_nmea_plugin(self):
+        self._notifications_manager.process_entry('nmea', 'offline', EntryType.MODULE)
+        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA:
+            self._end_session()
 
     def _session_timer_elapsed(self):
         # End the current session
@@ -246,10 +274,14 @@ class PluginManager:
         if not self._is_session_active:
             return
 
+        # Stop the worker thread timer
+        if self._disk_write_timer:
+            self._disk_write_timer.cancel()
+
         # Take one last snapshot and persist it to disk
         self._write_collected_data_to_disk()
 
-        # Stop the worker thread timer
+        # Stop the worker thread timer again
         if self._disk_write_timer:
             self._disk_write_timer.cancel()
 
@@ -310,7 +342,8 @@ class PluginManager:
         if self._options.email_report:
             try:
                 receiver = self._options.email_address
-                body = f'Please find attached the data files generated from this session\r\n'
+                body = f'Please find attached the data files generated from this session.\r\n\r\n' \
+                       f'--\r\n{config.APPLICATION_NAME} ({config.APPLICATION_VERSION})'
                 attachments = []
 
                 if self._options.csv:
@@ -328,13 +361,8 @@ class PluginManager:
                 if self._options.summary:
                     attachments.append(f"{self._output_directory}{self._summary_filename}.xlsx")
 
-                yagmail.register(self._options.email_address, self._options.email_password)
-                yag = yagmail.SMTP(receiver)
-                yag.send(to=receiver,
-                         subject=f'{config.APPLICATION_NAME} - (Session Report) for session {self._log_filename}',
-                         contents=body,
-                         attachments=attachments)
-
+                subject = f'{config.APPLICATION_NAME} - (Session Report) for session {self._log_filename}'
+                utils.send_email(self._options, subject, body, attachments)
                 utils.get_logger().info(f'Email report for session {self._log_filename} successfully sent!')
             except Exception as e:
                 utils.get_logger().error(f'Error while sending email report for session {self._log_filename}. '

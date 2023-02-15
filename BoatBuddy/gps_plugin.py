@@ -236,26 +236,14 @@ class GPSPlugin(GenericPlugin):
                 self._stream = BufferedReader(self._serial_object)
 
                 while not self._exit_signal.is_set():
-                    try:
-                        raw_data = self._stream.readline()
+                    raw_data = self._stream.readline()
 
-                        if raw_data is None:
-                            raise ValueError(f'No data received')
+                    if raw_data is None:
+                        raise ValueError(f'No data received')
 
-                        if self._plugin_status != PluginStatus.RUNNING:
-                            utils.get_logger().info(f'Connection to GPS module is established')
-                            self._plugin_status = PluginStatus.RUNNING
-
-                            self.reset_instance_metrics()
-
-                            if self._events:
-                                self._events.on_connect()
-
-                        str_data = raw_data.decode().rstrip('\r\n')
-                        utils.get_logger().debug(str_data)
-                        self._process_data(str_data)
-                    except Exception as e:
-                        self._handle_connection_exception(e)
+                    str_data = raw_data.decode().rstrip('\r\n')
+                    utils.get_logger().debug(str_data)
+                    self._process_data(str_data)
         except Exception as e:
             self._handle_connection_exception(e)
 
@@ -280,7 +268,16 @@ class GPSPlugin(GenericPlugin):
             return
 
         # Determine the type of data
-        if str(csv_list[0]).endswith('GLL') and csv_list[6] and csv_list[6] == 'A':
+        if str(csv_list[0]).endswith('GLL') and csv_list[6] == 'A':
+            if self._plugin_status != PluginStatus.RUNNING:
+                utils.get_logger().info(f'Connection to GPS module is established')
+                self._plugin_status = PluginStatus.RUNNING
+
+                self.reset_instance_metrics()
+
+                if self._events:
+                    self._events.on_connect()
+
             self._gps_latitude = utils.get_latitude(csv_list[1], csv_list[2])
             self._gps_longitude = utils.get_longitude(csv_list[3], csv_list[4])
             self._gps_fix_captured = True

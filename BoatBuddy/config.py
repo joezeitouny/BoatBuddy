@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.4.6'
+APPLICATION_VERSION = '0.4.7'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -19,7 +19,7 @@ MODBUS_TCP_PORT = 502
 VICTRON_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
 
 # GPS Plugin
-GPS_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
+GPS_TIMER_INTERVAL = 5  # In seconds, defines the amount of time to wait between metrics retrievals
 
 # Run modes
 SESSION_RUN_MODE_AUTO_NMEA = 'auto-nmea'
@@ -46,59 +46,71 @@ DEFAULT_EMAIL_REPORT = False
 DEFAULT_NOTIFICATION_COOL_OFF_INTERVAL = 60  # In seconds
 
 # Console colouring rules
-COLOURING_SCHEME = {'[GX] Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
-                    '[GX] Tank 2 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
-                    '[GX] Batt. SOC': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
-                    '[GX] Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
-                    '[GX] Strt. Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
-                    '[NM] TWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
-                    '[NM] AWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
-                    '[NM] Depth (m)': {'green': [20, 400], 'yellow': [4, 20], 'red': [0, 4]}}
+METRICS_COLOURING_SCHEME = {'[GX] Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
+                            '[GX] Tank 2 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
+                            '[GX] Batt. SOC': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
+                            '[GX] Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8], 'red': [0, 12.6]},
+                            '[GX] Strt. Batt. Voltage (V)': {'green': [12.8, 15], 'yellow': [12.6, 12.8],
+                                                             'red': [0, 12.6]},
+                            '[NM] TWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
+                            '[NM] AWS (kts)': {'green': [0, 18], 'yellow': [18, 25], 'red': [25, 100]},
+                            '[NM] Depth (m)': {'green': [20, 400], 'yellow': [4, 20], 'red': [0, 4]}}
 
 # System notification rules
-NOTIFICATIONS_RULES = {'[GX] Tank 1 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once',
-                                                           'notifications': ['sound', 'email'],
-                                                           'cool-off-interval': 60 * 5},
-                                               'alarm': {'range': [0, 60], 'frequency': 'interval',
-                                                         'interval': 60 * 60,  # Every hour
-                                                         'notifications': ['sound', 'email'],
-                                                         'cool-off-interval': 60 * 5}},
-                       '[GX] Tank 2 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once',
-                                                           'notifications': ['sound', 'email'],
-                                                           'cool-off-interval': 60 * 5},
-                                               'alarm': {'range': [0, 60], 'frequency': 'interval',
-                                                         'interval': 60 * 60 * 4,  # Every four hours
-                                                         'notifications': ['sound', 'email'],
-                                                         'cool-off-interval': 60 * 5}},
-                       '[GX] Batt. SOC': {'warning': {'range': [60, 80], 'frequency': 'once',
-                                                      'notifications': ['sound', 'email'],
-                                                      'cool-off-interval': 60 * 10},
-                                          'alarm': {'range': [0, 60], 'frequency': 'interval', 'interval': 60 * 60,
-                                                    'notifications': ['sound', 'email'],
-                                                    'cool-off-interval': 60 * 10}},
-                       '[GX] Batt. Voltage (V)': {
-                           'warning': {'range': [12.6, 12.8], 'frequency': 'once',
-                                       'notifications': ['sound', 'email'],
-                                       'cool-off-interval': 60 * 10},
-                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60,
-                                     'notifications': ['sound', 'email'],
-                                     'cool-off-interval': 60 * 10}},
-                       '[GX] Strt. Batt. Voltage (V)': {
-                           'warning': {'range': [12.6, 12.8], 'frequency': 'once', 'notifications': ['sound'],
-                                       'cool-off-interval': 60 * 10},
-                           'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60,
-                                     'notifications': ['sound', 'email'], 'cool-off-interval': 60 * 10}},
-                       '[NM] AWS (kts)': {
-                           'warning': {'range': [18, 25], 'frequency': 'once', 'notifications': ['sound'],
-                                       'cool-off-interval': 60 * 15},
-                           'alarm': {'range': [25, 100], 'frequency': 'interval', 'interval': 60 * 15,
-                                     'notifications': ['sound'],
-                                     'cool-off-interval': 60 * 15}},
-                       '[NM] Depth (m)': {
-                           'warning': {'range': [4, 20], 'frequency': 'once', 'notifications': ['sound']},
-                           'alarm': {'range': [0, 4], 'frequency': 'interval', 'interval': 60,
-                                     'notifications': ['sound']}}
-                       }
+METRICS_NOTIFICATIONS_RULES = {'[GX] Tank 1 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once',
+                                                                   'notifications': ['sound', 'email'],
+                                                                   'cool-off-interval': 60 * 5},
+                                                       'alarm': {'range': [0, 60], 'frequency': 'interval',
+                                                                 'interval': 60 * 60,  # Every hour
+                                                                 'notifications': ['sound', 'email'],
+                                                                 'cool-off-interval': 60 * 5}},
+                               '[GX] Tank 2 lvl (%)': {'warning': {'range': [60, 80], 'frequency': 'once',
+                                                                   'notifications': ['sound', 'email'],
+                                                                   'cool-off-interval': 60 * 5},
+                                                       'alarm': {'range': [0, 60], 'frequency': 'interval',
+                                                                 'interval': 60 * 60 * 4,  # Every four hours
+                                                                 'notifications': ['sound', 'email'],
+                                                                 'cool-off-interval': 60 * 5}},
+                               '[GX] Batt. SOC': {'warning': {'range': [60, 80], 'frequency': 'once',
+                                                              'notifications': ['sound', 'email'],
+                                                              'cool-off-interval': 60 * 10},
+                                                  'alarm': {'range': [0, 60], 'frequency': 'interval',
+                                                            'interval': 60 * 60,
+                                                            'notifications': ['sound', 'email'],
+                                                            'cool-off-interval': 60 * 10}},
+                               '[GX] Batt. Voltage (V)': {
+                                   'warning': {'range': [12.6, 12.8], 'frequency': 'once',
+                                               'notifications': ['sound', 'email'],
+                                               'cool-off-interval': 60 * 10},
+                                   'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60,
+                                             'notifications': ['sound', 'email'],
+                                             'cool-off-interval': 60 * 10}},
+                               '[GX] Strt. Batt. Voltage (V)': {
+                                   'warning': {'range': [12.6, 12.8], 'frequency': 'once', 'notifications': ['sound'],
+                                               'cool-off-interval': 60 * 10},
+                                   'alarm': {'range': [0, 12.6], 'frequency': 'interval', 'interval': 60 * 60,
+                                             'notifications': ['sound', 'email'], 'cool-off-interval': 60 * 10}},
+                               '[NM] AWS (kts)': {
+                                   'warning': {'range': [18, 25], 'frequency': 'once', 'notifications': ['sound'],
+                                               'cool-off-interval': 60 * 15},
+                                   'alarm': {'range': [25, 100], 'frequency': 'interval', 'interval': 60 * 15,
+                                             'notifications': ['sound'],
+                                             'cool-off-interval': 60 * 15}},
+                               '[NM] Depth (m)': {
+                                   'warning': {'range': [4, 20], 'frequency': 'once', 'notifications': ['sound']},
+                                   'alarm': {'range': [0, 4], 'frequency': 'interval', 'interval': 60,
+                                             'notifications': ['sound']}}
+                               }
+
+MODULES_NOTIFICATIONS_RULES = {'gps': {'alarm': {'status': 'offline', 'frequency': 'interval',
+                                                 'interval': 60 * 60 * 24,
+                                                 'notifications': ['sound', 'email']}},
+                               'nmea': {'alarm': {'status': 'offline', 'frequency': 'once',
+                                                  'notifications': ['sound']}},
+                               'victron': {'alarm': {'status': 'offline', 'frequency': 'interval',
+                                                     'interval': 60 * 60 * 24,
+                                                     'notifications': ['sound', 'email']}}
+                               }
 
 # Display filters
 FILTERED_SESSION_HEADER = ['Start Time (UTC)', 'Start Time (Local)', 'Duration']

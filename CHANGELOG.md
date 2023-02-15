@@ -1,3 +1,14 @@
+## 0.4.7 (2023-02-15)
+
+* Added support for notifications for when plugins go offline
+* Increased the GPS timer interval to 5 seconds
+* Renamed the Colouring Scheme and Notification Rules configuration parameters to Metrics Colouring Scheme and Metrics
+  Notification Rules respectively
+* Added Module specific configuration rules section in the config file
+* Improved the logic in the GPS plugin that detects the plugin state
+* Moved the logic to handle sending emails to the utils file
+* Version bump to 0.4.7
+
 ## 0.4.6 (2023-02-15)
 
 * Introduced prefixed to help with module metrics identification

@@ -11,7 +11,7 @@ from rich.text import Text
 
 from BoatBuddy import utils, config
 from BoatBuddy.generic_plugin import PluginStatus
-from BoatBuddy.notifications_manager import NotificationsManager
+from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 from BoatBuddy.sound_manager import SoundManager
 
@@ -150,14 +150,15 @@ class ConsoleManager:
         table = Table.grid(expand=True)
         table.add_column()
         for key in key_value_list:
-            colour = utils.get_colour_for_key_value_in_dictionary(config.COLOURING_SCHEME, key, key_value_list[key])
+            colour = utils.get_colour_for_key_value_in_dictionary(config.METRICS_COLOURING_SCHEME, key,
+                                                                  key_value_list[key])
             if colour != 'default':
                 table.add_row(f'[b][{colour}]{key}: ' +
                               f'{key_value_list[key]}[/{colour}][/b]')
             else:
                 table.add_row(f'[bright_white]{key}: ' +
                               f'{key_value_list[key]}[/bright_white]')
-            self._notifications_manager.process_entry(key, key_value_list[key])
+            self._notifications_manager.process_entry(key, key_value_list[key], EntryType.METRIC)
         return Panel(table, title=title)
 
     def _make_layout(self) -> Layout:
