@@ -1,3 +1,10 @@
+## 0.4.6 (2023-02-15)
+
+* Introduced prefixed to help with module metrics identification
+* Introduced the following metrics to the GPS plugin: SOG, COG, Distance from last entry, Cumulative distance, Average
+  SOG
+* Version bump to 0.4.6
+
 ## 0.4.5 (2023-02-15)
 
 * Changed the reported field headers for the GPS module to be prefixed with SERIAL and the corresponding headers from

@@ -18,10 +18,15 @@ class GPSPluginEvents(Events):
 
 
 class GPSEntry:
-    def __init__(self, gps_latitude, gps_longitude, location):
+    def __init__(self, gps_latitude, gps_longitude, location, speed_over_ground, course_over_ground,
+                 distance_from_previous_entry, cumulative_distance):
         self._gps_latitude = gps_latitude
         self._gps_longitude = gps_longitude
         self._location = location
+        self._speed_over_ground = speed_over_ground
+        self._course_over_ground = course_over_ground
+        self._distance_from_previous_entry = distance_from_previous_entry
+        self._cumulative_distance = cumulative_distance
 
     def __str__(self):
         return utils.get_comma_separated_string(self.get_values())
@@ -33,7 +38,8 @@ class GPSEntry:
             lat = utils.get_str_from_latitude(self._gps_latitude)
         if self._gps_longitude != '':
             lon = utils.get_str_from_longitude(self._gps_longitude)
-        return [lat, lon, self._location]
+        return [lat, lon, self._location, self._speed_over_ground, self._course_over_ground,
+                self._distance_from_previous_entry, self._cumulative_distance]
 
     def get_gps_longitude(self):
         if self._gps_longitude != '':
@@ -50,6 +56,18 @@ class GPSEntry:
     def get_location(self):
         return self._location
 
+    def get_speed_over_ground(self):
+        return self._speed_over_ground
+
+    def get_course_over_ground(self):
+        return self._course_over_ground
+
+    def get_distance_from_previous_entry(self):
+        return self._distance_from_previous_entry
+
+    def get_cumulative_distance(self):
+        return self._cumulative_distance
+
 
 class GPSPlugin(GenericPlugin):
     _events = None
@@ -63,6 +81,8 @@ class GPSPlugin(GenericPlugin):
         self._gps_latitude = ''
         self._gps_longitude = ''
         self._location = ''
+        self._speed_over_ground = ''
+        self._course_over_ground = ''
         self._gps_fix_captured = False
 
         # Other instance variables
@@ -75,14 +95,32 @@ class GPSPlugin(GenericPlugin):
         self._gps_latitude = ''
         self._gps_longitude = ''
         self._location = ''
+        self._speed_over_ground = ''
+        self._course_over_ground = ''
         self._gps_fix_captured = False
 
     def get_metadata_headers(self):
         return config.GPS_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
+        # Calculate the distance traveled so far and the distance from the last recorded entry
+        cumulative_distance = 0.0
+        distance_from_previous_entry = 0.0
+        entries_count = len(self._log_entries)
+        # Check first if we currently have a GPS fix and that there is at least one previously logged entry
+        if self.is_gps_fix_captured() and entries_count > 0:
+            latlon_start = LatLon(self._log_entries[entries_count - 1].get_gps_latitude(),
+                                  self._log_entries[entries_count - 1].get_gps_longitude())
+            # Only calculate the distance and cumulative distance metrics if the last entry has a valid GPS fix
+            if latlon_start.to_string() != LatLon(Latitude(), Longitude()).to_string():
+                latlon_end = LatLon(self._gps_latitude, self._gps_longitude)
+                distance_from_previous_entry = round(float(latlon_end.distance(latlon_start) / 1.852), 1)
+                cumulative_distance = round(float(self._log_entries[entries_count - 1].get_cumulative_distance())
+                                            + distance_from_previous_entry, 1)
+
         # Create a new entry
-        entry = GPSEntry(self._gps_latitude, self._gps_longitude, self._location)
+        entry = GPSEntry(self._gps_latitude, self._gps_longitude, self._location, self._speed_over_ground,
+                         self._course_over_ground, distance_from_previous_entry, cumulative_distance)
 
         # Add it to the list of entries in memory
         if store_entry:
@@ -169,8 +207,19 @@ class GPSPlugin(GenericPlugin):
             else:
                 log_summary_list.append(0)
                 log_summary_list.append('')
+
+            # Calculate averages
+            sum_speed_over_ground = 0
+            count = len(self._log_entries)
+            if count > 0:
+                for entry in self._log_entries:
+                    sum_speed_over_ground += utils.try_parse_float(entry.get_speed_over_ground())
+
+                log_summary_list.append(round(sum_speed_over_ground / count, 1))
+            else:
+                log_summary_list.append('')
         else:
-            log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A']
+            log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A']
 
         return log_summary_list
 
@@ -231,10 +280,7 @@ class GPSPlugin(GenericPlugin):
             return
 
         # Determine the type of data
-        if not str(csv_list[0]).endswith('GLL'):
-            return
-
-        if csv_list[6] and csv_list[6] == 'A':
+        if str(csv_list[0]).endswith('GLL') and csv_list[6] and csv_list[6] == 'A':
             self._gps_latitude = utils.get_latitude(csv_list[1], csv_list[2])
             self._gps_longitude = utils.get_longitude(csv_list[3], csv_list[4])
             self._gps_fix_captured = True
@@ -250,6 +296,11 @@ class GPSPlugin(GenericPlugin):
                     'country', '')
             except Exception as e:
                 utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
+        elif str(csv_list[0]).endswith('VTG'):
+            self._course_over_ground = utils.try_parse_float(csv_list[1])
+            self._speed_over_ground = utils.try_parse_float(csv_list[5])
+            utils.get_logger().debug(
+                f'Detected COG: {self._course_over_ground} SOG: {self._speed_over_ground}')
 
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
