@@ -1,3 +1,13 @@
+## 0.4.4 (2023-02-15)
+
+* Added notification cool off feature to help with suppressing notifications bursts. A configurable setting is now
+  available in the notifications rules section in the config file
+* Reordered the GPS latitude and longitude fields in the NMEA plugin to match with the GPS plugin order
+* Changed the formatting of the GPS coordinates to remove extra zeros at the end of the seconds field
+* Added 'cool-off-interval' command line option
+* Normal entries in the rich console layout are now coloured 'bright_white' for better visibility
+* Version bump to 0.4.4
+
 ## 0.4.3 (2023-02-14)
 
 * Fixed Notification rules section in the config file

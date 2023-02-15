@@ -30,9 +30,9 @@ class GPSEntry:
         lat = ''
         lon = ''
         if self._gps_latitude != '':
-            lat = self._gps_latitude.to_string("d%°%m%\'%S%\" %H")
+            lat = utils.get_str_from_latitude(self._gps_latitude)
         if self._gps_longitude != '':
-            lon = self._gps_longitude.to_string("d%°%m%\'%S%\" %H")
+            lon = utils.get_str_from_longitude(self._gps_longitude)
         return [lat, lon, self._location]
 
     def get_gps_longitude(self):
@@ -153,10 +153,10 @@ class GPSPlugin(GenericPlugin):
                 utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
             log_summary_list.append(ending_location_str)
 
-            log_summary_list.append(first_gps_latitude_entry.to_string("d%°%m%\'%S%\" %H"))
-            log_summary_list.append(first_gps_longitude_entry.to_string("d%°%m%\'%S%\" %H"))
-            log_summary_list.append(last_gps_latitude_entry.to_string("d%°%m%\'%S%\" %H"))
-            log_summary_list.append(last_gps_longitude_entry.to_string("d%°%m%\'%S%\" %H"))
+            log_summary_list.append(utils.get_str_from_latitude(first_gps_latitude_entry))
+            log_summary_list.append(utils.get_str_from_longitude(first_gps_longitude_entry))
+            log_summary_list.append(utils.get_str_from_latitude(last_gps_latitude_entry))
+            log_summary_list.append(utils.get_str_from_longitude(last_gps_longitude_entry))
 
             # Calculate travelled distance and heading
             latlon_start = LatLon(first_gps_latitude_entry, first_gps_longitude_entry)

@@ -124,20 +124,31 @@ def get_minutes(coord_str):
 
 
 def get_seconds(coord_str):
-    return (0.1 * float(coord_str.split('.')[1]) * 60) / 1000
+    if len(coord_str.split('.')[1]) == 5:
+        return round((0.1 * int(coord_str.split('.')[1]) * 60) / 10000, 2)
+    else:
+        return round((0.1 * int(coord_str.split('.')[1]) * 60) / 1000, 2)
 
 
-def get_latitude(coord_str, hemispehere):
+def get_latitude(coord_str, hemisphere):
     lat = Latitude(get_degrees(coord_str), get_minutes(coord_str),
                    get_seconds(coord_str))
-    lat.set_hemisphere(hemispehere)
+    lat.set_hemisphere(hemisphere)
     return lat
 
 
-def get_longitude(coord_str, hemispehere):
+def get_str_from_latitude(latitude):
+    return latitude.to_string("d%°%m%\'%S%").rstrip('0') + latitude.to_string("\" %H")
+
+
+def get_str_from_longitude(longitude):
+    return longitude.to_string("d%°%m%\'%S%").rstrip('0') + longitude.to_string("\" %H")
+
+
+def get_longitude(coord_str, hemisphere):
     lon = Longitude(get_degrees(coord_str), get_minutes(coord_str),
                     get_seconds(coord_str))
-    lon.set_hemisphere(hemispehere)
+    lon.set_hemisphere(hemisphere)
     return lon
 
 

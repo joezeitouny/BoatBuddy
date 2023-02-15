@@ -99,10 +99,12 @@ class ConsoleManager:
 
             if counter + 1 < len(summary_header_key_value_list):
                 next_key = list(summary_header_key_value_list.keys())[counter + 1]
-                summary_header_table.add_row(f'{key}: {summary_header_key_value_list[key]}',
-                                             f'{next_key}: {summary_header_key_value_list[next_key]}')
+                summary_header_table.add_row(
+                    f'[bright_white]{key}: {summary_header_key_value_list[key]}[/bright_white]',
+                    f'[bright_white]{next_key}: {summary_header_key_value_list[next_key]}[/bright_white]')
             else:
-                summary_header_table.add_row(f'{key}: {summary_header_key_value_list[key]}', '')
+                summary_header_table.add_row(
+                    f'[bright_white]{key}: {summary_header_key_value_list[key]}[/bright_white]', '')
             counter += 2
 
         layout["summary_header"].update(
@@ -118,10 +120,10 @@ class ConsoleManager:
 
             if counter + 1 < len(summary_key_value_list):
                 next_key = list(summary_key_value_list.keys())[counter + 1]
-                summary_body_table.add_row(f'{key}: {summary_key_value_list[key]}',
-                                           f'{next_key}: {summary_key_value_list[next_key]}')
+                summary_body_table.add_row(f'[bright_white]{key}: {summary_key_value_list[key]}[/bright_white]',
+                                           f'[bright_white]{next_key}: {summary_key_value_list[next_key]}[/bright_white]')
             else:
-                summary_body_table.add_row(f'{key}: {summary_key_value_list[key]}', '')
+                summary_body_table.add_row(f'[bright_white]{key}: {summary_key_value_list[key]}[/bright_white]', '')
             counter += 2
 
         layout["summary_body"].update(Layout(Panel(summary_body_table,
@@ -153,8 +155,8 @@ class ConsoleManager:
                 table.add_row(f'[b][{colour}]{key}: ' +
                               f'{key_value_list[key]}[/{colour}][/b]')
             else:
-                table.add_row(f'[{colour}]{key}: ' +
-                              f'{key_value_list[key]}[/{colour}]')
+                table.add_row(f'[bright_white]{key}: ' +
+                              f'{key_value_list[key]}[/bright_white]')
             self._notifications_manager.process_entry(key, key_value_list[key])
         return Panel(table, title=title)
 
