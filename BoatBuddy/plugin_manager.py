@@ -246,6 +246,9 @@ class PluginManager:
         if not self._is_session_active:
             return
 
+        # Take one last snapshot and persist it to disk
+        self._write_collected_data_to_disk()
+
         # Stop the worker thread timer
         if self._disk_write_timer:
             self._disk_write_timer.cancel()

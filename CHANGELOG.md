@@ -1,3 +1,10 @@
+## 0.4.5 (2023-02-15)
+
+* Changed the reported field headers for the GPS module to be prefixed with SERIAL and the corresponding headers from
+  the NMEA module to be prefixed with NMEA
+* An additional snapshot is now taken right before the session ends
+* Version bump to 0.4.5
+
 ## 0.4.4 (2023-02-15)
 
 * Added notification cool off feature to help with suppressing notifications bursts. A configurable setting is now

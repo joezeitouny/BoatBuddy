@@ -1,6 +1,6 @@
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.4.4'
+APPLICATION_VERSION = '0.4.5'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -108,13 +108,14 @@ FILTERED_VICTRON_SUMMARY = ['Batt. max voltage (V)', 'Batt. min voltage (V)',
                             'Strt. batt. avg. voltage',
                             'Tank 1 max lvl', 'Tank 1 min lvl', 'Tank 1 avg. lvl',
                             'Tank 2 max lvl', 'Tank 2 min lvl', 'Tank 2 avg. lvl']
-FILTERED_NMEA_SUMMARY = ['Start Location (City, Country)', 'Start GPS Lat (d°m\'S\" H)',
-                         'Start GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)',
+FILTERED_NMEA_SUMMARY = ['NMEA Start Location (City, Country)', 'NMEA Start GPS Lat (d°m\'S\" H)',
+                         'NMEA Start GPS Lon (d°m\'S\" H)', 'NMEA Dst. (miles)', 'NMEA Hdg. (°)',
                          'Avg. Wind Speed (kts)', 'Avg. Wind Direction (°)',
                          'Avg. Water Temp. (°C)', 'Avg. Depth (m)',
                          'Avg. SOG (kts)', 'Avg. SOW (kts)']
-FILTERED_GPS_SUMMARY = ['Start Location (City, Country)', 'Start GPS Lat (d°m\'S\" H)', 'Start GPS Lon (d°m\'S\" H)',
-                        'Dst. (miles)', 'Hdg. (°)']
+FILTERED_GPS_SUMMARY = ['SERIAL Start Location (City, Country)', 'SERIAL Start GPS Lat (d°m\'S\" H)',
+                        'SERIAL Start GPS Lon (d°m\'S\" H)',
+                        'SERIAL Dst. (miles)', 'SERIAL Hdg. (°)']
 FILTERED_VICTRON_METRICS = ['Active Input source', 'Grid 1 power (W)', 'Generator 1 power (W)',
                             'AC Input 1 Voltage (V)', 'AC Input 1 Current (A)', 'AC Input 1 Frequency (Hz)',
                             'VE.Bus State', 'AC Consumption (W)', 'Batt. Voltage (V)', 'Batt. Current (A)',
@@ -123,30 +124,32 @@ FILTERED_VICTRON_METRICS = ['Active Input source', 'Grid 1 power (W)', 'Generato
                             'Tank 2 Type']
 FILTERED_NMEA_METRICS = ['True Hdg. (°)', 'TWS (kts)',
                          'TWD (°)', 'AWS (kts)',
-                         'AWA (Relative °)', 'GPS Lat (d°m\'S\" H)',
-                         'GPS Lon (d°m\'S\" H)', 'Water Temp. (°C)',
+                         'AWA (Relative °)', 'NMEA GPS Lat (d°m\'S\" H)',
+                         'NMEA GPS Lon (d°m\'S\" H)', 'Water Temp. (°C)',
                          'Depth (m)', 'SOG (kts)', 'SOW (kts)',
                          'Dst. from last entry (miles)', 'Cumulative Dst. (miles)']
-FILTERED_GPS_METRICS = ['GPS Lat (d°m\'S\" H)', 'GPS Lon (d°m\'S\" H)', 'Location (City, Country)']
+FILTERED_GPS_METRICS = ['SERIAL GPS Lat (d°m\'S\" H)', 'SERIAL GPS Lon (d°m\'S\" H)', 'SERIAL Location (City, Country)']
 
 # Default headers (change with caution)
 CLOCK_PLUGIN_METADATA_HEADERS = ['UTC Time', 'Local Time']
 CLOCK_PLUGIN_SUMMARY_HEADERS = ['Start Time (UTC)', 'Start Time (Local)', 'End Time (UTC)', 'End Time (Local)',
                                 'Duration']
-GPS_PLUGIN_METADATA_HEADERS = ['GPS Lat (d°m\'S\" H)', 'GPS Lon (d°m\'S\" H)', 'Location (City, Country)']
-GPS_PLUGIN_SUMMARY_HEADERS = ['Start Location (City, Country)', 'End Location (City, Country)',
-                              'Start GPS Lat (d°m\'S\" H)', 'Start GPS Lon (d°m\'S\" H)', 'End GPS Lat (d°m\'S\" H)',
-                              'End GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)']
+GPS_PLUGIN_METADATA_HEADERS = ['SERIAL GPS Lat (d°m\'S\" H)', 'SERIAL GPS Lon (d°m\'S\" H)',
+                               'SERIAL Location (City, Country)']
+GPS_PLUGIN_SUMMARY_HEADERS = ['SERIAL Start Location (City, Country)', 'SERIAL End Location (City, Country)',
+                              'SERIAL Start GPS Lat (d°m\'S\" H)', 'SERIAL Start GPS Lon (d°m\'S\" H)',
+                              'SERIAL End GPS Lat (d°m\'S\" H)',
+                              'SERIAL End GPS Lon (d°m\'S\" H)', 'SERIAL Dst. (miles)', 'SERIAL Hdg. (°)']
 NMEA_PLUGIN_METADATA_HEADERS = ['True Hdg. (°)', 'TWS (kts)',
                                 'TWD (°)', 'AWS (kts)',
-                                'AWA (Relative °)', 'GPS Lat (d°m\'S\" H)',
-                                'GPS Lon (d°m\'S\" H)', 'Water Temp. (°C)',
+                                'AWA (Relative °)', 'NMEA GPS Lat (d°m\'S\" H)',
+                                'NMEA GPS Lon (d°m\'S\" H)', 'Water Temp. (°C)',
                                 'Depth (m)', 'SOG (kts)', 'SOW (kts)',
                                 'Dst. from last entry (miles)', 'Cumulative Dst. (miles)']
-NMEA_PLUGIN_SUMMARY_HEADERS = ['Start Location (City, Country)',
-                               'End Location (City, Country)', 'Start GPS Lat (d°m\'S\" H)',
-                               'Start GPS Lon (d°m\'S\" H)', 'End GPS Lat (d°m\'S\" H)',
-                               'End GPS Lon (d°m\'S\" H)', 'Dst. (miles)', 'Hdg. (°)',
+NMEA_PLUGIN_SUMMARY_HEADERS = ['NMEA Start Location (City, Country)',
+                               'NMEA End Location (City, Country)', 'NMEA Start GPS Lat (d°m\'S\" H)',
+                               'NMEA Start GPS Lon (d°m\'S\" H)', 'NMEA End GPS Lat (d°m\'S\" H)',
+                               'NMEA End GPS Lon (d°m\'S\" H)', 'NMEA Dst. (miles)', 'NMEA Hdg. (°)',
                                'Avg. Wind Speed (kts)', 'Avg. Wind Direction (°)',
                                'Avg. Water Temp. (°C)', 'Avg. Depth (m)',
                                'Avg. SOG (kts)', 'Avg. SOW (kts)']
