@@ -34,6 +34,9 @@ class ClockPlugin(GenericPlugin):
     def get_metadata_headers(self):
         return config.CLOCK_PLUGIN_METADATA_HEADERS.copy()
 
+    def get_db_metadata_headers(self):
+        return config.CLOCK_PLUGIN_DB_METADATA_HEADERS.copy()
+
     def take_snapshot(self, store_entry):
         entry = ClockEntry(time.gmtime(), time.localtime())
 

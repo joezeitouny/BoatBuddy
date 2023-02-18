@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 
 from BoatBuddy import config, utils
 from BoatBuddy.console_manager import ConsoleManager
+from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.notifications_manager import NotificationsManager
 from BoatBuddy.plugin_manager import PluginManager
 from BoatBuddy.sound_manager import SoundManager
@@ -22,7 +23,8 @@ if __name__ == '__main__':
                         run_mode_interval=config.DEFAULT_SESSION_INTERVAL, log_level=config.LOG_LEVEL,
                         no_sound=config.DEFAULT_NO_SOUND, show_log_in_console=config.DEFAULT_SHOW_LOG_IN_CONSOLE,
                         email_report=config.DEFAULT_EMAIL_REPORT,
-                        cool_off_interval=config.DEFAULT_NOTIFICATION_COOL_OFF_INTERVAL)
+                        cool_off_interval=config.DEFAULT_NOTIFICATION_COOL_OFF_INTERVAL,
+                        db_storage=config.DEFAULT_DATABASE_STORAGE)
     parser.add_option('--nmea-server-ip', dest='nmea_server_ip', type='string',
                       help=f'Append NMEA0183 network metrics from the specified device IP')
     parser.add_option('--nmea-server-port', dest='nmea_port', type='int', help=f'NMEA0183 host port. ' +
@@ -69,6 +71,12 @@ if __name__ == '__main__':
                       help=f'Notification fallback (in case not specified in the notifications rules) '
                            f'cool off interval (in seconds). Default is: ' +
                            f'{config.DEFAULT_DISK_WRITE_INTERVAL} seconds')
+    parser.add_option('--db-storage', dest='db_storage', action='store_true',
+                      help=f'Store snapshots and other metrics in a DynamoDB instance on the cloud')
+    parser.add_option('--db-access-key', dest='db_access_key', type='string',
+                      help=f'Access key credential for the DynamoDB instance')
+    parser.add_option('--db-secret-key', dest='db_secret_key', type='string',
+                      help=f'Secret key credential for the DynamoDB instance')
     (options, args) = parser.parse_args()
 
     log_numeric_level = getattr(logging, options.log_level.upper(), None)
@@ -110,6 +118,9 @@ if __name__ == '__main__':
     elif options.cool_off_interval < config.DEFAULT_NOTIFICATION_COOL_OFF_INTERVAL:
         print(f'Invalid argument: Cool off interval cannot be lower '
               f'than {config.DEFAULT_NOTIFICATION_COOL_OFF_INTERVAL}')
+    elif options.db_storage and not (options.db_access_key or options.db_secret_key):
+        print(f'Invalid argument: Both access key and secret key credentials need to be provided '
+              f'in order to enable the database storage option')
     else:
         if options.verbose:
             # Initialize the logging module
@@ -135,7 +146,7 @@ if __name__ == '__main__':
 
         # Play the application started chime
         sound_manager.play_sound_async('/resources/application_started.mp3')
-
         notifications_manager = NotificationsManager(options, args, sound_manager)
-        plugin_manager = PluginManager(options, args, notifications_manager, sound_manager)
+        database_manager = DatabaseManager(options)
+        plugin_manager = PluginManager(options, args, notifications_manager, sound_manager, database_manager)
         ConsoleManager(options, args, plugin_manager, notifications_manager, sound_manager)

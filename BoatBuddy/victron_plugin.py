@@ -324,6 +324,9 @@ class VictronPlugin(GenericPlugin):
     def get_metadata_headers(self):
         return config.VICTRON_PLUGIN_METADATA_HEADERS.copy()
 
+    def get_db_metadata_headers(self):
+        return config.VICTRON_PLUGIN_DB_METADATA_HEADERS.copy()
+
     def take_snapshot(self, store_entry):
         entry = VictronEntry(self._input_source_string, self._grid_power, self._generator_power,
                              self._ac_input_voltage, self._ac_input_current, self._ac_input_frequency,

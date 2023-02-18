@@ -44,6 +44,87 @@ DEFAULT_NO_SOUND = False
 DEFAULT_SHOW_LOG_IN_CONSOLE = False
 DEFAULT_EMAIL_REPORT = False
 DEFAULT_NOTIFICATION_COOL_OFF_INTERVAL = 60  # In seconds
+DEFAULT_DATABASE_STORAGE = False
+
+# Cloud Data storage
+DB_TABLE_NAME_PREFIX = 'BB_'
+DB_TABLE_APPLICATION = 'APPLICATION'
+DB_TABLE_OTHER_SNAPSHOTS = 'OTHER_SNAPSHOTS'
+DB_TABLE_SESSION_SNAPSHOTS = 'SESSION_SNAPSHOTS'
+DB_TABLE_SESSION_SUMMARY = 'SESSION_SUMMARY'
+
+DB_TABLE_APPLICATION_SCHEMA = [{
+    'AttributeName': 'application_id',
+    'KeyType': 'HASH'
+},
+    {
+        'AttributeName': 'creation_date',
+        'KeyType': 'RANGE'
+    }]
+DB_TABLE_APPLICATION_ATTRIBUTE_DEFINITIONS = [
+    {
+        'AttributeName': 'application_id',
+        'AttributeType': 'S'
+    },
+    {
+        'AttributeName': 'creation_date',
+        'AttributeType': 'S'
+    },
+]
+DB_TABLE_OTHER_SNAPSHOTS_SCHEMA = [{
+    'AttributeName': 'guid',
+    'KeyType': 'HASH'
+},
+    {
+        'AttributeName': 'utc_time',
+        'KeyType': 'RANGE'
+    }
+]
+DB_TABLE_OTHER_SNAPSHOTS_ATTRIBUTE_DEFINITION = [{
+    'AttributeName': 'guid',
+    'AttributeType': 'S'
+},
+    {
+        'AttributeName': 'utc_time',
+        'AttributeType': 'S'
+    }
+]
+DB_TABLE_SESSION_SNAPSHOTS_SCHEMA = [{
+    'AttributeName': 'session_id',
+    'KeyType': 'HASH'
+},
+    {
+        'AttributeName': 'utc_time',
+        'KeyType': 'RANGE'
+    }
+]
+DB_TABLE_SESSION_SNAPSHOTS_ATTRIBUTE_DEFINITION = [{
+    'AttributeName': 'session_id',
+    'AttributeType': 'S'
+},
+    {
+        'AttributeName': 'utc_time',
+        'AttributeType': 'S'
+    }
+]
+DB_TABLE_SESSION_SUMMARY_SCHEMA = [{
+    'AttributeName': 'session_id',
+    'KeyType': 'HASH'
+},
+    {
+        'AttributeName': 'utc_time',
+        'KeyType': 'RANGE'
+    }
+]
+DB_TABLE_SESSION_SUMMARY_ATTRIBUTE_DEFINITION = [{
+    'AttributeName': 'session_id',
+    'AttributeType': 'S'
+},
+    {
+        'AttributeName': 'utc_time',
+        'AttributeType': 'S'
+    }
+]
 
 # Console colouring rules
 METRICS_COLOURING_SCHEME = {'[GX] Tank 1 lvl (%)': {'green': [80, 100], 'yellow': [60, 80], 'red': [0, 60]},
@@ -151,11 +232,15 @@ FILTERED_GPS_METRICS = ['[SS] GPS Lat (d°m\'S\" H)', '[SS] GPS Lon (d°m\'S\" H
 
 # Default headers (change with caution)
 CLOCK_PLUGIN_METADATA_HEADERS = ['UTC Time', 'Local Time']
+CLOCK_PLUGIN_DB_METADATA_HEADERS = ['utc_time', 'local_time']
 CLOCK_PLUGIN_SUMMARY_HEADERS = ['Start Time (UTC)', 'Start Time (Local)', 'End Time (UTC)', 'End Time (Local)',
                                 'Duration']
 GPS_PLUGIN_METADATA_HEADERS = ['[SS] GPS Lat (d°m\'S\" H)', '[SS] GPS Lon (d°m\'S\" H)',
                                '[SS] Location (City, Country)', '[SS] SOG (kts)', '[SS] COG (°T)',
                                '[SS] Dst. from last entry (miles)', '[SS] Cumulative Dst. (miles)']
+GPS_PLUGIN_DB_METADATA_HEADERS = ['ss_gps_lat', 'ss_gps_lon',
+                                  'ss_location', 'ss_sog', 'ss_cog',
+                                  'ss_distance_from_last_entry', 'ss_cumulative_distance']
 GPS_PLUGIN_SUMMARY_HEADERS = ['[SS] Start Location (City, Country)', '[SS] End Location (City, Country)',
                               '[SS] Start GPS Lat (d°m\'S\" H)', '[SS] Start GPS Lon (d°m\'S\" H)',
                               '[SS] End GPS Lat (d°m\'S\" H)',
@@ -167,6 +252,9 @@ NMEA_PLUGIN_METADATA_HEADERS = ['[NM] True Hdg. (°)', '[NM] TWS (kts)',
                                 '[NM] GPS Lon (d°m\'S\" H)', '[NM] Water Temp. (°C)',
                                 '[NM] Depth (m)', '[NM] SOG (kts)', '[NM] SOW (kts)',
                                 '[NM] Dst. from last entry (miles)', '[NM] Cumulative Dst. (miles)']
+NMEA_PLUGIN_DB_METADATA_HEADERS = ['nm_true_hdg', 'nm_tws', 'nm_twd', 'nm_aws', 'nm_awa', 'nm_gps_lat',
+                                   'nm_gps_lon', 'nm_water_temp', 'nm_depth', 'nm_sog', 'nm_sow',
+                                   'nm_distance_from_last_entry', 'nm_cumulative_distance']
 NMEA_PLUGIN_SUMMARY_HEADERS = ['[NM] Start Location (City, Country)',
                                '[NM] End Location (City, Country)', '[NM] Start GPS Lat (d°m\'S\" H)',
                                '[NM] Start GPS Lon (d°m\'S\" H)', '[NM] End GPS Lat (d°m\'S\" H)',
@@ -184,6 +272,12 @@ VICTRON_PLUGIN_METADATA_HEADERS = ['[GX] Active Input source', '[GX] Grid 1 powe
                                    '[GX] Strt. Batt. Voltage (V)', '[GX] Tank 1 lvl (%)', '[GX] Tank 1 Type',
                                    '[GX] Tank 2 lvl (%)',
                                    '[GX] Tank 2 Type']
+VICTRON_PLUGIN_DB_METADATA_HEADERS = ['gx_active_input_source', 'gx_grid1_power', 'gx_generator1_power',
+                                      'gx_ac_input1_voltage', 'gx_ac_input1_current', 'gx_ac_input1_frequency',
+                                      'gx_ve_bus_state', 'gx_ac_consumption', 'gx_batt_voltage', 'gx_batt_current',
+                                      'gx_batt_power', 'gx_batt_soc', 'gx_batt_state', 'gx_pv_power', 'gx_pv_current',
+                                      'gx_strt_batt_voltage', 'gx_tank1_lvl', 'gx_tank1_type', 'gx_tank2_lvl',
+                                      'gx_tank2_type']
 VICTRON_PLUGINS_SUMMARY_HEADERS = ['[GX] Batt. max voltage (V)', '[GX] Batt. min voltage (V)',
                                    '[GX] Batt. avg. voltage (V)', '[GX] Batt. max current (A)',
                                    '[GX] Batt. avg. current (A)', '[GX] Batt. max power (W)',

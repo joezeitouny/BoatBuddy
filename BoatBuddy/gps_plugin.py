@@ -102,6 +102,9 @@ class GPSPlugin(GenericPlugin):
     def get_metadata_headers(self):
         return config.GPS_PLUGIN_METADATA_HEADERS.copy()
 
+    def get_db_metadata_headers(self):
+        return config.GPS_PLUGIN_DB_METADATA_HEADERS.copy()
+
     def take_snapshot(self, store_entry):
         # Calculate the distance traveled so far and the distance from the last recorded entry
         cumulative_distance = 0.0

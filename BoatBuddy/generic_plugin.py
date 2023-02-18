@@ -17,6 +17,9 @@ class GenericPlugin:
     def get_metadata_headers(self):
         return []
 
+    def get_db_metadata_headers(self):
+        return []
+
     # Collect all current data in an object in memory (add that object to a list instance if needed)
     def take_snapshot(self, store_entry):
         raise NotImplementedError("Method needs to be implemented")

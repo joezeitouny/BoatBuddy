@@ -11,6 +11,7 @@ import openpyxl
 
 from BoatBuddy import config, utils
 from BoatBuddy.clock_plugin import ClockPlugin
+from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
@@ -41,11 +42,13 @@ class PluginManager:
     _is_session_active = False
     _session_timer = None
 
-    def __init__(self, options, args, notifications_manager: NotificationsManager, sound_manager: SoundManager):
+    def __init__(self, options, args, notifications_manager: NotificationsManager, sound_manager: SoundManager,
+                 database_manager: DatabaseManager):
         self._options = options
         self._args = args
         self._notifications_manager = notifications_manager
         self._sound_manager = sound_manager
+        self._database_manager = database_manager
 
         if not self._args[0].endswith('/'):
             self._output_directory = self._args[0] + '/'
@@ -82,6 +85,21 @@ class PluginManager:
             nmea_connection_events.on_connect += self._on_connect_nmea_plugin
             nmea_connection_events.on_disconnect += self._on_disconnect_nmea_plugin
             self._nmea_plugin.register_for_events(nmea_connection_events)
+
+        self._metadata_headers = self._time_plugin.get_metadata_headers()
+        self._db_metadata_headers = self._time_plugin.get_db_metadata_headers()
+
+        if self._gps_plugin:
+            self._metadata_headers += self._gps_plugin.get_metadata_headers()
+            self._db_metadata_headers += self._gps_plugin.get_db_metadata_headers()
+
+        if self._nmea_plugin:
+            self._metadata_headers += self._nmea_plugin.get_metadata_headers()
+            self._db_metadata_headers += self._nmea_plugin.get_db_metadata_headers()
+
+        if self._victron_plugin:
+            self._metadata_headers += self._victron_plugin.get_metadata_headers()
+            self._db_metadata_headers += self._victron_plugin.get_db_metadata_headers()
 
         # If normal mode is active then start recording system metrics immediately
         if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_CONTINUOUS \
@@ -137,35 +155,35 @@ class PluginManager:
         # Write contents to disk
         utils.get_logger().info("Taking a snapshot and persisting it to disk")
 
-        column_values = []
+        metadata_values_list = []
 
         self._time_plugin.take_snapshot(store_entry=True)
-        column_values += self._time_plugin.get_metadata_values()
+        metadata_values_list += self._time_plugin.get_metadata_values()
 
         if self._gps_plugin:
             self._gps_plugin.take_snapshot(store_entry=True)
-            column_values += self._gps_plugin.get_metadata_values()
+            metadata_values_list += self._gps_plugin.get_metadata_values()
 
         if self._nmea_plugin:
             self._nmea_plugin.take_snapshot(store_entry=True)
-            column_values += self._nmea_plugin.get_metadata_values()
+            metadata_values_list += self._nmea_plugin.get_metadata_values()
 
         if self._victron_plugin:
             self._victron_plugin.take_snapshot(store_entry=True)
-            column_values += self._victron_plugin.get_metadata_values()
+            metadata_values_list += self._victron_plugin.get_metadata_values()
 
         # Append the last added entry to the file on disk
         if self._options.csv:
             try:
                 with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
-                    file.write(f'{utils.get_comma_separated_string(column_values)}\r\n')
+                    file.write(f'{utils.get_comma_separated_string(metadata_values_list)}\r\n')
             except Exception as e:
                 utils.get_logger().error(f'Could not write to csv file with filename ' +
                                          f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
 
         if self._options.excel:
             # Add the name and price to the sheet
-            self._sheet.append(column_values)
+            self._sheet.append(metadata_values_list)
 
             # Save the workbook
             try:
@@ -205,6 +223,8 @@ class PluginManager:
                     utils.get_logger().error(f'Could not write to gpx file with filename ' +
                                              f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
 
+        self._database_manager.add_session_snapshot(self._log_filename, self._db_metadata_headers, metadata_values_list)
+
         # Sleep for the specified interval
         self._disk_write_timer = threading.Timer(self._options.disk_write_interval, self._write_collected_data_to_disk)
         self._disk_write_timer.start()
@@ -219,22 +239,11 @@ class PluginManager:
         self._log_filename = f'{self._options.filename}{suffix}'
         self._summary_filename = f'{self._options.summary_filename}{suffix}'
 
-        column_headers = self._time_plugin.get_metadata_headers()
-
-        if self._gps_plugin:
-            column_headers += self._gps_plugin.get_metadata_headers()
-
-        if self._nmea_plugin:
-            column_headers += self._nmea_plugin.get_metadata_headers()
-
-        if self._victron_plugin:
-            column_headers += self._victron_plugin.get_metadata_headers()
-
         if self._options.csv:
             # Add the columns headers to the beginning of the csv file
             try:
                 with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
-                    file.write(f'{utils.get_comma_separated_string(column_headers)}\r\n')
+                    file.write(f'{utils.get_comma_separated_string(self._metadata_headers)}\r\n')
             except Exception as e:
                 utils.get_logger().error(f'Could not write to csv file with filename ' +
                                          f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
@@ -247,7 +256,7 @@ class PluginManager:
             self._sheet = self._workbook.active
 
             # Create the header row
-            self._sheet.append(column_headers)
+            self._sheet.append(self._metadata_headers)
 
         # Only write to GPX files if the GPX and the NMEA options are both set
         if self._options.gpx and (self._nmea_plugin or self._gps_plugin):
