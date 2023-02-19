@@ -22,26 +22,10 @@ $ pip install BoatBuddy
 ### Usage
 
 ```console
-$ python -m BoatBuddy OUTPUT_DIRECTORY [options]
+$ python -m BoatBuddy --config=CONFIGURATION_FILENAME [options]
 ```
 
-Where OUTPUT_DIRECTORY points to the path where you want the logs to be written to. This will start monitoring the
-systems connected on your network and outputting log entries on disk (at specified intervals). At the end of each
-session a summary file (if specified) is generated.
-
-You can listen to NMEA0183 events from a server on your network by providing the server IP address
-
-```console
-$ python -m BoatBuddy OUTPUT_DIRECTORY --nmea-server-ip=NMEA_SERVER_IP
-```
-
-You can also capture data transmitted via Modbus TCP from your victron products
-
-```console
-$ python -m BoatBuddy OUTPUT_DIRECTORY --victron-server-ip=VICTRON_SERVER_IP
-```
-
-Don't forget to specify a medium format for the files to be written (Excel, CSV or GPX)
+Where CONFIGURATION_FILENAME points to the file where the JSON configuration file is located on your system.
 
 For the full list of available options
 

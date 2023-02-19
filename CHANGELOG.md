@@ -1,3 +1,21 @@
+## 0.5.0 (2023-02-19)
+
+* Added logic to interpret the value of the notification_console parameter in the Console Manager
+* Added SessionRunMode Enum
+* Added a sample JSON configuration file
+* Moved to using a JSON based configuration file
+* Moved user configurable fields and command line options to be specified in the JSON based configuration file
+* Modules can now be enabled or disabled in the configuration file settings
+* Fixed an issue where frequency and configuration range value were interchanged in email notifications
+* Renamed the config.py file to globals.py
+* Renamed the plugins sections in the Console to Victron System, NMEA0183 Network and GPS Module
+* Added code to retrieve notification_cool_off_interval configuration value on startup
+* Improved the way notifications are handled in the Notification Manager by using the concept of cool off interval in
+  the add phase of a notification
+* Switched from using timers in the Notification Manager to using a continuous thread instead
+* Updated README file
+* Version bump to 0.5.0
+
 ## 0.4.7 (2023-02-15)
 
 * Added support for notifications for when plugins go offline
