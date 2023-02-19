@@ -3,17 +3,31 @@ import logging
 import yagmail
 from latloncalc.latlon import Latitude, Longitude
 
-from BoatBuddy import config
+from BoatBuddy import globals
 
 log_filename = ''
 
 
 def get_application_version():
-    return config.APPLICATION_VERSION
+    return globals.APPLICATION_VERSION
 
 
 def get_application_name():
-    return config.APPLICATION_NAME
+    return globals.APPLICATION_NAME
+
+
+def try_parse_bool(value) -> bool:
+    if not value:
+        return False
+
+    result = False
+    try:
+        if str(value).upper() == 'TRUE':
+            result = True
+    except Exception:
+        pass
+
+    return result
 
 
 def try_parse_int(value) -> int:
@@ -54,7 +68,7 @@ def get_colour_for_key_value_in_dictionary(collection: dict, key: str, value: fl
 
 
 def get_logger():
-    return logging.getLogger(config.LOGGER_NAME)
+    return logging.getLogger(globals.LOGGER_NAME)
 
 
 def set_log_filename(filename):
@@ -166,6 +180,9 @@ def get_smallest_number(number1, number2):
 
 
 def send_email(options, subject, body, attachments=None):
+    if not options.email_module:
+        return
+
     if options.email_address and options.email_password:
         receiver = options.email_address
         yagmail.register(options.email_address, options.email_password)

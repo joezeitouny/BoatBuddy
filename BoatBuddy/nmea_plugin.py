@@ -8,7 +8,7 @@ from events import Events
 from geopy.geocoders import Nominatim
 from latloncalc.latlon import LatLon, Latitude, Longitude
 
-from BoatBuddy import config, utils
+from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
@@ -121,7 +121,7 @@ class NMEAPlugin(GenericPlugin):
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
         self._server_ip = options.nmea_server_ip
-        self._server_port = int(options.nmea_port)
+        self._server_port = options.nmea_server_port
         self._events = None
         self._process_data_thread = threading.Thread()
         self._exit_signal = threading.Event()
@@ -143,7 +143,7 @@ class NMEAPlugin(GenericPlugin):
         self._gps_fix_captured = False
 
     def get_metadata_headers(self):
-        return config.NMEA_PLUGIN_METADATA_HEADERS.copy()
+        return globals.NMEA_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         # Calculate the distance traveled so far and the distance from the last recorded entry
@@ -178,7 +178,7 @@ class NMEAPlugin(GenericPlugin):
         return self._log_entries[len(self._log_entries) - 1].get_values()
 
     def get_summary_headers(self):
-        return config.NMEA_PLUGIN_SUMMARY_HEADERS.copy()
+        return globals.NMEA_PLUGIN_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
         log_summary_list = []
@@ -299,7 +299,7 @@ class NMEAPlugin(GenericPlugin):
         utils.get_logger().debug(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
                                  f'port {self._server_port}...')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(config.SOCKET_TIMEOUT)
+        client.settimeout(globals.SOCKET_TIMEOUT)
 
         try:
             client.connect((self._server_ip, self._server_port))
@@ -315,13 +315,13 @@ class NMEAPlugin(GenericPlugin):
 
     def _process_data_loop(self):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(config.SOCKET_TIMEOUT)
+        client.settimeout(globals.SOCKET_TIMEOUT)
 
         try:
             client.connect((self._server_ip, self._server_port))
 
             while not self._exit_signal.is_set():
-                data = client.recv(config.BUFFER_SIZE)
+                data = client.recv(globals.BUFFER_SIZE)
                 if data is None:
                     raise ValueError('No NMEA0183 data received')
 
@@ -354,7 +354,7 @@ class NMEAPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
         # Restart the main timer if the connection is lost
-        self._timer = threading.Timer(config.NMEA_TIMER_INTERVAL, self.connect_to_server)
+        self._timer = threading.Timer(globals.NMEA_TIMER_INTERVAL, self.connect_to_server)
         self._timer.start()
 
     def _process_data(self, payload):

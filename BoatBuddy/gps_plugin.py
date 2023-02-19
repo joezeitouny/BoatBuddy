@@ -9,7 +9,7 @@ from geopy.geocoders import Nominatim
 from latloncalc.latlon import LatLon, Latitude, Longitude
 from serial import Serial
 
-from BoatBuddy import config, utils
+from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
@@ -100,7 +100,7 @@ class GPSPlugin(GenericPlugin):
         self._gps_fix_captured = False
 
     def get_metadata_headers(self):
-        return config.GPS_PLUGIN_METADATA_HEADERS.copy()
+        return globals.GPS_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         # Calculate the distance traveled so far and the distance from the last recorded entry
@@ -133,7 +133,7 @@ class GPSPlugin(GenericPlugin):
         return self._log_entries[len(self._log_entries) - 1].get_values()
 
     def get_summary_headers(self):
-        return config.GPS_PLUGIN_SUMMARY_HEADERS.copy()
+        return globals.GPS_PLUGIN_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
         log_summary_list = []
@@ -310,7 +310,7 @@ class GPSPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
         # Reset the timer
-        self._timer = threading.Timer(config.GPS_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(globals.GPS_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
     def finalize(self):

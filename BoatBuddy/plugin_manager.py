@@ -9,7 +9,7 @@ import gpxpy
 import gpxpy.gpx
 import openpyxl
 
-from BoatBuddy import config, utils
+from BoatBuddy import globals, utils
 from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
@@ -25,7 +25,7 @@ class PluginManagerStatus(Enum):
 
 
 class PluginManager:
-    _log_filename = config.DEFAULT_FILENAME_PREFIX
+    _log_filename = None
     _output_directory = None
     _time_plugin = None
     _nmea_plugin = None
@@ -36,28 +36,27 @@ class PluginManager:
     _gpx = None
     _gpx_track = None
     _gpx_segment = None
-    _summary_filename = config.DEFAULT_SUMMARY_FILENAME_PREFIX
+    _summary_filename = None
     _disk_write_timer = None
     _is_session_active = False
     _session_timer = None
 
-    def __init__(self, options, args, notifications_manager: NotificationsManager, sound_manager: SoundManager):
+    def __init__(self, options, notifications_manager: NotificationsManager, sound_manager: SoundManager):
         self._options = options
-        self._args = args
         self._notifications_manager = notifications_manager
         self._sound_manager = sound_manager
 
-        if not self._args[0].endswith('/'):
-            self._output_directory = self._args[0] + '/'
+        if not self._options.output_path.endswith('/'):
+            self._output_directory = self._options.output_path + '/'
         else:
-            self._output_directory = self._args[0]
+            self._output_directory = self._options.output_path
 
         utils.get_logger().debug('Initializing plugins')
 
         # initialize the common time plugin
         self._time_plugin = ClockPlugin(self._options)
 
-        if self._options.gps_serial_port:
+        if self._options.gps_module:
             self._gps_plugin = GPSPlugin(self._options)
 
             gps_connection_events = GPSPluginEvents()
@@ -65,7 +64,7 @@ class PluginManager:
             gps_connection_events.on_disconnect += self._on_disconnect_gps_plugin
             self._gps_plugin.register_for_events(gps_connection_events)
 
-        if self._options.victron_server_ip:
+        if self._options.victron_module:
             # initialize the Victron plugin
             self._victron_plugin = VictronPlugin(self._options)
 
@@ -74,7 +73,7 @@ class PluginManager:
             victron_connection_events.on_disconnect += self._on_disconnect_victron_plugin
             self._victron_plugin.register_for_events(victron_connection_events)
 
-        if self._options.nmea_server_ip:
+        if self._options.nmea_module:
             # initialize the NMEA0183 plugin
             self._nmea_plugin = NMEAPlugin(self._options)
 
@@ -84,42 +83,43 @@ class PluginManager:
             self._nmea_plugin.register_for_events(nmea_connection_events)
 
         # If normal mode is active then start recording system metrics immediately
-        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_CONTINUOUS \
-                or str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_INTERVAL:
+        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_CONTINUOUS \
+                or str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_INTERVAL:
             self._start_session()
 
-            if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_INTERVAL:
-                self._session_timer = threading.Timer(self._options.run_mode_interval, self._session_timer_elapsed)
+            if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_INTERVAL:
+                self._session_timer = threading.Timer(self._options.session_paging_interval,
+                                                      self._session_timer_elapsed)
                 self._session_timer.start()
 
     def _on_connect_gps_plugin(self):
         self._notifications_manager.process_entry('gps', 'online', EntryType.MODULE)
-        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS:
+        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_GPS:
             self._start_session()
 
     def _on_connect_victron_plugin(self):
         self._notifications_manager.process_entry('victron', 'online', EntryType.MODULE)
-        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
+        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_VICTRON:
             self._start_session()
 
     def _on_connect_nmea_plugin(self):
         self._notifications_manager.process_entry('nmea', 'online', EntryType.MODULE)
-        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA:
+        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_NMEA:
             self._start_session()
 
     def _on_disconnect_gps_plugin(self):
         self._notifications_manager.process_entry('gps', 'offline', EntryType.MODULE)
-        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_GPS:
+        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_GPS:
             self._end_session()
 
     def _on_disconnect_victron_plugin(self):
         self._notifications_manager.process_entry('victron', 'offline', EntryType.MODULE)
-        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_VICTRON:
+        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_VICTRON:
             self._end_session()
 
     def _on_disconnect_nmea_plugin(self):
         self._notifications_manager.process_entry('nmea', 'offline', EntryType.MODULE)
-        if str(self._options.run_mode).lower() == config.SESSION_RUN_MODE_AUTO_NMEA:
+        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_NMEA:
             self._end_session()
 
     def _session_timer_elapsed(self):
@@ -130,7 +130,7 @@ class PluginManager:
         self._start_session()
 
         # Restart the session interval timer
-        self._session_timer = threading.Timer(self._options.run_mode_interval, self._session_timer_elapsed)
+        self._session_timer = threading.Timer(self._options.session_paging_interval, self._session_timer_elapsed)
         self._session_timer.start()
 
     def _write_collected_data_to_disk(self):
@@ -206,7 +206,8 @@ class PluginManager:
                                              f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
 
         # Sleep for the specified interval
-        self._disk_write_timer = threading.Timer(self._options.disk_write_interval, self._write_collected_data_to_disk)
+        self._disk_write_timer = threading.Timer(self._options.session_disk_write_interval,
+                                                 self._write_collected_data_to_disk)
         self._disk_write_timer.start()
 
     def _start_session(self):
@@ -216,8 +217,8 @@ class PluginManager:
         utils.get_logger().debug('Start collecting system metrics')
 
         suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
-        self._log_filename = f'{self._options.filename}{suffix}'
-        self._summary_filename = f'{self._options.summary_filename}{suffix}'
+        self._log_filename = f'{self._options.filename_prefix}{suffix}'
+        self._summary_filename = f'{self._options.summary_filename_prefix}{suffix}'
 
         column_headers = self._time_plugin.get_metadata_headers()
 
@@ -264,7 +265,7 @@ class PluginManager:
 
         utils.get_logger().info(f'New session initialized {self._log_filename}')
 
-        self._disk_write_timer = threading.Timer(config.INITIAL_SNAPSHOT_INTERVAL, self._write_collected_data_to_disk)
+        self._disk_write_timer = threading.Timer(globals.INITIAL_SNAPSHOT_INTERVAL, self._write_collected_data_to_disk)
         self._disk_write_timer.start()
 
         self._is_session_active = True
@@ -286,7 +287,7 @@ class PluginManager:
             self._disk_write_timer.cancel()
 
         # if the summary option is set then build a log summary excel workbook
-        if self._options.summary:
+        if self._options.session_summary_report:
             # Create an Excel workbook
             summary_workbook = openpyxl.Workbook()
 
@@ -339,11 +340,10 @@ class PluginManager:
         self._sound_manager.play_sound_async('/resources/session_ended.wav')
 
         # Send a session report if specified
-        if self._options.email_report:
+        if self._options.email_session_report:
             try:
-                receiver = self._options.email_address
                 body = f'Please find attached the data files generated from this session.\r\n\r\n' \
-                       f'--\r\n{config.APPLICATION_NAME} ({config.APPLICATION_VERSION})'
+                       f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
                 attachments = []
 
                 if self._options.csv:
@@ -358,10 +358,10 @@ class PluginManager:
                     if exists(f"{self._output_directory}{self._log_filename}.gpx"):
                         attachments.append(f"{self._output_directory}{self._log_filename}.gpx")
 
-                if self._options.summary:
+                if self._options.session_summary_report:
                     attachments.append(f"{self._output_directory}{self._summary_filename}.xlsx")
 
-                subject = f'{config.APPLICATION_NAME} - (Session Report) for session {self._log_filename}'
+                subject = f'{globals.APPLICATION_NAME} - (Session Report) for session {self._log_filename}'
                 utils.send_email(self._options, subject, body, attachments)
                 utils.get_logger().info(f'Email report for session {self._log_filename} successfully sent!')
             except Exception as e:
@@ -400,7 +400,7 @@ class PluginManager:
             entry_key_value_list = utils.get_key_value_list(self._nmea_plugin.get_metadata_headers(),
                                                             entry.get_values())
             entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list,
-                                                                     config.FILTERED_NMEA_METRICS.copy())
+                                                                     self._options.console_nmea_metrics.copy())
 
         return entry_key_value_list
 
@@ -411,7 +411,7 @@ class PluginManager:
             entry_key_value_list = utils.get_key_value_list(self._victron_plugin.get_metadata_headers(),
                                                             entry.get_values())
             entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list,
-                                                                     config.FILTERED_VICTRON_METRICS.copy())
+                                                                     self._options.console_victron_metrics.copy())
 
         return entry_key_value_list
 
@@ -422,7 +422,7 @@ class PluginManager:
             entry_key_value_list = utils.get_key_value_list(self._gps_plugin.get_metadata_headers(),
                                                             entry.get_values())
             entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list,
-                                                                     config.FILTERED_GPS_METRICS.copy())
+                                                                     self._options.console_gps_metrics.copy())
 
         return entry_key_value_list
 
@@ -432,7 +432,7 @@ class PluginManager:
     def get_filtered_session_clock_metrics(self):
         return utils.get_filtered_key_value_list(utils.get_key_value_list(self._time_plugin.get_summary_headers(),
                                                                           self._time_plugin.get_summary_values()),
-                                                 config.FILTERED_SESSION_HEADER.copy())
+                                                 self._options.console_session_header_fields.copy())
 
     def get_filtered_summary_metrics(self) -> {}:
         summary_key_value_list = {}
@@ -440,20 +440,22 @@ class PluginManager:
         if self._gps_plugin:
             gps_dictionary = utils.get_key_value_list(self._gps_plugin.get_summary_headers(),
                                                       self._gps_plugin.get_summary_values())
-            gps_dictionary = utils.get_filtered_key_value_list(gps_dictionary, config.FILTERED_GPS_SUMMARY.copy())
+            gps_dictionary = utils.get_filtered_key_value_list(gps_dictionary,
+                                                               self._options.console_gps_summary_fields.copy())
             summary_key_value_list.update(gps_dictionary)
 
         if self._nmea_plugin:
             nmea_dictionary = utils.get_key_value_list(self._nmea_plugin.get_summary_headers(),
                                                        self._nmea_plugin.get_summary_values())
-            nmea_dictionary = utils.get_filtered_key_value_list(nmea_dictionary, config.FILTERED_NMEA_SUMMARY.copy())
+            nmea_dictionary = utils.get_filtered_key_value_list(nmea_dictionary,
+                                                                self._options.console_nmea_summary_fields.copy())
             summary_key_value_list.update(nmea_dictionary)
 
         if self._victron_plugin:
             victron_dictionary = utils.get_key_value_list(self._victron_plugin.get_summary_headers(),
                                                           self._victron_plugin.get_summary_values())
             victron_dictionary = utils.get_filtered_key_value_list(victron_dictionary,
-                                                                   config.FILTERED_VICTRON_SUMMARY.copy())
+                                                                   self._options.console_victron_summary_fields.copy())
             summary_key_value_list.update(victron_dictionary)
 
         return summary_key_value_list

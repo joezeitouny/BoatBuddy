@@ -1,7 +1,7 @@
 import threading
 from enum import Enum
 
-from BoatBuddy import config, utils
+from BoatBuddy import globals, utils
 from BoatBuddy.sound_manager import SoundManager
 
 
@@ -58,19 +58,21 @@ class NotificationEntry:
 
 class NotificationsManager:
 
-    def __init__(self, options, args, sound_manager: SoundManager):
+    def __init__(self, options, sound_manager: SoundManager):
         self._options = options
-        self._args = args
         self._sound_manager = sound_manager
         self._notifications_queue = {}
         self._frozen_notifications = {}
 
     def process_entry(self, key, value, entry_type):
+        if not self._options.notifications_module:
+            return
+
         notifications_rules = None
         if entry_type == EntryType.METRIC:
-            notifications_rules = config.METRICS_NOTIFICATIONS_RULES.copy()
+            notifications_rules = self._options.metrics_notifications_rules.copy()
         elif entry_type == EntryType.MODULE:
-            notifications_rules = config.MODULES_NOTIFICATIONS_RULES.copy()
+            notifications_rules = self._options.modules_notifications_rules.copy()
 
         # If there are no notification rules defined for this entry type then return
         if not notifications_rules:
@@ -99,9 +101,8 @@ class NotificationsManager:
                             notification_configuration[severity]['cool-off-interval'])
                     self._schedule_notification(key, value, entry_type,
                                                 notification_configuration[severity]['notifications'],
-                                                severity, configuration_range,
-                                                notification_configuration[severity]['frequency'],
-                                                notification_interval, cool_off_interval)
+                                                severity, notification_configuration[severity]['frequency'],
+                                                configuration_range, notification_interval, cool_off_interval)
                     return
             elif entry_type == EntryType.MODULE:
                 status = notification_configuration[severity]['status']
@@ -183,8 +184,8 @@ class NotificationsManager:
                    f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
                    f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
                    f'Cool Off Interval: {cool_off_interval_str} seconds\r\n\r\n' \
-                   f'--\r\n{config.APPLICATION_NAME} ({config.APPLICATION_VERSION})'
-            subject = f'{config.APPLICATION_NAME} - ({str(severity).upper()}) ' \
+                   f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
+            subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
                       f'notification for {entry_type.value} \'{key}\''
             utils.send_email(self._options, subject, body)
             utils.get_logger().info(f'Email notification sent! Notification triggered '
@@ -201,8 +202,8 @@ class NotificationsManager:
         try:
             body = f'Notification cleared for ' \
                    f'{notification_entry.get_entry_type().value} \'{key}\'\r\n\r\n' \
-                   f'--\r\n{config.APPLICATION_NAME} ({config.APPLICATION_VERSION})'
-            subject = f'{config.APPLICATION_NAME} - ({str(severity).upper()}) cleared ' \
+                   f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
+            subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) cleared ' \
                       f'for {notification_entry.get_entry_type().value} \'{key}\''
             utils.send_email(self._options, subject, body)
             utils.get_logger().info(f'Email notification sent! Notification cleared for '
@@ -235,8 +236,8 @@ class NotificationsManager:
         notification_entry = self._notifications_queue[key]['instance']
         if notification_entry.get_cool_off_interval():
             cool_off_interval = utils.try_parse_int(notification_entry.get_cool_off_interval())
-        elif self._options.cool_off_interval:
-            cool_off_interval = utils.try_parse_int(self._options.cool_off_interval)
+        elif self._options.notification_cool_off_interval:
+            cool_off_interval = utils.try_parse_int(self._options.notification_cool_off_interval)
 
         if cool_off_interval:
             delay_timer = threading.Timer(cool_off_interval, self._clear_notification_entry, args=[key])
@@ -287,6 +288,9 @@ class NotificationsManager:
         self._notifications_queue[key]['timer'].start()
 
     def finalize(self):
+        if not self._options.notifications_module:
+            return
+
         if len(self._notifications_queue) > 0:
             # Loop through all the notification entries and cancel their respective timers (if any)
             for key in self._notifications_queue:

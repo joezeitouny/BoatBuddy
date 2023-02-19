@@ -4,7 +4,7 @@ import numpy as np
 from events import Events
 from pyModbusTCP.client import ModbusClient
 
-from BoatBuddy import config, utils
+from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
@@ -116,7 +116,7 @@ class VictronPlugin(GenericPlugin):
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
         self._exit_signal = threading.Event()
-        self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(globals.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
     def reset_instance_metrics(self):
@@ -148,7 +148,7 @@ class VictronPlugin(GenericPlugin):
             return
 
         server_ip = f'{self._options.victron_server_ip}'
-        server_port = config.MODBUS_TCP_PORT
+        server_port = self._options.victron_tcp_port
 
         try:
             # TCP auto connect on modbus request, close after it
@@ -307,7 +307,7 @@ class VictronPlugin(GenericPlugin):
             self._handle_connection_exception(e)
 
         # Reset the timer
-        self._timer = threading.Timer(config.VICTRON_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(globals.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
     def _handle_connection_exception(self, message):
@@ -322,7 +322,7 @@ class VictronPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
     def get_metadata_headers(self):
-        return config.VICTRON_PLUGIN_METADATA_HEADERS.copy()
+        return globals.VICTRON_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         entry = VictronEntry(self._input_source_string, self._grid_power, self._generator_power,
@@ -367,7 +367,7 @@ class VictronPlugin(GenericPlugin):
         utils.get_logger().info("Victron plugin worker thread notified...")
 
     def get_summary_headers(self):
-        return config.VICTRON_PLUGINS_SUMMARY_HEADERS.copy()
+        return globals.VICTRON_PLUGINS_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
         log_summary_list = []

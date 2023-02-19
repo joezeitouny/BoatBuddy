@@ -9,7 +9,7 @@ from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
-from BoatBuddy import utils, config
+from BoatBuddy import utils
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
@@ -18,10 +18,9 @@ from BoatBuddy.sound_manager import SoundManager
 
 class ConsoleManager:
 
-    def __init__(self, options, args, plugin_manager: PluginManager, notifications_manager: NotificationsManager,
+    def __init__(self, options, plugin_manager: PluginManager, notifications_manager: NotificationsManager,
                  sound_manager: SoundManager):
         self._options = options
-        self._args = args
         self._plugin_manager = plugin_manager
         self._notifications_manager = notifications_manager
         self._sound_manager = sound_manager
@@ -150,7 +149,7 @@ class ConsoleManager:
         table = Table.grid(expand=True)
         table.add_column()
         for key in key_value_list:
-            colour = utils.get_colour_for_key_value_in_dictionary(config.METRICS_COLOURING_SCHEME, key,
+            colour = utils.get_colour_for_key_value_in_dictionary(self._options.metrics_colouring_scheme, key,
                                                                   key_value_list[key])
             if colour != 'default':
                 table.add_row(f'[b][{colour}]{key}: ' +
@@ -164,7 +163,7 @@ class ConsoleManager:
     def _make_layout(self) -> Layout:
         layout = Layout()
 
-        if self._options.verbose and self._options.show_log_in_console:
+        if self._options.log_module and self._options.console_show_log:
             layout.split_column(
                 Layout(name="header", size=1),
                 Layout(name="body", ratio=1),
@@ -186,25 +185,25 @@ class ConsoleManager:
         nmea_layout = None
         summary_layout = None
 
-        if self._options.victron_server_ip:
+        if self._options.victron_module and self._options.console_show_victron_plugin:
             victron_layout = Layout(name="victron")
             # Populate the victron layout
             plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_victron_plugin_status())
-            victron_layout.update(self._make_key_value_table('Victron Plugin ' + plugin_status_str,
+            victron_layout.update(self._make_key_value_table('Victron System ' + plugin_status_str,
                                                              self._plugin_manager.get_filtered_victron_metrics()))
 
-        if self._options.gps_serial_port:
+        if self._options.gps_module and self._options.console_show_gps_plugin:
             gps_layout = Layout(name="gps")
             # Populate the NMEA layout
             plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_gps_plugin_status())
-            gps_layout.update(self._make_key_value_table('GPS Plugin ' + plugin_status_str,
+            gps_layout.update(self._make_key_value_table('GPS Module ' + plugin_status_str,
                                                          self._plugin_manager.get_filtered_gps_metrics()))
 
-        if self._options.nmea_server_ip:
+        if self._options.nmea_module and self._options.console_show_nmea_plugin:
             nmea_layout = Layout(name="nmea")
             # Populate the NMEA layout
             plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_nmea_plugin_status())
-            nmea_layout.update(self._make_key_value_table('NMEA Plugin ' + plugin_status_str,
+            nmea_layout.update(self._make_key_value_table('NMEA0183 Network ' + plugin_status_str,
                                                           self._plugin_manager.get_filtered_nmea_metrics()))
 
         if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
