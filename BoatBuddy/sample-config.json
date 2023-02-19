@@ -1,0 +1,485 @@
+{
+    "output_path": "",
+    "tmp_path": "",
+    "filename_prefix": "Trip_",
+    "summary_filename_prefix": "Trip_Summary_",
+    "output_to_excel": "True",
+    "output_to_csv": "True",
+    "output_to_gpx": "True",
+    "nmea": {
+        "nmea_module": "True",
+        "nmea_server_ip": "",
+        "nmea_server_port": "10110"
+    },
+    "victron": {
+        "victron_module": "True",
+        "victron_server_ip": "",
+        "victron_tcp_port": "502"
+    },
+    "gps": {
+        "gps_module": "True",
+        "gps_serial_port": ""
+    },
+    "console": {
+        "console_show_victron_plugin": "True",
+        "console_show_nmea_plugin": "True",
+        "console_show_gps_plugin": "False",
+        "console_show_log": "True",
+        "console_session_header_fields": [
+            "Start Time (UTC)",
+            "Start Time (Local)",
+            "Duration"
+        ],
+        "console_victron_summary_fields": [
+            "[GX] Batt. max voltage (V)",
+            "[GX] Batt. min voltage (V)",
+            "[GX] Batt. avg. voltage (V)",
+            "[GX] Batt. max current (A)",
+            "[GX] Batt. avg. current (A)",
+            "[GX] Batt. max power (W)",
+            "[GX] Batt. avg. power (W)",
+            "[GX] PV max power (W)",
+            "[GX] PV avg. power",
+            "[GX] PV max current (A)",
+            "[GX] PV avg. current (A)",
+            "[GX] Strt. batt. max voltage (V)",
+            "[GX] Strt. batt. min voltage (V)",
+            "[GX] Strt. batt. avg. voltage",
+            "[GX] Tank 1 max lvl",
+            "[GX] Tank 1 min lvl",
+            "[GX] Tank 1 avg. lvl",
+            "[GX] Tank 2 max lvl",
+            "[GX] Tank 2 min lvl",
+            "[GX] Tank 2 avg. lvl"
+        ],
+        "console_nmea_summary_fields": [
+            "[NM] Start Location (City, Country)",
+            "[NM] Start GPS Lat (d°m'S\" H)",
+            "[NM] Start GPS Lon (d°m'S\" H)",
+            "[NM] Dst. (miles)",
+            "[NM] Hdg. (°)",
+            "[NM] Avg. Wind Speed (kts)",
+            "[NM] Avg. Wind Direction (°)",
+            "[NM] Avg. Water Temp. (°C)",
+            "[NM] Avg. Depth (m)",
+            "[NM] Avg. SOG (kts)",
+            "[NM] Avg. SOW (kts)"
+        ],
+        "console_gps_summary_fields": [
+            "[SS] Start Location (City, Country)",
+            "[SS] Start GPS Lat (d°m'S\" H)",
+            "[SS] Start GPS Lon (d°m'S\" H)",
+            "[SS] Dst. (miles)",
+            "[SS] Hdg. (°)",
+            "[SS] Avg. SOG (kts)"
+        ],
+        "console_victron_metrics": [
+            "[GX] Active Input source",
+            "[GX] Grid 1 power (W)",
+            "[GX] Generator 1 power (W)",
+            "[GX] AC Input 1 Voltage (V)",
+            "[GX] AC Input 1 Current (A)",
+            "[GX] AC Input 1 Frequency (Hz)",
+            "[GX] VE.Bus State",
+            "[GX] AC Consumption (W)",
+            "[GX] Batt. Voltage (V)",
+            "[GX] Batt. Current (A)",
+            "[GX] Batt. Power (W)",
+            "[GX] Batt. SOC",
+            "[GX] Batt. state",
+            "[GX] PV Power (W)",
+            "[GX] PV Current (A)",
+            "[GX] Strt. Batt. Voltage (V)",
+            "[GX] Tank 1 lvl (%)",
+            "[GX] Tank 1 Type",
+            "[GX] Tank 2 lvl (%)",
+            "[GX] Tank 2 Type"
+        ],
+        "console_nmea_metrics": [
+            "[NM] True Hdg. (°)",
+            "[NM] TWS (kts)",
+            "[NM] TWD (°)",
+            "[NM] AWS (kts)",
+            "[NM] AWA (Relative °)",
+            "[NM] GPS Lat (d°m'S\" H)",
+            "[NM] GPS Lon (d°m'S\" H)",
+            "[NM] Water Temp. (°C)",
+            "[NM] Depth (m)",
+            "[NM] SOG (kts)",
+            "[NM] SOW (kts)",
+            "[NM] Dst. from last entry (miles)",
+            "[NM] Cumulative Dst. (miles)"
+        ],
+        "console_gps_metrics": [
+            "[SS] GPS Lat (d°m'S\" H)",
+            "[SS] GPS Lon (d°m'S\" H)",
+            "[SS] Location (City, Country)",
+            "[SS] SOG (kts)",
+            "[SS] COG (°T)",
+            "[SS] Dst. from last entry (miles)",
+            "[SS] Cumulative Dst. (miles)"
+        ]
+    },
+    "email": {
+        "email_module": "False",
+        "email_address": "",
+        "email_password": "",
+        "email_session_report": "True"
+    },
+    "notification": {
+        "notifications_module": "True",
+        "notification_email": "True",
+        "notification_sound": "True",
+        "notification_console": "True",
+        "notification_cool_off_interval": "60"
+    },
+    "session": {
+        "session_module": "True",
+        "session_run_mode": "auto-victron",
+        "session_disk_write_interval": "15",
+        "session_summary_report": "True",
+        "session_paging_interval": "86400"
+    },
+    "log": {
+        "log_module": "True",
+        "log_level": "INFO"
+    },
+    "sound": {
+        "sound_module": "True"
+    },
+    "metrics": {
+        "metrics_colouring_scheme": {
+            "[GX] Tank 1 lvl (%)": {
+                "green": [
+                    80,
+                    100
+                ],
+                "yellow": [
+                    60,
+                    80
+                ],
+                "red": [
+                    0,
+                    60
+                ]
+            },
+            "[GX] Tank 2 lvl (%)": {
+                "green": [
+                    80,
+                    100
+                ],
+                "yellow": [
+                    60,
+                    80
+                ],
+                "red": [
+                    0,
+                    60
+                ]
+            },
+            "[GX] Batt. SOC": {
+                "green": [
+                    80,
+                    100
+                ],
+                "yellow": [
+                    60,
+                    80
+                ],
+                "red": [
+                    0,
+                    60
+                ]
+            },
+            "[GX] Batt. Voltage (V)": {
+                "green": [
+                    12.8,
+                    15
+                ],
+                "yellow": [
+                    12.6,
+                    12.8
+                ],
+                "red": [
+                    0,
+                    12.6
+                ]
+            },
+            "[GX] Strt. Batt. Voltage (V)": {
+                "green": [
+                    12.8,
+                    15
+                ],
+                "yellow": [
+                    12.6,
+                    12.8
+                ],
+                "red": [
+                    0,
+                    12.6
+                ]
+            },
+            "[NM] TWS (kts)": {
+                "green": [
+                    0,
+                    18
+                ],
+                "yellow": [
+                    18,
+                    25
+                ],
+                "red": [
+                    25,
+                    100
+                ]
+            },
+            "[NM] AWS (kts)": {
+                "green": [
+                    0,
+                    18
+                ],
+                "yellow": [
+                    18,
+                    25
+                ],
+                "red": [
+                    25,
+                    100
+                ]
+            },
+            "[NM] Depth (m)": {
+                "green": [
+                    20,
+                    400
+                ],
+                "yellow": [
+                    4,
+                    20
+                ],
+                "red": [
+                    0,
+                    4
+                ]
+            }
+        },
+        "metrics_notifications_rules": {
+            "[GX] Tank 1 lvl (%)": {
+                "warning": {
+                    "range": [
+                        60,
+                        80
+                    ],
+                    "frequency": "once",
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 300
+                },
+                "alarm": {
+                    "range": [
+                        0,
+                        50
+                    ],
+                    "frequency": "interval",
+                    "interval": 3600,
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 300
+                }
+            },
+            "[GX] Tank 2 lvl (%)": {
+                "warning": {
+                    "range": [
+                        60,
+                        80
+                    ],
+                    "frequency": "once",
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 300
+                },
+                "alarm": {
+                    "range": [
+                        0,
+                        50
+                    ],
+                    "frequency": "interval",
+                    "interval": 14400,
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 300
+                }
+            },
+            "[GX] Batt. SOC": {
+                "warning": {
+                    "range": [
+                        65,
+                        80
+                    ],
+                    "frequency": "once",
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 600
+                },
+                "alarm": {
+                    "range": [
+                        0,
+                        60
+                    ],
+                    "frequency": "interval",
+                    "interval": 3600,
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 600
+                }
+            },
+            "[GX] Batt. Voltage (V)": {
+                "warning": {
+                    "range": [
+                        12.6,
+                        12.8
+                    ],
+                    "frequency": "once",
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 600
+                },
+                "alarm": {
+                    "range": [
+                        0,
+                        12.4
+                    ],
+                    "frequency": "interval",
+                    "interval": 3600,
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 600
+                }
+            },
+            "[GX] Strt. Batt. Voltage (V)": {
+                "warning": {
+                    "range": [
+                        12.6,
+                        12.8
+                    ],
+                    "frequency": "once",
+                    "notifications": [
+                        "sound"
+                    ],
+                    "cool-off-interval": 600
+                },
+                "alarm": {
+                    "range": [
+                        0,
+                        12.4
+                    ],
+                    "frequency": "interval",
+                    "interval": 3600,
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ],
+                    "cool-off-interval": 600
+                }
+            },
+            "[NM] AWS (kts)": {
+                "warning": {
+                    "range": [
+                        18,
+                        25
+                    ],
+                    "frequency": "once",
+                    "notifications": [
+                        "sound"
+                    ],
+                    "cool-off-interval": 900
+                },
+                "alarm": {
+                    "range": [
+                        27,
+                        100
+                    ],
+                    "frequency": "interval",
+                    "interval": 900,
+                    "notifications": [
+                        "sound"
+                    ],
+                    "cool-off-interval": 900
+                }
+            },
+            "[NM] Depth (m)": {
+                "warning": {
+                    "range": [
+                        5,
+                        20
+                    ],
+                    "frequency": "once",
+                    "notifications": [
+                        "sound"
+                    ]
+                },
+                "alarm": {
+                    "range": [
+                        0,
+                        4
+                    ],
+                    "frequency": "interval",
+                    "interval": 60,
+                    "notifications": [
+                        "sound"
+                    ]
+                }
+            }
+        }
+    },
+    "modules": {
+        "modules_notifications_rules": {
+            "gps": {
+                "alarm": {
+                    "status": "offline",
+                    "frequency": "interval",
+                    "interval": 86400,
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ]
+                }
+            },
+            "nmea": {
+                "alarm": {
+                    "status": "offline",
+                    "frequency": "once",
+                    "notifications": [
+                        "sound"
+                    ]
+                }
+            },
+            "victron": {
+                "alarm": {
+                    "status": "offline",
+                    "frequency": "interval",
+                    "interval": 86400,
+                    "notifications": [
+                        "sound",
+                        "email"
+                    ]
+                }
+            }
+        }
+    }
+}
