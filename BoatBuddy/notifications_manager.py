@@ -1,4 +1,5 @@
 import threading
+import time
 from enum import Enum
 
 from BoatBuddy import globals, utils
@@ -16,8 +17,9 @@ class NotificationType(Enum):
 
 
 class NotificationEntry:
-    def __init__(self, key, value, entry_type: EntryType, notification_types: [], severity, frequency,
+    def __init__(self, timestamp, key, value, entry_type: EntryType, notification_types: [], severity, frequency,
                  configuration_range=None, interval=None, cool_off_interval=None):
+        self._timestamp = timestamp
         self._key = key
         self._value = value
         self._entry_type = entry_type
@@ -27,6 +29,9 @@ class NotificationEntry:
         self._configuration_range = configuration_range
         self._interval = interval
         self._cool_off_interval = cool_off_interval
+
+    def get_timestamp(self):
+        return self._timestamp
 
     def get_key(self):
         return self._key
@@ -62,20 +67,19 @@ class NotificationsManager:
         self._options = options
         self._sound_manager = sound_manager
         self._notifications_queue = {}
-        self._frozen_notifications = {}
+        self._exit_signal = threading.Event()
+        self._process_data_thread = threading.Thread(target=self._main_loop)
+        self._process_data_thread.start()
 
     def process_entry(self, key, value, entry_type):
         if not self._options.notifications_module:
             return
 
-        notifications_rules = None
         if entry_type == EntryType.METRIC:
             notifications_rules = self._options.metrics_notifications_rules.copy()
         elif entry_type == EntryType.MODULE:
             notifications_rules = self._options.modules_notifications_rules.copy()
-
-        # If there are no notification rules defined for this entry type then return
-        if not notifications_rules:
+        else:
             return
 
         # First check if the provided key has a notification configuration
@@ -122,17 +126,15 @@ class NotificationsManager:
                     return
 
         # If this point in the code is reached then notifications for this entry (if any) should be cleared
-        self._clear_notification_entry_after_interval(key)
+        self._delayed_clear_notification_entry(key)
 
     def _schedule_notification(self, key, value, entry_type, notification_types, severity, frequency,
                                configuration_range=None, interval=None, cool_off_interval=None):
 
         if key not in self._notifications_queue:
             # this is a new notification entry
-            self._process_notification(key, value, entry_type, notification_types, severity, frequency,
-                                       configuration_range, interval, cool_off_interval)
-            self._add_notification_entry(key, value, entry_type, notification_types, severity, frequency,
-                                         configuration_range, interval, cool_off_interval)
+            self._delayed_add_notification_entry(time.time(), key, value, entry_type, notification_types, severity,
+                                                 frequency, configuration_range, interval, cool_off_interval)
         elif self._notifications_queue[key]['instance'].get_entry_type() == EntryType.METRIC and \
                 self._notifications_queue[key]['instance'].get_configuration_range() != configuration_range or \
                 self._notifications_queue[key]['instance'].get_entry_type() == EntryType.MODULE and \
@@ -143,13 +145,13 @@ class NotificationsManager:
             # this notification is different and needs to be treated as new notification
             # thus we need clear the old notification entry and schedule a new one
             self._clear_notification_entry(key)
-            self._process_notification(key, value, entry_type, notification_types, severity, frequency,
-                                       configuration_range, interval, cool_off_interval)
-            self._add_notification_entry(key, value, entry_type, notification_types, severity, frequency,
-                                         configuration_range, interval, cool_off_interval)
+            self._delayed_add_notification_entry(time.time(), key, value, entry_type, notification_types, severity,
+                                                 frequency, configuration_range, interval, cool_off_interval)
 
     def _process_notification(self, key, value, entry_type, notification_types, severity, frequency,
                               configuration_range, interval, cool_off_interval):
+        utils.get_logger().info(f'Processing notification for key {key}')
+
         if NotificationType.SOUND.value in notification_types:
             self._process_sound_notification(severity)
 
@@ -212,51 +214,36 @@ class NotificationsManager:
             utils.get_logger().error(f'Error while sending email notification '
                                      f'for {notification_entry.get_entry_type().value} \'{key}\'. Details: {e}')
 
-    def _add_notification_entry(self, key, value, entry_type, notification_types, severity, frequency,
-                                configuration_range, interval, cool_off_interval):
-        new_notification_entry = NotificationEntry(key, value, entry_type, notification_types, severity,
+    def _delayed_add_notification_entry(self, timestamp, key, value, entry_type, notification_types, severity,
+                                        frequency, configuration_range, interval, cool_off_interval):
+        new_notification_entry = NotificationEntry(timestamp, key, value, entry_type, notification_types, severity,
                                                    frequency, configuration_range, interval, cool_off_interval)
-        new_timer = None
-        if frequency == 'interval':
-            new_timer = threading.Timer(interval, self._notification_loop, args=[key])
-            new_timer.start()
-        self._notifications_queue[key] = {'instance': new_notification_entry, 'timer': new_timer}
+
+        self._notifications_queue[key] = {'instance': new_notification_entry, 'last_processed': None, 'to_clear': False}
 
         utils.get_logger().info(f'Adding new notification with key \'{key}\', value \'{value}\', ' +
                                 f'severity \'{severity}\'')
 
-    def _clear_notification_entry_after_interval(self, key):
-        if key in self._frozen_notifications:
-            return
+    def _delayed_clear_notification_entry(self, key):
 
         if key not in self._notifications_queue:
             return
 
-        cool_off_interval = None
+        # Mark it to be cleared
+        self._notifications_queue[key]['last_processed'] = time.time()
+        self._notifications_queue[key]['to_clear'] = True
+
         notification_entry = self._notifications_queue[key]['instance']
         if notification_entry.get_cool_off_interval():
             cool_off_interval = utils.try_parse_int(notification_entry.get_cool_off_interval())
-        elif self._options.notification_cool_off_interval:
-            cool_off_interval = utils.try_parse_int(self._options.notification_cool_off_interval)
-
-        if cool_off_interval:
-            delay_timer = threading.Timer(cool_off_interval, self._clear_notification_entry, args=[key])
-            delay_timer.start()
-            self._frozen_notifications[key] = delay_timer
-
-            utils.get_logger().info(f'Scheduling a timer to clear notification '
-                                    f'for {notification_entry.get_entry_type().value} with key \'{key}\' '
-                                    f'after {cool_off_interval} seconds')
         else:
-            self._clear_notification_entry(key)
+            cool_off_interval = utils.try_parse_int(self._options.notification_cool_off_interval)
+        utils.get_logger().info(f'Notification for {notification_entry.get_entry_type().value} with key \'{key}\' '
+                                f'will be cleared after {cool_off_interval} seconds')
 
     def _clear_notification_entry(self, key):
         if key not in self._notifications_queue:
             return
-
-        if key in self._frozen_notifications:
-            self._frozen_notifications[key].cancel()
-            self._frozen_notifications.pop(key)
 
         notification_entry = self._notifications_queue[key]['instance']
         self._process_clear_notification(key, notification_entry.get_notification_types(),
@@ -265,43 +252,69 @@ class NotificationsManager:
         utils.get_logger().info(f'Cleared notification '
                                 f'for {notification_entry.get_entry_type().value} with key \'{key}\'')
 
-        # cancel the timer (if any)
-        notification_timer = self._notifications_queue[key]['timer']
-        if notification_timer is not None:
-            notification_timer.cancel()
-
         # Remove the entry from memory
         self._notifications_queue.pop(key)
 
-    def _notification_loop(self, key):
-        notification_entry = self._notifications_queue[key]['instance']
+    def _main_loop(self):
+        while not self._exit_signal.is_set():
+            keys_for_entries_to_remove = []
+            for key in self._notifications_queue:
+                notification_entry = self._notifications_queue[key]['instance']
+                last_processed = self._notifications_queue[key]['last_processed']
+                to_clear = self._notifications_queue[key]['to_clear']
 
-        # Process the notification
-        self._process_notification(key, notification_entry.get_value(), notification_entry.get_entry_type(),
-                                   notification_entry.get_notification_types(), notification_entry.get_severity(),
-                                   notification_entry.get_frequency(), notification_entry.get_configuration_range(),
-                                   notification_entry.get_interval(), notification_entry.get_cool_off_interval())
+                if notification_entry.get_cool_off_interval():
+                    cool_off_interval = utils.try_parse_int(notification_entry.get_cool_off_interval())
+                else:
+                    cool_off_interval = utils.try_parse_int(self._options.notification_cool_off_interval)
 
-        # Reschedule the timer
-        self._notifications_queue[key]['timer'] = threading.Timer(notification_entry.get_interval(),
-                                                                  self._notification_loop, args=[key])
-        self._notifications_queue[key]['timer'].start()
+                if time.time() - notification_entry.get_timestamp() > cool_off_interval:
+                    if last_processed is None:
+                        # Process the notification
+                        self._process_notification(key, notification_entry.get_value(),
+                                                   notification_entry.get_entry_type(),
+                                                   notification_entry.get_notification_types(),
+                                                   notification_entry.get_severity(),
+                                                   notification_entry.get_frequency(),
+                                                   notification_entry.get_configuration_range(),
+                                                   notification_entry.get_interval(),
+                                                   notification_entry.get_cool_off_interval())
+
+                        if notification_entry.get_frequency() == 'once':
+                            keys_for_entries_to_remove.append(key)
+                        elif notification_entry.get_frequency() == 'interval':
+                            # This is a recurring notification
+                            # Update the last_notified field value with the current time
+                            self._notifications_queue[key]['last_processed'] = time.time()
+                    elif time.time() - last_processed > cool_off_interval and to_clear:
+                        # Clear the notification
+                        self._clear_notification_entry(key)
+                    else:
+                        # This is a recurring notification
+                        if time.time() - last_processed > cool_off_interval:
+                            # Process the notification
+                            self._process_notification(key, notification_entry.get_value(),
+                                                       notification_entry.get_entry_type(),
+                                                       notification_entry.get_notification_types(),
+                                                       notification_entry.get_severity(),
+                                                       notification_entry.get_frequency(),
+                                                       notification_entry.get_configuration_range(),
+                                                       notification_entry.get_interval(),
+                                                       notification_entry.get_cool_off_interval())
+                            # Update the last_notified field value with the current time
+                            self._notifications_queue[key]['last_processed'] = time.time()
+
+            if len(keys_for_entries_to_remove) > 0:
+                for key in keys_for_entries_to_remove:
+                    self._notifications_queue.pop(key)
+
+            time.sleep(1)  # Sleep for one second
 
     def finalize(self):
         if not self._options.notifications_module:
             return
 
+        self._exit_signal.set()
+
         if len(self._notifications_queue) > 0:
-            # Loop through all the notification entries and cancel their respective timers (if any)
-            for key in self._notifications_queue:
-                if self._notifications_queue[key]['timer'] is not None:
-                    self._notifications_queue[key]['timer'].cancel()
-
-            self._notifications_queue.clear()
-
-        if len(self._frozen_notifications) > 0:
-            # Loop through all the frozen notification entries and cancel their respective timers (if any)
-            for key in self._frozen_notifications:
-                self._notifications_queue[key].cancel()
-
             self._notifications_queue.clear()

@@ -66,6 +66,8 @@ if __name__ == '__main__':
             options.notification_email = utils.try_parse_bool(data['notification']['notification_email'])
             options.notification_sound = utils.try_parse_bool(data['notification']['notification_sound'])
             options.notification_console = utils.try_parse_bool(data['notification']['notification_console'])
+            options.notification_cool_off_interval = utils.try_parse_int(
+                data['notification']['notification_cool_off_interval'])
             options.session_module = utils.try_parse_bool(data['session']['session_module'])
             options.session_run_mode = data['session']['session_run_mode']
             options.session_disk_write_interval = utils.try_parse_int(data['session']['session_disk_write_interval'])
@@ -125,6 +127,9 @@ if __name__ == '__main__':
                   f'disk write interval which is {options.session_disk_write_interval} seconds')
         elif options.email_session_report and not options.email_address and not options.email_password:
             print(f'Invalid argument: Email credentials need to be provided in order to use the email report feature')
+        elif options.notifications_module and not options.notification_cool_off_interval:
+            print(f'Invalid argument: Notification cool-off interval need to be provided if the '
+                  f'notification module is turned on')
         else:
             if options.log_module:
                 # Initialize the logging module
