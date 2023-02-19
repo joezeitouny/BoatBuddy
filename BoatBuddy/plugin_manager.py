@@ -83,43 +83,43 @@ class PluginManager:
             self._nmea_plugin.register_for_events(nmea_connection_events)
 
         # If normal mode is active then start recording system metrics immediately
-        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_CONTINUOUS \
-                or str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_INTERVAL:
+        if str(self._options.session_run_mode).lower() == globals.SessionRunMode.CONTINUOUS.value \
+                or str(self._options.session_run_mode).lower() == globals.SessionRunMode.INTERVAL.value:
             self._start_session()
 
-            if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_INTERVAL:
+            if str(self._options.session_run_mode).lower() == globals.SessionRunMode.INTERVAL.value:
                 self._session_timer = threading.Timer(self._options.session_paging_interval,
                                                       self._session_timer_elapsed)
                 self._session_timer.start()
 
     def _on_connect_gps_plugin(self):
         self._notifications_manager.process_entry('gps', 'online', EntryType.MODULE)
-        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_GPS:
+        if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
             self._start_session()
 
     def _on_connect_victron_plugin(self):
         self._notifications_manager.process_entry('victron', 'online', EntryType.MODULE)
-        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_VICTRON:
+        if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
             self._start_session()
 
     def _on_connect_nmea_plugin(self):
         self._notifications_manager.process_entry('nmea', 'online', EntryType.MODULE)
-        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_NMEA:
+        if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self._start_session()
 
     def _on_disconnect_gps_plugin(self):
         self._notifications_manager.process_entry('gps', 'offline', EntryType.MODULE)
-        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_GPS:
+        if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
             self._end_session()
 
     def _on_disconnect_victron_plugin(self):
         self._notifications_manager.process_entry('victron', 'offline', EntryType.MODULE)
-        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_VICTRON:
+        if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
             self._end_session()
 
     def _on_disconnect_nmea_plugin(self):
         self._notifications_manager.process_entry('nmea', 'offline', EntryType.MODULE)
-        if str(self._options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_NMEA:
+        if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self._end_session()
 
     def _session_timer_elapsed(self):

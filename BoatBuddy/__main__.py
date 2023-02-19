@@ -103,16 +103,17 @@ if __name__ == '__main__':
         elif options.gps_module and not options.gps_serial_port:
             print(f'Invalid argument: GPS serial port need to be configured to be able to use the GPS module\r\n')
             parser.print_help()
-        elif str(options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_NMEA and not options.nmea_module:
+        elif str(options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value and \
+                not options.nmea_module:
             print(f'Invalid argument: Cannot use the \'auto-nmea\' session run mode ' +
                   f'when the NMEA module is disabled\r\n')
             parser.print_help()
-        elif str(options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_VICTRON and \
+        elif str(options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value and \
                 not options.victron_module:
             print(f'Invalid argument: Cannot use the \'auto-victron\' session run mode ' +
                   f'when the Victron module is disabled\r\n')
             parser.print_help()
-        elif str(options.session_run_mode).lower() == globals.SESSION_RUN_MODE_AUTO_GPS and not options.gps_module:
+        elif str(options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value and not options.gps_module:
             print(f'Invalid argument: Cannot use the \'auto-gps\' session run mode ' +
                   f'when the GPS module is disabled\r\n')
             parser.print_help()

@@ -1,3 +1,5 @@
+from enum import Enum
+
 # General
 APPLICATION_NAME = 'Boat Buddy'
 APPLICATION_VERSION = '0.4.7'
@@ -17,13 +19,16 @@ VICTRON_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait bet
 # GPS Plugin
 GPS_TIMER_INTERVAL = 5  # In seconds, defines the amount of time to wait between metrics retrievals
 
-# Run modes
-SESSION_RUN_MODE_AUTO_NMEA = 'auto-nmea'
-SESSION_RUN_MODE_AUTO_VICTRON = 'auto-victron'
-SESSION_RUN_MODE_AUTO_GPS = 'auto-gps'
-SESSION_RUN_MODE_CONTINUOUS = 'continuous'
-SESSION_RUN_MODE_INTERVAL = 'interval'
-SESSION_RUN_MODE_MANUAL = 'manual'
+
+# Session Run modes
+class SessionRunMode(Enum):
+    AUTO_NMEA = 'auto-nmea'
+    AUTO_VICTRON = 'auto-victron'
+    AUTO_GPS = 'auto-gps'
+    CONTINUOUS = 'continuous'
+    INTERVAL = 'interval'
+    MANUAL = 'manual'
+
 
 # Time in seconds between each session is finalized when running in interval mode
 SESSION_PAGING_INTERVAL = 60 * 60 * 24  # default is every 24h
