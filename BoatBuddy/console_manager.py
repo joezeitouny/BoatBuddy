@@ -148,9 +148,12 @@ class ConsoleManager:
     def _make_key_value_table(self, title, key_value_list) -> Panel:
         table = Table.grid(expand=True)
         table.add_column()
+        colour = 'default'
+
         for key in key_value_list:
-            colour = utils.get_colour_for_key_value_in_dictionary(self._options.metrics_colouring_scheme, key,
-                                                                  key_value_list[key])
+            if self._options.notification_console:
+                colour = utils.get_colour_for_key_value_in_dictionary(self._options.metrics_colouring_scheme, key,
+                                                                      key_value_list[key])
             if colour != 'default':
                 table.add_row(f'[b][{colour}]{key}: ' +
                               f'{key_value_list[key]}[/{colour}][/b]')
