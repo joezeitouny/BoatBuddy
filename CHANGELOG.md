@@ -1,3 +1,18 @@
+## 0.5.1 (2023-02-20)
+
+* Added an email manager class and moved the email handling logic from the utils file
+* Added a sound type enum
+* Changed the section 'Victron System' to 'Victron ESS' in the console ui
+* Plugins now output an INFO message when they're started
+* Notification and sound modules now make use of mutexes around CS
+* Added missing keyring dependency in the TOML file
+* Added requirements.txt file
+* Renamed the 'process_entry' public function in the notification manager class to 'notify'
+* Added a ModuleStatus enum to the utils file
+* Added different email body and subject for metrics and modules
+* Modules now remain in the notification queue until cleared even if they are configured with 'frequency' once
+* Version bump to 0.5.1
+
 ## 0.5.0 (2023-02-19)
 
 * Added logic to interpret the value of the notification_console parameter in the Console Manager
