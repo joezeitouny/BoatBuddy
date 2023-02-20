@@ -127,6 +127,7 @@ class NMEAPlugin(GenericPlugin):
         self._exit_signal = threading.Event()
         self._timer = threading.Timer(1, self.connect_to_server)
         self._timer.start()
+        utils.get_logger().info('NMEA0183 module successfully started!')
 
     def reset_instance_metrics(self):
         self._water_temperature = ''

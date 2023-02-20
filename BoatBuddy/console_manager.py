@@ -10,6 +10,7 @@ from rich.table import Table
 from rich.text import Text
 
 from BoatBuddy import utils
+from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
@@ -19,11 +20,12 @@ from BoatBuddy.sound_manager import SoundManager
 class ConsoleManager:
 
     def __init__(self, options, plugin_manager: PluginManager, notifications_manager: NotificationsManager,
-                 sound_manager: SoundManager):
+                 sound_manager: SoundManager, email_manager: EmailManager):
         self._options = options
         self._plugin_manager = plugin_manager
         self._notifications_manager = notifications_manager
         self._sound_manager = sound_manager
+        self._email_manager = email_manager
 
         self._console = Console()
 
@@ -41,6 +43,8 @@ class ConsoleManager:
                 self._notifications_manager.finalize()
                 # Notify the sound manager
                 self._sound_manager.finalize()
+                # Notify the email manager
+                self._email_manager.finalize()
 
     def _make_header(self) -> Layout:
         application_name = utils.get_application_name()
@@ -192,7 +196,7 @@ class ConsoleManager:
             victron_layout = Layout(name="victron")
             # Populate the victron layout
             plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_victron_plugin_status())
-            victron_layout.update(self._make_key_value_table('Victron System ' + plugin_status_str,
+            victron_layout.update(self._make_key_value_table('Victron ESS ' + plugin_status_str,
                                                              self._plugin_manager.get_filtered_victron_metrics()))
 
         if self._options.gps_module and self._options.console_show_gps_plugin:

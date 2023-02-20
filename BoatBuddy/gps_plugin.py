@@ -90,6 +90,7 @@ class GPSPlugin(GenericPlugin):
         self._exit_signal = threading.Event()
         self._timer = threading.Timer(1, self.main_loop)
         self._timer.start()
+        utils.get_logger().info('GPS module successfully started!')
 
     def reset_instance_metrics(self):
         self._gps_latitude = ''

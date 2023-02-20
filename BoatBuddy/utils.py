@@ -1,6 +1,5 @@
 import logging
 
-import yagmail
 from latloncalc.latlon import Latitude, Longitude
 
 from BoatBuddy import globals
@@ -177,16 +176,3 @@ def get_smallest_number(number1, number2):
     if number1 < number2:
         return number1
     return number2
-
-
-def send_email(options, subject, body, attachments=None):
-    if not options.email_module:
-        return
-
-    if options.email_address and options.email_password:
-        receiver = options.email_address
-        yagmail.register(options.email_address, options.email_password)
-        yag = yagmail.SMTP(receiver)
-        yag.send(to=receiver, subject=subject, contents=body, attachments=attachments)
-    else:
-        raise ValueError('Email account credentials not provided!')

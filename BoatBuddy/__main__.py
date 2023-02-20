@@ -6,9 +6,10 @@ from logging.handlers import RotatingFileHandler
 
 from BoatBuddy import globals, utils
 from BoatBuddy.console_manager import ConsoleManager
+from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.notifications_manager import NotificationsManager
 from BoatBuddy.plugin_manager import PluginManager
-from BoatBuddy.sound_manager import SoundManager
+from BoatBuddy.sound_manager import SoundManager, SoundType
 
 if __name__ == '__main__':
     # Create an options list using the Options Parser
@@ -125,8 +126,10 @@ if __name__ == '__main__':
         elif options.session_paging_interval < options.session_disk_write_interval:
             print(f'Invalid argument: Specified run mode interval time cannot be less than the value chosen for ' +
                   f'disk write interval which is {options.session_disk_write_interval} seconds')
-        elif options.email_session_report and not options.email_address and not options.email_password:
-            print(f'Invalid argument: Email credentials need to be provided in order to use the email report feature')
+        elif options.email_module and not (options.email_address or options.email_password):
+            print(f'Invalid argument: Email credentials need to be supplied in order to use the email module')
+        elif options.email_session_report and not options.email_module:
+            print(f'Invalid argument: Email module needs to be activated in order to use the email report feature')
         elif options.notifications_module and not options.notification_cool_off_interval:
             print(f'Invalid argument: Notification cool-off interval need to be provided if the '
                   f'notification module is turned on')
@@ -152,10 +155,11 @@ if __name__ == '__main__':
                 logging.getLogger(globals.LOGGER_NAME).disabled = True
 
             sound_manager = SoundManager(options)
+            email_manager = EmailManager(options)
 
             # Play the application started chime
-            sound_manager.play_sound_async('/resources/application_started.mp3')
+            sound_manager.play_sound_async(SoundType.APPLICATION_STARTED)
 
-            notifications_manager = NotificationsManager(options, sound_manager)
-            plugin_manager = PluginManager(options, notifications_manager, sound_manager)
-            ConsoleManager(options, plugin_manager, notifications_manager, sound_manager)
+            notifications_manager = NotificationsManager(options, sound_manager, email_manager)
+            plugin_manager = PluginManager(options, notifications_manager, sound_manager, email_manager)
+            ConsoleManager(options, plugin_manager, notifications_manager, sound_manager, email_manager)

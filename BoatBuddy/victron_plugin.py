@@ -118,6 +118,7 @@ class VictronPlugin(GenericPlugin):
         self._exit_signal = threading.Event()
         self._timer = threading.Timer(globals.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
+        utils.get_logger().info('Victron module successfully started!')
 
     def reset_instance_metrics(self):
         self._grid_power = ''

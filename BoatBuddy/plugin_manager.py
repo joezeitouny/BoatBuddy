@@ -11,11 +11,12 @@ import openpyxl
 
 from BoatBuddy import globals, utils
 from BoatBuddy.clock_plugin import ClockPlugin
+from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.notifications_manager import NotificationsManager, EntryType
-from BoatBuddy.sound_manager import SoundManager
+from BoatBuddy.sound_manager import SoundManager, SoundType
 from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
 
 
@@ -41,10 +42,12 @@ class PluginManager:
     _is_session_active = False
     _session_timer = None
 
-    def __init__(self, options, notifications_manager: NotificationsManager, sound_manager: SoundManager):
+    def __init__(self, options, notifications_manager: NotificationsManager, sound_manager: SoundManager,
+                 email_manager: EmailManager):
         self._options = options
         self._notifications_manager = notifications_manager
         self._sound_manager = sound_manager
+        self._email_manager = email_manager
 
         if not self._options.output_path.endswith('/'):
             self._output_directory = self._options.output_path + '/'
@@ -212,7 +215,7 @@ class PluginManager:
 
     def _start_session(self):
         # Play the session started chime
-        self._sound_manager.play_sound_async('/resources/session_started.mp3')
+        self._sound_manager.play_sound_async(SoundType.SESSION_STARTED)
 
         utils.get_logger().debug('Start collecting system metrics')
 
@@ -337,7 +340,7 @@ class PluginManager:
         self._is_session_active = False
 
         # Play the session ended chime
-        self._sound_manager.play_sound_async('/resources/session_ended.wav')
+        self._sound_manager.play_sound_async(SoundType.SESSION_ENDED)
 
         # Send a session report if specified
         if self._options.email_session_report:
@@ -362,8 +365,9 @@ class PluginManager:
                     attachments.append(f"{self._output_directory}{self._summary_filename}.xlsx")
 
                 subject = f'{globals.APPLICATION_NAME} - (Session Report) for session {self._log_filename}'
-                utils.send_email(self._options, subject, body, attachments)
-                utils.get_logger().info(f'Email report for session {self._log_filename} successfully sent!')
+                self._email_manager.send_email(subject, body, attachments)
+                utils.get_logger().info(f'Email report for session {self._log_filename} successfully created and '
+                                        f'will be sent out shortly')
             except Exception as e:
                 utils.get_logger().error(f'Error while sending email report for session {self._log_filename}. '
                                          f'Details: {e}')
