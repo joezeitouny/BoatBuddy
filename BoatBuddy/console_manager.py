@@ -164,7 +164,7 @@ class ConsoleManager:
             else:
                 table.add_row(f'[bright_white]{key}: ' +
                               f'{key_value_list[key]}[/bright_white]')
-            self._notifications_manager.process_entry(key, key_value_list[key], EntryType.METRIC)
+            self._notifications_manager.notify(key, key_value_list[key], EntryType.METRIC)
         return Panel(table, title=title)
 
     def _make_layout(self) -> Layout:

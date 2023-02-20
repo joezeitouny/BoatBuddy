@@ -1,10 +1,16 @@
 import logging
+from enum import Enum
 
 from latloncalc.latlon import Latitude, Longitude
 
 from BoatBuddy import globals
 
 log_filename = ''
+
+
+class ModuleStatus(Enum):
+    ONLINE = 'online'
+    OFFLINE = 'offline'
 
 
 def get_application_version():

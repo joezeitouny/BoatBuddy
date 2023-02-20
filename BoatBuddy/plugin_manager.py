@@ -17,6 +17,7 @@ from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.sound_manager import SoundManager, SoundType
+from BoatBuddy.utils import ModuleStatus
 from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
 
 
@@ -96,32 +97,32 @@ class PluginManager:
                 self._session_timer.start()
 
     def _on_connect_gps_plugin(self):
-        self._notifications_manager.process_entry('gps', 'online', EntryType.MODULE)
+        self._notifications_manager.notify('gps', ModuleStatus.ONLINE.value, EntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
             self._start_session()
 
     def _on_connect_victron_plugin(self):
-        self._notifications_manager.process_entry('victron', 'online', EntryType.MODULE)
+        self._notifications_manager.notify('victron', ModuleStatus.ONLINE.value, EntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
             self._start_session()
 
     def _on_connect_nmea_plugin(self):
-        self._notifications_manager.process_entry('nmea', 'online', EntryType.MODULE)
+        self._notifications_manager.notify('nmea', ModuleStatus.ONLINE.value, EntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self._start_session()
 
     def _on_disconnect_gps_plugin(self):
-        self._notifications_manager.process_entry('gps', 'offline', EntryType.MODULE)
+        self._notifications_manager.notify('gps', ModuleStatus.OFFLINE.value, EntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
             self._end_session()
 
     def _on_disconnect_victron_plugin(self):
-        self._notifications_manager.process_entry('victron', 'offline', EntryType.MODULE)
+        self._notifications_manager.notify('victron', ModuleStatus.OFFLINE.value, EntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
             self._end_session()
 
     def _on_disconnect_nmea_plugin(self):
-        self._notifications_manager.process_entry('nmea', 'offline', EntryType.MODULE)
+        self._notifications_manager.notify('nmea', ModuleStatus.OFFLINE.value, EntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self._end_session()
 

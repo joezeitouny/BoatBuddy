@@ -76,7 +76,7 @@ class NotificationsManager:
             self._notifications_thread.start()
             utils.get_logger().info('Notifications module successfully started!')
 
-    def process_entry(self, key, value, entry_type):
+    def notify(self, key, value, entry_type):
         if not self._options.notifications_module:
             return
 
@@ -154,7 +154,10 @@ class NotificationsManager:
 
     def _process_notification(self, key, value, entry_type, notification_types, severity, frequency, cool_off_interval,
                               configuration_range, interval):
-        utils.get_logger().info(f'Processing notification for key {key}')
+        if entry_type == EntryType.MODULE:
+            utils.get_logger().info(f'Processing notification for module \'{key}\'')
+        elif entry_type == EntryType.METRIC:
+            utils.get_logger().info(f'Processing notification for metric with key \'{key}\'')
 
         if NotificationType.SOUND.value in notification_types:
             self._process_sound_notification(severity)
@@ -185,20 +188,39 @@ class NotificationsManager:
             if interval:
                 interval_str = str(interval)
 
-            body = f'Notification triggered for the following {entry_type.value}:\r\nKey:' \
-                   f' {key}\r\nValue: {value}\r\nSeverity: {severity}' + \
-                   f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
-                   f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
-                   f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
-                   f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
-            subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
-                      f'notification for {entry_type.value} \'{key}\''
+            body = 'N/A'
+            subject = 'N/A'
+            if entry_type == EntryType.MODULE:
+                body = f'Notification triggered for the \'{key}\' module:\r\n' \
+                       f'Status: {value}\r\nSeverity: {severity}' + \
+                       f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
+                       f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
+                       f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
+                       f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
+                subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
+                          f'notification for \'{key}\' module'
+            elif entry_type == EntryType.METRIC:
+                body = f'Notification triggered for metric with key \'{key}\':\r\n' \
+                       f'Value: {value}\r\nSeverity: {severity}' + \
+                       f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
+                       f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
+                       f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
+                       f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
+                subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
+                          f'notification for metric \'{key}\''
             self._email_manager.send_email(subject, body)
-            utils.get_logger().info(f'Email notification triggered '
-                                    f'for the following {entry_type.value}. Key: {key} Value: {value} '
-                                    f'Severity: {severity} Frequency: {frequency} '
-                                    f'Configuration Range: {configuration_range_str} Interval: {interval_str} '
-                                    f'Cool Off Interval: {cool_off_interval}. An email will be sent out shortly!')
+            if entry_type == EntryType.MODULE:
+                utils.get_logger().info(f'Email notification triggered '
+                                        f'for the {key} module. Status: {value} '
+                                        f'Severity: {severity} Frequency: {frequency} '
+                                        f'Configuration Range: {configuration_range_str} Interval: {interval_str} '
+                                        f'Cool Off Interval: {cool_off_interval}. An email will be sent out shortly!')
+            elif entry_type == EntryType.METRIC:
+                utils.get_logger().info(f'Email notification triggered '
+                                        f'for the following {entry_type.value}. Key: {key} Value: {value} '
+                                        f'Severity: {severity} Frequency: {frequency} '
+                                        f'Configuration Range: {configuration_range_str} Interval: {interval_str} '
+                                        f'Cool Off Interval: {cool_off_interval}. An email will be sent out shortly!')
         except Exception as e:
             utils.get_logger().error(f'Error while triggering email notification for {entry_type.value} '
                                      f'\'{key}\'. Details: {e}')
@@ -229,8 +251,12 @@ class NotificationsManager:
         self._notifications_queue[key] = {'instance': new_notification_entry, 'last_processed': None, 'to_clear': False}
         self._mutex.release()
 
-        utils.get_logger().info(f'Adding new notification with key \'{key}\', value \'{value}\', ' +
-                                f'severity \'{severity}\'')
+        if entry_type == EntryType.METRIC:
+            utils.get_logger().info(f'New notification added for metric with key \'{key}\', value \'{value}\', ' +
+                                    f'severity \'{severity}\'')
+        elif entry_type == EntryType.MODULE:
+            utils.get_logger().info(f'New notification added for module \'{key}\', status \'{value}\', ' +
+                                    f'severity \'{severity}\'')
 
     def _delayed_clear_notification_entry(self, key):
         if key not in self._notifications_queue:
@@ -274,8 +300,14 @@ class NotificationsManager:
                 to_clear = self._notifications_queue[key]['to_clear']
                 cool_off_interval = utils.try_parse_int(notification_entry.get_cool_off_interval())
 
-                if time.time() - notification_entry.get_timestamp() > cool_off_interval:
-                    if last_processed is None:
+                if to_clear and time.time() - last_processed > cool_off_interval:
+                    # Clear the notification
+                    self._clear_notification_entry(key)
+                elif not to_clear and last_processed and time.time() - last_processed > cool_off_interval:
+                    if notification_entry.get_entry_type() == EntryType.METRIC or \
+                            (notification_entry.get_entry_type() == EntryType.MODULE and
+                             notification_entry.get_frequency() == 'interval'):
+                        # This is a recurring notification
                         # Process the notification
                         self._process_notification(key, notification_entry.get_value(),
                                                    notification_entry.get_entry_type(),
@@ -286,27 +318,29 @@ class NotificationsManager:
                                                    notification_entry.get_configuration_range(),
                                                    notification_entry.get_interval())
 
+                    # Update the last_notified field value with the current time
+                    self._notifications_queue[key]['last_processed'] = time.time()
+                elif not to_clear and last_processed is None and \
+                        time.time() - notification_entry.get_timestamp() > cool_off_interval:
+                    # This is the first time the notification is processed
+                    self._process_notification(key, notification_entry.get_value(),
+                                               notification_entry.get_entry_type(),
+                                               notification_entry.get_notification_types(),
+                                               notification_entry.get_severity(),
+                                               notification_entry.get_frequency(),
+                                               notification_entry.get_cool_off_interval(),
+                                               notification_entry.get_configuration_range(),
+                                               notification_entry.get_interval())
+
+                    if notification_entry.get_entry_type() == EntryType.MODULE:
+                        # If this is a module notification then keep it in the queue until it is cleared
+                        # Hence we only need to update the last processed field at this stage
+                        self._notifications_queue[key]['last_processed'] = time.time()
+                    elif notification_entry.get_entry_type() == EntryType.METRIC:
                         if notification_entry.get_frequency() == 'once':
                             keys_for_entries_to_remove.append(key)
                         elif notification_entry.get_frequency() == 'interval':
                             # This is a recurring notification
-                            # Update the last_notified field value with the current time
-                            self._notifications_queue[key]['last_processed'] = time.time()
-                    elif time.time() - last_processed > cool_off_interval:
-                        if to_clear:
-                            # Clear the notification
-                            self._clear_notification_entry(key)
-                        else:
-                            # This is a recurring notification
-                            # Process the notification
-                            self._process_notification(key, notification_entry.get_value(),
-                                                       notification_entry.get_entry_type(),
-                                                       notification_entry.get_notification_types(),
-                                                       notification_entry.get_severity(),
-                                                       notification_entry.get_frequency(),
-                                                       notification_entry.get_cool_off_interval(),
-                                                       notification_entry.get_configuration_range(),
-                                                       notification_entry.get_interval())
                             # Update the last_notified field value with the current time
                             self._notifications_queue[key]['last_processed'] = time.time()
 
