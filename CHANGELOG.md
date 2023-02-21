@@ -1,3 +1,9 @@
+## 0.5.3 (2023-02-21)
+
+* Included date and time of the notification trigger in the email body
+* Improved the way notifications are handled in the Notification manager class.
+* Version bump to 0.5.3
+
 ## 0.5.2 (2023-02-21)
 
 * Added a general exception catcher in the Console manager to catch unexpected application wide exceptions and exit

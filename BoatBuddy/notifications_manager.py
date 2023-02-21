@@ -130,7 +130,9 @@ class NotificationsManager:
                     return
 
         # If this point in the code is reached then notifications for this entry (if any) should be cleared
+        self._mutex.acquire()
         self._delayed_clear_notification_entry(key)
+        self._mutex.release()
 
     def _schedule_notification(self, key, value, entry_type, notification_types, severity, frequency, cool_off_interval,
                                configuration_range=None, interval=None):
@@ -162,10 +164,8 @@ class NotificationsManager:
             # and if the range provided is different as what is stored in memory
             # Or if the new entry is for a module and has a different value than the old one then
             # this notification is different and needs to be treated as new notification
-            # thus we need clear the old notification entry and schedule a new one
-            self._clear_notification_entry(key)
-            self._delayed_add_notification_entry(time.time(), key, value, entry_type, notification_types, severity,
-                                                 frequency, cool_off_interval, configuration_range, interval)
+            # thus we need clear the old notification entry
+            self._delayed_clear_notification_entry(key)
         self._mutex.release()
 
     def _process_notification(self, key, value, entry_type, notification_types, severity, frequency, cool_off_interval,
@@ -209,8 +209,10 @@ class NotificationsManager:
 
             body = 'N/A'
             subject = 'N/A'
+            local_time = time.strftime('%H:%M:%S')
+            local_date = time.strftime('%Y-%m-%d')
             if entry_type == EntryType.MODULE:
-                body = f'Notification triggered for the \'{key}\' module:\r\n' \
+                body = f'Notification triggered for the \'{key}\' module @ {local_time} on {local_date}:\r\n' \
                        f'Status: {value}\r\nSeverity: {severity}' + \
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
                        f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
@@ -219,7 +221,7 @@ class NotificationsManager:
                 subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
                           f'notification for \'{key}\' module'
             elif entry_type == EntryType.METRIC:
-                body = f'Notification triggered for metric with key \'{key}\':\r\n' \
+                body = f'Notification triggered for metric with key \'{key}\' @ {local_time} on {local_date}:\r\n' \
                        f'Value: {value}\r\nSeverity: {severity}' + \
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
                        f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
@@ -247,8 +249,10 @@ class NotificationsManager:
     def _process_clear_email_notification(self, key, severity):
         notification_entry = self._notifications_queue[key]['instance']
         try:
+            local_time = time.strftime('%H:%M:%S')
+            local_date = time.strftime('%Y-%m-%d')
             body = f'Notification cleared for ' \
-                   f'{notification_entry.get_entry_type().value} \'{key}\'\r\n\r\n' \
+                   f'{notification_entry.get_entry_type().value} \'{key}\' @ {local_time} on {local_date}\r\n\r\n' \
                    f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
             subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) cleared ' \
                       f'for {notification_entry.get_entry_type().value} \'{key}\''
@@ -281,12 +285,10 @@ class NotificationsManager:
             return
 
         # Mark it to be cleared
-        self._mutex.acquire()
         if self._notifications_queue[key]['last_processed'] is None:
             self._notifications_queue[key]['notify_of_clearance'] = False
         self._notifications_queue[key]['to_clear'] = True
         self._notifications_queue[key]['clear_timestamp'] = time.time()
-        self._mutex.release()
 
         notification_entry = self._notifications_queue[key]['instance']
         cool_off_interval = utils.try_parse_int(notification_entry.get_cool_off_interval())
