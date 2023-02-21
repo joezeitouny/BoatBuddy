@@ -1,5 +1,6 @@
 import time
 
+from rich import box
 from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
@@ -151,7 +152,7 @@ class ConsoleManager:
             footer_table.add_row(f'[{colour}]{entry}[/{colour}]')
         return Panel(footer_table, title=f'Last 3 log entries')
 
-    def _make_key_value_table(self, title, key_value_list) -> Panel:
+    def _make_key_value_table(self, title, key_value_list, border_style) -> Panel:
         table = Table.grid(expand=True)
         table.add_column()
         colour = 'default'
@@ -167,7 +168,7 @@ class ConsoleManager:
                 table.add_row(f'[bright_white]{key}: ' +
                               f'{key_value_list[key]}[/bright_white]')
             self._notifications_manager.notify(key, key_value_list[key], EntryType.METRIC)
-        return Panel(table, title=title)
+        return Panel(table, title=title, border_style=border_style, box=box.ROUNDED)
 
     def _make_layout(self) -> Layout:
         layout = Layout()
@@ -197,23 +198,32 @@ class ConsoleManager:
         if self._options.victron_module and self._options.console_show_victron_plugin:
             victron_layout = Layout(name="victron")
             # Populate the victron layout
-            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_victron_plugin_status())
-            victron_layout.update(self._make_key_value_table('Victron ESS ' + plugin_status_str,
-                                                             self._plugin_manager.get_filtered_victron_metrics()))
+            plugin_status = self._plugin_manager.get_victron_plugin_status()
+            formatted_plugin_status_str = self._get_formatted_plugin_status_str(plugin_status)
+            border_style = self._get_border_style_from_status(plugin_status)
+            victron_layout.update(self._make_key_value_table('Victron ESS ' + formatted_plugin_status_str,
+                                                             self._plugin_manager.get_filtered_victron_metrics(),
+                                                             border_style))
 
         if self._options.gps_module and self._options.console_show_gps_plugin:
             gps_layout = Layout(name="gps")
             # Populate the NMEA layout
-            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_gps_plugin_status())
-            gps_layout.update(self._make_key_value_table('GPS Module ' + plugin_status_str,
-                                                         self._plugin_manager.get_filtered_gps_metrics()))
+            plugin_status = self._plugin_manager.get_gps_plugin_status()
+            formatted_plugin_status_str = self._get_formatted_plugin_status_str(plugin_status)
+            border_style = self._get_border_style_from_status(plugin_status)
+            gps_layout.update(self._make_key_value_table('GPS Module ' + formatted_plugin_status_str,
+                                                         self._plugin_manager.get_filtered_gps_metrics(),
+                                                         border_style))
 
         if self._options.nmea_module and self._options.console_show_nmea_plugin:
             nmea_layout = Layout(name="nmea")
             # Populate the NMEA layout
-            plugin_status_str = self._get_plugin_status_str(self._plugin_manager.get_nmea_plugin_status())
-            nmea_layout.update(self._make_key_value_table('NMEA0183 Network ' + plugin_status_str,
-                                                          self._plugin_manager.get_filtered_nmea_metrics()))
+            plugin_status = self._plugin_manager.get_nmea_plugin_status()
+            formatted_plugin_status_str = self._get_formatted_plugin_status_str(plugin_status)
+            border_style = self._get_border_style_from_status(plugin_status)
+            nmea_layout.update(self._make_key_value_table('NMEA0183 Network ' + formatted_plugin_status_str,
+                                                          self._plugin_manager.get_filtered_nmea_metrics(),
+                                                          border_style))
 
         if self._plugin_manager.get_status() == PluginManagerStatus.SESSION_ACTIVE:
             summary_layout = Layout(name="summary", ratio=2)
@@ -237,7 +247,7 @@ class ConsoleManager:
         return layout
 
     @staticmethod
-    def _get_plugin_status_str(plugin_status: PluginStatus):
+    def _get_formatted_plugin_status_str(plugin_status: PluginStatus):
         plugin_status_str = ''
         if plugin_status == PluginStatus.DOWN:
             plugin_status_str = '[red](Down)[/red]'
@@ -246,3 +256,15 @@ class ConsoleManager:
         elif plugin_status == PluginStatus.RUNNING:
             plugin_status_str = '[green](Running)[/green]'
         return plugin_status_str
+
+    @staticmethod
+    def _get_border_style_from_status(plugin_status: PluginStatus):
+        border_style = 'default'
+        if plugin_status == PluginStatus.DOWN:
+            border_style = 'red'
+        elif plugin_status == PluginStatus.STARTING:
+            border_style = 'yellow'
+        elif plugin_status == PluginStatus.RUNNING:
+            border_style = 'green'
+
+        return border_style
