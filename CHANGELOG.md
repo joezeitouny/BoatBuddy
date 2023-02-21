@@ -1,3 +1,10 @@
+## 0.5.2 (2023-02-21)
+
+* Added a general exception catcher in the Console manager to catch unexpected application wide exceptions and exit
+  gracefully
+* Improved the way notifications are handled in the Notification manager class.
+* Version bump to 0.5.2
+
 ## 0.5.1 (2023-02-20)
 
 * Added an email manager class and moved the email handling logic from the utils file

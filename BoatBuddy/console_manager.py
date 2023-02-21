@@ -36,6 +36,8 @@ class ConsoleManager:
                     live.update(self._make_layout())
             except KeyboardInterrupt:  # on keyboard interrupt...
                 utils.get_logger().warning("Ctrl+C signal detected!")
+            except Exception as e:
+                utils.get_logger().error(f'An unexpected error has occurred and application will shutdown. Details {e}')
             finally:
                 # Notify the plugin manager
                 self._plugin_manager.finalize()
