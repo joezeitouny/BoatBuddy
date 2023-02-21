@@ -263,7 +263,7 @@ class ConsoleManager:
         if plugin_status == PluginStatus.DOWN:
             border_style = 'red'
         elif plugin_status == PluginStatus.STARTING:
-            border_style = 'yellow'
+            border_style = 'bright_yellow'
         elif plugin_status == PluginStatus.RUNNING:
             border_style = 'green'
 
