@@ -1,3 +1,10 @@
+## 0.5.4 (2023-02-21)
+
+* Changed the colour used in columns to bright_yellow if the status of the plugin is 'STARTING'
+* Added colouring of for the columns in the rich console UI to reflect the plugin status
+* Added gitignore files
+* Version bump to 0.5.4
+
 ## 0.5.3 (2023-02-21)
 
 * Included date and time of the notification trigger in the email body
