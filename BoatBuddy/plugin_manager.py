@@ -29,7 +29,7 @@ class PluginManagerStatus(Enum):
 class PluginManager:
     _log_filename = None
     _output_directory = None
-    _time_plugin = None
+    _clock_plugin = None
     _nmea_plugin = None
     _victron_plugin = None
     _gps_plugin = None
@@ -58,7 +58,7 @@ class PluginManager:
         utils.get_logger().debug('Initializing plugins')
 
         # initialize the common time plugin
-        self._time_plugin = ClockPlugin(self._options)
+        self._clock_plugin = ClockPlugin(self._options)
 
         if self._options.gps_module:
             self._gps_plugin = GPSPlugin(self._options)
@@ -143,8 +143,8 @@ class PluginManager:
 
         column_values = []
 
-        self._time_plugin.take_snapshot(store_entry=True)
-        column_values += self._time_plugin.get_metadata_values()
+        self._clock_plugin.take_snapshot(store_entry=True)
+        column_values += self._clock_plugin.get_metadata_values()
 
         if self._gps_plugin:
             self._gps_plugin.take_snapshot(store_entry=True)
@@ -185,7 +185,7 @@ class PluginManager:
                     gpxpy.gpx.GPXTrackPoint(latitude=self._nmea_plugin.get_last_latitude_entry(),
                                             longitude=self._nmea_plugin.get_last_longitude_entry(),
                                             time=datetime.fromtimestamp(
-                                                mktime(self._time_plugin.get_last_utc_timestamp_entry()))))
+                                                mktime(self._clock_plugin.get_last_utc_timestamp_entry()))))
 
                 # Write the new contents of the GPX file to disk
                 try:
@@ -199,7 +199,7 @@ class PluginManager:
                     gpxpy.gpx.GPXTrackPoint(latitude=self._gps_plugin.get_last_latitude_entry(),
                                             longitude=self._gps_plugin.get_last_longitude_entry(),
                                             time=datetime.fromtimestamp(
-                                                mktime(self._time_plugin.get_last_utc_timestamp_entry()))))
+                                                mktime(self._clock_plugin.get_last_utc_timestamp_entry()))))
 
                 # Write the new contents of the GPX file to disk
                 try:
@@ -224,7 +224,7 @@ class PluginManager:
         self._log_filename = f'{self._options.filename_prefix}{suffix}'
         self._summary_filename = f'{self._options.summary_filename_prefix}{suffix}'
 
-        column_headers = self._time_plugin.get_metadata_headers()
+        column_headers = self._clock_plugin.get_metadata_headers()
 
         if self._gps_plugin:
             column_headers += self._gps_plugin.get_metadata_headers()
@@ -299,7 +299,7 @@ class PluginManager:
             summary_sheet = summary_workbook.active
 
             # Create the header row
-            column_headers = self._time_plugin.get_summary_headers()
+            column_headers = self._clock_plugin.get_summary_headers()
 
             if self._gps_plugin:
                 column_headers += self._gps_plugin.get_summary_headers()
@@ -311,8 +311,8 @@ class PluginManager:
                 column_headers += self._victron_plugin.get_summary_headers()
             summary_sheet.append(column_headers)
 
-            log_summary_list = self._time_plugin.get_summary_values()
-            self._time_plugin.clear_entries()
+            log_summary_list = self._clock_plugin.get_summary_values()
+            self._clock_plugin.clear_entries()
 
             if self._gps_plugin:
                 log_summary_list += self._gps_plugin.get_summary_values()
@@ -387,7 +387,7 @@ class PluginManager:
 
         utils.get_logger().info(f'Waiting for worker threads to finalize...')
 
-        self._time_plugin.finalize()
+        self._clock_plugin.finalize()
 
         if self._gps_plugin:
             self._gps_plugin.finalize()
@@ -398,48 +398,43 @@ class PluginManager:
         if self._nmea_plugin:
             self._nmea_plugin.finalize()
 
-    def get_filtered_nmea_metrics(self) -> {}:
-        entry_key_value_list = {}
+    def get_clock_metrics(self) -> {}:
+        entry = self._clock_plugin.take_snapshot(store_entry=False)
+        if entry is not None:
+            return entry.get_values()
+
+        return []
+
+    def get_nmea_plugin_metrics(self) -> {}:
         entry = self._nmea_plugin.take_snapshot(store_entry=False)
         if entry is not None:
-            entry_key_value_list = utils.get_key_value_list(self._nmea_plugin.get_metadata_headers(),
-                                                            entry.get_values())
-            entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list,
-                                                                     self._options.console_nmea_metrics.copy())
+            return entry.get_values()
 
-        return entry_key_value_list
+        return []
 
-    def get_filtered_victron_metrics(self) -> {}:
-        entry_key_value_list = {}
+    def get_victron_plugin_metrics(self) -> {}:
         entry = self._victron_plugin.take_snapshot(store_entry=False)
         if entry is not None:
-            entry_key_value_list = utils.get_key_value_list(self._victron_plugin.get_metadata_headers(),
-                                                            entry.get_values())
-            entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list,
-                                                                     self._options.console_victron_metrics.copy())
+            return entry.get_values()
 
-        return entry_key_value_list
+        return []
 
-    def get_filtered_gps_metrics(self) -> {}:
+    def get_gps_plugin_metrics(self) -> {}:
         entry_key_value_list = {}
         entry = self._gps_plugin.take_snapshot(store_entry=False)
         if entry is not None:
             entry_key_value_list = utils.get_key_value_list(self._gps_plugin.get_metadata_headers(),
                                                             entry.get_values())
-            entry_key_value_list = utils.get_filtered_key_value_list(entry_key_value_list,
-                                                                     self._options.console_gps_metrics.copy())
 
         return entry_key_value_list
 
     def get_session_name(self):
         return self._log_filename
 
-    def get_filtered_session_clock_metrics(self):
-        return utils.get_filtered_key_value_list(utils.get_key_value_list(self._time_plugin.get_summary_headers(),
-                                                                          self._time_plugin.get_summary_values()),
-                                                 self._options.console_session_header_fields.copy())
+    def get_session_clock_metrics(self):
+        return utils.get_key_value_list(self._clock_plugin.get_summary_headers(), self._clock_plugin.get_summary_values())
 
-    def get_filtered_summary_metrics(self) -> {}:
+    def get_session_summary_metrics(self) -> {}:
         summary_key_value_list = {}
 
         if self._gps_plugin:

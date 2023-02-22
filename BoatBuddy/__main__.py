@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 
 from BoatBuddy import globals, utils
 from BoatBuddy.console_manager import ConsoleManager
+from BoatBuddy.database_manager import DatabaseWrapper
 
 if __name__ == '__main__':
     # Create an options list using the Options Parser
@@ -44,6 +45,14 @@ if __name__ == '__main__':
             options.victron_tcp_port = utils.try_parse_int(data['victron']['victron_tcp_port'])
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
+            options.database_module = utils.try_parse_bool(data['database']['database_module'])
+            options.database_name = data['database']['database_name']
+            options.database_host = data['database']['database_host']
+            options.database_user = data['database']['database_user']
+            options.database_password = data['database']['database_password']
+            options.database_wrapper = data['database']['database_wrapper']
+            options.database_live_feed_entry_interval = \
+                utils.try_parse_int(data['database']['database_live_feed_entry_interval'])
             options.console_show_victron_plugin = utils.try_parse_bool(data['console']['console_show_victron_plugin'])
             options.console_show_nmea_plugin = utils.try_parse_bool(data['console']['console_show_nmea_plugin'])
             options.console_show_gps_plugin = utils.try_parse_bool(data['console']['console_show_gps_plugin'])
@@ -101,6 +110,15 @@ if __name__ == '__main__':
             parser.print_help()
         elif options.gps_module and not options.gps_serial_port:
             print(f'Invalid argument: GPS serial port need to be configured to be able to use the GPS module\r\n')
+            parser.print_help()
+        elif options.database_module and options.database_wrapper != DatabaseWrapper.MYSQL.value:
+            print(f'Invalid argument: Invalid database wrapper value provided\r\n')
+            parser.print_help()
+        elif options.database_module and (not options.database_host or not options.database_name
+                                          or not options.database_user or not options.database_password
+                                          or options.database_live_feed_entry_interval == 0):
+            print(f'Invalid argument: All database module configuration need to be supplied '
+                  f'in order to this feature\r\n')
             parser.print_help()
         elif str(options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value and \
                 not options.nmea_module:

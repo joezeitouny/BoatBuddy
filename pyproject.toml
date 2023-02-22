@@ -29,7 +29,8 @@ dependencies = [
     "playsound ~= 1.3.0",
     "pyserial",
     "yagmail ~= 0.15.293",
-    "keyring ~= 23.13.1"
+    "keyring ~= 23.13.1",
+    "mysql-connector-python ~= 8.0.32"
 ]
 [project.urls]
 "Homepage" = "https://github.com/joezeitouny/BoatBuddy"
