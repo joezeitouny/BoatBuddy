@@ -1,3 +1,9 @@
+## 0.5.5 (2023-02-22)
+
+* Moved the modules initialisation step to the Console Manager class
+* Added console output messages during application startup and shutdown
+* Version bump to 0.5.5
+
 ## 0.5.4 (2023-02-21)
 
 * Changed the colour used in columns to bright_yellow if the status of the plugin is 'STARTING'

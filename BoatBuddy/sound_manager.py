@@ -32,6 +32,7 @@ class SoundManager:
     def play_sound_async(self, sound_type: SoundType):
         if not self._options.sound_module:
             return
+
         filename = None
         if sound_type == SoundType.APPLICATION_STARTED:
             filename = '/resources/application_started.mp3'

@@ -15,39 +15,66 @@ from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
-from BoatBuddy.sound_manager import SoundManager
+from BoatBuddy.sound_manager import SoundManager, SoundType
 
 
 class ConsoleManager:
 
-    def __init__(self, options, plugin_manager: PluginManager, notifications_manager: NotificationsManager,
-                 sound_manager: SoundManager, email_manager: EmailManager):
+    def __init__(self, options):
         self._options = options
-        self._plugin_manager = plugin_manager
-        self._notifications_manager = notifications_manager
-        self._sound_manager = sound_manager
-        self._email_manager = email_manager
 
+        # Create a console instance
         self._console = Console()
+        self._console.print(f'[bright_yellow]Application is starting up. Please wait...[/bright_yellow]')
 
-        with Live(self._make_layout(), refresh_per_second=4) as live:
-            try:
+        with self._console.status('[bold bright_yellow]Loading modules...[/bold bright_yellow]'):
+            # Load the plugins one by one
+            self._console.print(f'[bright_yellow]Loading sound module...[/bright_yellow]')
+            self._sound_manager = SoundManager(options)
+            self._console.print(f'[green]Done[/green]')
+            time.sleep(0.5)
+            self._console.print(f'[bright_yellow]Loading email module...[/bright_yellow]')
+            self._email_manager = EmailManager(options)
+            self._console.print(f'[green]Done[/green]')
+            time.sleep(0.5)
+            self._console.print(f'[bright_yellow]Loading notifications module...[/bright_yellow]')
+            self._notifications_manager = NotificationsManager(options, self._sound_manager, self._email_manager)
+            self._console.print(f'[green]Done[/green]')
+            time.sleep(0.5)
+            self._console.print(f'[bright_yellow]Loading plugins module...[/bright_yellow]')
+            self._plugin_manager = PluginManager(options, self._notifications_manager, self._sound_manager,
+                                                 self._email_manager)
+            self._console.print(f'[green]Done[/green]')
+            time.sleep(0.5)
+
+            self._console.print(f'[bright_yellow]Firing up console UI...[/bright_yellow]')
+            # Play the application started chime
+            self._sound_manager.play_sound_async(SoundType.APPLICATION_STARTED)
+
+        try:
+            with Live(self._make_layout(), refresh_per_second=4) as live:
                 while True:
                     time.sleep(0.5)
                     live.update(self._make_layout())
-            except KeyboardInterrupt:  # on keyboard interrupt...
-                utils.get_logger().warning("Ctrl+C signal detected!")
-            except Exception as e:
-                utils.get_logger().error(f'An unexpected error has occurred and application will shutdown. Details {e}')
-            finally:
-                # Notify the plugin manager
-                self._plugin_manager.finalize()
-                # Notify the notifications manager
-                self._notifications_manager.finalize()
-                # Notify the sound manager
-                self._sound_manager.finalize()
-                # Notify the email manager
-                self._email_manager.finalize()
+        except KeyboardInterrupt:  # on keyboard interrupt...
+            utils.get_logger().warning(f'Ctrl+C signal detected!')
+            self._console.print(f'[red]Ctrl+C signal detected![/red]')
+        except Exception as e:
+            utils.get_logger().error(f'An unexpected error has occurred and application will shutdown. Details {e}')
+            self._console.print(f'[red]An unexpected error has occurred and application will shutdown. '
+                                f'Details {e}[/red]')
+        finally:
+            # Notify the plugin manager
+            self._plugin_manager.finalize()
+            # Notify the notifications manager
+            self._notifications_manager.finalize()
+            # Notify the sound manager
+            self._sound_manager.finalize()
+            # Notify the email manager
+            self._email_manager.finalize()
+            # Inform the user
+            self._console.print(f'[red]Modules have been notified and application will exit shortly. '
+                                f'Please wait...[/red]')
 
     def _make_header(self) -> Layout:
         application_name = utils.get_application_name()

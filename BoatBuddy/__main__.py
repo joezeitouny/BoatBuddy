@@ -6,10 +6,6 @@ from logging.handlers import RotatingFileHandler
 
 from BoatBuddy import globals, utils
 from BoatBuddy.console_manager import ConsoleManager
-from BoatBuddy.email_manager import EmailManager
-from BoatBuddy.notifications_manager import NotificationsManager
-from BoatBuddy.plugin_manager import PluginManager
-from BoatBuddy.sound_manager import SoundManager, SoundType
 
 if __name__ == '__main__':
     # Create an options list using the Options Parser
@@ -154,12 +150,5 @@ if __name__ == '__main__':
             else:
                 logging.getLogger(globals.LOGGER_NAME).disabled = True
 
-            sound_manager = SoundManager(options)
-            email_manager = EmailManager(options)
-
-            # Play the application started chime
-            sound_manager.play_sound_async(SoundType.APPLICATION_STARTED)
-
-            notifications_manager = NotificationsManager(options, sound_manager, email_manager)
-            plugin_manager = PluginManager(options, notifications_manager, sound_manager, email_manager)
-            ConsoleManager(options, plugin_manager, notifications_manager, sound_manager, email_manager)
+            # Load the console manager
+            ConsoleManager(options)
