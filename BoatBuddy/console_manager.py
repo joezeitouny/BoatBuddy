@@ -80,6 +80,8 @@ class ConsoleManager:
             self._plugin_manager.finalize()
             # Notify the notifications manager
             self._notifications_manager.finalize()
+            # Notify the database manager
+            self._database_manager.finalize()
             # Notify the sound manager
             self._sound_manager.finalize()
             # Notify the email manager

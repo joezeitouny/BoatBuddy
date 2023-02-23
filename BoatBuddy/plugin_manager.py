@@ -327,11 +327,11 @@ class PluginManager:
             self._clock_plugin.clear_entries()
 
             if self._gps_plugin:
-                log_summary_list += self._gps_plugin.get_summary_values()
+                log_summary_list += self._gps_plugin.get_summary_values(True)
                 self._gps_plugin.clear_entries()
 
             if self._nmea_plugin:
-                log_summary_list += self._nmea_plugin.get_summary_values()
+                log_summary_list += self._nmea_plugin.get_summary_values(True)
                 self._nmea_plugin.clear_entries()
 
             if self._victron_plugin:

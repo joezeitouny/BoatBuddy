@@ -136,7 +136,7 @@ class GPSPlugin(GenericPlugin):
     def get_summary_headers(self):
         return globals.GPS_PLUGIN_SUMMARY_HEADERS.copy()
 
-    def get_summary_values(self):
+    def get_summary_values(self, reverse_lookup_locations=False):
         log_summary_list = []
 
         if len(self._log_entries) > 0:
@@ -170,27 +170,32 @@ class GPSPlugin(GenericPlugin):
                     break
                 n = n - 1
 
-            # Try to fetch the starting and ending location cities
-            geolocator = Nominatim(user_agent="BoatBuddy")
-            starting_location_str = ''
-            try:
-                starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
-                                                       f'{first_gps_longitude_entry}')
-                starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + starting_location.raw[
-                    'address'].get('country', '')
-            except Exception as e:
-                self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
-            log_summary_list.append(starting_location_str)
+            if reverse_lookup_locations:
+                # Try to fetch the starting and ending location cities
+                geolocator = Nominatim(user_agent="BoatBuddy")
+                starting_location_str = ''
+                try:
+                    starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
+                                                           f'{first_gps_longitude_entry}')
+                    starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + \
+                                            starting_location.raw[
+                                                'address'].get('country', '')
+                except Exception as e:
+                    self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
+                log_summary_list.append(starting_location_str)
 
-            ending_location_str = ''
-            try:
-                ending_location = geolocator.reverse(f'{last_gps_latitude_entry}' + ',' +
-                                                     f'{last_gps_longitude_entry}')
-                ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + ending_location.raw[
-                    'address'].get('country', '')
-            except Exception as e:
-                self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
-            log_summary_list.append(ending_location_str)
+                ending_location_str = ''
+                try:
+                    ending_location = geolocator.reverse(f'{last_gps_latitude_entry}' + ',' +
+                                                         f'{last_gps_longitude_entry}')
+                    ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + ending_location.raw[
+                        'address'].get('country', '')
+                except Exception as e:
+                    self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
+                log_summary_list.append(ending_location_str)
+            else:
+                log_summary_list.append('N/A')
+                log_summary_list.append('N/A')
 
             log_summary_list.append(utils.get_str_from_latitude(first_gps_latitude_entry))
             log_summary_list.append(utils.get_str_from_longitude(first_gps_longitude_entry))

@@ -1,4 +1,5 @@
 import threading
+import time
 from enum import Enum
 from threading import Thread, Event, Timer
 
@@ -209,6 +210,7 @@ class DatabaseManager:
                 except Exception as e:
                     self._handle_exception(e)
                 self._mutex.release()
+            time.sleep(1)
 
     def _process_entry(self, database_entry: DatabaseEntry):
         if database_entry.get_entry_type() == DatabaseEntryType.ADD:
