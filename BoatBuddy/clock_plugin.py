@@ -27,9 +27,9 @@ class ClockEntry:
 
 class ClockPlugin(GenericPlugin):
 
-    def __init__(self, options):
+    def __init__(self, options, log_manager):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, options)
+        GenericPlugin.__init__(self, options, log_manager)
 
     def get_metadata_headers(self):
         return globals.CLOCK_PLUGIN_METADATA_HEADERS.copy()
@@ -73,7 +73,7 @@ class ClockPlugin(GenericPlugin):
         return log_summary_list
 
     def finalize(self):
-        utils.get_logger().info("Clock plugin instance is ready to be destroyed")
+        self._log_manager.info("Clock plugin instance is ready to be destroyed")
 
     def get_last_utc_timestamp_entry(self):
         if len(self._log_entries) > 0:

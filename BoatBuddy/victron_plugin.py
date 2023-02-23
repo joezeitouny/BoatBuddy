@@ -87,9 +87,9 @@ class VictronEntry:
 class VictronPlugin(GenericPlugin):
     _events = None
 
-    def __init__(self, options):
+    def __init__(self, options, log_manager):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, options)
+        GenericPlugin.__init__(self, options, log_manager)
 
         # Instance metrics
         self._grid_power = ''
@@ -118,7 +118,7 @@ class VictronPlugin(GenericPlugin):
         self._exit_signal = threading.Event()
         self._timer = threading.Timer(globals.VICTRON_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
-        utils.get_logger().info('Victron module successfully started!')
+        self._log_manager.info('Victron module successfully started!')
 
     def reset_instance_metrics(self):
         self._grid_power = ''
@@ -145,7 +145,7 @@ class VictronPlugin(GenericPlugin):
     def main_loop(self):
         if self._exit_signal.is_set():
             self._plugin_status = PluginStatus.DOWN
-            utils.get_logger().info('Victron plugin instance is ready to be destroyed')
+            self._log_manager.info('Victron plugin instance is ready to be destroyed')
             return
 
         server_ip = f'{self._options.victron_server_ip}'
@@ -160,7 +160,7 @@ class VictronPlugin(GenericPlugin):
                 raise ValueError('Modbus TCP server is unreachable')
 
             if self._plugin_status != PluginStatus.RUNNING:
-                utils.get_logger().info(f'Connection to Victron system on {server_ip} is established')
+                self._log_manager.info(f'Connection to Victron system on {server_ip} is established')
 
                 self._plugin_status = PluginStatus.RUNNING
 
@@ -313,7 +313,7 @@ class VictronPlugin(GenericPlugin):
 
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
-            utils.get_logger().info(
+            self._log_manager.info(
                 f'Problem with Victron system on {self._options.victron_server_ip}. Details: {message}')
 
             self._plugin_status = PluginStatus.DOWN
@@ -335,21 +335,21 @@ class VictronPlugin(GenericPlugin):
                              self._tank2_level, self._tank2_type_string)
 
         if store_entry:
-            utils.get_logger().debug(f'Adding new Victron entry')
-            utils.get_logger().debug(f'Active Input source: {self._input_source_string} ' +
-                                     f'Grid Power: {self._grid_power} W ' +
-                                     f'Generator Power: {self._generator_power} W ' +
-                                     f'AC Consumption: {self._ac_consumption} W')
-            utils.get_logger().debug(f'AC input 1 {self._ac_input_voltage} V {self._ac_input_current} A ' +
-                                     f'{self._ac_input_frequency} Hz ' +
-                                     f'State: {self._ve_bus_state_string}')
-            utils.get_logger().debug(
+            self._log_manager.debug(f'Adding new Victron entry')
+            self._log_manager.debug(f'Active Input source: {self._input_source_string} ' +
+                                    f'Grid Power: {self._grid_power} W ' +
+                                    f'Generator Power: {self._generator_power} W ' +
+                                    f'AC Consumption: {self._ac_consumption} W')
+            self._log_manager.debug(f'AC input 1 {self._ac_input_voltage} V {self._ac_input_current} A ' +
+                                    f'{self._ac_input_frequency} Hz ' +
+                                    f'State: {self._ve_bus_state_string}')
+            self._log_manager.debug(
                 f'Housing battery stats {self._battery_voltage} V  {self._battery_current} A {self._battery_power} W ' +
                 f'{self._battery_soc} % {self._battery_state_string}')
-            utils.get_logger().debug(f'PV {self._pv_power} W {self._pv_current} A')
-            utils.get_logger().debug(f'Starter battery voltage: {self._starter_battery_voltage} V')
-            utils.get_logger().debug(f'Tank 1 Level: {self._tank1_level} Type: {self._tank1_type_string}')
-            utils.get_logger().debug(f'Tank 2 Level: {self._tank2_level} Type: {self._tank2_type_string}')
+            self._log_manager.debug(f'PV {self._pv_power} W {self._pv_current} A')
+            self._log_manager.debug(f'Starter battery voltage: {self._starter_battery_voltage} V')
+            self._log_manager.debug(f'Tank 1 Level: {self._tank1_level} Type: {self._tank1_type_string}')
+            self._log_manager.debug(f'Tank 2 Level: {self._tank2_level} Type: {self._tank2_type_string}')
 
             self._log_entries.append(entry)
 
@@ -365,7 +365,7 @@ class VictronPlugin(GenericPlugin):
         self._exit_signal.set()
         if self._timer:
             self._timer.cancel()
-        utils.get_logger().info("Victron plugin worker thread notified...")
+        self._log_manager.info("Victron plugin worker thread notified...")
 
     def get_summary_headers(self):
         return globals.VICTRON_PLUGINS_SUMMARY_HEADERS.copy()

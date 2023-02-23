@@ -3,7 +3,7 @@ from typing import Union
 from mysql.connector import connect, Error, MySQLConnection, CMySQLConnection
 from mysql.connector.pooling import PooledMySQLConnection
 
-from BoatBuddy import utils
+from BoatBuddy.log_manager import LogManager
 
 
 class MySQLWrapperQueries:
@@ -28,6 +28,7 @@ class MySQLWrapperQueries:
                 CREATE TABLE {database_name}.`log` (
                   `id` int NOT NULL AUTO_INCREMENT,
                   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  `log_type` varchar(100) NOT NULL,
                   `message` varchar(10000) NOT NULL,
                   PRIMARY KEY (`id`)
                 )
@@ -203,8 +204,9 @@ class MySQLWrapperQueries:
 
 
 class MySQLWrapper:
-    def __init__(self, options):
+    def __init__(self, options, log_manager: LogManager):
         self._options = options
+        self._log_manager = log_manager
 
     def connect_to_server(self) -> bool:
         try:
@@ -215,7 +217,7 @@ class MySQLWrapper:
             ):
                 return True
         except Error as e:
-            utils.get_logger().debug(f'Could not connect to MySQL server. Details {e}')
+            self._log_manager.debug(f'Could not connect to MySQL server. Details {e}')
 
         return False
 
@@ -252,7 +254,7 @@ class MySQLWrapper:
                     cursor.execute(MySQLWrapperQueries.create_live_feed_entry_table_query(database_name))
             return True
         except Exception as e:
-            utils.get_logger().info(f'Could not initialize database \'{self._options.database_name}\'. Details {e}')
+            self._log_manager.info(f'Could not initialize database \'{self._options.database_name}\'. Details {e}')
             return False
 
     def _connect_to_database(self) -> Union[PooledMySQLConnection, MySQLConnection, CMySQLConnection]:
@@ -266,7 +268,7 @@ class MySQLWrapper:
 
             return connection
         except Error as e:
-            utils.get_logger().debug(f'Could not connect to MySQL database. Details {e}')
+            self._log_manager.debug(f'Could not connect to MySQL database. Details {e}')
 
         return Union[None]
 

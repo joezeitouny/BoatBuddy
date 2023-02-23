@@ -3,7 +3,7 @@ from threading import Thread, Event
 
 import yagmail
 
-from BoatBuddy import utils
+from BoatBuddy.log_manager import LogManager
 
 
 class EmailManagerStatus(Enum):
@@ -13,8 +13,9 @@ class EmailManagerStatus(Enum):
 
 
 class EmailManager:
-    def __init__(self, options):
+    def __init__(self, options, log_manager: LogManager):
         self._options = options
+        self._log_manager = log_manager
         self._exit_signal = Event()
         self._email_queue = []
         self._status = EmailManagerStatus.STARTING
@@ -22,7 +23,7 @@ class EmailManager:
         if self._options.email_module:
             self._email_thread = Thread(target=self._main_loop)
             self._email_thread.start()
-            utils.get_logger().info('Email module successfully started!')
+            self._log_manager.info('Email module successfully started!')
 
     def send_email(self, subject, body, attachments=None):
         if not self._options.email_module:
@@ -39,7 +40,7 @@ class EmailManager:
             self._email_thread.join()
 
         self._status = EmailManagerStatus.DOWN
-        utils.get_logger().info('Email manager instance is ready to be destroyed')
+        self._log_manager.info('Email manager instance is ready to be destroyed')
 
     def _main_loop(self):
         while not self._exit_signal.is_set():
@@ -54,12 +55,12 @@ class EmailManager:
                     yag.send(to=receiver, subject=subject, contents=email_entry['body'],
                              attachments=email_entry['attachments'])
                     self._email_queue.pop(0)
-                    utils.get_logger().info(f'Email successfully sent to {receiver} with subject \'{subject}\'!')
+                    self._log_manager.info(f'Email successfully sent to {receiver} with subject \'{subject}\'!')
 
                     if self._status != EmailManagerStatus.RUNNING:
                         self._status = EmailManagerStatus.RUNNING
                 except Exception as e:
                     if self._status != EmailManagerStatus.DOWN:
-                        utils.get_logger().info(f'Could not send email. Details {e}')
+                        self._log_manager.info(f'Could not send email. Details {e}')
 
                         self._status = EmailManagerStatus.DOWN

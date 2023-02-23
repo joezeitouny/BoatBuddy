@@ -73,9 +73,9 @@ class GPSPlugin(GenericPlugin):
     _events = None
     _stream = None
 
-    def __init__(self, options):
+    def __init__(self, options, log_manager):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, options)
+        GenericPlugin.__init__(self, options, log_manager)
 
         # Instance metrics
         self._gps_latitude = ''
@@ -90,7 +90,7 @@ class GPSPlugin(GenericPlugin):
         self._exit_signal = threading.Event()
         self._timer = threading.Timer(1, self.main_loop)
         self._timer.start()
-        utils.get_logger().info('GPS module successfully started!')
+        self._log_manager.info('GPS module successfully started!')
 
     def reset_instance_metrics(self):
         self._gps_latitude = ''
@@ -179,7 +179,7 @@ class GPSPlugin(GenericPlugin):
                 starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + starting_location.raw[
                     'address'].get('country', '')
             except Exception as e:
-                utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
+                self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
             log_summary_list.append(starting_location_str)
 
             ending_location_str = ''
@@ -189,7 +189,7 @@ class GPSPlugin(GenericPlugin):
                 ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + ending_location.raw[
                     'address'].get('country', '')
             except Exception as e:
-                utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
+                self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
             log_summary_list.append(ending_location_str)
 
             log_summary_list.append(utils.get_str_from_latitude(first_gps_latitude_entry))
@@ -227,7 +227,7 @@ class GPSPlugin(GenericPlugin):
     def main_loop(self):
         if self._exit_signal.is_set():
             self._plugin_status = PluginStatus.DOWN
-            utils.get_logger().info('GPS plugin instance is ready to be destroyed')
+            self._log_manager.info('GPS plugin instance is ready to be destroyed')
             return
 
         try:
@@ -243,7 +243,7 @@ class GPSPlugin(GenericPlugin):
                         raise ValueError(f'No data received')
 
                     str_data = raw_data.decode().rstrip('\r\n')
-                    utils.get_logger().debug(str_data)
+                    self._log_manager.debug(str_data)
                     self._process_data(str_data)
         except Exception as e:
             self._handle_connection_exception(e)
@@ -271,7 +271,7 @@ class GPSPlugin(GenericPlugin):
         # Determine the type of data
         if str(csv_list[0]).endswith('GLL') and csv_list[6] == 'A':
             if self._plugin_status != PluginStatus.RUNNING:
-                utils.get_logger().info(f'Connection to GPS module is established')
+                self._log_manager.info(f'Connection to GPS module is established')
                 self._plugin_status = PluginStatus.RUNNING
 
                 self.reset_instance_metrics()
@@ -282,7 +282,7 @@ class GPSPlugin(GenericPlugin):
             self._gps_latitude = utils.get_latitude(csv_list[1], csv_list[2])
             self._gps_longitude = utils.get_longitude(csv_list[3], csv_list[4])
             self._gps_fix_captured = True
-            utils.get_logger().debug(
+            self._log_manager.debug(
                 f'Detected GPS coordinates Latitude: {self._gps_latitude} Longitude: {self._gps_longitude}')
 
             geolocator = Nominatim(user_agent="BoatBuddy")
@@ -293,16 +293,16 @@ class GPSPlugin(GenericPlugin):
                     'address'].get(
                     'country', '')
             except Exception as e:
-                utils.get_logger().debug(f'Could not get location from GPS coordinates. Details: {e}')
+                self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
         elif str(csv_list[0]).endswith('VTG'):
             self._course_over_ground = utils.try_parse_float(csv_list[1])
             self._speed_over_ground = utils.try_parse_float(csv_list[5])
-            utils.get_logger().debug(
+            self._log_manager.debug(
                 f'Detected COG: {self._course_over_ground} SOG: {self._speed_over_ground}')
 
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
-            utils.get_logger().info(f'GPS system is unreachable. Details: {message}')
+            self._log_manager.info(f'GPS system is unreachable. Details: {message}')
 
             self._plugin_status = PluginStatus.DOWN
 
@@ -318,7 +318,7 @@ class GPSPlugin(GenericPlugin):
         self._exit_signal.set()
         if self._timer:
             self._timer.cancel()
-        utils.get_logger().info("GPS plugin worker thread notified...")
+        self._log_manager.info("GPS plugin worker thread notified...")
 
     def get_status(self) -> PluginStatus:
         return self._plugin_status

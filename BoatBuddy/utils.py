@@ -1,11 +1,8 @@
-import logging
 from enum import Enum
 
 from latloncalc.latlon import Latitude, Longitude
 
 from BoatBuddy import globals
-
-log_filename = ''
 
 
 class ModuleStatus(Enum):
@@ -70,30 +67,6 @@ def get_colour_for_key_value_in_dictionary(collection: dict, key: str, value: fl
                 break
 
     return colour_result
-
-
-def get_logger():
-    return logging.getLogger(globals.LOGGER_NAME)
-
-
-def set_log_filename(filename):
-    global log_filename
-    log_filename = filename
-
-
-def get_last_log_entries(count) -> []:
-    lines = []
-
-    try:
-        with open(log_filename) as file:
-            # loop to read iterate
-            # last n lines and print it
-            for line in (file.readlines()[-count:]):
-                lines.append(line.rstrip('\r\n'))
-    except Exception as e:
-        get_logger().error(f'Could not open log file with filename {log_filename}. Details: {e}')
-
-    return lines
 
 
 def get_key_value_list(keys, values) -> {}:

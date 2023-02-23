@@ -14,6 +14,7 @@ from BoatBuddy.clock_plugin import ClockPlugin
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
+from BoatBuddy.log_manager import LogManager
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.sound_manager import SoundManager, SoundType
@@ -43,9 +44,11 @@ class PluginManager:
     _is_session_active = False
     _session_timer = None
 
-    def __init__(self, options, notifications_manager: NotificationsManager, sound_manager: SoundManager,
+    def __init__(self, options, log_manager: LogManager, notifications_manager: NotificationsManager,
+                 sound_manager: SoundManager,
                  email_manager: EmailManager):
         self._options = options
+        self._log_manager = log_manager
         self._notifications_manager = notifications_manager
         self._sound_manager = sound_manager
         self._email_manager = email_manager
@@ -55,13 +58,13 @@ class PluginManager:
         else:
             self._output_directory = self._options.output_path
 
-        utils.get_logger().debug('Initializing plugins')
+        self._log_manager.debug('Initializing plugins')
 
         # initialize the common time plugin
-        self._clock_plugin = ClockPlugin(self._options)
+        self._clock_plugin = ClockPlugin(self._options, self._log_manager)
 
         if self._options.gps_module:
-            self._gps_plugin = GPSPlugin(self._options)
+            self._gps_plugin = GPSPlugin(self._options, self._log_manager)
 
             gps_connection_events = GPSPluginEvents()
             gps_connection_events.on_connect += self._on_connect_gps_plugin
@@ -70,7 +73,7 @@ class PluginManager:
 
         if self._options.victron_module:
             # initialize the Victron plugin
-            self._victron_plugin = VictronPlugin(self._options)
+            self._victron_plugin = VictronPlugin(self._options, self._log_manager)
 
             victron_connection_events = VictronPluginEvents()
             victron_connection_events.on_connect += self._on_connect_victron_plugin
@@ -79,7 +82,7 @@ class PluginManager:
 
         if self._options.nmea_module:
             # initialize the NMEA0183 plugin
-            self._nmea_plugin = NMEAPlugin(self._options)
+            self._nmea_plugin = NMEAPlugin(self._options, self._log_manager)
 
             nmea_connection_events = NMEAPluginEvents()
             nmea_connection_events.on_connect += self._on_connect_nmea_plugin
@@ -139,7 +142,7 @@ class PluginManager:
 
     def _write_collected_data_to_disk(self):
         # Write contents to disk
-        utils.get_logger().info("Taking a snapshot and persisting it to disk")
+        self._log_manager.info("Taking a snapshot and persisting it to disk")
 
         column_values = []
 
@@ -164,8 +167,8 @@ class PluginManager:
                 with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
                     file.write(f'{utils.get_comma_separated_string(column_values)}\r\n')
             except Exception as e:
-                utils.get_logger().error(f'Could not write to csv file with filename ' +
-                                         f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
+                self._log_manager.error(f'Could not write to csv file with filename ' +
+                                        f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
 
         if self._options.excel:
             # Add the name and price to the sheet
@@ -175,8 +178,8 @@ class PluginManager:
             try:
                 self._workbook.save(filename=f"{self._output_directory}{self._log_filename}.xlsx")
             except Exception as e:
-                utils.get_logger().error(f'Could not write to excel file with filename ' +
-                                         f'{self._output_directory}{self._log_filename}.xlsx. Details: {e}')
+                self._log_manager.error(f'Could not write to excel file with filename ' +
+                                        f'{self._output_directory}{self._log_filename}.xlsx. Details: {e}')
 
         if self._options.gpx:
             # If we have valid coordinates then append new GPX track point
@@ -192,8 +195,8 @@ class PluginManager:
                     with open(f"{self._output_directory}{self._log_filename}.gpx", 'w') as file:
                         file.write(f'{self._gpx.to_xml()}')
                 except Exception as e:
-                    utils.get_logger().error(f'Could not write to gpx file with filename ' +
-                                             f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
+                    self._log_manager.error(f'Could not write to gpx file with filename ' +
+                                            f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
             elif self._gps_plugin and self._gps_plugin.is_gps_fix_captured():
                 self._gpx_segment.points.append(
                     gpxpy.gpx.GPXTrackPoint(latitude=self._gps_plugin.get_last_latitude_entry(),
@@ -206,8 +209,8 @@ class PluginManager:
                     with open(f"{self._output_directory}{self._log_filename}.gpx", 'w') as file:
                         file.write(f'{self._gpx.to_xml()}')
                 except Exception as e:
-                    utils.get_logger().error(f'Could not write to gpx file with filename ' +
-                                             f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
+                    self._log_manager.error(f'Could not write to gpx file with filename ' +
+                                            f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
 
         # Sleep for the specified interval
         self._disk_write_timer = threading.Timer(self._options.session_disk_write_interval,
@@ -218,7 +221,7 @@ class PluginManager:
         # Play the session started chime
         self._sound_manager.play_sound_async(SoundType.SESSION_STARTED)
 
-        utils.get_logger().debug('Start collecting system metrics')
+        self._log_manager.debug('Start collecting system metrics')
 
         suffix = time.strftime("%Y%m%d%H%M%S", time.gmtime())
         self._log_filename = f'{self._options.filename_prefix}{suffix}'
@@ -241,8 +244,8 @@ class PluginManager:
                 with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
                     file.write(f'{utils.get_comma_separated_string(column_headers)}\r\n')
             except Exception as e:
-                utils.get_logger().error(f'Could not write to csv file with filename ' +
-                                         f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
+                self._log_manager.error(f'Could not write to csv file with filename ' +
+                                        f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
 
         if self._options.excel:
             # Create an Excel workbook
@@ -267,7 +270,7 @@ class PluginManager:
             self._gpx_segment = gpxpy.gpx.GPXTrackSegment()
             self._gpx_track.segments.append(self._gpx_segment)
 
-        utils.get_logger().info(f'New session initialized {self._log_filename}')
+        self._log_manager.info(f'New session initialized {self._log_filename}')
 
         self._disk_write_timer = threading.Timer(globals.INITIAL_SNAPSHOT_INTERVAL, self._write_collected_data_to_disk)
         self._disk_write_timer.start()
@@ -333,10 +336,10 @@ class PluginManager:
             try:
                 summary_workbook.save(filename=f"{self._output_directory}{self._summary_filename}.xlsx")
             except Exception as e:
-                utils.get_logger().error(f'Could not write to excel file with filename ' +
-                                         f'{self._output_directory}{self._log_filename}.xlsx. Details: {e}')
+                self._log_manager.error(f'Could not write to excel file with filename ' +
+                                        f'{self._output_directory}{self._log_filename}.xlsx. Details: {e}')
 
-        utils.get_logger().info(f'Session {self._log_filename} successfully completed!')
+        self._log_manager.info(f'Session {self._log_filename} successfully completed!')
 
         self._is_session_active = False
 
@@ -367,11 +370,11 @@ class PluginManager:
 
                 subject = f'{globals.APPLICATION_NAME} - (Session Report) for session {self._log_filename}'
                 self._email_manager.send_email(subject, body, attachments)
-                utils.get_logger().info(f'Email report for session {self._log_filename} successfully created and '
-                                        f'will be sent out shortly')
+                self._log_manager.info(f'Email report for session {self._log_filename} successfully created and '
+                                       f'will be sent out shortly')
             except Exception as e:
-                utils.get_logger().error(f'Error while sending email report for session {self._log_filename}. '
-                                         f'Details: {e}')
+                self._log_manager.error(f'Error while sending email report for session {self._log_filename}. '
+                                        f'Details: {e}')
 
     def get_status(self):
         if self._is_session_active:
@@ -385,7 +388,7 @@ class PluginManager:
         if self._session_timer:
             self._session_timer.cancel()
 
-        utils.get_logger().info(f'Waiting for worker threads to finalize...')
+        self._log_manager.info(f'Waiting for worker threads to finalize...')
 
         self._clock_plugin.finalize()
 
@@ -430,7 +433,8 @@ class PluginManager:
         return self._log_filename
 
     def get_session_clock_metrics(self):
-        return utils.get_key_value_list(self._clock_plugin.get_summary_headers(), self._clock_plugin.get_summary_values())
+        return utils.get_key_value_list(self._clock_plugin.get_summary_headers(),
+                                        self._clock_plugin.get_summary_values())
 
     def get_session_summary_metrics(self) -> {}:
         summary_key_value_list = {}

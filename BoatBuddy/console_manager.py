@@ -11,12 +11,13 @@ from rich.table import Table
 from rich.text import Text
 
 from BoatBuddy import utils, globals
+from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
+from BoatBuddy.log_manager import LogManager
 from BoatBuddy.notifications_manager import NotificationsManager, EntryType
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 from BoatBuddy.sound_manager import SoundManager, SoundType
-from BoatBuddy.database_manager import DatabaseManager
 
 
 class ConsoleManager:
@@ -30,25 +31,31 @@ class ConsoleManager:
 
         with self._console.status('[bold bright_yellow]Loading modules...[/bold bright_yellow]'):
             # Load the plugins one by one
+            self._console.print(f'[bright_yellow]Loading logging module...[/bright_yellow]')
+            self._log_manager = LogManager(options)
+            self._console.print(f'[green]Done[/green]')
+            time.sleep(0.2)
             self._console.print(f'[bright_yellow]Loading sound module...[/bright_yellow]')
-            self._sound_manager = SoundManager(options)
+            self._sound_manager = SoundManager(options, self._log_manager)
             self._console.print(f'[green]Done[/green]')
             time.sleep(0.2)
             self._console.print(f'[bright_yellow]Loading email module...[/bright_yellow]')
-            self._email_manager = EmailManager(options)
+            self._email_manager = EmailManager(options, self._log_manager)
             self._console.print(f'[green]Done[/green]')
             time.sleep(0.2)
             self._console.print(f'[bright_yellow]Loading notifications module...[/bright_yellow]')
-            self._notifications_manager = NotificationsManager(options, self._sound_manager, self._email_manager)
+            self._notifications_manager = NotificationsManager(options, self._log_manager, self._sound_manager,
+                                                               self._email_manager)
             self._console.print(f'[green]Done[/green]')
             time.sleep(0.2)
             self._console.print(f'[bright_yellow]Loading plugins module...[/bright_yellow]')
-            self._plugin_manager = PluginManager(options, self._notifications_manager, self._sound_manager,
-                                                 self._email_manager)
+            self._plugin_manager = PluginManager(options, self._log_manager, self._notifications_manager,
+                                                 self._sound_manager, self._email_manager)
             self._console.print(f'[green]Done[/green]')
             time.sleep(0.2)
             self._console.print(f'[bright_yellow]Loading database module...[/bright_yellow]')
-            self._database_manager = DatabaseManager(options, self._plugin_manager, self._notifications_manager)
+            self._database_manager = DatabaseManager(options, self._log_manager, self._plugin_manager,
+                                                     self._notifications_manager)
             self._console.print(f'[green]Done[/green]')
             time.sleep(0.2)
 
@@ -62,10 +69,10 @@ class ConsoleManager:
                     time.sleep(0.5)
                     live.update(self._make_layout())
         except KeyboardInterrupt:  # on keyboard interrupt...
-            utils.get_logger().warning(f'Ctrl+C signal detected!')
+            self._log_manager.warning(f'Ctrl+C signal detected!')
             self._console.print(f'[red]Ctrl+C signal detected![/red]')
         except Exception as e:
-            utils.get_logger().error(f'An unexpected error has occurred and application will shutdown. Details {e}')
+            self._log_manager.error(f'An unexpected error has occurred and application will shutdown. Details {e}')
             self._console.print(f'[red]An unexpected error has occurred and application will shutdown. '
                                 f'Details {e}[/red]')
         finally:
@@ -177,7 +184,8 @@ class ConsoleManager:
             if counter + 1 < len(summary_key_value_list):
                 next_key = list(summary_key_value_list.keys())[counter + 1]
                 summary_body_table.add_row(f'[bright_white]{key}: {summary_key_value_list[key]}[/bright_white]',
-                                           f'[bright_white]{next_key}: {summary_key_value_list[next_key]}[/bright_white]')
+                                           f'[bright_white]{next_key}: {summary_key_value_list[next_key]}'
+                                           f'[/bright_white]')
             else:
                 summary_body_table.add_row(f'[bright_white]{key}: {summary_key_value_list[key]}[/bright_white]', '')
             counter += 2
@@ -186,11 +194,10 @@ class ConsoleManager:
                                                    title=f'Session Summary')))
         return layout
 
-    @staticmethod
-    def _make_footer() -> Panel:
+    def _make_footer(self) -> Panel:
         footer_table = Table.grid(expand=True)
         footer_table.add_column()
-        last_log_entries = utils.get_last_log_entries(3)
+        last_log_entries = self._log_manager.get_last_log_entries(3)
         for entry in last_log_entries:
             colour = 'default'
             if 'INFO' in str(entry).upper():

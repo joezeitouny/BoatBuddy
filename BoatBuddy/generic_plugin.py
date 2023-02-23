@@ -1,5 +1,7 @@
 from enum import Enum
 
+from BoatBuddy.log_manager import LogManager
+
 
 class PluginStatus(Enum):
     STARTING = 'starting'
@@ -10,8 +12,9 @@ class PluginStatus(Enum):
 class GenericPlugin:
     _options = None
 
-    def __init__(self, options):
+    def __init__(self, options, log_manager: LogManager):
         self._options = options
+        self._log_manager = log_manager
         self._log_entries = []
 
     def get_metadata_headers(self):

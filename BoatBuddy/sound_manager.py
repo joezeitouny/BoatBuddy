@@ -4,7 +4,7 @@ from threading import Thread, Event, Lock
 
 from playsound import playsound
 
-from BoatBuddy import utils
+from BoatBuddy.log_manager import LogManager
 
 
 class SoundType(Enum):
@@ -17,8 +17,9 @@ class SoundType(Enum):
 
 class SoundManager:
 
-    def __init__(self, options):
+    def __init__(self, options, log_manager: LogManager):
         self._options = options
+        self._log_manager = log_manager
         self._sound_queue = []
         self._sound_thread = None
         self._exit_signal = Event()
@@ -27,7 +28,7 @@ class SoundManager:
         if self._options.sound_module:
             self._mutex = Lock()
             self._sound_thread.start()
-            utils.get_logger().info('Sound module successfully started!')
+            self._log_manager.info('Sound module successfully started!')
 
     def play_sound_async(self, sound_type: SoundType):
         if not self._options.sound_module:
@@ -61,7 +62,7 @@ class SoundManager:
         if self._sound_thread:
             self._sound_thread.join()
 
-        utils.get_logger().info('Sound manager instance is ready to be destroyed')
+        self._log_manager.info('Sound manager instance is ready to be destroyed')
 
     def _main_loop(self):
         while not self._exit_signal.is_set():
@@ -70,8 +71,7 @@ class SoundManager:
                 self._play_sound(self._sound_queue.pop(0))
             self._mutex.release()
 
-    @staticmethod
-    def _play_sound(filename):
+    def _play_sound(self, filename):
         full_path = os.path.dirname(os.path.abspath(__file__)) + filename
-        utils.get_logger().debug(f'Playing a sound with filename: {full_path}')
+        self._log_manager.debug(f'Playing a sound with filename: {full_path}')
         playsound(full_path)

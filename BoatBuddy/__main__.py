@@ -2,7 +2,6 @@ import json
 import logging
 import optparse
 import os
-from logging.handlers import RotatingFileHandler
 
 from BoatBuddy import globals, utils
 from BoatBuddy.console_manager import ConsoleManager
@@ -148,25 +147,5 @@ if __name__ == '__main__':
             print(f'Invalid argument: Notification cool-off interval need to be provided if the '
                   f'notification module is turned on')
         else:
-            if options.log_module:
-                # Initialize the logging module
-                log_filename = ''
-                if not options.output_path.endswith('/'):
-                    log_filename = options.output_path + '/' + globals.LOG_FILENAME
-                else:
-                    log_filename = options.output_path + globals.LOG_FILENAME
-
-                formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
-                # Limit log file size
-                file_handler = RotatingFileHandler(log_filename, encoding='utf-8', maxBytes=globals.LOG_FILE_SIZE,
-                                                   backupCount=0)
-                file_handler.setFormatter(formatter)
-                logging.getLogger(globals.LOGGER_NAME).setLevel(log_numeric_level)
-                logging.getLogger(globals.LOGGER_NAME).addHandler(file_handler)
-
-                utils.set_log_filename(log_filename)
-            else:
-                logging.getLogger(globals.LOGGER_NAME).disabled = True
-
             # Load the console manager
             ConsoleManager(options)

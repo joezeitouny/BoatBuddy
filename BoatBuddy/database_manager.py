@@ -2,7 +2,8 @@ import threading
 from enum import Enum
 from threading import Thread, Event, Timer
 
-from BoatBuddy import utils, globals
+from BoatBuddy import globals
+from BoatBuddy.log_manager import LogManager, LogEvents, LogType
 from BoatBuddy.mysql_wrapper import MySQLWrapper
 from BoatBuddy.notifications_manager import NotificationsManager
 from BoatBuddy.plugin_manager import PluginManager
@@ -44,8 +45,10 @@ class DatabaseEntry:
 
 
 class DatabaseManager:
-    def __init__(self, options, plugin_manager: PluginManager, notifications_manager: NotificationsManager):
+    def __init__(self, options, log_manager: LogManager, plugin_manager: PluginManager,
+                 notifications_manager: NotificationsManager):
         self._options = options
+        self._log_manager = log_manager
         self._plugin_manager = plugin_manager
         self._notifications_manager = notifications_manager
         self._exit_signal = Event()
@@ -54,14 +57,18 @@ class DatabaseManager:
         self._mutex = threading.Lock()
 
         if self._options.database_module:
+            log_events = LogEvents()
+            log_events.on_log += self._on_log
+            self._log_manager.register_for_events(log_events)
+
             if self._options.database_wrapper == DatabaseWrapper.MYSQL.value:
-                self._wrapper = MySQLWrapper(self._options)
+                self._wrapper = MySQLWrapper(self._options, self._log_manager)
             self._db_live_feed_timer = Timer(self._options.database_live_feed_entry_interval,
                                              self._live_feed_timer_callback)
             self._db_live_feed_timer.start()
             self._db_thread = Thread(target=self._main_loop)
             self._db_thread.start()
-            utils.get_logger().info('Database module successfully started!')
+            self._log_manager.info('Database module successfully started!')
 
     def _live_feed_timer_callback(self):
         if self._exit_signal.is_set():
@@ -104,6 +111,15 @@ class DatabaseManager:
                                          self._live_feed_timer_callback)
         self._db_live_feed_timer.start()
 
+    def _on_log(self, log_type: LogType, message):
+        columns = ['log_type', 'message']
+        values = [log_type.value, message]
+        database_entry = DatabaseEntry('log', DatabaseEntryType.ADD, columns, values)
+
+        self._mutex.acquire()
+        self._db_entries_queue.append(database_entry)
+        self._mutex.release()
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             if self._status != DatabaseManagerStatus.RUNNING:
@@ -143,4 +159,4 @@ class DatabaseManager:
             self._db_thread.join()
 
         self._status = DatabaseManagerStatus.DOWN
-        utils.get_logger().info('Database manager instance is ready to be destroyed')
+        self._log_manager.info('Database manager instance is ready to be destroyed')
