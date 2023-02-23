@@ -420,13 +420,11 @@ class PluginManager:
         return []
 
     def get_gps_plugin_metrics(self) -> {}:
-        entry_key_value_list = {}
         entry = self._gps_plugin.take_snapshot(store_entry=False)
         if entry is not None:
-            entry_key_value_list = utils.get_key_value_list(self._gps_plugin.get_metadata_headers(),
-                                                            entry.get_values())
+            return entry.get_values()
 
-        return entry_key_value_list
+        return []
 
     def get_session_name(self):
         return self._log_filename

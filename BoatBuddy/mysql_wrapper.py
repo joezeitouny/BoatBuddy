@@ -257,13 +257,14 @@ class MySQLWrapper:
 
     def _connect_to_database(self) -> Union[PooledMySQLConnection, MySQLConnection, CMySQLConnection]:
         try:
-            with connect(
-                    host=self._options.database_host,
-                    user=self._options.database_user,
-                    password=self._options.database_password,
-                    database=self._options.database_name
-            ) as connection:
-                return connection
+            connection = connect(
+                host=self._options.database_host,
+                user=self._options.database_user,
+                password=self._options.database_password,
+                database=self._options.database_name
+            )
+
+            return connection
         except Error as e:
             utils.get_logger().debug(f'Could not connect to MySQL database. Details {e}')
 
@@ -276,17 +277,24 @@ class MySQLWrapper:
         # Build the insert query
         insert_query = f'INSERT INTO {self._options.database_name}.{table_name} ('
 
-        for column in columns:
-            insert_query += f'{column},'
-        insert_query.removesuffix(',')
-        insert_query += f') VALUES ('
-        for value in values:
-            insert_query += f'{value},'
-        insert_query.removesuffix(',')
+        count = 0
+        insert_query_part2 = f') VALUES ('
+        refined_values = []
+        while count < len(columns):
+            if values[count] != '':
+                insert_query += f'{columns[count]},'
+                insert_query_part2 += f'%s,'
+                refined_values.append(values[count])
+            count += 1
+        insert_query = insert_query[:-1]
+        insert_query_part2 = insert_query_part2[:-1]
+        insert_query += insert_query_part2
         insert_query += f')'
 
         connection = self._connect_to_database()
-        connection.cursor().execute(insert_query)
+        connection.cursor().execute(insert_query, refined_values)
+        connection.commit()
+        connection.cursor().close()
         connection.close()
 
     def update_entry(self, table_name, columns, values):

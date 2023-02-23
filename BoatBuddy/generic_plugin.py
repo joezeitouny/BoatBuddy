@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class PluginStatus(Enum):
-    STARTING = 1
-    RUNNING = 2
-    DOWN = 3
+    STARTING = 'starting'
+    RUNNING = 'running'
+    DOWN = 'down'
 
 
 class GenericPlugin:
