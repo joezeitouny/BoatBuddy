@@ -2,13 +2,15 @@ import threading
 import time
 from enum import Enum
 
+from events import Events
+
 from BoatBuddy import globals, utils
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.log_manager import LogManager
 from BoatBuddy.sound_manager import SoundManager, SoundType
 
 
-class EntryType(Enum):
+class NotificationEntryType(Enum):
     METRIC = 'metric'
     MODULE = 'module'
 
@@ -18,9 +20,13 @@ class NotificationType(Enum):
     EMAIL = 'email'
 
 
+class NotificationEvents(Events):
+    __events__ = ('on_notification',)
+
+
 class NotificationEntry:
-    def __init__(self, timestamp, key, value, entry_type: EntryType, notification_types: [], severity, frequency,
-                 cool_off_interval, configuration_range=None, interval=None):
+    def __init__(self, timestamp, key, value, entry_type: NotificationEntryType, notification_types: [], severity,
+                 frequency, cool_off_interval, configuration_range=None, interval=None):
         self._timestamp = timestamp
         self._key = key
         self._value = value
@@ -70,6 +76,7 @@ class NotificationsManager:
         self._log_manager = log_manager
         self._sound_manager = sound_manager
         self._email_manager = email_manager
+        self._events = None
         self._notifications_queue = {}
         self._exit_signal = threading.Event()
         self._notifications_thread = threading.Thread(target=self._main_loop)
@@ -82,9 +89,9 @@ class NotificationsManager:
         if not self._options.notifications_module:
             return
 
-        if entry_type == EntryType.METRIC:
+        if entry_type == NotificationEntryType.METRIC:
             notifications_rules = self._options.metrics_notifications_rules.copy()
-        elif entry_type == EntryType.MODULE:
+        elif entry_type == NotificationEntryType.MODULE:
             notifications_rules = self._options.modules_notifications_rules.copy()
         else:
             return
@@ -100,7 +107,7 @@ class NotificationsManager:
         # Next, check if the value is falls within a range where a notification should occur
         notification_configuration = notifications_rules[key]
         for severity in notification_configuration:
-            if entry_type == EntryType.METRIC:
+            if entry_type == NotificationEntryType.METRIC:
                 configuration_range = notification_configuration[severity]['range']
                 if configuration_range[1] >= utils.try_parse_float(value) > configuration_range[0]:
                     notification_interval = None
@@ -115,7 +122,7 @@ class NotificationsManager:
                                                 severity, notification_configuration[severity]['frequency'],
                                                 cool_off_interval, configuration_range, notification_interval)
                     return
-            elif entry_type == EntryType.MODULE:
+            elif entry_type == NotificationEntryType.MODULE:
                 status = notification_configuration[severity]['status']
                 if value == status:
                     notification_interval = None
@@ -144,9 +151,9 @@ class NotificationsManager:
             self._delayed_add_notification_entry(time.time(), key, value, entry_type, notification_types, severity,
                                                  frequency, cool_off_interval, configuration_range, interval)
         elif key in self._notifications_queue and self._notifications_queue[key]['to_clear'] and \
-                (self._notifications_queue[key]['instance'].get_entry_type() == EntryType.METRIC and
+                (self._notifications_queue[key]['instance'].get_entry_type() == NotificationEntryType.METRIC and
                  self._notifications_queue[key]['instance'].get_configuration_range() == configuration_range or
-                 self._notifications_queue[key]['instance'].get_entry_type() == EntryType.MODULE and
+                 self._notifications_queue[key]['instance'].get_entry_type() == NotificationEntryType.MODULE and
                  self._notifications_queue[key]['instance'].get_value() == value):
             # If the item is in the queue and marked for clearance
             # Reset the item clearance status
@@ -158,9 +165,9 @@ class NotificationsManager:
             self._log_manager.info(f'Notification to clear canceled for '
                                    f' {notification_entry.get_entry_type().value} \'{key}\'.')
         elif key in self._notifications_queue and \
-                self._notifications_queue[key]['instance'].get_entry_type() == EntryType.METRIC and \
+                self._notifications_queue[key]['instance'].get_entry_type() == NotificationEntryType.METRIC and \
                 self._notifications_queue[key]['instance'].get_configuration_range() != configuration_range or \
-                self._notifications_queue[key]['instance'].get_entry_type() == EntryType.MODULE and \
+                self._notifications_queue[key]['instance'].get_entry_type() == NotificationEntryType.MODULE and \
                 self._notifications_queue[key]['instance'].get_value() != value:
             # If there is already an entry in the queue with the same key
             # and if the range provided is different as what is stored in memory
@@ -172,9 +179,9 @@ class NotificationsManager:
 
     def _process_notification(self, key, value, entry_type, notification_types, severity, frequency, cool_off_interval,
                               configuration_range, interval):
-        if entry_type == EntryType.MODULE:
+        if entry_type == NotificationEntryType.MODULE:
             self._log_manager.info(f'Processing notification for module \'{key}\'')
-        elif entry_type == EntryType.METRIC:
+        elif entry_type == NotificationEntryType.METRIC:
             self._log_manager.info(f'Processing notification for metric with key \'{key}\'')
 
         if NotificationType.SOUND.value in notification_types:
@@ -213,7 +220,7 @@ class NotificationsManager:
             subject = 'N/A'
             local_time = time.strftime('%H:%M:%S')
             local_date = time.strftime('%Y-%m-%d')
-            if entry_type == EntryType.MODULE:
+            if entry_type == NotificationEntryType.MODULE:
                 body = f'Notification triggered for the \'{key}\' module @ {local_time} on {local_date}:\r\n' \
                        f'Status: {value}\r\nSeverity: {severity}' + \
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
@@ -222,7 +229,7 @@ class NotificationsManager:
                        f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
                 subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
                           f'notification for \'{key}\' module'
-            elif entry_type == EntryType.METRIC:
+            elif entry_type == NotificationEntryType.METRIC:
                 body = f'Notification triggered for metric with key \'{key}\' @ {local_time} on {local_date}:\r\n' \
                        f'Value: {value}\r\nSeverity: {severity}' + \
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
@@ -232,13 +239,13 @@ class NotificationsManager:
                 subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
                           f'notification for metric \'{key}\''
             self._email_manager.send_email(subject, body)
-            if entry_type == EntryType.MODULE:
+            if entry_type == NotificationEntryType.MODULE:
                 self._log_manager.info(f'Email notification triggered '
                                        f'for the {key} module. Status: {value} '
                                        f'Severity: {severity} Frequency: {frequency} '
                                        f'Configuration Range: {configuration_range_str} Interval: {interval_str} '
                                        f'Cool Off Interval: {cool_off_interval}. An email will be sent out shortly!')
-            elif entry_type == EntryType.METRIC:
+            elif entry_type == NotificationEntryType.METRIC:
                 self._log_manager.info(f'Email notification triggered '
                                        f'for the following {entry_type.value}. Key: {key} Value: {value} '
                                        f'Severity: {severity} Frequency: {frequency} '
@@ -275,12 +282,16 @@ class NotificationsManager:
         self._notifications_queue[key] = {'instance': new_notification_entry, 'last_processed': None,
                                           'to_clear': False, 'clear_timestamp': None, 'notify_of_clearance': True}
 
-        if entry_type == EntryType.METRIC:
-            self._log_manager.info(f'New notification added for metric with key \'{key}\', value \'{value}\', ' +
-                                   f'severity \'{severity}\'')
-        elif entry_type == EntryType.MODULE:
-            self._log_manager.info(f'New notification added for module \'{key}\', status \'{value}\', ' +
-                                   f'severity \'{severity}\'')
+        message = ''
+        if entry_type == NotificationEntryType.METRIC:
+            message = f'New notification added for metric with key \'{key}\', value \'{value}\', ' + \
+                      f'severity \'{severity}\''
+        elif entry_type == NotificationEntryType.MODULE:
+            message = f'New notification added for module \'{key}\', status \'{value}\', ' + \
+                      f'severity \'{severity}\''
+        self._log_manager.info(message)
+        if self._events:
+            self._events.on_notification(entry_type, message)
 
     def _delayed_clear_notification_entry(self, key):
         if key not in self._notifications_queue:
@@ -306,8 +317,10 @@ class NotificationsManager:
             self._process_clear_notification(key, notification_entry.get_notification_types(),
                                              notification_entry.get_severity())
 
-        self._log_manager.info(f'Cleared notification '
-                               f'for {notification_entry.get_entry_type().value} with key \'{key}\'')
+        message = f'Cleared notification for {notification_entry.get_entry_type().value} with key \'{key}\''
+        self._log_manager.info(message)
+        if self._events:
+            self._events.on_notification(notification_entry.get_entry_type(), message)
 
         # Remove the entry from memory
         self._notifications_queue.pop(key)
@@ -371,3 +384,6 @@ class NotificationsManager:
         if len(self._notifications_queue) > 0:
             self._notifications_queue.clear()
         self._mutex.release()
+
+    def register_for_events(self, events):
+        self._events = events

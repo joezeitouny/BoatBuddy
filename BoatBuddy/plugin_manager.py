@@ -8,6 +8,7 @@ from time import mktime
 import gpxpy
 import gpxpy.gpx
 import openpyxl
+from events import Events
 
 from BoatBuddy import globals, utils
 from BoatBuddy.clock_plugin import ClockPlugin
@@ -16,10 +17,14 @@ from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
 from BoatBuddy.log_manager import LogManager
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
-from BoatBuddy.notifications_manager import NotificationsManager, EntryType
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 from BoatBuddy.sound_manager import SoundManager, SoundType
 from BoatBuddy.utils import ModuleStatus
 from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
+
+
+class PluginManagerEvents(Events):
+    __events__ = ('on_snapshot', 'on_session_report')
 
 
 class PluginManagerStatus(Enum):
@@ -43,6 +48,7 @@ class PluginManager:
     _disk_write_timer = None
     _is_session_active = False
     _session_timer = None
+    _events = None
 
     def __init__(self, options, log_manager: LogManager, notifications_manager: NotificationsManager,
                  sound_manager: SoundManager,
@@ -100,32 +106,32 @@ class PluginManager:
                 self._session_timer.start()
 
     def _on_connect_gps_plugin(self):
-        self._notifications_manager.notify('gps', ModuleStatus.ONLINE.value, EntryType.MODULE)
+        self._notifications_manager.notify('gps', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
             self._start_session()
 
     def _on_connect_victron_plugin(self):
-        self._notifications_manager.notify('victron', ModuleStatus.ONLINE.value, EntryType.MODULE)
+        self._notifications_manager.notify('victron', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
             self._start_session()
 
     def _on_connect_nmea_plugin(self):
-        self._notifications_manager.notify('nmea', ModuleStatus.ONLINE.value, EntryType.MODULE)
+        self._notifications_manager.notify('nmea', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self._start_session()
 
     def _on_disconnect_gps_plugin(self):
-        self._notifications_manager.notify('gps', ModuleStatus.OFFLINE.value, EntryType.MODULE)
+        self._notifications_manager.notify('gps', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
             self._end_session()
 
     def _on_disconnect_victron_plugin(self):
-        self._notifications_manager.notify('victron', ModuleStatus.OFFLINE.value, EntryType.MODULE)
+        self._notifications_manager.notify('victron', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
             self._end_session()
 
     def _on_disconnect_nmea_plugin(self):
-        self._notifications_manager.notify('nmea', ModuleStatus.OFFLINE.value, EntryType.MODULE)
+        self._notifications_manager.notify('nmea', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self._end_session()
 
@@ -144,35 +150,35 @@ class PluginManager:
         # Write contents to disk
         self._log_manager.info("Taking a snapshot and persisting it to disk")
 
-        column_values = []
+        values = []
 
         self._clock_plugin.take_snapshot(store_entry=True)
-        column_values += self._clock_plugin.get_metadata_values()
+        values += self._clock_plugin.get_metadata_values()
 
         if self._gps_plugin:
             self._gps_plugin.take_snapshot(store_entry=True)
-            column_values += self._gps_plugin.get_metadata_values()
+            values += self._gps_plugin.get_metadata_values()
 
         if self._nmea_plugin:
             self._nmea_plugin.take_snapshot(store_entry=True)
-            column_values += self._nmea_plugin.get_metadata_values()
+            values += self._nmea_plugin.get_metadata_values()
 
         if self._victron_plugin:
             self._victron_plugin.take_snapshot(store_entry=True)
-            column_values += self._victron_plugin.get_metadata_values()
+            values += self._victron_plugin.get_metadata_values()
 
         # Append the last added entry to the file on disk
         if self._options.csv:
             try:
                 with open(f"{self._output_directory}{self._log_filename}.csv", "a") as file:
-                    file.write(f'{utils.get_comma_separated_string(column_values)}\r\n')
+                    file.write(f'{utils.get_comma_separated_string(values)}\r\n')
             except Exception as e:
                 self._log_manager.error(f'Could not write to csv file with filename ' +
                                         f'{self._output_directory}{self._log_filename}.csv. Details: {e}')
 
         if self._options.excel:
             # Add the name and price to the sheet
-            self._sheet.append(column_values)
+            self._sheet.append(values)
 
             # Save the workbook
             try:
@@ -211,6 +217,9 @@ class PluginManager:
                 except Exception as e:
                     self._log_manager.error(f'Could not write to gpx file with filename ' +
                                             f'{self._output_directory}{self._log_filename}.gpx. Details: {e}')
+
+        if self._events:
+            self._events.on_snapshot(self._log_filename, values)
 
         # Sleep for the specified interval
         self._disk_write_timer = threading.Timer(self._options.session_disk_write_interval,
@@ -338,6 +347,9 @@ class PluginManager:
             except Exception as e:
                 self._log_manager.error(f'Could not write to excel file with filename ' +
                                         f'{self._output_directory}{self._log_filename}.xlsx. Details: {e}')
+
+            if self._events:
+                self._events.on_session_report(self._log_filename, log_summary_list)
 
         self._log_manager.info(f'Session {self._log_filename} successfully completed!')
 
@@ -479,3 +491,6 @@ class PluginManager:
             return PluginStatus.DOWN
 
         return self._gps_plugin.get_status()
+
+    def register_for_events(self, events):
+        self._events = events

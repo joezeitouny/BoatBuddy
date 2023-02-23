@@ -9,14 +9,13 @@ from BoatBuddy.log_manager import LogManager
 class MySQLWrapperQueries:
 
     @staticmethod
-    def create_events_table_query(database_name):
+    def create_event_table_query(database_name):
         query = f"""
-                CREATE TABLE {database_name}.`events` (
+                CREATE TABLE {database_name}.`event` (
                   `id` int NOT NULL AUTO_INCREMENT, 
                   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP, 
                   `type` varchar(10) NOT NULL, 
-                  `name` varchar(200) NOT NULL, 
-                  `details` varchar(1000) NOT NULL, 
+                  `message` varchar(1000) NOT NULL,                    
                   PRIMARY KEY (`id`)
                 )
                 """
@@ -28,7 +27,7 @@ class MySQLWrapperQueries:
                 CREATE TABLE {database_name}.`log` (
                   `id` int NOT NULL AUTO_INCREMENT,
                   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                  `log_type` varchar(100) NOT NULL,
+                  `type` varchar(100) NOT NULL,
                   `message` varchar(10000) NOT NULL,
                   PRIMARY KEY (`id`)
                 )
@@ -39,12 +38,13 @@ class MySQLWrapperQueries:
     def create_session_table_query(database_name):
         query = f"""
                 CREATE TABLE {database_name}.`session` (
-                  `id` varchar(200) NOT NULL,
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `session_id` varchar(1000) NOT NULL,                  
                   `start_time_utc` datetime NOT NULL,
                   `start_time_local` datetime NOT NULL,
                   `end_time_utc` datetime NOT NULL,
                   `end_time_local` datetime NOT NULL,
-                  `duration` int NOT NULL,
+                  `duration` varchar(100) NOT NULL,
                   `ss_start_location` varchar(200) DEFAULT NULL,
                   `ss_end_location` varchar(200) DEFAULT NULL,
                   `ss_start_gps_lat` varchar(100) DEFAULT NULL,
@@ -99,7 +99,8 @@ class MySQLWrapperQueries:
     def create_session_entry_table_query(database_name):
         query = f"""
                     CREATE TABLE {database_name}.`session_entry` (
-                      `id` varchar(200) NOT NULL,
+                      `id` int NOT NULL AUTO_INCREMENT,
+                      `session_id` varchar(1000) NOT NULL,
                       `time_utc` datetime NOT NULL,
                       `time_local` datetime NOT NULL,
                       `ss_gps_lat` varchar(100) DEFAULT NULL,
@@ -247,7 +248,7 @@ class MySQLWrapper:
                 create_db_query = f'CREATE DATABASE {database_name}'
                 with connection.cursor() as cursor:
                     cursor.execute(create_db_query)
-                    cursor.execute(MySQLWrapperQueries.create_events_table_query(database_name))
+                    cursor.execute(MySQLWrapperQueries.create_event_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_log_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_session_entry_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_session_table_query(database_name))
@@ -298,6 +299,3 @@ class MySQLWrapper:
         connection.commit()
         connection.cursor().close()
         connection.close()
-
-    def update_entry(self, table_name, columns, values):
-        pass

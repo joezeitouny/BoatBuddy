@@ -15,7 +15,7 @@ from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.log_manager import LogManager
-from BoatBuddy.notifications_manager import NotificationsManager, EntryType
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 from BoatBuddy.sound_manager import SoundManager, SoundType
 
@@ -224,7 +224,7 @@ class ConsoleManager:
             else:
                 table.add_row(f'[bright_white]{key}: ' +
                               f'{key_value_list[key]}[/bright_white]')
-            self._notifications_manager.notify(key, key_value_list[key], EntryType.METRIC)
+            self._notifications_manager.notify(key, key_value_list[key], NotificationEntryType.METRIC)
         return Panel(table, title=title, border_style=border_style, box=box.ROUNDED)
 
     def _make_layout(self) -> Layout:
