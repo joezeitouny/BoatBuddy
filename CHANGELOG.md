@@ -1,3 +1,13 @@
+## 0.5.6 (2023-02-24)
+
+* Improved the email, logging, plugin and notifications modules to generate events for the database manager to consume
+* Moved all modules initializations to be handled inside the ConsoleManager class and added Rich status UI elements to
+  inform the user about the loading process
+* Created a log manager class and consolidated all logging related logic in it
+* Created a DatabaseManager class to help with database related tasks
+* Added a feature that allows the application to write all logs, events, sessions and live feed to a MySQL database
+* Version bump to 0.5.6
+
 ## 0.5.5 (2023-02-22)
 
 * Moved the modules initialisation step to the Console Manager class
