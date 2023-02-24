@@ -287,16 +287,17 @@ class MySQLWrapper:
                 event_scheduler_query = f'SET GLOBAL event_scheduler = ON;'
                 with connection.cursor() as cursor:
                     cursor.execute(create_db_query)
-                    cursor.execute(event_scheduler_query)
                     cursor.execute(MySQLWrapperQueries.create_event_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_log_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_session_entry_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_session_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_live_feed_entry_table_query(database_name))
-                    cursor.execute(MySQLWrapperQueries.create_event_for_log_table_query(
-                        database_name, self._options.database_log_table_limit))
-                    cursor.execute(MySQLWrapperQueries.create_event_for_event_table_query(
-                        database_name, self._options.database_event_table_limit))
+                    if self._options.database_cleanup_events:
+                        cursor.execute(event_scheduler_query)
+                        cursor.execute(MySQLWrapperQueries.create_event_for_log_table_query(
+                            database_name, self._options.database_log_table_limit))
+                        cursor.execute(MySQLWrapperQueries.create_event_for_event_table_query(
+                            database_name, self._options.database_event_table_limit))
 
             return True
         except Exception as e:
