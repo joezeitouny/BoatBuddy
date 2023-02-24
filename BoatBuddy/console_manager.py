@@ -29,39 +29,44 @@ class ConsoleManager:
         self._console = Console()
         self._console.print(f'[bright_yellow]Application is starting up. Please wait...[/bright_yellow]')
 
-        with self._console.status('[bold bright_yellow]Loading modules...[/bold bright_yellow]'):
-            # Load the plugins one by one
-            self._console.print(f'[bright_yellow]Loading logging module...[/bright_yellow]')
+        with self._console.status('[bold bright_yellow]Loading logging module...[/bold bright_yellow]') as status:
+            time.sleep(0.2)
             self._log_manager = LogManager(options)
-            self._console.print(f'[green]Done[/green]')
+            self._console.print(f'[green]Loading logging module...Done[/green]')
+
+        with self._console.status('[bold bright_yellow]Loading sound module...[/bold bright_yellow]'):
             time.sleep(0.2)
-            self._console.print(f'[bright_yellow]Loading sound module...[/bright_yellow]')
             self._sound_manager = SoundManager(options, self._log_manager)
-            self._console.print(f'[green]Done[/green]')
+            self._console.print(f'[green]Loading sound module...Done[/green]')
+
+        with self._console.status('[bold bright_yellow]Loading email module...[/bold bright_yellow]'):
             time.sleep(0.2)
-            self._console.print(f'[bright_yellow]Loading email module...[/bright_yellow]')
             self._email_manager = EmailManager(options, self._log_manager)
-            self._console.print(f'[green]Done[/green]')
+            self._console.print(f'[green]Loading email module...Done[/green]')
+
+        with self._console.status('[bold bright_yellow]Loading notifications module...[/bold bright_yellow]'):
             time.sleep(0.2)
-            self._console.print(f'[bright_yellow]Loading notifications module...[/bright_yellow]')
             self._notifications_manager = NotificationsManager(options, self._log_manager, self._sound_manager,
                                                                self._email_manager)
-            self._console.print(f'[green]Done[/green]')
+            self._console.print(f'[green]Loading notifications module...Done[/green]')
+
+        with self._console.status('[bold bright_yellow]Loading plugins module...[/bold bright_yellow]'):
             time.sleep(0.2)
-            self._console.print(f'[bright_yellow]Loading plugins module...[/bright_yellow]')
             self._plugin_manager = PluginManager(options, self._log_manager, self._notifications_manager,
                                                  self._sound_manager, self._email_manager)
-            self._console.print(f'[green]Done[/green]')
+            self._console.print(f'[green]Loading plugins module...Done[/green]')
+
+        with self._console.status('[bold bright_yellow]Loading database module...[/bold bright_yellow]'):
             time.sleep(0.2)
-            self._console.print(f'[bright_yellow]Loading database module...[/bright_yellow]')
             self._database_manager = DatabaseManager(options, self._log_manager, self._plugin_manager,
                                                      self._notifications_manager)
-            self._console.print(f'[green]Done[/green]')
-            time.sleep(0.2)
+            self._console.print(f'[green]Loading database module...Done[/green]')
 
-            self._console.print(f'[bright_yellow]Firing up console UI...[/bright_yellow]')
+        with self._console.status(f'[bold bright_yellow]Firing up console UI...[/bold bright_yellow]'):
+            time.sleep(0.2)
             # Play the application started chime
             self._sound_manager.play_sound_async(SoundType.APPLICATION_STARTED)
+            self._console.print(f'[green]Firing up console UI...Done[/green]')
 
         try:
             with Live(self._make_layout(), refresh_per_second=4) as live:
@@ -101,7 +106,7 @@ class ConsoleManager:
         local_time_renderable = None
         if status == PluginManagerStatus.IDLE:
             status_style = Style(color='bright_white', bgcolor='default')
-            status_renderable = Spinner('simpleDots', text=Text('Idle', style=status_style))
+            status_renderable = Spinner('dots', text=Text('Idle', style=status_style))
             application_info_style = Style(color='blue', bgcolor='default', bold=True)
             application_info_renderable = Text(f'{application_name} ({application_version})',
                                                style=application_info_style)

@@ -22,6 +22,25 @@ class MySQLWrapperQueries:
         return query
 
     @staticmethod
+    def create_event_for_event_table_query(database_name, size_limit):
+        query = f"""
+                    CREATE EVENT {database_name}.`event_cleanup` ON SCHEDULE EVERY 1 MINUTE
+                    DO BEGIN
+                            DECLARE cnt INTEGER;
+                            DECLARE min_id INTEGER;
+                            DECLARE delta INTEGER;
+
+                            SET cnt = (SELECT COUNT(*) FROM {database_name}.log);        
+                            SET min_id = (SELECT MIN(id) FROM {database_name}.log);
+                            IF cnt > {size_limit} THEN
+                                SET delta = cnt - {size_limit};        	
+                                DELETE FROM {database_name}.log WHERE id < min_id + delta;
+                            END IF;
+                    END;
+                    """
+        return query
+
+    @staticmethod
     def create_log_table_query(database_name):
         query = f"""
                 CREATE TABLE {database_name}.`log` (
@@ -31,6 +50,25 @@ class MySQLWrapperQueries:
                   `message` varchar(10000) NOT NULL,
                   PRIMARY KEY (`id`)
                 )
+                """
+        return query
+
+    @staticmethod
+    def create_event_for_log_table_query(database_name, size_limit):
+        query = f"""
+                CREATE EVENT {database_name}.`log_cleanup` ON SCHEDULE EVERY 1 MINUTE
+                DO BEGIN
+                        DECLARE cnt INTEGER;
+                        DECLARE min_id INTEGER;
+                        DECLARE delta INTEGER;
+                        
+                        SET cnt = (SELECT COUNT(*) FROM {database_name}.log);        
+                        SET min_id = (SELECT MIN(id) FROM {database_name}.log);
+                        IF cnt > {size_limit} THEN
+                            SET delta = cnt - {size_limit};        	
+                            DELETE FROM {database_name}.log WHERE id < min_id + delta;
+                        END IF;
+                END;
                 """
         return query
 
@@ -246,13 +284,20 @@ class MySQLWrapper:
             ) as connection:
                 database_name = self._options.database_name
                 create_db_query = f'CREATE DATABASE {database_name}'
+                event_scheduler_query = f'SET GLOBAL event_scheduler = ON;'
                 with connection.cursor() as cursor:
                     cursor.execute(create_db_query)
+                    cursor.execute(event_scheduler_query)
                     cursor.execute(MySQLWrapperQueries.create_event_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_log_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_session_entry_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_session_table_query(database_name))
                     cursor.execute(MySQLWrapperQueries.create_live_feed_entry_table_query(database_name))
+                    cursor.execute(MySQLWrapperQueries.create_event_for_log_table_query(
+                        database_name, self._options.database_log_table_limit))
+                    cursor.execute(MySQLWrapperQueries.create_event_for_event_table_query(
+                        database_name, self._options.database_event_table_limit))
+
             return True
         except Exception as e:
             self._log_manager.info(f'Could not initialize database \'{self._options.database_name}\'. Details {e}')

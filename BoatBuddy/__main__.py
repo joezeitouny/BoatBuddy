@@ -52,6 +52,8 @@ if __name__ == '__main__':
             options.database_wrapper = data['database']['database_wrapper']
             options.database_live_feed_entry_interval = \
                 utils.try_parse_int(data['database']['database_live_feed_entry_interval'])
+            options.database_log_table_limit = utils.try_parse_int(data['database']['database_log_table_limit'])
+            options.database_event_table_limit = utils.try_parse_int(data['database']['database_event_table_limit'])
             options.console_show_victron_plugin = utils.try_parse_bool(data['console']['console_show_victron_plugin'])
             options.console_show_nmea_plugin = utils.try_parse_bool(data['console']['console_show_nmea_plugin'])
             options.console_show_gps_plugin = utils.try_parse_bool(data['console']['console_show_gps_plugin'])

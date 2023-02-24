@@ -27,7 +27,9 @@
         "database_user": "user123",
         "database_password": "password123",
         "database_wrapper": "mysql",
-        "database_live_feed_entry_interval" : 60
+        "database_live_feed_entry_interval": 60,
+        "database_log_table_limit": 1000,
+        "database_event_table_limit": 1000
     },
     "console": {
         "console_show_victron_plugin": "True",
