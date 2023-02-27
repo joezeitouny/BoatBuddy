@@ -3,9 +3,11 @@ import logging
 import optparse
 import os
 
+
 from BoatBuddy import globals, utils
 from BoatBuddy.console_manager import ConsoleManager
 from BoatBuddy.database_manager import DatabaseWrapper
+from BoatBuddy.flask_manager import FlaskManager
 
 if __name__ == '__main__':
     # Create an options list using the Options Parser
@@ -29,6 +31,7 @@ if __name__ == '__main__':
             # a dictionary
             data = json.load(f)
 
+            options.web_app = utils.try_parse_bool(data['web_app'])
             options.output_path = data['output_path']
             options.tmp_path = data['tmp_path']
             options.filename_prefix = data['filename_prefix']
@@ -150,5 +153,8 @@ if __name__ == '__main__':
             print(f'Invalid argument: Notification cool-off interval need to be provided if the '
                   f'notification module is turned on')
         else:
-            # Load the console manager
-            ConsoleManager(options)
+            if options.web_app:
+                FlaskManager(options)
+            else:
+                # Load the console manager
+                ConsoleManager(options)

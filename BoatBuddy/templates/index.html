@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+{% if last_event is defined and last_event|length %}
+<div id="alert_section" class="alert alert-warning" role="alert">
+    {{ last_event }}
+</div>
+{% endif %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <!-- Victron column-->
+            <div class="card m-auto">
+                <h5 class="card-title">Victron ESS</h5>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                Battery SOC
+                                <canvas id="battery_soc_gauge"></canvas>
+                            </div>
+                            <div class="col">
+                                <div id="starter_battery_voltage_gauge"></div>
+                            </div>
+                            <div class="col">
+                                <div id="pv_power_gauge"></div>
+                            </div>
+                            <div class="col">
+                                Fuel Tank Level
+                                <canvas id="fuel_tank_gauge"></canvas>
+                            </div>
+                            <div class="col">
+                                Water Tank Level
+                                <canvas id="water_tank_gauge"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <!-- NMEA0183 column-->
+            <div class="card m-auto">
+                <h5 class="card-title">NMEA0183 Network</h5>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <div id="wind_speed_gauge"></div>
+                            </div>
+                            <div class="col">
+                                <div id="wind_speed_line"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <!-- Session column-->
+            <div class="card m-auto">
+                <h5 class="card-title">Session</h5>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+
+                            </div>
+                            <div class="col">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+var gauge_options = {
+  angle: 0.15, // The span of the gauge arc
+  lineWidth: 0.44, // The line thickness
+  radiusScale: 1, // Relative radius
+  pointer: {
+    length: 0.6, // // Relative to gauge radius
+    strokeWidth: 0.035, // The thickness
+    color: '#000000' // Fill color
+  },
+  limitMax: false,     // If false, max value increases automatically if value > maxValue
+  limitMin: false,     // If true, the min value of the gauge will be fixed
+  percentColors: [[0.0, "#ff0000" ], [0.5, "#f9c802"], [1, "#a9d70b"]], // !!!!
+  colorStart: '#6FADCF',   // Colors
+  colorStop: '#8FC0DA',    // just experiment with them
+  strokeColor: '#E0E0E0',  // to see which ones work best for you
+  generateGradient: true,
+  highDpiSupport: true,     // High resolution support
+  staticLabels: {
+  font: "10px sans-serif",  // Specifies font
+  labels: [25, 50, 75, 100],  // Print labels at these values
+  color: "#000000",  // Optional: Label text color
+  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
+	},
+};
+
+var target = document.getElementById('battery_soc_gauge'); // your canvas element
+var battery_soc_gauge = new Gauge(target).setOptions(gauge_options); // create sexy gauge!
+battery_soc_gauge.maxValue = 100; // set max gauge value
+battery_soc_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+battery_soc_gauge.animationSpeed = 32; // set animation speed (32 is default value)
+
+target = document.getElementById('fuel_tank_gauge'); // your canvas element
+var fuel_tank_gauge = new Gauge(target).setOptions(gauge_options); // create sexy gauge!
+fuel_tank_gauge.maxValue = 100; // set max gauge value
+fuel_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+fuel_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
+
+target = document.getElementById('water_tank_gauge'); // your canvas element
+var water_tank_gauge = new Gauge(target).setOptions(gauge_options); // create sexy gauge!
+water_tank_gauge.maxValue = 100; // set max gauge value
+water_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+water_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
+
+function refreshData() {
+    $.ajax({
+        type: 'GET',
+        url: '/data',
+        success: function(data) {
+            // Update the relevant part of the webpage with the new data
+            document.getElementById('curr_time_id').innerHTML = data['curr_time'];
+            battery_soc_gauge.set(data['battery_soc']);
+            fuel_tank_gauge.set(data['fuel_tank']);
+            water_tank_gauge.set(data['water_tank']);
+        }
+    });
+}
+
+$(document).ready(function() {
+    // Call the refreshData function every 1 seconds
+    setInterval(refreshData, 1000);
+});
+
+</script>
+
+{% endblock %}

@@ -28,8 +28,8 @@ class PluginManagerEvents(Events):
 
 
 class PluginManagerStatus(Enum):
-    IDLE = 1
-    SESSION_ACTIVE = 2
+    IDLE = 'idle'
+    SESSION_ACTIVE = 'session_active'
 
 
 class PluginManager:

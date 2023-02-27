@@ -1,4 +1,5 @@
 {
+    "web_app": "True",
     "output_path": "",
     "tmp_path": "",
     "filename_prefix": "Trip_",
