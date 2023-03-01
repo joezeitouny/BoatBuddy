@@ -1,17 +1,17 @@
 import time
-from rich.console import Console
 import webbrowser
+
 from flask import render_template, jsonify
-import threading
+from rich.console import Console
 
 from BoatBuddy import app
-from BoatBuddy import utils, globals
+from BoatBuddy import utils
 from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.log_manager import LogManager
-from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
-from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
+from BoatBuddy.notifications_manager import NotificationsManager
+from BoatBuddy.plugin_manager import PluginManager
 from BoatBuddy.sound_manager import SoundManager, SoundType
 
 
@@ -152,10 +152,14 @@ def get_data():
     victron_status = ''
     victron_status_colour = ''
     battery_soc = 0
+    starter_battery_voltage = 0.0
     fuel_tank = 0
     water_tank = 0
+    pv_max_power = 0
+    pv_power = 0
     if application_modules.get_options().victron_module:
         victron_module = True
+        pv_max_power = application_modules.get_options().victron_pv_max_power
         # Populate the victron layout
         plugin_status = application_modules.get_plugin_manager().get_victron_plugin_status()
         victron_status = get_plugin_status_str(plugin_status)
@@ -163,6 +167,8 @@ def get_data():
         victron_metrics = application_modules.get_plugin_manager().get_victron_plugin_metrics()
         if victron_metrics and len(victron_metrics) > 0:
             battery_soc = utils.try_parse_int(victron_metrics[11])
+            starter_battery_voltage = utils.try_parse_float(victron_metrics[15])
+            pv_power = utils.try_parse_int(victron_metrics[13])
             fuel_tank = utils.try_parse_int(victron_metrics[16])
             water_tank = utils.try_parse_int(victron_metrics[18])
 
@@ -193,5 +199,8 @@ def get_data():
     #                                                   ui_filtered_nmea_plugin_metrics,
     #                                                   border_style))
 
-    data = {'curr_time': curr_time, 'battery_soc': battery_soc, 'fuel_tank': fuel_tank, 'water_tank': water_tank}
+    data = {'curr_time': curr_time, 'victron_module': victron_module, 'battery_soc': battery_soc,
+            'victron_status': victron_status, 'victron_status_colour': victron_status_colour,
+            'fuel_tank': fuel_tank, 'water_tank': water_tank,
+            'starter_battery_voltage': starter_battery_voltage, 'pv_max_power': pv_max_power, 'pv_power': pv_power}
     return jsonify(data)

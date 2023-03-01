@@ -10,57 +10,45 @@
     <script src="{{url_for('static', filename= 'gauge.min.js')}}"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{url_for('static', filename = 'main.css')}}" type="text/css">
-
-    {% if title %}
-    <title>BoatBuddy-{{title}}</title>
-    {% else %}
-    <title>BoatBuddy</title>
-    {% endif %}
+    <title>{{application_name}} (version {{application_version}})</title>
 <!--    <meta http-equiv="refresh" content="2" >-->
 </head>
-<body>
+<body class=".bg-secondary">
 <nav class="navbar navbar-expand-lg bg-primary">
-  <div class="container-fluid">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <a class="navbar-brand" href="#">{{application_name}} ({{application_version}})</a>
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link navbar-text" href="#">Events</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link navbar-text">Log</a>
-        </li>
-      </ul>
-        Local time:
-        <div id="curr_time_id" class="navbar-text me-4" style="bold">
-        </div>
-      <form class="d-flex" role="form">
-        <button id="session_button_id" class="btn btn-danger" type="submit">
-            {% if status is defined and status|length and status == 'idle' %}
-                Start Session
-            {% else %}
-                End Session
-            {% endif %}
+    <div class="container-fluid">
+        <button aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+                data-bs-target="#navbarTogglerDemo03" data-bs-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
         </button>
-      </form>
+        <a class="navbar-brand" href="#">{{application_name}} (version {{application_version}})</a>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link navbar-text" href="#">Events</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link navbar-text" href="#">Log</a>
+                </li>
+            </ul>
+        </div>
+        <div class="navbar-text mx-2">Local time:</div>
+        <div class="navbar-text" id="curr_time_id" style="bold">
+        </div>
+        <form class="d-flex mx-2" role="form">
+            <button class="btn btn-danger" id="session_button_id" type="submit">
+                {% if status is defined and status|length and status == 'idle' %}
+                Start Session
+                {% else %}
+                End Session
+                {% endif %}
+            </button>
+        </form>
     </div>
-  </div>
 </nav>
 
 <main>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12 col-sm-12 col-xm-12">
-                <div class="ml-auto mr-auto">
-                    {% block content %}
-                    {% endblock %}
-                </div>
-            </div>
-        </div>
-    </div>
+    {% block content %}
+    {% endblock %}
 </main>
 
 </body>

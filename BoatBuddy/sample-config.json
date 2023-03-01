@@ -13,9 +13,10 @@
         "nmea_server_port": "10110"
     },
     "victron": {
-        "victron_module": "True",
-        "victron_server_ip": "",
-        "victron_tcp_port": "502"
+      "victron_module": "True",
+      "victron_server_ip": "",
+      "victron_tcp_port": "502",
+      "victron_pv_max_power": "760"
     },
     "gps": {
         "gps_module": "True",

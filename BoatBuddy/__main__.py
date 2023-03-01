@@ -3,7 +3,6 @@ import logging
 import optparse
 import os
 
-
 from BoatBuddy import globals, utils
 from BoatBuddy.console_manager import ConsoleManager
 from BoatBuddy.database_manager import DatabaseWrapper
@@ -45,6 +44,7 @@ if __name__ == '__main__':
             options.victron_module = utils.try_parse_bool(data['victron']['victron_module'])
             options.victron_server_ip = data['victron']['victron_server_ip']
             options.victron_tcp_port = utils.try_parse_int(data['victron']['victron_tcp_port'])
+            options.victron_pv_max_power = utils.try_parse_int(data['victron']['victron_pv_max_power'])
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
             options.database_module = utils.try_parse_bool(data['database']['database_module'])
