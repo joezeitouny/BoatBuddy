@@ -151,6 +151,11 @@ def get_data():
     victron_module = False
     victron_status = ''
     victron_status_colour = ''
+    active_input_source = 'N/A'
+    ve_bus_state = 'N/A'
+    housing_battery_state = 'N/A'
+    housing_battery_current = 0
+    pv_current = 0
     battery_soc = 0
     starter_battery_voltage = 0.0
     fuel_tank = 0
@@ -166,9 +171,14 @@ def get_data():
         victron_status_colour = get_colour_from_status(plugin_status)
         victron_metrics = application_modules.get_plugin_manager().get_victron_plugin_metrics()
         if victron_metrics and len(victron_metrics) > 0:
+            active_input_source = victron_metrics[0]
+            ve_bus_state = victron_metrics[6]
+            housing_battery_state = victron_metrics[12]
+            housing_battery_current = utils.try_parse_float(victron_metrics[9])
             battery_soc = utils.try_parse_int(victron_metrics[11])
             starter_battery_voltage = utils.try_parse_float(victron_metrics[15])
             pv_power = utils.try_parse_int(victron_metrics[13])
+            pv_current = utils.try_parse_float(victron_metrics[14])
             fuel_tank = utils.try_parse_int(victron_metrics[16])
             water_tank = utils.try_parse_int(victron_metrics[18])
 
@@ -202,5 +212,8 @@ def get_data():
     data = {'curr_time': curr_time, 'victron_module': victron_module, 'battery_soc': battery_soc,
             'victron_status': victron_status, 'victron_status_colour': victron_status_colour,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,
-            'starter_battery_voltage': starter_battery_voltage, 'pv_max_power': pv_max_power, 'pv_power': pv_power}
+            'starter_battery_voltage': starter_battery_voltage, 'pv_max_power': pv_max_power, 'pv_power': pv_power,
+            'active_input_source': active_input_source, 've_bus_state': ve_bus_state,
+            'housing_battery_state': housing_battery_state, 'housing_battery_current': housing_battery_current,
+            'pv_current': pv_current}
     return jsonify(data)
