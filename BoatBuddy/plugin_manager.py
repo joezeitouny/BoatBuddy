@@ -98,7 +98,7 @@ class PluginManager:
         # If normal mode is active then start recording system metrics immediately
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.CONTINUOUS.value \
                 or str(self._options.session_run_mode).lower() == globals.SessionRunMode.INTERVAL.value:
-            self._start_session()
+            self.start_session()
 
             if str(self._options.session_run_mode).lower() == globals.SessionRunMode.INTERVAL.value:
                 self._session_timer = threading.Timer(self._options.session_paging_interval,
@@ -108,39 +108,39 @@ class PluginManager:
     def _on_connect_gps_plugin(self):
         self._notifications_manager.notify('gps', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
-            self._start_session()
+            self.start_session()
 
     def _on_connect_victron_plugin(self):
         self._notifications_manager.notify('victron', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
-            self._start_session()
+            self.start_session()
 
     def _on_connect_nmea_plugin(self):
         self._notifications_manager.notify('nmea', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
-            self._start_session()
+            self.start_session()
 
     def _on_disconnect_gps_plugin(self):
         self._notifications_manager.notify('gps', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
-            self._end_session()
+            self.end_session()
 
     def _on_disconnect_victron_plugin(self):
         self._notifications_manager.notify('victron', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value:
-            self._end_session()
+            self.end_session()
 
     def _on_disconnect_nmea_plugin(self):
         self._notifications_manager.notify('nmea', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
-            self._end_session()
+            self.end_session()
 
     def _session_timer_elapsed(self):
         # End the current session
-        self._end_session()
+        self.end_session()
 
         # Start a new session
-        self._start_session()
+        self.start_session()
 
         # Restart the session interval timer
         self._session_timer = threading.Timer(self._options.session_paging_interval, self._session_timer_elapsed)
@@ -226,7 +226,7 @@ class PluginManager:
                                                  self._write_collected_data_to_disk)
         self._disk_write_timer.start()
 
-    def _start_session(self):
+    def start_session(self):
         # Play the session started chime
         self._sound_manager.play_sound_async(SoundType.SESSION_STARTED)
 
@@ -286,7 +286,7 @@ class PluginManager:
 
         self._is_session_active = True
 
-    def _end_session(self):
+    def end_session(self):
         # If there is no active session then exit
         if not self._is_session_active:
             return
@@ -395,7 +395,7 @@ class PluginManager:
         return PluginManagerStatus.IDLE
 
     def finalize(self):
-        self._end_session()
+        self.end_session()
 
         if self._session_timer:
             self._session_timer.cancel()

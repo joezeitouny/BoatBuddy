@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-{% if last_event is defined and last_event|length %}
-<div id="alert_section" class="alert alert-warning" role="alert">
-    {{ last_event }}
+<div class="alert alert-warning" id="alert_section" role="alert" style="display: none; visibility: hidden;">
+    This is the event message placeholder
 </div>
-{% endif %}
 
 <div class="container-fluid">
     <div class="row">
@@ -98,12 +96,25 @@
         </div>
         <div class="col m-2 border border-5 border-danger rounded text-center">
             <!-- Session column-->
-
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5>No session in progress</h5>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
+
+{% if session_run_mode == 'manual' %}
+document.getElementById('session_button_id').disabled = false;
+{% else %}
+document.getElementById('session_button_id').disabled = true;
+{% endif %}
+
 var common_gauge_options = {
   angle: 0.15, // The span of the gauge arc
   lineWidth: 0.44, // The line thickness
@@ -219,6 +230,17 @@ water_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 water_tank_gauge.setTextField(document.getElementById("water_tank_value"));
 water_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
+document.getElementById("session_button_id").onclick = toggleSession;
+
+function toggleSession() {
+    $.ajax({
+        type: 'GET',
+        url: '/toggle_session',
+        success: function(data) {
+        }
+    });
+}
+
 function refreshData() {
     $.ajax({
         type: 'GET',
@@ -242,6 +264,23 @@ function refreshData() {
             document.getElementById('housing_battery_state_value').innerHTML = data['housing_battery_state'];
             document.getElementById('housing_battery_current_value').innerHTML = data['housing_battery_current'];
             document.getElementById('pv_current_value').innerHTML = data['pv_current'];
+            if (data['status'] === "idle") {
+                if (document.getElementById("session_button_id").classList.contains('btn-danger'))
+                {
+                    document.getElementById('session_button_id').innerHTML = "Start Session";
+                    document.getElementById("session_button_id").classList.remove('btn-danger');
+                    document.getElementById("session_button_id").classList.add('btn-success');
+                }
+            }
+            else
+            {
+                if (document.getElementById("session_button_id").classList.contains('btn-success'))
+                {
+                    document.getElementById('session_button_id').innerHTML = "End Session";
+                    document.getElementById("session_button_id").classList.remove('btn-success');
+                    document.getElementById("session_button_id").classList.add('btn-danger');
+                }
+            }
         }
     });
 }
@@ -250,6 +289,12 @@ $(document).ready(function() {
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
 });
+
+
+
+
+
+
 
 
 

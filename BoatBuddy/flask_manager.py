@@ -5,13 +5,13 @@ from flask import render_template, jsonify
 from rich.console import Console
 
 from BoatBuddy import app
-from BoatBuddy import utils
+from BoatBuddy import utils, globals
 from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.log_manager import LogManager
 from BoatBuddy.notifications_manager import NotificationsManager
-from BoatBuddy.plugin_manager import PluginManager
+from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 from BoatBuddy.sound_manager import SoundManager, SoundType
 
 
@@ -134,13 +134,21 @@ def index():
     # Get application name and version
     application_name = utils.get_application_name()
     application_version = utils.get_application_version()
+    session_run_mode = str(application_modules.get_options().session_run_mode).lower()
 
-    return render_template('index.html', application_name=application_name, application_version=application_version)
+    return render_template('index.html', application_name=application_name, application_version=application_version,
+                           session_run_mode=session_run_mode)
 
 
-@app.route('/start_stop_session')
+@app.route('/toggle_session')
 def start_stop_session():
-    pass
+    if not str(application_modules.get_options().session_run_mode).lower() == globals.SessionRunMode.MANUAL.value:
+        return
+
+    if application_modules.get_plugin_manager().get_status() == PluginManagerStatus.IDLE:
+        application_modules.get_plugin_manager().start_session()
+    elif application_modules.get_plugin_manager().get_status() == PluginManagerStatus.SESSION_ACTIVE:
+        application_modules.get_plugin_manager().end_session()
 
 
 @app.route('/data')
@@ -215,5 +223,5 @@ def get_data():
             'starter_battery_voltage': starter_battery_voltage, 'pv_max_power': pv_max_power, 'pv_power': pv_power,
             'active_input_source': active_input_source, 've_bus_state': ve_bus_state,
             'housing_battery_state': housing_battery_state, 'housing_battery_current': housing_battery_current,
-            'pv_current': pv_current}
+            'pv_current': pv_current, 'status': status}
     return jsonify(data)
