@@ -10,7 +10,7 @@ from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.log_manager import LogManager
-from BoatBuddy.notifications_manager import NotificationsManager
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEvents, NotificationEntryType
 from BoatBuddy.plugin_manager import PluginManager, PluginManagerStatus
 from BoatBuddy.sound_manager import SoundManager, SoundType
 
@@ -295,5 +295,6 @@ def get_data():
             'starter_battery_min_voltage': starter_battery_min_voltage,
             'starter_battery_avg_voltage': starter_battery_avg_voltage,
             'tank1_max_level': tank1_max_level, 'tank1_min_level': tank1_min_level, 'tank1_avg_level': tank1_avg_level,
-            'tank2_max_level': tank2_max_level, 'tank2_min_level': tank2_min_level, 'tank2_avg_level': tank2_avg_level}
+            'tank2_max_level': tank2_max_level, 'tank2_min_level': tank2_min_level, 'tank2_avg_level': tank2_avg_level,
+            'last_notification': application_modules.get_notifications_manager().get_last_message()}
     return jsonify(data)

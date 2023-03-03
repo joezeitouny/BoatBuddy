@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
+
 <div class="alert alert-warning" id="alert_section" role="alert" style="display: none; visibility: hidden;">
-    This is the event message placeholder
+    <div id="alert_message">This is the alert message placeholder</div>
 </div>
 
 <div class="container-fluid">
@@ -406,6 +407,16 @@ function refreshData() {
         success: function(data) {
             // Update the relevant part of the webpage with the new data
             document.getElementById('curr_time_id').innerHTML = data['curr_time'];
+
+            if (data['last_notification'] != '') {
+                document.getElementById('alert_message').innerHTML = data['last_notification'];
+                document.getElementById('alert_section').style.display = 'block';
+                document.getElementById('alert_section').style.visibility = 'visible';
+            } else {
+                document.getElementById('alert_message').innerHTML = "This is the alert message placeholder";
+                document.getElementById('alert_section').style.display = 'none';
+                document.getElementById('alert_section').style.visibility = 'hidden';
+            }
 
             if (data['victron_module']) {
                 battery_soc_gauge.set(data['battery_soc']);

@@ -77,6 +77,7 @@ class NotificationsManager:
         self._sound_manager = sound_manager
         self._email_manager = email_manager
         self._events = None
+        self._last_message = ''
         self._notifications_queue = {}
         self._exit_signal = threading.Event()
         self._notifications_thread = threading.Thread(target=self._main_loop)
@@ -292,6 +293,7 @@ class NotificationsManager:
         self._log_manager.info(message)
         if self._events:
             self._events.on_notification(entry_type, message)
+        self._last_message = message
 
     def _delayed_clear_notification_entry(self, key):
         if key not in self._notifications_queue:
@@ -321,6 +323,7 @@ class NotificationsManager:
         self._log_manager.info(message)
         if self._events:
             self._events.on_notification(notification_entry.get_entry_type(), message)
+        self._last_message = message
 
         # Remove the entry from memory
         self._notifications_queue.pop(key)
@@ -387,3 +390,6 @@ class NotificationsManager:
 
     def register_for_events(self, events):
         self._events = events
+
+    def get_last_message(self):
+        return self._last_message
