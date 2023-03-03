@@ -16,8 +16,9 @@
                         <canvas id="battery_soc_gauge" style="width: 200px; height: 95px;"></canvas>
                         <div class="container">
                             <div class="row justify-content-center">
-                                <div id="battery_soc_value" style="font-weight: bold;"></div>
-                                &nbsp;%
+                                <span>
+                                    <span id="battery_soc_value" style="font-weight: bold;"></span>&nbsp;%
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -26,8 +27,9 @@
                         <canvas id="fuel_tank_gauge" style="width: 200px; height: 95px;"></canvas>
                         <div class="container">
                             <div class="row justify-content-center">
-                                <div id="fuel_tank_value" style="font-weight: bold;"></div>
-                                &nbsp;%
+                                <span>
+                                    <span id="fuel_tank_value" style="font-weight: bold;"></span>&nbsp;%
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -38,8 +40,9 @@
                         <canvas id="starter_battery_voltage_gauge" style="width: 200px; height: 95px;"></canvas>
                         <div class="container">
                             <div class="row justify-content-center">
-                                <div id="starter_battery_voltage_value" style="font-weight: bold;"></div>
-                                &nbsp;V
+                                <span>
+                                    <span id="starter_battery_voltage_value" style="font-weight: bold;"></span>&nbsp;V
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -48,61 +51,79 @@
                         <canvas id="water_tank_gauge" style="width: 200px; height: 95px;"></canvas>
                         <div class="container">
                             <div class="row justify-content-center">
-                                <div id="water_tank_value" style="font-weight: bold;"></div>
-                                &nbsp;%
+                                <span>
+                                    <span id="water_tank_value" style="font-weight: bold;"></span>&nbsp;%
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row mt-2 align-items-center">
-                    <div class="col">
+                <div class="row mt-2">
+                    <div class="col align-items-center">
                         <div class="mb-1" style="font-weight: bold;">PV Power</div>
                         <canvas id="pv_power_gauge" style="width: 200px; height: 95px;"></canvas>
                         <div class="container">
                             <div class="row justify-content-center">
-                                <div id="pv_power_value" style="font-weight: bold;"></div>
-                                &nbsp;W
+                                <span>
+                                    <span id="pv_power_value" style="font-weight: bold;"></span>&nbsp;W
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="container border border-light rounded">
-                            <div class="row justify-content-left">
-                                &nbsp;Active input source:&nbsp;
-                                <div id="active_input_source_value">N/A</div>
+                    <div class="col align-items-start">
+                        <div class="container border-1 border border-light rounded gx-0 gy-0 text-start">
+                            <div class="row ms-1 mt-1">
+                                <span>
+                                    Active input source:&nbsp;<span id="active_input_source_value">N/A</span>
+                                </span>
                             </div>
-                            <div class="row justify-content-left">
-                                &nbsp;VE.Bus state:&nbsp;
-                                <div id="ve_bus_state_value">N/A</div>
+                            <div class="row ms-1">
+                                <span>
+                                    VE.Bus state:&nbsp;<span id="ve_bus_state_value">N/A</span>
+                                </span>
                             </div>
-                            <div class="row justify-content-left">
-                                &nbsp;Housing battery state:&nbsp;
-                                <div id="housing_battery_state_value">N/A</div>
+                            <div class="row ms-1">
+                                <span>
+                                    Housing battery state:&nbsp;<span id="housing_battery_state_value">N/A</span>
+                                </span>
                             </div>
-                            <div class="row justify-content-left">
-                                &nbsp;Housing battery current:&nbsp;
-                                <div id="housing_battery_current_value">N/A</div>
-                                A
+                            <div class="row ms-1">
+                                <span>
+                                    Housing battery current:&nbsp;<span id="housing_battery_current_value">N/A</span>A
+                                </span>
                             </div>
-                            <div class="row justify-content-left">
-                                &nbsp;PV current:&nbsp;
-                                <div id="pv_current_value">N/A</div>
-                                A
+                            <div class="row ms-1 mb-1">
+                                <span>
+                                    PV current:<span id="pv_current_value">N/A</span>A
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col m-2 border border-5 border-danger rounded text-center">
+        <div class="col m-2 border border-5 border-danger rounded text-center d-flex align-content-center">
             <!-- Session column-->
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h5>No session in progress</h5>
-                    </div>
-                </div>
+            <div class="container-fluid align-self-center">
+                <h5>No session in progress</h5>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col d-flex justify-content-center">
+            <span>
+                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="victron_module_spinner" role="status"></span>Victron module:&nbsp;<span id="victron_module_status"></span>
+            </span>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <span>
+                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="nmea_module_spinner" role="status"></span>NMEA0183 module:&nbsp;<span id="nmea_module_status"></span>
+            </span>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <span>
+                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="gps_module_spinner" role="status"></span>GPS module:&nbsp;<span id="gps_module_status"></span>
+            </span>
         </div>
     </div>
 </div>
@@ -248,22 +269,67 @@ function refreshData() {
         success: function(data) {
             // Update the relevant part of the webpage with the new data
             document.getElementById('curr_time_id').innerHTML = data['curr_time'];
-            battery_soc_gauge.set(data['battery_soc']);
-            document.getElementById('battery_soc_value').innerHTML = data['battery_soc'];
-            starter_battery_voltage_gauge.set(data['starter_battery_voltage']);
-            document.getElementById('starter_battery_voltage_value').innerHTML = data['starter_battery_voltage'];
-            pv_power_gauge.maxValue = data['pv_max_power']
-            pv_power_gauge.set(data['pv_power']);
-            document.getElementById('pv_power_value').innerHTML = data['pv_power'];
-            fuel_tank_gauge.set(data['fuel_tank']);
-            document.getElementById('fuel_tank_value').innerHTML = data['fuel_tank'];
-            water_tank_gauge.set(data['water_tank']);
-            document.getElementById('water_tank_value').innerHTML = data['water_tank'];
-            document.getElementById('active_input_source_value').innerHTML = data['active_input_source'];
-            document.getElementById('ve_bus_state_value').innerHTML = data['ve_bus_state'];
-            document.getElementById('housing_battery_state_value').innerHTML = data['housing_battery_state'];
-            document.getElementById('housing_battery_current_value').innerHTML = data['housing_battery_current'];
-            document.getElementById('pv_current_value').innerHTML = data['pv_current'];
+
+            if (data['victron_module']) {
+                battery_soc_gauge.set(data['battery_soc']);
+                document.getElementById('battery_soc_value').innerHTML = data['battery_soc'];
+                starter_battery_voltage_gauge.set(data['starter_battery_voltage']);
+                document.getElementById('starter_battery_voltage_value').innerHTML = data['starter_battery_voltage'];
+                pv_power_gauge.maxValue = data['pv_max_power']
+                pv_power_gauge.set(data['pv_power']);
+                document.getElementById('pv_power_value').innerHTML = data['pv_power'];
+                fuel_tank_gauge.set(data['fuel_tank']);
+                document.getElementById('fuel_tank_value').innerHTML = data['fuel_tank'];
+                water_tank_gauge.set(data['water_tank']);
+                document.getElementById('water_tank_value').innerHTML = data['water_tank'];
+                document.getElementById('active_input_source_value').innerHTML = data['active_input_source'];
+                document.getElementById('ve_bus_state_value').innerHTML = data['ve_bus_state'];
+                document.getElementById('housing_battery_state_value').innerHTML = data['housing_battery_state'];
+                document.getElementById('housing_battery_current_value').innerHTML = data['housing_battery_current'];
+                document.getElementById('pv_current_value').innerHTML = data['pv_current'];
+                if (data['victron_module']) {
+                    document.getElementById('victron_module_status').innerHTML = data['victron_status'];
+                    if (data['victron_status'] == "Running") {
+                        document.getElementById("victron_module_spinner").className = "spinner-border text-success me-2";
+                    } else if (data['victron_status'] == "Down") {
+                        document.getElementById("victron_module_spinner").className = "spinner-grow text-danger me-2";
+                    } else if (data['victron_status'] == "Starting") {
+                        document.getElementById("victron_module_spinner").className = "spinner-grow text-warning me-2";
+                    }
+                } else {
+                    document.getElementById('victron_module_status').innerHTML = "Disabled";
+                    document.getElementById("victron_module_spinner").className = "spinner-grow text-danger me-2";
+                }
+
+                if (data['nmea_module']) {
+                    document.getElementById('nmea_module_status').innerHTML = data['nmea_status'];
+                    if (data['nmea_status'] == "Running") {
+                        document.getElementById("nmea_module_spinner").className = "spinner-border text-success me-2";
+                    } else if (data['nmea_status'] == "Down") {
+                        document.getElementById("nmea_module_spinner").className = "spinner-grow text-danger me-2";
+                    } else if (data['nmea_status'] == "Starting") {
+                        document.getElementById("nmea_module_spinner").className = "spinner-grow text-warning me-2";
+                    }
+                } else {
+                    document.getElementById('nmea_module_status').innerHTML = "Disabled";
+                    document.getElementById("nmea_module_spinner").className = "spinner-grow text-danger me-2";
+                }
+
+                if (data['gps_module']) {
+                    document.getElementById('gps_module_status').innerHTML = data['gps_status'];
+                    if (data['gps_status'] == "Running") {
+                        document.getElementById("gps_module_spinner").className = "spinner-border text-success me-2";
+                    } else if (data['gps_status'] == "Down") {
+                        document.getElementById("gps_module_spinner").className = "spinner-grow text-danger me-2";
+                    } else if (data['gps_status'] == "Starting") {
+                        document.getElementById("gps_module_spinner").className = "spinner-grow text-warning me-2";
+                    }
+                } else {
+                    document.getElementById('gps_module_status').innerHTML = "Disabled";
+                    document.getElementById("gps_module_spinner").className = "spinner-grow text-danger me-2";
+                }
+            }
+
             if (data['status'] === "idle") {
                 if (document.getElementById("session_button_id").classList.contains('btn-danger'))
                 {
@@ -289,6 +355,24 @@ $(document).ready(function() {
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

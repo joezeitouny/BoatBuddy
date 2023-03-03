@@ -109,24 +109,12 @@ class FlaskManager:
 def get_plugin_status_str(plugin_status: PluginStatus):
     plugin_status_str = ''
     if plugin_status == PluginStatus.DOWN:
-        plugin_status_str = '(Down)'
+        plugin_status_str = 'Down'
     elif plugin_status == PluginStatus.STARTING:
-        plugin_status_str = '(Starting)'
+        plugin_status_str = 'Starting'
     elif plugin_status == PluginStatus.RUNNING:
-        plugin_status_str = '(Running)'
+        plugin_status_str = 'Running'
     return plugin_status_str
-
-
-def get_colour_from_status(plugin_status: PluginStatus):
-    colour = 'default'
-    if plugin_status == PluginStatus.DOWN:
-        colour = 'red'
-    elif plugin_status == PluginStatus.STARTING:
-        colour = 'bright_yellow'
-    elif plugin_status == PluginStatus.RUNNING:
-        colour = 'green'
-
-    return colour
 
 
 @app.route('/')
@@ -176,7 +164,6 @@ def get_data():
         # Populate the victron layout
         plugin_status = application_modules.get_plugin_manager().get_victron_plugin_status()
         victron_status = get_plugin_status_str(plugin_status)
-        victron_status_colour = get_colour_from_status(plugin_status)
         victron_metrics = application_modules.get_plugin_manager().get_victron_plugin_metrics()
         if victron_metrics and len(victron_metrics) > 0:
             active_input_source = victron_metrics[0]
@@ -190,38 +177,26 @@ def get_data():
             fuel_tank = utils.try_parse_int(victron_metrics[16])
             water_tank = utils.try_parse_int(victron_metrics[18])
 
-    # if self._options.gps_module and self._options.console_show_gps_plugin:
-    #     gps_layout = Layout(name="gps")
-    #     # Populate the NMEA layout
-    #     plugin_status = self._plugin_manager.get_gps_plugin_status()
-    #     formatted_plugin_status_str = self._get_formatted_plugin_status_str(plugin_status)
-    #     border_style = self._get_border_style_from_status(plugin_status)
-    #     ui_filtered_gps_plugin_metrics = utils.get_filtered_key_value_list(utils.get_key_value_list(
-    #         globals.GPS_PLUGIN_METADATA_HEADERS, self._plugin_manager.get_gps_plugin_metrics()),
-    #         self._options.console_gps_metrics.copy())
-    #     gps_layout.update(self._make_key_value_table('GPS Module ' + formatted_plugin_status_str,
-    #                                                  ui_filtered_gps_plugin_metrics,
-    #                                                  border_style))
-    #
-    # if self._options.nmea_module and self._options.console_show_nmea_plugin:
-    #     nmea_layout = Layout(name="nmea")
-    #     # Populate the NMEA layout
-    #     plugin_status = self._plugin_manager.get_nmea_plugin_status()
-    #     formatted_plugin_status_str = self._get_formatted_plugin_status_str(plugin_status)
-    #     border_style = self._get_border_style_from_status(plugin_status)
-    #     ui_filtered_nmea_plugin_metrics = utils.get_filtered_key_value_list(
-    #         utils.get_key_value_list(globals.NMEA_PLUGIN_METADATA_HEADERS,
-    #                                  self._plugin_manager.get_nmea_plugin_metrics()),
-    #         self._options.console_nmea_metrics.copy())
-    #     nmea_layout.update(self._make_key_value_table('NMEA0183 Network ' + formatted_plugin_status_str,
-    #                                                   ui_filtered_nmea_plugin_metrics,
-    #                                                   border_style))
+    nmea_module = False
+    nmea_status = ''
+    if application_modules.get_options().nmea_module:
+        nmea_module = True
+        plugin_status = application_modules.get_plugin_manager().get_nmea_plugin_status()
+        nmea_status = get_plugin_status_str(plugin_status)
+
+    gps_module = False
+    gps_status = ''
+    if application_modules.get_options().gps_module:
+        gps_module = True
+        plugin_status = application_modules.get_plugin_manager().get_gps_plugin_status()
+        gps_status = get_plugin_status_str(plugin_status)
 
     data = {'curr_time': curr_time, 'victron_module': victron_module, 'battery_soc': battery_soc,
-            'victron_status': victron_status, 'victron_status_colour': victron_status_colour,
+            'victron_status': victron_status,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,
             'starter_battery_voltage': starter_battery_voltage, 'pv_max_power': pv_max_power, 'pv_power': pv_power,
             'active_input_source': active_input_source, 've_bus_state': ve_bus_state,
             'housing_battery_state': housing_battery_state, 'housing_battery_current': housing_battery_current,
-            'pv_current': pv_current, 'status': status}
+            'pv_current': pv_current, 'status': status, 'nmea_module': nmea_module, 'nmea_status': nmea_status,
+            'gps_module': gps_module, 'gps_status': gps_status}
     return jsonify(data)
