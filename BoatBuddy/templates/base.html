@@ -22,28 +22,21 @@
                 data-bs-target="#navbarTogglerDemo03" data-bs-toggle="collapse" type="button">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand" href="#">{{application_name}} <small>({{application_version}})</small></a>
-        <div class="navbar-text ml-5">Session run mode:</div>
-        <div class="navbar-text mx-2" id="session_run_mode_value">{{session_run_mode}}</div>
-        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!--                <li class="nav-item">-->
-                <!--                    <a class="nav-link navbar-text" href="#">Events</a>-->
-                <!--                </li>-->
-                <!--                <li class="nav-item">-->
-                <!--                    <a class="nav-link navbar-text" href="#">Log</a>-->
-                <!--                </li>-->
-            </ul>
+        <div class="col">
+            <a class="navbar-brand" href="#">{{application_name}} <small>({{application_version}})</small></a>
         </div>
-        <div class="navbar-text mx-2">Local time:</div>
-        <div class="navbar-text" id="curr_time_id" style="bold">
+        <div class="col text-center">
+            <span>Local time:&nbsp;</span><span class="navbar-text" id="curr_time_id"></span>
         </div>
-        <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
-            <span>
-                <span id="session_button_spinner" class="spinner-border spinner-border-sm" style="visibility: hidden; display: none;" role="status" aria-hidden="true"></span>
-                <span id="session_button_text">Start Session</span>
-            </span>
-        </button>
+        <div class="col text-end">
+            <span>Session run mode:&nbsp;</span><span class="navbar-text text-uppercase" id="session_run_mode_value">{{session_run_mode}}</span>
+            <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
+                <span>
+                    <span id="session_button_spinner" class="spinner-border spinner-border-sm" style="visibility: hidden; display: none;" role="status" aria-hidden="true"></span>
+                    <span id="session_button_text">Start Session</span>
+                </span>
+            </button>
+        </div>
     </div>
 </nav>
 
