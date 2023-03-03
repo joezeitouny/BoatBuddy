@@ -94,7 +94,7 @@
                             </div>
                             <div class="row ms-1 mb-1">
                                 <span>
-                                    PV current:<span id="pv_current_value">N/A</span>A
+                                    PV current:&nbsp;<span id="pv_current_value">N/A</span>A
                                 </span>
                             </div>
                         </div>
@@ -105,7 +105,144 @@
         <div class="col m-2 border border-5 border-danger rounded text-center d-flex align-content-center">
             <!-- Session column-->
             <div class="container-fluid align-self-center">
-                <h5>No session in progress</h5>
+                <h5 id="no_session_message">No session in progress</h5>
+                <div id="session_container" style="display: none; visibility: hidden;" class="container-fluid align-self-center">
+                    <h5 id="session_name">Session name</h5>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Start time (Local):&nbsp;<span id="start_time"></span></span>
+                        </div>
+                        <div class="col">
+                            <span>Start time (UTC):&nbsp;<span id="start_time_utc"></span></span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <span>Duration:&nbsp;<span id="duration"></span></span>
+                    </div>
+                    <div class="row">
+                        <hr class="mt-1 mb-1"/>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Starting GPS latitude:&nbsp;<span id="start_gps_lat"></span></span>
+                        </div>
+                        <div class="col">
+                            <span>Starting GPS longitude:&nbsp;<span id="start_gps_lon"></span></span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Distance:&nbsp;<span id="distance"></span>&nbsp;miles</span>
+                        </div>
+                        <div class="col">
+                            <span>Heading:&nbsp;<span id="heading"></span>&nbsp;Degrees</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Average wind speed:&nbsp;<span id="average_wind_speed"></span>&nbsp;knots</span>
+                        </div>
+                        <div class="col">
+                            <span>Average wind direction:&nbsp;<span id="average_wind_direction"></span>&nbsp;Degrees</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Average water temperature:&nbsp;<span id="average_water_temperature"></span>&nbsp;Celsius</span>
+                        </div>
+                        <div class="col">
+                            <span>Average depth:&nbsp;<span id="average_depth"></span>&nbsp;meters</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Average speed over ground:&nbsp;<span id="average_sog"></span>&nbsp;knots</span>
+                        </div>
+                        <div class="col">
+                            <span>Average speed over water:&nbsp;<span id="average_sow"></span>&nbsp;knots</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Housing battery max voltage:&nbsp;<span id="housing_battery_max_voltage"></span>&nbsp;V</span>
+                        </div>
+                        <div class="col">
+                            <span>Housing battery min voltage:&nbsp;<span id="housing_battery_min_voltage"></span>&nbsp;V</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Housing battery avg. voltage:&nbsp;<span id="housing_battery_avg_voltage"></span>&nbsp;V</span>
+                        </div>
+                        <div class="col">
+                            <span>Housing battery max current:&nbsp;<span id="housing_battery_max_current"></span>&nbsp;A</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Housing battery avg. current:&nbsp;<span id="housing_battery_avg_current"></span>&nbsp;A</span>
+                        </div>
+                        <div class="col">
+                            <span>Housing battery max power:&nbsp;<span id="housing_battery_max_power"></span>&nbsp;W</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Housing battery avg. power:&nbsp;<span id="housing_battery_avg_power"></span>&nbsp;W</span>
+                        </div>
+                        <div class="col">
+                            <span>PV max power:&nbsp;<span id="pv_max_power"></span>&nbsp;W</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>PV avg. power:&nbsp;<span id="pv_avg_power"></span>&nbsp;W</span>
+                        </div>
+                        <div class="col">
+                            <span>PV max current:&nbsp;<span id="pv_max_current"></span>&nbsp;A</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>PV avg. current:&nbsp;<span id="pv_avg_current"></span>&nbsp;A</span>
+                        </div>
+                        <div class="col">
+                            <span>Starter battery max voltage:&nbsp;<span id="starter_battery_max_voltage"></span>&nbsp;V</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Starter battery min voltage:&nbsp;<span id="starter_battery_min_voltage"></span>&nbsp;V</span>
+                        </div>
+                        <div class="col">
+                            <span>Starter battery avg. voltage:&nbsp;<span id="starter_battery_avg_voltage"></span>&nbsp;V</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Tank 1 max level:&nbsp;<span id="tank1_max_level"></span>&nbsp;%</span>
+                        </div>
+                        <div class="col">
+                            <span>Tank 1 min level:&nbsp;<span id="tank1_min_level"></span>&nbsp;%</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Tank 1 avg. level:&nbsp;<span id="tank1_avg_level"></span>&nbsp;%</span>
+                        </div>
+                        <div class="col">
+                            <span>Tank 2 max level:&nbsp;<span id="tank2_max_level"></span>&nbsp;%</span>
+                        </div>
+                    </div>
+                    <div class="row text-start">
+                        <div class="col">
+                            <span>Tank 2 min level:&nbsp;<span id="tank2_min_level"></span>&nbsp;%</span>
+                        </div>
+                        <div class="col">
+                            <span>Tank 2 avg. level:&nbsp;<span id="tank2_avg_level"></span>&nbsp;%</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -275,7 +412,7 @@ function refreshData() {
                 document.getElementById('battery_soc_value').innerHTML = data['battery_soc'];
                 starter_battery_voltage_gauge.set(data['starter_battery_voltage']);
                 document.getElementById('starter_battery_voltage_value').innerHTML = data['starter_battery_voltage'];
-                pv_power_gauge.maxValue = data['pv_max_power']
+                pv_power_gauge.maxValue = data['pv_max_configured_power']
                 pv_power_gauge.set(data['pv_power']);
                 document.getElementById('pv_power_value').innerHTML = data['pv_power'];
                 fuel_tank_gauge.set(data['fuel_tank']);
@@ -287,47 +424,45 @@ function refreshData() {
                 document.getElementById('housing_battery_state_value').innerHTML = data['housing_battery_state'];
                 document.getElementById('housing_battery_current_value').innerHTML = data['housing_battery_current'];
                 document.getElementById('pv_current_value').innerHTML = data['pv_current'];
-                if (data['victron_module']) {
-                    document.getElementById('victron_module_status').innerHTML = data['victron_status'];
-                    if (data['victron_status'] == "Running") {
-                        document.getElementById("victron_module_spinner").className = "spinner-border text-success me-2";
-                    } else if (data['victron_status'] == "Down") {
-                        document.getElementById("victron_module_spinner").className = "spinner-grow text-danger me-2";
-                    } else if (data['victron_status'] == "Starting") {
-                        document.getElementById("victron_module_spinner").className = "spinner-grow text-warning me-2";
-                    }
-                } else {
-                    document.getElementById('victron_module_status').innerHTML = "Disabled";
+                document.getElementById('victron_module_status').innerHTML = data['victron_status'];
+                if (data['victron_status'] == "Running") {
+                    document.getElementById("victron_module_spinner").className = "spinner-border text-success me-2";
+                } else if (data['victron_status'] == "Down") {
                     document.getElementById("victron_module_spinner").className = "spinner-grow text-danger me-2";
+                } else if (data['victron_status'] == "Starting") {
+                    document.getElementById("victron_module_spinner").className = "spinner-grow text-warning me-2";
                 }
+            } else {
+                document.getElementById('victron_module_status').innerHTML = "Disabled";
+                document.getElementById("victron_module_spinner").className = "spinner-grow text-danger me-2";
+            }
 
-                if (data['nmea_module']) {
-                    document.getElementById('nmea_module_status').innerHTML = data['nmea_status'];
-                    if (data['nmea_status'] == "Running") {
-                        document.getElementById("nmea_module_spinner").className = "spinner-border text-success me-2";
-                    } else if (data['nmea_status'] == "Down") {
-                        document.getElementById("nmea_module_spinner").className = "spinner-grow text-danger me-2";
-                    } else if (data['nmea_status'] == "Starting") {
-                        document.getElementById("nmea_module_spinner").className = "spinner-grow text-warning me-2";
-                    }
-                } else {
-                    document.getElementById('nmea_module_status').innerHTML = "Disabled";
+            if (data['nmea_module']) {
+                document.getElementById('nmea_module_status').innerHTML = data['nmea_status'];
+                if (data['nmea_status'] == "Running") {
+                    document.getElementById("nmea_module_spinner").className = "spinner-border text-success me-2";
+                } else if (data['nmea_status'] == "Down") {
                     document.getElementById("nmea_module_spinner").className = "spinner-grow text-danger me-2";
+                } else if (data['nmea_status'] == "Starting") {
+                    document.getElementById("nmea_module_spinner").className = "spinner-grow text-warning me-2";
                 }
+            } else {
+                document.getElementById('nmea_module_status').innerHTML = "Disabled";
+                document.getElementById("nmea_module_spinner").className = "spinner-grow text-danger me-2";
+            }
 
-                if (data['gps_module']) {
-                    document.getElementById('gps_module_status').innerHTML = data['gps_status'];
-                    if (data['gps_status'] == "Running") {
-                        document.getElementById("gps_module_spinner").className = "spinner-border text-success me-2";
-                    } else if (data['gps_status'] == "Down") {
-                        document.getElementById("gps_module_spinner").className = "spinner-grow text-danger me-2";
-                    } else if (data['gps_status'] == "Starting") {
-                        document.getElementById("gps_module_spinner").className = "spinner-grow text-warning me-2";
-                    }
-                } else {
-                    document.getElementById('gps_module_status').innerHTML = "Disabled";
+            if (data['gps_module']) {
+                document.getElementById('gps_module_status').innerHTML = data['gps_status'];
+                if (data['gps_status'] == "Running") {
+                    document.getElementById("gps_module_spinner").className = "spinner-border text-success me-2";
+                } else if (data['gps_status'] == "Down") {
                     document.getElementById("gps_module_spinner").className = "spinner-grow text-danger me-2";
+                } else if (data['gps_status'] == "Starting") {
+                    document.getElementById("gps_module_spinner").className = "spinner-grow text-warning me-2";
                 }
+            } else {
+                document.getElementById('gps_module_status').innerHTML = "Disabled";
+                document.getElementById("gps_module_spinner").className = "spinner-grow text-danger me-2";
             }
 
             if (data['status'] === "idle") {
@@ -337,6 +472,12 @@ function refreshData() {
                     document.getElementById("session_button_id").classList.remove('btn-danger');
                     document.getElementById("session_button_id").classList.add('btn-success');
                 }
+
+                document.getElementById('session_container').style.display = 'none';
+                document.getElementById('session_container').style.visibility = 'hidden';
+                document.getElementById('no_session_message').style.display = 'block';
+                document.getElementById('no_session_message').style.visibility = 'visible';
+                document.getElementById('session_name').innerHTML = "Session name";
             }
             else
             {
@@ -346,6 +487,44 @@ function refreshData() {
                     document.getElementById("session_button_id").classList.remove('btn-success');
                     document.getElementById("session_button_id").classList.add('btn-danger');
                 }
+                document.getElementById('no_session_message').style.display = 'none';
+                document.getElementById('no_session_message').style.visibility = 'hidden';
+                document.getElementById('session_container').style.display = 'block';
+                document.getElementById('session_container').style.visibility = 'visible';
+                document.getElementById('session_name').innerHTML = data['session_name'];
+                document.getElementById('start_time').innerHTML = data['start_time'];
+                document.getElementById('start_time_utc').innerHTML = data['start_time_utc'];
+                document.getElementById('duration').innerHTML = data['duration'];
+                document.getElementById('start_gps_lat').innerHTML = data['start_gps_lat'];
+                document.getElementById('start_gps_lon').innerHTML = data['start_gps_lon'];
+                document.getElementById('distance').innerHTML = data['distance'];
+                document.getElementById('heading').innerHTML = data['heading'];
+                document.getElementById('average_wind_speed').innerHTML = data['average_wind_speed'];
+                document.getElementById('average_wind_direction').innerHTML = data['average_wind_direction'];
+                document.getElementById('average_water_temperature').innerHTML = data['average_water_temperature'];
+                document.getElementById('average_depth').innerHTML = data['average_depth'];
+                document.getElementById('average_sog').innerHTML = data['average_sog'];
+                document.getElementById('average_sow').innerHTML = data['average_sow'];
+                document.getElementById('housing_battery_max_voltage').innerHTML = data['housing_battery_max_voltage'];
+                document.getElementById('housing_battery_min_voltage').innerHTML = data['housing_battery_min_voltage'];
+                document.getElementById('housing_battery_avg_voltage').innerHTML = data['housing_battery_avg_voltage'];
+                document.getElementById('housing_battery_max_current').innerHTML = data['housing_battery_max_current'];
+                document.getElementById('housing_battery_avg_current').innerHTML = data['housing_battery_avg_current'];
+                document.getElementById('housing_battery_max_power').innerHTML = data['housing_battery_max_power'];
+                document.getElementById('housing_battery_avg_power').innerHTML = data['housing_battery_avg_power'];
+                document.getElementById('pv_max_power').innerHTML = data['pv_max_power'];
+                document.getElementById('pv_avg_power').innerHTML = data['pv_avg_power'];
+                document.getElementById('pv_max_current').innerHTML = data['pv_max_current'];
+                document.getElementById('pv_avg_current').innerHTML = data['pv_avg_current'];
+                document.getElementById('starter_battery_max_voltage').innerHTML = data['starter_battery_max_voltage'];
+                document.getElementById('starter_battery_min_voltage').innerHTML = data['starter_battery_min_voltage'];
+                document.getElementById('starter_battery_avg_voltage').innerHTML = data['starter_battery_avg_voltage'];
+                document.getElementById('tank1_max_level').innerHTML = data['tank1_max_level'];
+                document.getElementById('tank1_min_level').innerHTML = data['tank1_min_level'];
+                document.getElementById('tank1_avg_level').innerHTML = data['tank1_avg_level'];
+                document.getElementById('tank2_max_level').innerHTML = data['tank2_max_level'];
+                document.getElementById('tank2_min_level').innerHTML = data['tank2_min_level'];
+                document.getElementById('tank2_avg_level').innerHTML = data['tank2_avg_level'];
             }
         }
     });
@@ -355,40 +534,6 @@ $(document).ready(function() {
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </script>
 
 {% endblock %}
