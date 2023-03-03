@@ -1,3 +1,8 @@
+## 0.5.8 (2023-03-03)
+
+* Removed the need for CMySQLConnection module
+* Version bump to 0.5.8
+
 ## 0.5.7 (2023-03-03)
 
 * Added web application feature

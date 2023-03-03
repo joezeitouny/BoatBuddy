@@ -1,6 +1,6 @@
 from typing import Union
 
-from mysql.connector import connect, Error, MySQLConnection, CMySQLConnection
+from mysql.connector import connect, Error, MySQLConnection
 from mysql.connector.pooling import PooledMySQLConnection
 
 from BoatBuddy.log_manager import LogManager
@@ -304,7 +304,7 @@ class MySQLWrapper:
             self._log_manager.info(f'Could not initialize database \'{self._options.database_name}\'. Details {e}')
             return False
 
-    def _connect_to_database(self) -> Union[PooledMySQLConnection, MySQLConnection, CMySQLConnection]:
+    def _connect_to_database(self) -> Union[PooledMySQLConnection, MySQLConnection]:
         try:
             connection = connect(
                 host=self._options.database_host,
