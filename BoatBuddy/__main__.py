@@ -30,7 +30,9 @@ if __name__ == '__main__':
             # a dictionary
             data = json.load(f)
 
-            options.web_app = utils.try_parse_bool(data['web_app'])
+            options.web_module = utils.try_parse_bool(data['web_application']['web_module'])
+            options.web_host = data['web_application']['web_host']
+            options.web_port = data['web_application']['web_port']
             options.output_path = data['output_path']
             options.tmp_path = data['tmp_path']
             options.filename_prefix = data['filename_prefix']
@@ -152,8 +154,10 @@ if __name__ == '__main__':
         elif options.notifications_module and not options.notification_cool_off_interval:
             print(f'Invalid argument: Notification cool-off interval need to be provided if the '
                   f'notification module is turned on')
+        elif options.web_module and not (options.web_host or options.web_port):
+            print(f'Invalid argument: Web module requires the host and port parameters to be provided')
         else:
-            if options.web_app:
+            if options.web_module:
                 FlaskManager(options)
             else:
                 # Load the console manager

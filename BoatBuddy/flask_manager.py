@@ -102,8 +102,8 @@ class FlaskManager:
         application_modules = ApplicationModules(self._options, _log_manager, _sound_manager, _email_manager,
                                                  _notifications_manager, _plugin_manager, _database_manager)
 
-        webbrowser.open('http://127.0.0.1:5001')
-        app.run(debug=False, host='0.0.0.0', port=5001)
+        webbrowser.open(f'http://{self._options.web_host}:{self._options.web_port}')
+        app.run(debug=False, host=self._options.web_host, port=self._options.web_port)
 
 
 def get_plugin_status_str(plugin_status: PluginStatus):
