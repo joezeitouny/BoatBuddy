@@ -434,7 +434,7 @@ function refreshData() {
                 }
             } else {
                 document.getElementById('victron_module_status').innerHTML = "Disabled";
-                document.getElementById("victron_module_spinner").className = "spinner-grow text-danger me-2";
+                document.getElementById("victron_module_spinner").className = "spinner-grow text-secondary me-2";
             }
 
             if (data['nmea_module']) {
@@ -448,7 +448,7 @@ function refreshData() {
                 }
             } else {
                 document.getElementById('nmea_module_status').innerHTML = "Disabled";
-                document.getElementById("nmea_module_spinner").className = "spinner-grow text-danger me-2";
+                document.getElementById("nmea_module_spinner").className = "spinner-grow text-secondary me-2";
             }
 
             if (data['gps_module']) {
@@ -462,7 +462,7 @@ function refreshData() {
                 }
             } else {
                 document.getElementById('gps_module_status').innerHTML = "Disabled";
-                document.getElementById("gps_module_spinner").className = "spinner-grow text-danger me-2";
+                document.getElementById("gps_module_spinner").className = "spinner-grow text-secondary me-2";
             }
 
             if (data['status'] === "idle") {
