@@ -1,3 +1,8 @@
+## 0.5.7 (2023-03-03)
+
+* Added web application feature
+* Version bump to 0.5.7
+
 ## 0.5.6 (2023-02-24)
 
 * Improved the email, logging, plugin and notifications modules to generate events for the database manager to consume
