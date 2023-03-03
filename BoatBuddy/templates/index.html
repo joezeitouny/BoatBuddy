@@ -468,9 +468,11 @@ function refreshData() {
             if (data['status'] === "idle") {
                 if (document.getElementById("session_button_id").classList.contains('btn-danger'))
                 {
-                    document.getElementById('session_button_id').innerHTML = "Start Session";
+                    document.getElementById('session_button_text').innerHTML = "Start Session";
                     document.getElementById("session_button_id").classList.remove('btn-danger');
                     document.getElementById("session_button_id").classList.add('btn-success');
+                    document.getElementById('session_button_spinner').style.display = 'none';
+                    document.getElementById('session_button_spinner').style.visibility = 'hidden';
                 }
 
                 document.getElementById('session_container').style.display = 'none';
@@ -483,9 +485,11 @@ function refreshData() {
             {
                 if (document.getElementById("session_button_id").classList.contains('btn-success'))
                 {
-                    document.getElementById('session_button_id').innerHTML = "End Session";
+                    document.getElementById('session_button_text').innerHTML = "End Session";
                     document.getElementById("session_button_id").classList.remove('btn-success');
                     document.getElementById("session_button_id").classList.add('btn-danger');
+                    document.getElementById('session_button_spinner').style.display = 'inline-block';
+                    document.getElementById('session_button_spinner').style.visibility = 'visible';
                 }
                 document.getElementById('no_session_message').style.display = 'none';
                 document.getElementById('no_session_message').style.visibility = 'hidden';
