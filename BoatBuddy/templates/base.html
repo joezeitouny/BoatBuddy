@@ -14,36 +14,42 @@
     <title>{{application_name}} v{{application_version}}</title>
     <!--    <meta http-equiv="refresh" content="2" >-->
 </head>
-<body class="bg-dark bg-gradient text-light">
-<nav class="navbar navbar-expand-lg bg-primary bg-gradient shadow">
-    <div class="container-fluid">
-        <button aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation"
-                class="navbar-toggler"
-                data-bs-target="#navbarTogglerDemo03" data-bs-toggle="collapse" type="button">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="col">
-            <a class="navbar-brand" href="#">{{application_name}} <small>({{application_version}})</small></a>
-        </div>
-        <div class="col text-center">
-            <span>Local time:&nbsp;</span><span class="navbar-text" id="curr_time_id"></span>
-        </div>
-        <div class="col text-end">
-            <span>Session run mode:&nbsp;</span><span class="navbar-text text-uppercase" id="session_run_mode_value">{{session_run_mode}}</span>
-            <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
+<body class="container-fluid d-flex bg-dark bg-gradient text-light position-absolute mt-0 ms-0 me-0 mb-0">
+<div class="container-fluid p-0 m-0">
+    <div class="row">
+        <nav class="navbar navbar-expand-lg bg-secondary bg-gradient shadow">
+            <div class="container-fluid">
+                <button aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation"
+                        class="navbar-toggler"
+                        data-bs-target="#navbarTogglerDemo03" data-bs-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="col">
+                    <a class="navbar-brand" href="#">{{application_name}} <small>({{application_version}})</small></a>
+                </div>
+                <div class="col text-center">
+                    <span>Local time:&nbsp;</span><span class="navbar-text" id="curr_time_id"></span>
+                </div>
+                <div class="col text-end">
+                    <span>Session run mode:&nbsp;</span><span class="navbar-text text-uppercase"
+                                                              id="session_run_mode_value">{{session_run_mode}}</span>
+                    <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
                 <span>
-                    <span id="session_button_spinner" class="spinner-border spinner-border-sm" style="visibility: hidden; display: none;" role="status" aria-hidden="true"></span>
+                    <span id="session_button_spinner" class="spinner-border spinner-border-sm"
+                          style="visibility: hidden; display: none;" role="status" aria-hidden="true"></span>
                     <span id="session_button_text">Start Session</span>
                 </span>
-            </button>
-        </div>
+                    </button>
+                </div>
+            </div>
+        </nav>
     </div>
-</nav>
-
-<main>
-    {% block content %}
-    {% endblock %}
-</main>
+    <div class="row">
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
 
 </body>
+
 </html>

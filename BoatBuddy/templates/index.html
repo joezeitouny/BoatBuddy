@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="alert alert-warning" id="alert_section" role="alert" style="display: none; visibility: hidden;">
-    <div id="alert_message">This is the alert message placeholder</div>
+<div class="container p-0 mt-1">
+    <div class="alert alert-warning ms-2 me-2 mb-0 text-danger" id="alert_section" role="alert" style="display: none; visibility: hidden;">
+        <div id="alert_message">This is the alert message placeholder</div>
+    </div>
 </div>
 
 <div class="container-fluid">
@@ -349,7 +351,7 @@ var power_gauge_options = {
   highDpiSupport: true,     // High resolution support
   staticLabels: {
   font: "10px sans-serif",  // Specifies font
-  labels: [100, 200, 300, 400, 500, 700],  // Print labels at these values
+  labels: [100, 200, 300, 400, 450],  // Print labels at these values
   color: "#ffffff",  // Optional: Label text color
   fractionDigits: 0  // Optional: Numerical precision. 0=round off.
 	},
