@@ -1,3 +1,9 @@
+## 0.5.11 (2023-03-06)
+
+* Web application UI now accomodates for smaller screen sizes
+* Alerts are now of type warning for a normal notification and success for notifications that inform of clearance
+* Version bump to 0.5.11
+
 ## 0.5.10 (2023-03-06)
 
 * Web application UI improvements
