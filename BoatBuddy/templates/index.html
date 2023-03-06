@@ -414,6 +414,19 @@ function refreshData() {
                 document.getElementById('alert_message').innerHTML = data['last_notification'];
                 document.getElementById('alert_section').style.display = 'block';
                 document.getElementById('alert_section').style.visibility = 'visible';
+                if (data['last_notification'].toLowerCase().includes('cleared')) {
+                    if (document.getElementById("alert_section").classList.contains('alert-warning'))
+                    {
+                        document.getElementById("alert_section").classList.remove('alert-warning');
+                        document.getElementById("alert_section").classList.add('alert-success');
+                    }
+                } else {
+                    if (document.getElementById("alert_section").classList.contains('alert-success'))
+                    {
+                        document.getElementById("alert_section").classList.remove('alert-success');
+                        document.getElementById("alert_section").classList.add('alert-warning');
+                    }
+                }
             } else {
                 document.getElementById('alert_message').innerHTML = "This is the alert message placeholder";
                 document.getElementById('alert_section').style.display = 'none';
