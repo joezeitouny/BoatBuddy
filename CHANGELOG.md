@@ -1,3 +1,8 @@
+## 0.5.10 (2023-03-06)
+
+* Web application UI improvements
+* Version bump to 0.5.10
+
 ## 0.5.9 (2023-03-03)
 
 * Added notification alerts
