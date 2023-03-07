@@ -1,3 +1,8 @@
+## 0.5.12 (2023-03-07)
+
+* Improvements in the web application UI for smaller screen sizes
+* Version bump to 0.5.12
+
 ## 0.5.11 (2023-03-06)
 
 * Web application UI now accomodates for smaller screen sizes
