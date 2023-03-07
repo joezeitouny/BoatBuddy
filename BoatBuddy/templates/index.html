@@ -3,7 +3,7 @@
 
 <div class="container p-0 mt-1">
     <div class="alert alert-warning ms-2 me-2 mb-0 text-danger" id="alert_section" role="alert" style="display: none; visibility: hidden;">
-        <div id="alert_message">This is the alert message placeholder</div>
+        <span id="alert_message"><i class="bi bi-exclamation-triangle"></i>This is the alert message placeholder</span>
     </div>
 </div>
 
@@ -411,16 +411,17 @@ function refreshData() {
             document.getElementById('curr_time_id').innerHTML = data['curr_time'];
 
             if (data['last_notification'] != '') {
-                document.getElementById('alert_message').innerHTML = data['last_notification'];
                 document.getElementById('alert_section').style.display = 'block';
                 document.getElementById('alert_section').style.visibility = 'visible';
                 if (data['last_notification'].toLowerCase().includes('cleared')) {
+                    document.getElementById('alert_message').innerHTML = "<i class=\"bi bi-check-circle\"></i>" + " " + data['last_notification'];
                     if (document.getElementById("alert_section").classList.contains('alert-warning'))
                     {
                         document.getElementById("alert_section").classList.remove('alert-warning');
                         document.getElementById("alert_section").classList.add('alert-success');
                     }
                 } else {
+                    document.getElementById('alert_message').innerHTML = "<i class=\"bi bi-exclamation-triangle\"></i>" + " " + data['last_notification'];
                     if (document.getElementById("alert_section").classList.contains('alert-success'))
                     {
                         document.getElementById("alert_section").classList.remove('alert-success');

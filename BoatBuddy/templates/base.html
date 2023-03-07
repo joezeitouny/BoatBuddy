@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{url_for('static', filename = '/bootstrap/css/bootstrap.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename = '/bootstrap-icons/bootstrap-icons.css')}}">
     <script src="{{url_for('static', filename= 'jquery-3.6.0.js')}}"></script>
     <script src="{{url_for('static', filename= 'popper.min.js')}}"></script>
     <script src="{{url_for('static', filename = '/bootstrap/js/bootstrap.min.js')}}"></script>
@@ -12,7 +13,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{url_for('static', filename = 'main.css')}}" type="text/css">
     <title>{{application_name}} v{{application_version}}</title>
-    <!--    <meta http-equiv="refresh" content="2" >-->
 </head>
 <body class="container-fluid d-flex bg-dark bg-gradient text-light position-absolute mt-0 ms-0 me-0 mb-0">
 <div class="container-fluid p-0 m-0">
@@ -23,10 +23,10 @@
                     <a class="navbar-brand" href="#">{{application_name}} <small>({{application_version}})</small></a>
                 </div>
                 <div class="col text-center">
-                    <span>Local time:&nbsp;</span><span class="navbar-text" id="curr_time_id"></span>
+                    <span><i class="bi bi-clock"></i>&nbsp</span><span class="navbar-text" id="curr_time_id"></span>
                 </div>
                 <div class="col text-end">
-                    <span>Session run mode:&nbsp;</span><span class="navbar-text text-uppercase"
+                    <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text text-uppercase"
                                                               id="session_run_mode_value">{{session_run_mode}}</span>
                     <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
                 <span>

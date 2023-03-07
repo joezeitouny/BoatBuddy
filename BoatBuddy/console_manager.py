@@ -30,40 +30,40 @@ class ConsoleManager:
         self._console.print(f'[bright_yellow]Application is starting up. Please wait...[/bright_yellow]')
 
         with self._console.status('[bold bright_yellow]Loading logging module...[/bold bright_yellow]') as status:
-            time.sleep(0.2)
+            time.sleep(0.1)
             self._log_manager = LogManager(self._options)
             self._console.print(f'[green]Loading logging module...Done[/green]')
 
         with self._console.status('[bold bright_yellow]Loading sound module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             self._sound_manager = SoundManager(self._options, self._log_manager)
             self._console.print(f'[green]Loading sound module...Done[/green]')
 
         with self._console.status('[bold bright_yellow]Loading email module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             self._email_manager = EmailManager(self._options, self._log_manager)
             self._console.print(f'[green]Loading email module...Done[/green]')
 
         with self._console.status('[bold bright_yellow]Loading notifications module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             self._notifications_manager = NotificationsManager(self._options, self._log_manager, self._sound_manager,
                                                                self._email_manager)
             self._console.print(f'[green]Loading notifications module...Done[/green]')
 
         with self._console.status('[bold bright_yellow]Loading plugins module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             self._plugin_manager = PluginManager(self._options, self._log_manager, self._notifications_manager,
                                                  self._sound_manager, self._email_manager)
             self._console.print(f'[green]Loading plugins module...Done[/green]')
 
         with self._console.status('[bold bright_yellow]Loading database module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             self._database_manager = DatabaseManager(self._options, self._log_manager, self._plugin_manager,
                                                      self._notifications_manager)
             self._console.print(f'[green]Loading database module...Done[/green]')
 
         with self._console.status(f'[bold bright_yellow]Firing up console UI...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             # Play the application started chime
             self._sound_manager.play_sound_async(SoundType.APPLICATION_STARTED)
             self._console.print(f'[green]Firing up console UI...Done[/green]')

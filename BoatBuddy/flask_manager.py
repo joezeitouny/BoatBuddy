@@ -61,39 +61,39 @@ class FlaskManager:
         _console.print(f'[bright_yellow]Application is starting up. Please wait...[/bright_yellow]')
 
         with _console.status('[bold bright_yellow]Loading logging module...[/bold bright_yellow]') as status:
-            time.sleep(0.2)
+            time.sleep(0.1)
             _log_manager = LogManager(self._options)
             _console.print(f'[green]Loading logging module...Done[/green]')
 
         with _console.status('[bold bright_yellow]Loading sound module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             _sound_manager = SoundManager(self._options, _log_manager)
             _console.print(f'[green]Loading sound module...Done[/green]')
 
         with _console.status('[bold bright_yellow]Loading email module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             _email_manager = EmailManager(self._options, _log_manager)
             _console.print(f'[green]Loading email module...Done[/green]')
 
         with _console.status('[bold bright_yellow]Loading notifications module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             _notifications_manager = NotificationsManager(self._options, _log_manager, _sound_manager,
                                                                _email_manager)
             _console.print(f'[green]Loading notifications module...Done[/green]')
 
         with _console.status('[bold bright_yellow]Loading plugins module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             _plugin_manager = PluginManager(self._options, _log_manager, _notifications_manager, _sound_manager,
                                             _email_manager)
             _console.print(f'[green]Loading plugins module...Done[/green]')
 
         with _console.status('[bold bright_yellow]Loading database module...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             _database_manager = DatabaseManager(self._options, _log_manager, _plugin_manager, _notifications_manager)
             _console.print(f'[green]Loading database module...Done[/green]')
 
         with _console.status(f'[bold bright_yellow]Firing up console UI...[/bold bright_yellow]'):
-            time.sleep(0.2)
+            time.sleep(0.1)
             # Play the application started chime
             _sound_manager.play_sound_async(SoundType.APPLICATION_STARTED)
             _console.print(f'[green]Firing up web UI...Done[/green]')
