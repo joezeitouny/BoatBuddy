@@ -1,3 +1,10 @@
+## 0.5.14 (2023-03-07)
+
+* Added modal message to notify the user when connection to the server drops
+* Reduced the waiting period between the initialization of the modules from 0.2 to 0.1 seconds
+* Added bootstrap icons to the Web UI
+* Version bump to 0.5.14
+
 ## 0.5.13 (2023-03-07)
 
 * Improvements in the web application UI for smaller screen sizes
