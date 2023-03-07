@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div id="connection_lost_modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title">Warning !!!</h5>
+            </div>
+            <div class="modal-body bg-danger">
+                <span><i class="bi bi-exclamation-triangle"></i>&nbsp;Connection to the web server is lost!</span>
+            </div>
+            <div class="modal-footer bg-danger">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container p-0 mt-1">
     <div class="alert alert-warning ms-2 me-2 mb-0 text-danger" id="alert_section" role="alert" style="display: none; visibility: hidden;">
         <span id="alert_message"><i class="bi bi-exclamation-triangle"></i>This is the alert message placeholder</span>
@@ -276,6 +291,9 @@ document.getElementById('session_button_id').disabled = false;
 document.getElementById('session_button_id').disabled = true;
 {% endif %}
 
+const connectionLostModal = new bootstrap.Modal(document.getElementById('connection_lost_modal'), {backdrop: 'static'})
+is_toast_shown = false;
+
 var common_gauge_options = {
   angle: 0.15, // The span of the gauge arc
   lineWidth: 0.44, // The line thickness
@@ -407,6 +425,11 @@ function refreshData() {
         type: 'GET',
         url: '/data',
         success: function(data) {
+            if (is_toast_shown) {
+                connectionLostModal.hide();
+                is_toast_shown = false;
+            }
+
             // Update the relevant part of the webpage with the new data
             document.getElementById('curr_time_id').innerHTML = data['curr_time'];
 
@@ -565,6 +588,17 @@ $(document).ready(function() {
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
 });
+
+$(document).ajaxError(function( event, request, settings ) {
+        //When XHR Status code is 0 there is no connection with the server
+        if (request.status == 0){
+            if (!is_toast_shown) {
+                connectionLostModal.show();
+                is_toast_shown = true;
+            }
+        }
+
+    });
 </script>
 
 {% endblock %}
