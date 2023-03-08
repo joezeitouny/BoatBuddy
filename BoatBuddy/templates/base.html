@@ -17,24 +17,26 @@
 <body class="container-fluid d-flex bg-dark bg-gradient text-light position-absolute mt-0 ms-0 me-0 mb-0">
 <div class="container-fluid p-0 m-0">
     <div class="row">
-        <nav class="navbar navbar-expand-lg bg-secondary bg-gradient shadow">
+        <nav class="navbar navbar-expand-lg bg-dark bg-gradient shadow">
             <div class="container-fluid">
                 <div class="col">
-                    <a class="navbar-brand" href="#">{{application_name}} <small>({{application_version}})</small></a>
+                    <a class="navbar-brand" href="#"><span><img src="{{url_for('static', filename = 'logo.png')}}" alt="..." width="32" height="32"> {{application_name}} <small>({{application_version}})</small></span></a>
                 </div>
                 <div class="col text-center">
                     <span><i class="bi bi-clock"></i>&nbsp</span><span class="navbar-text" id="curr_time_id"></span>
                 </div>
-                <div class="col text-end">
-                    <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text text-uppercase"
-                                                              id="session_run_mode_value">{{session_run_mode}}</span>
-                    <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
-                <span>
-                    <span id="session_button_spinner" class="spinner-border spinner-border-sm"
-                          style="visibility: hidden; display: none;" role="status" aria-hidden="true"></span>
-                    <span id="session_button_text">Start Session</span>
-                </span>
-                    </button>
+                <div class="col">
+                    <span class="d-flex flex-nowrap align-items-center justify-content-end">
+                        <i class="bi bi-bootstrap-reboot"></i>
+                        &nbsp{{session_run_mode}}
+                        <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
+                            <span>
+                                <span id="session_button_spinner" class="spinner-border spinner-border-sm"
+                                      style="visibility: hidden; display: none;" role="status" aria-hidden="true"></span>
+                                <span id="session_button_text">Start Session</span>
+                            </span>
+                        </button>
+                    </span>
                 </div>
             </div>
         </nav>
