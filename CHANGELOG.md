@@ -1,3 +1,11 @@
+## 0.5.15 (2023-03-08)
+
+* Added application logo
+* Changed the responsive layout behaviour of the right column in the navbar so that the elements stick together on
+  smaller screen resolutions
+* Added reference documents
+* Version bump to 0.5.15
+
 ## 0.5.14 (2023-03-07)
 
 * Added modal message to notify the user when connection to the server drops
