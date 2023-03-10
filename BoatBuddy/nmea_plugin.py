@@ -6,7 +6,7 @@ from io import StringIO
 
 from events import Events
 from geopy.geocoders import Nominatim
-from latloncalc.latlon import LatLon, Latitude, Longitude
+from latloncalc.latlon import LatLon, Latitude, Longitude, string2latlon
 
 from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
@@ -40,11 +40,11 @@ class NMEAEntry:
         return utils.get_comma_separated_string(self.get_values())
 
     def get_values(self):
-        lat = ''
-        lon = ''
-        if self._gps_latitude != '':
+        lat = globals.EMPTY_METRIC_VALUE
+        lon = globals.EMPTY_METRIC_VALUE
+        if not isinstance(self._gps_latitude, str):
             lat = utils.get_str_from_latitude(self._gps_latitude)
-        if self._gps_longitude != '':
+        if not isinstance(self._gps_longitude, str):
             lon = utils.get_str_from_longitude(self._gps_longitude)
         return [f'{self._heading}', f'{self._true_wind_speed}',
                 f'{self._true_wind_direction}', f'{self._apparent_wind_speed}', f'{self._apparent_wind_angle}', lat,
@@ -68,16 +68,10 @@ class NMEAEntry:
         return self._apparent_wind_angle
 
     def get_gps_longitude(self):
-        if self._gps_longitude != '':
-            return self._gps_longitude
-        else:
-            return Longitude()
+        return self._gps_longitude
 
     def get_gps_latitude(self):
-        if self._gps_latitude != '':
-            return self._gps_latitude
-        else:
-            return Latitude()
+        return self._gps_latitude
 
     def get_water_temperature(self):
         return self._water_temperature
@@ -105,18 +99,35 @@ class NMEAPlugin(GenericPlugin):
         GenericPlugin.__init__(self, options, log_manager)
 
         # Instance metrics
-        self._water_temperature = ''
-        self._depth = ''
-        self._heading = ''
-        self._gps_latitude = ''
-        self._gps_longitude = ''
-        self._true_wind_speed = ''
-        self._true_wind_direction = ''
-        self._apparent_wind_speed = ''
-        self._apparent_wind_angle = ''
-        self._speed_over_water = ''
-        self._speed_over_ground = ''
+        self._water_temperature = globals.EMPTY_METRIC_VALUE
+        self._depth = globals.EMPTY_METRIC_VALUE
+        self._heading = globals.EMPTY_METRIC_VALUE
+        self._gps_latitude = globals.EMPTY_METRIC_VALUE
+        self._gps_longitude = globals.EMPTY_METRIC_VALUE
+        self._true_wind_speed = globals.EMPTY_METRIC_VALUE
+        self._true_wind_direction = globals.EMPTY_METRIC_VALUE
+        self._apparent_wind_speed = globals.EMPTY_METRIC_VALUE
+        self._apparent_wind_angle = globals.EMPTY_METRIC_VALUE
+        self._speed_over_water = globals.EMPTY_METRIC_VALUE
+        self._speed_over_ground = globals.EMPTY_METRIC_VALUE
         self._gps_fix_captured = False
+        self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+        self._sum_wind_speed = 0
+        self._cnt_wind_speed_entries = 0
+        self._sum_true_wind_direction = 0
+        self._cnt_true_wind_direction_entries = 0
+        self._sum_water_temperature = 0
+        self._cnt_water_temperature_entries = 0
+        self._sum_depth = 0
+        self._cnt_depth_entries = 0
+        self._sum_speed_over_ground = 0
+        self._cnt_speed_over_ground_entries = 0
+        self._sum_speed_over_water = 0
+        self._cnt_speed_over_water_entries = 0
 
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
@@ -130,37 +141,60 @@ class NMEAPlugin(GenericPlugin):
         self._log_manager.info('NMEA0183 module successfully started!')
 
     def reset_instance_metrics(self):
-        self._water_temperature = ''
-        self._depth = ''
-        self._heading = ''
-        self._gps_latitude = ''
-        self._gps_longitude = ''
-        self._true_wind_speed = ''
-        self._true_wind_direction = ''
-        self._apparent_wind_speed = ''
-        self._apparent_wind_angle = ''
-        self._speed_over_water = ''
-        self._speed_over_ground = ''
+        self._water_temperature = globals.EMPTY_METRIC_VALUE
+        self._depth = globals.EMPTY_METRIC_VALUE
+        self._heading = globals.EMPTY_METRIC_VALUE
+        self._gps_latitude = globals.EMPTY_METRIC_VALUE
+        self._gps_longitude = globals.EMPTY_METRIC_VALUE
+        self._true_wind_speed = globals.EMPTY_METRIC_VALUE
+        self._true_wind_direction = globals.EMPTY_METRIC_VALUE
+        self._apparent_wind_speed = globals.EMPTY_METRIC_VALUE
+        self._apparent_wind_angle = globals.EMPTY_METRIC_VALUE
+        self._speed_over_water = globals.EMPTY_METRIC_VALUE
+        self._speed_over_ground = globals.EMPTY_METRIC_VALUE
         self._gps_fix_captured = False
+        self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+        self._sum_wind_speed = 0
+        self._cnt_wind_speed_entries = 0
+        self._sum_true_wind_direction = 0
+        self._cnt_true_wind_direction_entries = 0
+        self._sum_water_temperature = 0
+        self._cnt_water_temperature_entries = 0
+        self._sum_depth = 0
+        self._cnt_depth_entries = 0
+        self._sum_speed_over_ground = 0
+        self._cnt_speed_over_ground_entries = 0
+        self._sum_speed_over_water = 0
+        self._cnt_speed_over_water_entries = 0
 
     def get_metadata_headers(self):
         return globals.NMEA_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         # Calculate the distance traveled so far and the distance from the last recorded entry
-        cumulative_distance = 0.0
-        distance_from_previous_entry = 0.0
+        cumulative_distance = globals.EMPTY_METRIC_VALUE
+        distance_from_previous_entry = globals.EMPTY_METRIC_VALUE
         entries_count = len(self._log_entries)
         # Check first if we currently have a GPS fix and that there is at least one previously logged entry
-        if self.is_gps_fix_captured() and entries_count > 0:
+        if self.is_gps_fix_captured() and entries_count > 0 and \
+                self._log_entries[entries_count - 1].get_gps_latitude() != globals.EMPTY_METRIC_VALUE and \
+                self._log_entries[entries_count - 1].get_gps_longitude() != globals.EMPTY_METRIC_VALUE and \
+                self._gps_latitude != globals.EMPTY_METRIC_VALUE and self._gps_longitude != globals.EMPTY_METRIC_VALUE:
             latlon_start = LatLon(self._log_entries[entries_count - 1].get_gps_latitude(),
                                   self._log_entries[entries_count - 1].get_gps_longitude())
             # Only calculate the distance and cumulative distance metrics if the last entry has a valid GPS fix
             if latlon_start.to_string() != LatLon(Latitude(), Longitude()).to_string():
                 latlon_end = LatLon(self._gps_latitude, self._gps_longitude)
                 distance_from_previous_entry = round(float(latlon_end.distance(latlon_start) / 1.852), 1)
-                cumulative_distance = round(float(self._log_entries[entries_count - 1].get_cumulative_distance())
-                                            + distance_from_previous_entry, 1)
+                if self._log_entries[entries_count - 1].get_cumulative_distance() == globals.EMPTY_METRIC_VALUE:
+                    cumulative_distance = round(distance_from_previous_entry, 1)
+                else:
+                    cumulative_distance = round(float(self._log_entries[entries_count - 1].get_cumulative_distance())
+                                                + distance_from_previous_entry, 1)
 
         # Create a new entry
         entry = NMEAEntry(self._heading, self._true_wind_speed, self._true_wind_direction,
@@ -172,6 +206,84 @@ class NMEAPlugin(GenericPlugin):
         if store_entry:
             self._log_entries.append(entry)
 
+            # Collect the GPS coordinates from the first entry which has valid ones
+            if self._summary_values[2] == globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[3] == globals.EMPTY_METRIC_VALUE and \
+                    entry.get_gps_latitude() != globals.EMPTY_METRIC_VALUE and \
+                    entry.get_gps_longitude() != globals.EMPTY_METRIC_VALUE:
+                self._summary_values[2] = utils.get_str_from_latitude(entry.get_gps_latitude())
+                self._summary_values[3] = utils.get_str_from_longitude(entry.get_gps_longitude())
+
+            # Collect the GPS coordinates from the last entry which has valid ones
+            if entry.get_gps_latitude() != globals.EMPTY_METRIC_VALUE and \
+                    entry.get_gps_longitude() != globals.EMPTY_METRIC_VALUE:
+                self._summary_values[4] = utils.get_str_from_latitude(entry.get_gps_latitude())
+                self._summary_values[5] = utils.get_str_from_longitude(entry.get_gps_longitude())
+
+            if self._summary_values[2] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[3] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[4] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[5] != globals.EMPTY_METRIC_VALUE:
+                # Calculate travelled distance and heading
+                latlon_start = string2latlon(self._summary_values[2], self._summary_values[3], 'd%°%m%\'%S%\" %H')
+                latlon_end = string2latlon(self._summary_values[4], self._summary_values[5], 'd%°%m%\'%S%\" %H')
+                if latlon_start.to_string("D") != latlon_end.to_string("D"):
+                    distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
+                    self._summary_values[6] = distance
+                    heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
+                    self._summary_values[7] = heading
+
+            # Calculate averages
+            if entry.get_true_wind_speed() != globals.EMPTY_METRIC_VALUE:
+                self._sum_wind_speed += utils.try_parse_float(entry.get_true_wind_speed())
+                self._cnt_wind_speed_entries += 1
+                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[8] = entry.get_true_wind_speed()
+                else:
+                    self._summary_values[8] = round(self._sum_wind_speed / self._cnt_wind_speed_entries)
+
+            if entry.get_true_wind_direction() != globals.EMPTY_METRIC_VALUE:
+                self._sum_true_wind_direction += utils.try_parse_int(entry.get_true_wind_direction())
+                self._cnt_true_wind_direction_entries += 1
+                if self._summary_values[9] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[9] = entry.get_true_wind_direction()
+                else:
+                    self._summary_values[9] = int(self._sum_true_wind_direction / self._cnt_true_wind_direction_entries)
+
+            if entry.get_water_temperature() != globals.EMPTY_METRIC_VALUE:
+                self._sum_water_temperature += utils.try_parse_float(entry.get_water_temperature())
+                self._cnt_water_temperature_entries += 1
+                if self._summary_values[10] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[10] = entry.get_water_temperature()
+                else:
+                    self._summary_values[10] = \
+                        round(self._sum_water_temperature / self._cnt_water_temperature_entries, 1)
+
+            if entry.get_depth() != globals.EMPTY_METRIC_VALUE:
+                self._sum_depth += utils.try_parse_float(entry.get_depth())
+                self._cnt_depth_entries += 1
+                if self._summary_values[11] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[11] = entry.get_depth()
+                else:
+                    self._summary_values[11] = round(self._sum_depth / self._cnt_depth_entries, 1)
+
+            if entry.get_speed_over_ground() != globals.EMPTY_METRIC_VALUE:
+                self._sum_speed_over_ground += utils.try_parse_float(entry.get_speed_over_ground())
+                self._cnt_speed_over_ground_entries += 1
+                if self._summary_values[12] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[12] = entry.get_speed_over_ground()
+                else:
+                    self._summary_values[12] = \
+                        round(self._sum_speed_over_ground / self._cnt_speed_over_ground_entries, 1)
+
+            if entry.get_speed_over_water() != globals.EMPTY_METRIC_VALUE:
+                self._sum_speed_over_water += utils.try_parse_float(entry.get_speed_over_water())
+                self._cnt_speed_over_water_entries += 1
+                if self._summary_values[13] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[13] = entry.get_speed_over_water()
+                else:
+                    self._summary_values[13] = round(self._sum_speed_over_water / self._cnt_speed_over_water_entries, 1)
+
         return entry
 
     def get_metadata_values(self):
@@ -182,119 +294,33 @@ class NMEAPlugin(GenericPlugin):
         return globals.NMEA_PLUGIN_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self, reverse_lookup_locations=False):
-        log_summary_list = []
-
-        if len(self._log_entries) > 0:
-            # Collect the GPS coordinates from the first entry which has valid ones
-            first_gps_latitude_entry = Latitude()
-            first_gps_longitude_entry = Longitude()
-            n = 0
-            while n < len(self._log_entries):
-                entry = self._log_entries[n]
-                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
-                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
-                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
-                        != LatLon(Latitude(), Longitude()).to_string("D"):
-                    first_gps_latitude_entry = entry.get_gps_latitude()
-                    first_gps_longitude_entry = entry.get_gps_longitude()
-                    break
-                n = n + 1
-
-            # Collect the GPS coordinates from the last entry which has valid ones
-            last_gps_latitude_entry = Latitude()
-            last_gps_longitude_entry = Longitude()
-            n = len(self._log_entries)
-            while n > 0:
-                entry = self._log_entries[n - 1]
-                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
-                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
-                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
-                        != LatLon(Latitude(), Longitude()).to_string("D"):
-                    last_gps_latitude_entry = entry.get_gps_latitude()
-                    last_gps_longitude_entry = entry.get_gps_longitude()
-                    break
-                n = n - 1
-
-            # Try to fetch the starting and ending location cities
-            if reverse_lookup_locations:
-                geolocator = Nominatim(user_agent="BoatBuddy")
-                starting_location_str = ''
+        if reverse_lookup_locations:
+            geolocator = Nominatim(user_agent="BoatBuddy")
+            if self._summary_values[2] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[3] != globals.EMPTY_METRIC_VALUE:
+                # Try to fetch the starting and ending location cities
                 try:
-                    starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
-                                                           f'{first_gps_longitude_entry}')
+                    starting_location = geolocator.reverse(f'{self._summary_values[2]}' + ',' +
+                                                           f'{self._summary_values[3]}')
                     starting_location_str = \
                         starting_location.raw['address'].get('city', '') + ', ' + \
                         starting_location.raw['address'].get('country', '')
+                    self._summary_values[0] = starting_location_str
                 except Exception as e:
-                    self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
-                log_summary_list.append(starting_location_str)
+                    self._log_manager.debug(f'Could not get start location from GPS coordinates. Details: {e}')
 
-                ending_location_str = ''
+            if self._summary_values[4] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[5] != globals.EMPTY_METRIC_VALUE:
                 try:
-                    ending_location = geolocator.reverse(f'{last_gps_latitude_entry}' + ',' +
-                                                         f'{last_gps_longitude_entry}')
-                    ending_location_str = \
-                        ending_location.raw['address'].get('city', '') + ', ' + \
-                        ending_location.raw['address'].get('country', '')
+                    ending_location = geolocator.reverse(f'{self._summary_values[4]}' + ',' +
+                                                         f'{self._summary_values[5]}')
+                    ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + ending_location.raw[
+                        'address'].get('country', '')
+                    self._summary_values[1] = ending_location_str
                 except Exception as e:
-                    self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
-                log_summary_list.append(ending_location_str)
-            else:
-                log_summary_list.append('N/A')
-                log_summary_list.append('N/A')
+                    self._log_manager.debug(f'Could not get end location from GPS coordinates. Details: {e}')
 
-            log_summary_list.append(utils.get_str_from_latitude(first_gps_latitude_entry))
-            log_summary_list.append(utils.get_str_from_longitude(first_gps_longitude_entry))
-            log_summary_list.append(utils.get_str_from_latitude(last_gps_latitude_entry))
-            log_summary_list.append(utils.get_str_from_longitude(last_gps_longitude_entry))
-
-            # Calculate travelled distance and heading
-            latlon_start = LatLon(first_gps_latitude_entry, first_gps_longitude_entry)
-            latlon_end = LatLon(last_gps_latitude_entry, last_gps_longitude_entry)
-            if latlon_start.to_string("D") != latlon_end.to_string("D"):
-                distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
-                log_summary_list.append(distance)
-                heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
-                log_summary_list.append(heading)
-            else:
-                log_summary_list.append(0)
-                log_summary_list.append('')
-
-            # Calculate averages
-            sum_wind_speed = 0
-            sum_true_wind_direction = 0
-            sum_water_temperature = 0
-            sum_depth = 0
-            sum_speed_over_ground = 0
-            sum_speed_over_water = 0
-            count = len(self._log_entries)
-            if count > 0:
-                for entry in self._log_entries:
-                    sum_wind_speed += utils.try_parse_float(entry.get_true_wind_speed())
-                    sum_true_wind_direction += utils.try_parse_int(entry.get_true_wind_direction())
-                    sum_water_temperature += utils.try_parse_float(entry.get_water_temperature())
-                    sum_depth += utils.try_parse_float(entry.get_depth())
-                    sum_speed_over_ground += utils.try_parse_float(entry.get_speed_over_ground())
-                    sum_speed_over_water += utils.try_parse_float(entry.get_speed_over_water())
-
-                log_summary_list.append(round(sum_wind_speed / count))
-                log_summary_list.append(int(sum_true_wind_direction / count))
-                log_summary_list.append(round(sum_water_temperature / count, 1))
-                log_summary_list.append(round(sum_depth / count, 1))
-                log_summary_list.append(round(sum_speed_over_ground / count, 1))
-                log_summary_list.append(round(sum_speed_over_water / count, 1))
-            else:
-                log_summary_list.append('')
-                log_summary_list.append('')
-                log_summary_list.append('')
-                log_summary_list.append('')
-                log_summary_list.append('')
-                log_summary_list.append('')
-        else:
-            log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A',
-                                'N/A', 'N/A', 'N/A', 'N/A']
-
-        return log_summary_list
+        return self._summary_values.copy()
 
     def connect_to_server(self):
         if self._exit_signal.is_set():

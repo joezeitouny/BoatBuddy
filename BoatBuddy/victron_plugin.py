@@ -92,26 +92,52 @@ class VictronPlugin(GenericPlugin):
         GenericPlugin.__init__(self, options, log_manager)
 
         # Instance metrics
-        self._grid_power = ''
-        self._generator_power = ''
-        self._input_source_string = ''
-        self._ac_consumption = ''
-        self._battery_state_string = ''
-        self._battery_voltage = ''
-        self._battery_current = ''
-        self._battery_power = ''
-        self._battery_soc = ''
-        self._pv_power = ''
-        self._pv_current = ''
-        self._starter_battery_voltage = ''
-        self._ac_input_voltage = ''
-        self._ac_input_current = ''
-        self._ac_input_frequency = ''
-        self._ve_bus_state_string = ''
-        self._tank1_level = ''
-        self._tank1_type_string = ''
-        self._tank2_level = ''
-        self._tank2_type_string = ''
+        self._grid_power = globals.EMPTY_METRIC_VALUE
+        self._generator_power = globals.EMPTY_METRIC_VALUE
+        self._input_source_string = globals.EMPTY_METRIC_VALUE
+        self._ac_consumption = globals.EMPTY_METRIC_VALUE
+        self._battery_state_string = globals.EMPTY_METRIC_VALUE
+        self._battery_voltage = globals.EMPTY_METRIC_VALUE
+        self._battery_current = globals.EMPTY_METRIC_VALUE
+        self._battery_power = globals.EMPTY_METRIC_VALUE
+        self._battery_soc = globals.EMPTY_METRIC_VALUE
+        self._pv_power = globals.EMPTY_METRIC_VALUE
+        self._pv_current = globals.EMPTY_METRIC_VALUE
+        self._starter_battery_voltage = globals.EMPTY_METRIC_VALUE
+        self._ac_input_voltage = globals.EMPTY_METRIC_VALUE
+        self._ac_input_current = globals.EMPTY_METRIC_VALUE
+        self._ac_input_frequency = globals.EMPTY_METRIC_VALUE
+        self._ve_bus_state_string = globals.EMPTY_METRIC_VALUE
+        self._tank1_level = globals.EMPTY_METRIC_VALUE
+        self._tank1_type_string = globals.EMPTY_METRIC_VALUE
+        self._tank2_level = globals.EMPTY_METRIC_VALUE
+        self._tank2_type_string = globals.EMPTY_METRIC_VALUE
+        self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE]
+        self._sum_housing_battery_voltage = 0
+        self._cnt_housing_battery_voltage_entries = 0
+        self._sum_housing_battery_current = 0
+        self._cnt_housing_battery_current_entries = 0
+        self._sum_housing_battery_power = 0
+        self._cnt_housing_battery_power_entries = 0
+        self._sum_pv_power = 0
+        self._cnt_pv_power_entries = 0
+        self._sum_pv_current = 0
+        self._cnt_pv_current_entries = 0
+        self._sum_starter_battery_voltage = 0
+        self._cnt_starter_battery_voltage_entries = 0
+        self._sum_ac_consumption_power = 0
+        self._cnt_ac_consumption_power_entries = 0
+        self._sum_tank1_level = 0
+        self._cnt_tank1_level_entries = 0
+        self._sum_tank2_level = 0
+        self._cnt_tank2_level_entries = 0
 
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
@@ -121,26 +147,52 @@ class VictronPlugin(GenericPlugin):
         self._log_manager.info('Victron module successfully started!')
 
     def reset_instance_metrics(self):
-        self._grid_power = ''
-        self._generator_power = ''
-        self._input_source_string = ''
-        self._ac_consumption = ''
-        self._battery_state_string = ''
-        self._battery_voltage = ''
-        self._battery_current = ''
-        self._battery_power = ''
-        self._battery_soc = ''
-        self._pv_power = ''
-        self._pv_current = ''
-        self._starter_battery_voltage = ''
-        self._ac_input_voltage = ''
-        self._ac_input_current = ''
-        self._ac_input_frequency = ''
-        self._ve_bus_state_string = ''
-        self._tank1_level = ''
-        self._tank1_type_string = ''
-        self._tank2_level = ''
-        self._tank2_type_string = ''
+        self._grid_power = globals.EMPTY_METRIC_VALUE
+        self._generator_power = globals.EMPTY_METRIC_VALUE
+        self._input_source_string = globals.EMPTY_METRIC_VALUE
+        self._ac_consumption = globals.EMPTY_METRIC_VALUE
+        self._battery_state_string = globals.EMPTY_METRIC_VALUE
+        self._battery_voltage = globals.EMPTY_METRIC_VALUE
+        self._battery_current = globals.EMPTY_METRIC_VALUE
+        self._battery_power = globals.EMPTY_METRIC_VALUE
+        self._battery_soc = globals.EMPTY_METRIC_VALUE
+        self._pv_power = globals.EMPTY_METRIC_VALUE
+        self._pv_current = globals.EMPTY_METRIC_VALUE
+        self._starter_battery_voltage = globals.EMPTY_METRIC_VALUE
+        self._ac_input_voltage = globals.EMPTY_METRIC_VALUE
+        self._ac_input_current = globals.EMPTY_METRIC_VALUE
+        self._ac_input_frequency = globals.EMPTY_METRIC_VALUE
+        self._ve_bus_state_string = globals.EMPTY_METRIC_VALUE
+        self._tank1_level = globals.EMPTY_METRIC_VALUE
+        self._tank1_type_string = globals.EMPTY_METRIC_VALUE
+        self._tank2_level = globals.EMPTY_METRIC_VALUE
+        self._tank2_type_string = globals.EMPTY_METRIC_VALUE
+        self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE]
+        self._sum_housing_battery_voltage = 0
+        self._cnt_housing_battery_voltage_entries = 0
+        self._sum_housing_battery_current = 0
+        self._cnt_housing_battery_current_entries = 0
+        self._sum_housing_battery_power = 0
+        self._cnt_housing_battery_power_entries = 0
+        self._sum_pv_power = 0
+        self._cnt_pv_power_entries = 0
+        self._sum_pv_current = 0
+        self._cnt_pv_current_entries = 0
+        self._sum_starter_battery_voltage = 0
+        self._cnt_starter_battery_voltage_entries = 0
+        self._sum_ac_consumption_power = 0
+        self._cnt_ac_consumption_power_entries = 0
+        self._sum_tank1_level = 0
+        self._cnt_tank1_level_entries = 0
+        self._sum_tank2_level = 0
+        self._cnt_tank2_level_entries = 0
 
     def main_loop(self):
         if self._exit_signal.is_set():
@@ -353,6 +405,177 @@ class VictronPlugin(GenericPlugin):
 
             self._log_entries.append(entry)
 
+            # Calculate extremes and averages
+            if entry.get_battery_voltage() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[0] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[0] = entry.get_battery_voltage()
+                else:
+                    self._summary_values[0] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.get_battery_voltage()),
+                                                 self._summary_values[0])
+
+                if self._summary_values[1] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[1] = entry.get_battery_voltage()
+                else:
+                    self._summary_values[1] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.get_battery_voltage()),
+                                                  self._summary_values[1])
+
+                self._sum_housing_battery_voltage += utils.try_parse_float(entry.get_battery_voltage())
+                self._cnt_housing_battery_voltage_entries += 1
+                if self._summary_values[2] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[2] = entry.get_battery_voltage()
+                else:
+                    self._summary_values[2] = \
+                        round(self._sum_housing_battery_voltage / self._cnt_housing_battery_voltage_entries, 2)
+
+            if entry.get_battery_current() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[3] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[3] = entry.get_battery_current()
+                else:
+                    self._summary_values[3] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.get_battery_current()),
+                                                 self._summary_values[3])
+
+                self._sum_housing_battery_current += utils.try_parse_float(entry.get_battery_current())
+                self._cnt_housing_battery_current_entries += 1
+                if self._summary_values[4] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[4] = entry.get_battery_current()
+                else:
+                    self._summary_values[4] = \
+                        round(self._sum_housing_battery_current / self._cnt_housing_battery_current_entries, 2)
+
+            if entry.get_battery_power() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[5] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[5] = entry.get_battery_power()
+                else:
+                    self._summary_values[5] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_battery_power()),
+                                                 self._summary_values[5])
+
+                self._sum_housing_battery_power += utils.try_parse_int(entry.get_battery_power())
+                self._cnt_housing_battery_power_entries += 1
+                if self._summary_values[6] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[6] = entry.get_battery_power()
+                else:
+                    self._summary_values[6] = \
+                        round(self._sum_housing_battery_power / self._cnt_housing_battery_power_entries)
+
+            if entry.get_pv_power() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[7] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[7] = entry.get_pv_power()
+                else:
+                    self._summary_values[7] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_pv_power()),
+                                                 self._summary_values[7])
+
+                self._sum_pv_power += utils.try_parse_int(entry.get_pv_power())
+                self._cnt_pv_power_entries += 1
+                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[8] = entry.get_pv_power()
+                else:
+                    self._summary_values[8] = round(self._sum_pv_power / self._cnt_pv_power_entries)
+
+            if entry.get_pv_current() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[9] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[9] = entry.get_pv_current()
+                else:
+                    self._summary_values[9] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.get_pv_current()),
+                                                 self._summary_values[9])
+
+                self._sum_pv_current += utils.try_parse_float(entry.get_pv_current())
+                self._cnt_pv_current_entries += 1
+                if self._summary_values[10] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[10] = entry.get_pv_current()
+                else:
+                    self._summary_values[10] = round(self._sum_pv_current / self._cnt_pv_current_entries, 1)
+
+            if entry.get_starter_battery_voltage() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[11] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[11] = entry.get_starter_battery_voltage()
+                else:
+                    self._summary_values[11] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.get_starter_battery_voltage()),
+                                                 self._summary_values[11])
+
+                if self._summary_values[12] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[12] = entry.get_starter_battery_voltage()
+                else:
+                    self._summary_values[12] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.get_starter_battery_voltage()),
+                                                  self._summary_values[12])
+
+                self._sum_starter_battery_voltage += utils.try_parse_float(entry.get_starter_battery_voltage())
+                self._cnt_starter_battery_voltage_entries += 1
+                if self._summary_values[13] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[13] = entry.get_starter_battery_voltage()
+                else:
+                    self._summary_values[13] = \
+                        round(self._sum_starter_battery_voltage / self._cnt_starter_battery_voltage_entries, 2)
+
+            if entry.get_ac_consumption_power() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[14] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[14] = entry.get_ac_consumption_power()
+                else:
+                    self._summary_values[14] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_ac_consumption_power()),
+                                                 self._summary_values[14])
+
+                self._sum_ac_consumption_power += utils.try_parse_int(entry.get_ac_consumption_power())
+                self._cnt_ac_consumption_power_entries += 1
+                if self._summary_values[15] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[15] = entry.get_ac_consumption_power()
+                else:
+                    self._summary_values[15] = \
+                        round(self._sum_ac_consumption_power / self._cnt_ac_consumption_power_entries)
+
+            if entry.get_tank1_level() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[16] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[16] = entry.get_tank1_level()
+                else:
+                    self._summary_values[16] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_tank1_level()),
+                                                 self._summary_values[16])
+
+                if self._summary_values[17] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[17] = entry.get_tank1_level()
+                else:
+                    self._summary_values[17] = \
+                        utils.get_smallest_number(utils.try_parse_int(entry.get_tank1_level()),
+                                                  self._summary_values[17])
+
+                self._sum_tank1_level += utils.try_parse_int(entry.get_tank1_level())
+                self._cnt_tank1_level_entries += 1
+                if self._summary_values[18] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[18] = entry.get_tank1_level()
+                else:
+                    self._summary_values[18] = \
+                        round(self._sum_tank1_level / self._cnt_tank1_level_entries)
+
+            if entry.get_tank2_level() != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[19] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[19] = entry.get_tank2_level()
+                else:
+                    self._summary_values[19] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_tank2_level()),
+                                                 self._summary_values[19])
+
+                if self._summary_values[20] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[20] = entry.get_tank2_level()
+                else:
+                    self._summary_values[20] = \
+                        utils.get_smallest_number(utils.try_parse_int(entry.get_tank2_level()),
+                                                  self._summary_values[20])
+
+                self._sum_tank2_level += utils.try_parse_int(entry.get_tank2_level())
+                self._cnt_tank2_level_entries += 1
+                if self._summary_values[21] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[21] = entry.get_tank2_level()
+                else:
+                    self._summary_values[21] = \
+                        round(self._sum_tank2_level / self._cnt_tank2_level_entries)
+
         return entry
 
     def get_metadata_values(self):
@@ -371,112 +594,7 @@ class VictronPlugin(GenericPlugin):
         return globals.VICTRON_PLUGINS_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
-        log_summary_list = []
-
-        if len(self._log_entries) > 0:
-            # Calculate extremes and averages
-            housing_battery_max_voltage = 0
-            housing_battery_min_voltage = 0
-            sum_housing_battery_voltage = 0
-            housing_battery_max_current = 0
-            sum_housing_battery_current = 0
-            housing_battery_max_power = 0
-            sum_housing_battery_power = 0
-            pv_max_power = 0
-            sum_pv_power = 0
-            pv_max_current = 0
-            sum_pv_current = 0
-            starter_battery_max_voltage = 0
-            starter_battery_min_voltage = 0
-            sum_starter_battery_voltage = 0
-            ac_consumption_max_power = 0
-            sum_ac_consumption_power = 0
-            tank1_min_level = 0
-            tank1_max_level = 0
-            sum_tank1_level = 0
-            tank2_min_level = 0
-            tank2_max_level = 0
-            sum_tank2_level = 0
-            count = len(self._log_entries)
-            for entry in self._log_entries:
-                # Sum up all values that will be averaged later
-                sum_housing_battery_voltage += utils.try_parse_float(entry.get_battery_voltage())
-                sum_housing_battery_current += utils.try_parse_float(entry.get_battery_current())
-                sum_housing_battery_power += utils.try_parse_float(entry.get_battery_power())
-                sum_pv_power += utils.try_parse_float(entry.get_pv_power())
-                sum_pv_current += utils.try_parse_float(entry.get_pv_current())
-                sum_starter_battery_voltage += utils.try_parse_float(entry.get_starter_battery_voltage())
-                sum_ac_consumption_power += utils.try_parse_float(entry.get_ac_consumption_power())
-                sum_tank1_level += utils.try_parse_int(entry.get_tank1_level())
-                sum_tank2_level += utils.try_parse_int(entry.get_tank2_level())
-
-                # Collect extremes
-                housing_battery_max_voltage = utils.get_biggest_number(
-                    utils.try_parse_float(entry.get_battery_voltage()), housing_battery_max_voltage)
-                if housing_battery_min_voltage == 0:
-                    housing_battery_min_voltage = utils.try_parse_float(entry.get_battery_voltage())
-                else:
-                    housing_battery_min_voltage = utils.get_smallest_number(
-                        utils.try_parse_float(entry.get_battery_voltage()), housing_battery_min_voltage)
-                housing_battery_max_current = utils.get_biggest_number(
-                    utils.try_parse_float(entry.get_battery_current()), housing_battery_max_current)
-                housing_battery_max_power = utils.get_biggest_number(
-                    utils.try_parse_float(entry.get_battery_power()), housing_battery_max_power)
-                pv_max_power = utils.get_biggest_number(utils.try_parse_float(entry.get_pv_power()), pv_max_power)
-                pv_max_current = utils.get_biggest_number(utils.try_parse_float(entry.get_pv_current()), pv_max_current)
-                starter_battery_max_voltage = utils.get_biggest_number(
-                    utils.try_parse_float(entry.get_starter_battery_voltage()), starter_battery_max_voltage)
-                if starter_battery_min_voltage == 0:
-                    starter_battery_min_voltage = utils.try_parse_float(entry.get_starter_battery_voltage())
-                else:
-                    starter_battery_min_voltage = utils.get_smallest_number(
-                        utils.try_parse_float(entry.get_starter_battery_voltage()), starter_battery_min_voltage)
-                ac_consumption_max_power = utils.get_biggest_number(
-                    utils.try_parse_float(entry.get_ac_consumption_power()), ac_consumption_max_power)
-                if tank1_min_level == 0:
-                    tank1_min_level = utils.try_parse_float(entry.get_tank1_level())
-                else:
-                    tank1_min_level = utils.get_smallest_number(
-                        utils.try_parse_float(entry.get_tank1_level()), tank1_min_level)
-                tank1_max_level = utils.get_biggest_number(
-                    utils.try_parse_float(entry.get_tank1_level()), tank1_max_level)
-
-                if tank2_min_level == 0:
-                    tank2_min_level = utils.try_parse_float(entry.get_tank2_level())
-                else:
-                    tank2_min_level = utils.get_smallest_number(
-                        utils.try_parse_float(entry.get_tank2_level()), tank2_min_level)
-                tank2_max_level = utils.get_biggest_number(
-                    utils.try_parse_float(entry.get_tank2_level()), tank2_max_level)
-
-            log_summary_list.append(housing_battery_max_voltage)
-            log_summary_list.append(housing_battery_min_voltage)
-            log_summary_list.append(round(sum_housing_battery_voltage / count, 2))
-            log_summary_list.append(housing_battery_max_current)
-            log_summary_list.append(round(sum_housing_battery_current / count, 2))
-            log_summary_list.append(housing_battery_max_power)
-            log_summary_list.append(round(sum_housing_battery_power / count))
-            log_summary_list.append(pv_max_power)
-            log_summary_list.append(round(sum_pv_power / count))
-            log_summary_list.append(pv_max_current)
-            log_summary_list.append(round(sum_pv_current / count, 1))
-            log_summary_list.append(starter_battery_max_voltage)
-            log_summary_list.append(starter_battery_min_voltage)
-            log_summary_list.append(round(sum_starter_battery_voltage / count, 2))
-            log_summary_list.append(ac_consumption_max_power)
-            log_summary_list.append(round(sum_ac_consumption_power / count))
-            log_summary_list.append(tank1_max_level)
-            log_summary_list.append(tank1_min_level)
-            log_summary_list.append(round(sum_tank1_level / count))
-            log_summary_list.append(tank2_max_level)
-            log_summary_list.append(tank2_min_level)
-            log_summary_list.append(round(sum_tank2_level / count))
-        else:
-            log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A',
-                                'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A',
-                                'N/A', 'N/A']
-
-        return log_summary_list
+        return self._summary_values.copy()
 
     def get_status(self) -> PluginStatus:
         return self._plugin_status

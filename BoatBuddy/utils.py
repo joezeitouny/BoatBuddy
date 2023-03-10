@@ -99,7 +99,7 @@ def get_comma_separated_string(values_list):
     else:
         comma_separated_list = ''
         for entry in values_list:
-            comma_separated_list = comma_separated_list + f'{entry},'
+            comma_separated_list = comma_separated_list + f'"{entry}",'
 
         return comma_separated_list[:-1]
 

@@ -1,3 +1,11 @@
+## 0.6.0 (2023-03-10)
+
+* Fixed issue with CSV files not rendering correctly
+* Empty values are now reported as string "N/A" across the board 
+* Summary values are computed when snapshots are taken except the ones that deal with reverse location lookup 
+* Database structure is modified to accommodate string values as empty values
+* Version bump to 0.6.0
+
 ## 0.5.15 (2023-03-08)
 
 * Added application logo

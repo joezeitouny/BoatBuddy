@@ -6,7 +6,7 @@ from io import StringIO
 
 from events import Events
 from geopy.geocoders import Nominatim
-from latloncalc.latlon import LatLon, Latitude, Longitude
+from latloncalc.latlon import LatLon, Latitude, Longitude, string2latlon
 from serial import Serial
 
 from BoatBuddy import globals, utils
@@ -32,26 +32,20 @@ class GPSEntry:
         return utils.get_comma_separated_string(self.get_values())
 
     def get_values(self):
-        lat = ''
-        lon = ''
-        if self._gps_latitude != '':
+        lat = globals.EMPTY_METRIC_VALUE
+        lon = globals.EMPTY_METRIC_VALUE
+        if not isinstance(self._gps_latitude, str):
             lat = utils.get_str_from_latitude(self._gps_latitude)
-        if self._gps_longitude != '':
+        if not isinstance(self._gps_longitude, str):
             lon = utils.get_str_from_longitude(self._gps_longitude)
         return [lat, lon, self._location, self._speed_over_ground, self._course_over_ground,
                 self._distance_from_previous_entry, self._cumulative_distance]
 
     def get_gps_longitude(self):
-        if self._gps_longitude != '':
-            return self._gps_longitude
-        else:
-            return Longitude()
+        return self._gps_longitude
 
     def get_gps_latitude(self):
-        if self._gps_latitude != '':
-            return self._gps_latitude
-        else:
-            return Latitude()
+        return self._gps_latitude
 
     def get_location(self):
         return self._location
@@ -78,12 +72,17 @@ class GPSPlugin(GenericPlugin):
         GenericPlugin.__init__(self, options, log_manager)
 
         # Instance metrics
-        self._gps_latitude = ''
-        self._gps_longitude = ''
-        self._location = ''
-        self._speed_over_ground = ''
-        self._course_over_ground = ''
+        self._gps_latitude = globals.EMPTY_METRIC_VALUE
+        self._gps_longitude = globals.EMPTY_METRIC_VALUE
+        self._location = globals.EMPTY_METRIC_VALUE
+        self._speed_over_ground = globals.EMPTY_METRIC_VALUE
+        self._course_over_ground = globals.EMPTY_METRIC_VALUE
         self._gps_fix_captured = False
+        self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+        self._sum_sog = 0
+        self._cnt_sog_entries = 0
 
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
@@ -93,31 +92,42 @@ class GPSPlugin(GenericPlugin):
         self._log_manager.info('GPS module successfully started!')
 
     def reset_instance_metrics(self):
-        self._gps_latitude = ''
-        self._gps_longitude = ''
-        self._location = ''
-        self._speed_over_ground = ''
-        self._course_over_ground = ''
+        self._gps_latitude = globals.EMPTY_METRIC_VALUE
+        self._gps_longitude = globals.EMPTY_METRIC_VALUE
+        self._location = globals.EMPTY_METRIC_VALUE
+        self._speed_over_ground = globals.EMPTY_METRIC_VALUE
+        self._course_over_ground = globals.EMPTY_METRIC_VALUE
         self._gps_fix_captured = False
+        self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+        self._sum_sog = 0
+        self._cnt_sog_entries = 0
 
     def get_metadata_headers(self):
         return globals.GPS_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         # Calculate the distance traveled so far and the distance from the last recorded entry
-        cumulative_distance = 0.0
-        distance_from_previous_entry = 0.0
+        cumulative_distance = globals.EMPTY_METRIC_VALUE
+        distance_from_previous_entry = globals.EMPTY_METRIC_VALUE
         entries_count = len(self._log_entries)
         # Check first if we currently have a GPS fix and that there is at least one previously logged entry
-        if self.is_gps_fix_captured() and entries_count > 0:
+        if self.is_gps_fix_captured() and entries_count > 0 and \
+                self._log_entries[entries_count - 1].get_gps_latitude() != globals.EMPTY_METRIC_VALUE and \
+                self._log_entries[entries_count - 1].get_gps_longitude() != globals.EMPTY_METRIC_VALUE and \
+                self._gps_latitude != globals.EMPTY_METRIC_VALUE and self._gps_longitude != globals.EMPTY_METRIC_VALUE:
             latlon_start = LatLon(self._log_entries[entries_count - 1].get_gps_latitude(),
                                   self._log_entries[entries_count - 1].get_gps_longitude())
             # Only calculate the distance and cumulative distance metrics if the last entry has a valid GPS fix
             if latlon_start.to_string() != LatLon(Latitude(), Longitude()).to_string():
                 latlon_end = LatLon(self._gps_latitude, self._gps_longitude)
                 distance_from_previous_entry = round(float(latlon_end.distance(latlon_start) / 1.852), 1)
-                cumulative_distance = round(float(self._log_entries[entries_count - 1].get_cumulative_distance())
-                                            + distance_from_previous_entry, 1)
+                if self._log_entries[entries_count - 1].get_cumulative_distance() == globals.EMPTY_METRIC_VALUE:
+                    cumulative_distance = round(distance_from_previous_entry, 1)
+                else:
+                    cumulative_distance = round(float(self._log_entries[entries_count - 1].get_cumulative_distance())
+                                                + distance_from_previous_entry, 1)
 
         # Create a new entry
         entry = GPSEntry(self._gps_latitude, self._gps_longitude, self._location, self._speed_over_ground,
@@ -126,6 +136,43 @@ class GPSPlugin(GenericPlugin):
         # Add it to the list of entries in memory
         if store_entry:
             self._log_entries.append(entry)
+
+            # calculate summary values
+            # Collect the GPS coordinates from the first entry which has valid ones
+            if self._summary_values[2] == globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[3] == globals.EMPTY_METRIC_VALUE and \
+                    entry.get_gps_latitude() != globals.EMPTY_METRIC_VALUE and \
+                    entry.get_gps_longitude() != globals.EMPTY_METRIC_VALUE:
+                self._summary_values[2] = utils.get_str_from_latitude(entry.get_gps_latitude())
+                self._summary_values[3] = utils.get_str_from_longitude(entry.get_gps_longitude())
+
+            # Collect the GPS coordinates from the last entry which has valid ones
+            if entry.get_gps_latitude() != globals.EMPTY_METRIC_VALUE and \
+                    entry.get_gps_longitude() != globals.EMPTY_METRIC_VALUE:
+                self._summary_values[4] = utils.get_str_from_latitude(entry.get_gps_latitude())
+                self._summary_values[5] = utils.get_str_from_longitude(entry.get_gps_longitude())
+
+            if self._summary_values[2] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[3] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[4] != globals.EMPTY_METRIC_VALUE and \
+                    self._summary_values[5] != globals.EMPTY_METRIC_VALUE:
+                # Calculate travelled distance and heading
+                latlon_start = string2latlon(self._summary_values[2], self._summary_values[3], 'd%°%m%\'%S%\" %H')
+                latlon_end = string2latlon(self._summary_values[4], self._summary_values[5], 'd%°%m%\'%S%\" %H')
+                if latlon_start.to_string("D") != latlon_end.to_string("D"):
+                    distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
+                    self._summary_values[6] = distance
+                    heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
+                    self._summary_values[7] = heading
+
+            # Calculate averages
+            if entry.get_speed_over_ground() != globals.EMPTY_METRIC_VALUE:
+                self._sum_sog += utils.try_parse_float(entry.get_speed_over_ground())
+                self._cnt_sog_entries += 1
+                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[8] = entry.get_speed_over_ground()
+                else:
+                    self._summary_values[8] = round(self._sum_sog / self._cnt_sog_entries, 1)
 
         return entry
 
@@ -137,97 +184,33 @@ class GPSPlugin(GenericPlugin):
         return globals.GPS_PLUGIN_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self, reverse_lookup_locations=False):
-        log_summary_list = []
-
-        if len(self._log_entries) > 0:
-            # Collect the GPS coordinates from the first entry which has valid ones
-            first_gps_latitude_entry = Latitude()
-            first_gps_longitude_entry = Longitude()
-            n = 0
-            while n < len(self._log_entries):
-                entry = self._log_entries[n]
-                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
-                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
-                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
-                        != LatLon(Latitude(), Longitude()).to_string("D"):
-                    first_gps_latitude_entry = entry.get_gps_latitude()
-                    first_gps_longitude_entry = entry.get_gps_longitude()
-                    break
-                n = n + 1
-
-            # Collect the GPS coordinates from the last entry which has valid ones
-            last_gps_latitude_entry = Latitude()
-            last_gps_longitude_entry = Longitude()
-            n = len(self._log_entries)
-            while n > 0:
-                entry = self._log_entries[n - 1]
-                if entry.get_gps_latitude().to_string("D") != Latitude().to_string("D") and \
-                        entry.get_gps_longitude().to_string("D") != Longitude().to_string("D") and \
-                        LatLon(entry.get_gps_latitude(), entry.get_gps_longitude()).to_string("D") \
-                        != LatLon(Latitude(), Longitude()).to_string("D"):
-                    last_gps_latitude_entry = entry.get_gps_latitude()
-                    last_gps_longitude_entry = entry.get_gps_longitude()
-                    break
-                n = n - 1
-
-            if reverse_lookup_locations:
+        if reverse_lookup_locations:
+            geolocator = Nominatim(user_agent="BoatBuddy")
+            if self._summary_values[2] != globals.EMPTY_METRIC_VALUE and\
+                    self._summary_values[3] != globals.EMPTY_METRIC_VALUE:
                 # Try to fetch the starting and ending location cities
-                geolocator = Nominatim(user_agent="BoatBuddy")
-                starting_location_str = ''
                 try:
-                    starting_location = geolocator.reverse(f'{first_gps_latitude_entry}' + ',' +
-                                                           f'{first_gps_longitude_entry}')
-                    starting_location_str = starting_location.raw['address'].get('city', '') + ', ' + \
-                                            starting_location.raw[
-                                                'address'].get('country', '')
+                    starting_location = geolocator.reverse(f'{self._summary_values[2]}' + ',' +
+                                                           f'{self._summary_values[3]}')
+                    starting_location_str = \
+                        starting_location.raw['address'].get('city', '') + ', ' + \
+                        starting_location.raw['address'].get('country', '')
+                    self._summary_values[0] = starting_location_str
                 except Exception as e:
-                    self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
-                log_summary_list.append(starting_location_str)
+                    self._log_manager.debug(f'Could not get start location from GPS coordinates. Details: {e}')
 
-                ending_location_str = ''
+            if self._summary_values[4] != globals.EMPTY_METRIC_VALUE and\
+                    self._summary_values[5] != globals.EMPTY_METRIC_VALUE:
                 try:
-                    ending_location = geolocator.reverse(f'{last_gps_latitude_entry}' + ',' +
-                                                         f'{last_gps_longitude_entry}')
+                    ending_location = geolocator.reverse(f'{self._summary_values[4]}' + ',' +
+                                                         f'{self._summary_values[5]}')
                     ending_location_str = ending_location.raw['address'].get('city', '') + ', ' + ending_location.raw[
                         'address'].get('country', '')
+                    self._summary_values[1] = ending_location_str
                 except Exception as e:
-                    self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
-                log_summary_list.append(ending_location_str)
-            else:
-                log_summary_list.append('N/A')
-                log_summary_list.append('N/A')
+                    self._log_manager.debug(f'Could not get end location from GPS coordinates. Details: {e}')
 
-            log_summary_list.append(utils.get_str_from_latitude(first_gps_latitude_entry))
-            log_summary_list.append(utils.get_str_from_longitude(first_gps_longitude_entry))
-            log_summary_list.append(utils.get_str_from_latitude(last_gps_latitude_entry))
-            log_summary_list.append(utils.get_str_from_longitude(last_gps_longitude_entry))
-
-            # Calculate travelled distance and heading
-            latlon_start = LatLon(first_gps_latitude_entry, first_gps_longitude_entry)
-            latlon_end = LatLon(last_gps_latitude_entry, last_gps_longitude_entry)
-            if latlon_start.to_string("D") != latlon_end.to_string("D"):
-                distance = round(float(latlon_end.distance(latlon_start) / 1.852), 2)
-                log_summary_list.append(distance)
-                heading = math.floor(float(latlon_end.heading_initial(latlon_start)))
-                log_summary_list.append(heading)
-            else:
-                log_summary_list.append(0)
-                log_summary_list.append('')
-
-            # Calculate averages
-            sum_speed_over_ground = 0
-            count = len(self._log_entries)
-            if count > 0:
-                for entry in self._log_entries:
-                    sum_speed_over_ground += utils.try_parse_float(entry.get_speed_over_ground())
-
-                log_summary_list.append(round(sum_speed_over_ground / count, 1))
-            else:
-                log_summary_list.append('')
-        else:
-            log_summary_list = ['N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A']
-
-        return log_summary_list
+        return self._summary_values.copy()
 
     def main_loop(self):
         if self._exit_signal.is_set():

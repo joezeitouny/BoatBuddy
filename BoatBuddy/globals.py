@@ -2,11 +2,12 @@ from enum import Enum
 
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.5.15'
+APPLICATION_VERSION = '0.6.0'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
+EMPTY_METRIC_VALUE = "N/A"
 
 # NMEA Plugin
 BUFFER_SIZE = 4096
