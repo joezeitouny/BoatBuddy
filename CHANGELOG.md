@@ -1,3 +1,10 @@
+## 0.6.1 (2023-03-15)
+
+* Fixed the fonts not correctly loaded issue web rendering the website in a browser
+* Updated the project homepage value
+* Updated the Readme file
+* Version bump to 0.6.1
+
 ## 0.6.0 (2023-03-10)
 
 * Fixed issue with CSV files not rendering correctly

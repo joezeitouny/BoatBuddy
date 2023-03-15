@@ -6,10 +6,26 @@ A suite of tools to help collecting NMEA0183 and other marine metrics in a digit
 
 ### Installation
 
+**Requirements:	Python 3.x >= 3.5**
+
 `BoatBuddy` can be installed via `pip` or an equivalent via:
 
 ```console
 $ pip install BoatBuddy
+```
+
+#### From Source
+
+You can install `BoatBuddy` from source just as you would install any other Python package:
+
+```console
+$ pip install git+https://github.com/joezeitouny/BoatBuddy.git
+```
+
+This will allow you to keep up to date with development on GitHub:
+
+```console
+$ pip install -U git+https://github.com/joezeitouny/BoatBuddy.git
 ```
 
 ### Features
