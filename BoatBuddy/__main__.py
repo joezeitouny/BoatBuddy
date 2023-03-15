@@ -11,6 +11,9 @@ from BoatBuddy.flask_manager import FlaskManager
 if __name__ == '__main__':
     # Create an options list using the Options Parser
     parser = optparse.OptionParser()
+    parser.set_description(f'Version {globals.APPLICATION_VERSION}. '
+                           f'A suite of tools to help collecting NMEA0183 and other marine metrics in a digital '
+                           f'logbook format.')
     parser.set_usage("python3 -m BoatBuddy --config=CONFIGURATION_PATH")
     parser.add_option('--config', dest='configuration_path', type='string', help=f'Path to the configuration file')
 
