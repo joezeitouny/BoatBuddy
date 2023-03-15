@@ -1,3 +1,8 @@
+## 0.6.2 (2023-03-15)
+
+* Added Favicon to website
+* Version bump to 0.6.2
+
 ## 0.6.1 (2023-03-15)
 
 * Fixed the fonts not correctly loaded issue web rendering the website in a browser
