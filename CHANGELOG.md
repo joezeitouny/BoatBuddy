@@ -1,3 +1,9 @@
+## 0.6.3 (2023-03-15)
+
+* Removed local fonts
+* Prepped the HTML code so that it is ready for HTTPS environments
+* Version bump to 0.6.3
+
 ## 0.6.2 (2023-03-15)
 
 * Added Favicon to website
