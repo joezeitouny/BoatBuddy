@@ -33,9 +33,6 @@ if __name__ == '__main__':
             # a dictionary
             data = json.load(f)
 
-            options.web_module = utils.try_parse_bool(data['web_application']['web_module'])
-            options.web_host = data['web_application']['web_host']
-            options.web_port = data['web_application']['web_port']
             options.output_path = data['output_path']
             options.tmp_path = data['tmp_path']
             options.filename_prefix = data['filename_prefix']
@@ -43,6 +40,12 @@ if __name__ == '__main__':
             options.excel = utils.try_parse_bool(data['output_to_excel'])
             options.csv = utils.try_parse_bool(data['output_to_csv'])
             options.gpx = utils.try_parse_bool(data['output_to_gpx'])
+            options.web_module = utils.try_parse_bool(data['web_application']['web_module'])
+            options.web_host = data['web_application']['web_host']
+            options.web_port = data['web_application']['web_port']
+            options.web_theme = data['web_application']['web_theme']
+            options.web_sunrise = data['web_application']['web_sunrise']
+            options.web_sunset = data['web_application']['web_sunset']
             options.nmea_module = utils.try_parse_bool(data['nmea']['nmea_module'])
             options.nmea_server_ip = data['nmea']['nmea_server_ip']
             options.nmea_server_port = utils.try_parse_int(data['nmea']['nmea_server_port'])
@@ -109,6 +112,14 @@ if __name__ == '__main__':
             parser.print_help()
         elif not options.excel and not options.gpx and not options.csv and not options.session_summary_report:
             print(f'Invalid argument: At least one output medium needs to be specified\r\n')
+            parser.print_help()
+        elif options.web_module and not options.web_theme:
+            print(f'Invalid argument: Web theme option must be specified')
+            parser.print_help()
+        elif options.web_module and not (str(options.web_theme).lower() == "auto" or
+                                         str(options.web_theme).lower() == "dark" or
+                                         str(options.web_theme).lower() == "light"):
+            print(f'Invalid argument: Invalid web theme option')
             parser.print_help()
         elif options.nmea_module and not (options.nmea_server_ip and options.nmea_server_port):
             print(f'Invalid argument: NMEA server IP and port need to be configured to be able to use the NMEA '

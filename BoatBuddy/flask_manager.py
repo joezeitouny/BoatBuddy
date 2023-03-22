@@ -1,4 +1,5 @@
 import time
+import datetime
 import webbrowser
 
 from flask import render_template, jsonify
@@ -146,6 +147,15 @@ def get_data():
     curr_time = time.strftime("%H:%M:%S", time.localtime())
     status = application_modules.get_plugin_manager().get_status().value
 
+    web_theme = str(application_modules.get_options().web_theme).lower()
+    sunrise_time = str(application_modules.get_options().web_sunrise)
+    sunset_time = str(application_modules.get_options().web_sunset)
+
+    current_time = datetime.datetime.now()
+    day_light = False
+    if sunrise_time <= current_time.strftime('%H:%M') <= sunset_time:
+        day_light = True
+
     victron_module = False
     victron_status = ''
     active_input_source = 'N/A'
@@ -269,7 +279,8 @@ def get_data():
             tank2_min_level = session_summary_metrics['[GX] Tank 2 min lvl']
             tank2_avg_level = session_summary_metrics['[GX] Tank 2 avg. lvl']
 
-    data = {'curr_time': curr_time, 'victron_module': victron_module, 'battery_soc': battery_soc,
+    data = {'curr_time': curr_time, 'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
+            'battery_soc': battery_soc,
             'victron_status': victron_status,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,
             'starter_battery_voltage': starter_battery_voltage, 'pv_max_configured_power': pv_max_configured_power,

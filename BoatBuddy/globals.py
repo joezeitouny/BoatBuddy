@@ -2,7 +2,7 @@ from enum import Enum
 
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.6.3'
+APPLICATION_VERSION = '0.7.0'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'

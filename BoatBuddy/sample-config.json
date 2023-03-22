@@ -9,7 +9,10 @@
   "web_application": {
     "web_module": "True",
     "web_host": "127.0.0.1",
-    "web_port": "5001"
+    "web_port": "5001",
+    "web_theme": "auto",
+    "web_sunrise": "07:00",
+    "web_sunset": "19:00"
   },
   "nmea": {
     "nmea_module": "True",

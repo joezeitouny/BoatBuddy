@@ -1,3 +1,8 @@
+## 0.7.0 (2023-03-22)
+
+* Added dark and light themes and ability to switch between those two automatically or manually.
+* Version bump to 0.7.0
+
 ## 0.6.3 (2023-03-15)
 
 * Removed local fonts

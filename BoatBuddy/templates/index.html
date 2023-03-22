@@ -5,10 +5,10 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-danger">
-                <h5 class="modal-title">Warning !!!</h5>
+                <h5 class="modal-title text-light">Warning !!!</h5>
             </div>
             <div class="modal-body bg-danger">
-                <span><i class="bi bi-exclamation-triangle"></i>&nbsp;Connection to the web server is lost!</span>
+                <span><i class="bi bi-exclamation-triangle"></i><span class="text-light">&nbspConnection to the web server is lost!</span></span>
             </div>
             <div class="modal-footer bg-danger">
             </div>
@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     <div class="col align-items-start">
-                        <div class="container border-1 border border-light rounded gx-0 gy-0 text-start">
+                        <div id="summary-box-id" class="container border-1 border border-light rounded gx-0 gy-0 text-start">
                             <div class="row ms-1 mt-1">
                                 <span>
                                     Active input source:&nbsp;<span id="active_input_source_value">N/A</span>
@@ -294,7 +294,7 @@ document.getElementById('session_button_id').disabled = true;
 const connectionLostModal = new bootstrap.Modal(document.getElementById('connection_lost_modal'), {backdrop: 'static'})
 is_toast_shown = false;
 
-var common_gauge_options = {
+var common_gauge_options_dark = {
   angle: 0.15, // The span of the gauge arc
   lineWidth: 0.44, // The line thickness
   radiusScale: 1, // Relative radius
@@ -319,7 +319,32 @@ var common_gauge_options = {
 	},
 };
 
-var battery_voltage_gauge_options = {
+var common_gauge_options_light = {
+  angle: 0.15, // The span of the gauge arc
+  lineWidth: 0.44, // The line thickness
+  radiusScale: 1, // Relative radius
+  pointer: {
+    length: 0.6, // // Relative to gauge radius
+    strokeWidth: 0.035, // The thickness
+    color: '#000000' // Fill color
+  },
+  limitMax: false,     // If false, max value increases automatically if value > maxValue
+  limitMin: false,     // If true, the min value of the gauge will be fixed
+  percentColors: [[0.0, "#ff0000" ], [0.5, "#f9c802"], [1, "#a9d70b"]], // !!!!
+  colorStart: '#6FADCF',   // Colors
+  colorStop: '#8FC0DA',    // just experiment with them
+  strokeColor: '#E0E0E0',  // to see which ones work best for you
+  generateGradient: true,
+  highDpiSupport: true,     // High resolution support
+  staticLabels: {
+  font: "10px sans-serif",  // Specifies font
+  labels: [25, 50, 75, 100],  // Print labels at these values
+  color: "#000000",  // Optional: Label text color
+  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
+	},
+};
+
+var battery_voltage_gauge_options_dark = {
   lines: 12,
   angle: 0.15,
   lineWidth: 0.44,
@@ -350,7 +375,38 @@ var battery_voltage_gauge_options = {
         },
 };
 
-var power_gauge_options = {
+var battery_voltage_gauge_options_light = {
+  lines: 12,
+  angle: 0.15,
+  lineWidth: 0.44,
+  pointer: {
+    length: 0.6, // // Relative to gauge radius
+    strokeWidth: 0.035, // The thickness
+    color: '#000000' // Fill color
+  },
+  limitMax: 'false',
+  percentColors: [[0.0, "#ff0000" ], [0.6, "#f9c802"], [0.7, "#a9d70b"]], // !!!!
+  strokeColor: '#E0E0E0',
+  generateGradient: true,
+  staticLabels: {
+  font: "10px sans-serif",  // Specifies font
+  labels: [11, 12, 13, 14],  // Print labels at these values
+  color: "#000000",  // Optional: Label text color
+  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
+    },
+    renderTicks: {
+          divisions: 3,
+          divWidth: 1.2,
+          divLength: 0.7,
+          divColor: "#333333",
+          subDivisions: 3,
+          subLength: 0.5,
+          subWidth: 0.6,
+          subColor: "#666666",
+        },
+};
+
+var power_gauge_options_dark = {
   angle: 0.15, // The span of the gauge arc
   lineWidth: 0.44, // The line thickness
   radiusScale: 1, // Relative radius
@@ -375,35 +431,60 @@ var power_gauge_options = {
 	},
 };
 
-var target = document.getElementById('battery_soc_gauge'); // your canvas element
-var battery_soc_gauge = new Gauge(target).setOptions(common_gauge_options); // create sexy gauge!
+var power_gauge_options_light = {
+  angle: 0.15, // The span of the gauge arc
+  lineWidth: 0.44, // The line thickness
+  radiusScale: 1, // Relative radius
+  pointer: {
+    length: 0.6, // // Relative to gauge radius
+    strokeWidth: 0.035, // The thickness
+    color: '#000000' // Fill color
+  },
+  limitMax: false,     // If false, max value increases automatically if value > maxValue
+  limitMin: false,     // If true, the min value of the gauge will be fixed
+  percentColors: [[0.0, "#ff0000" ], [0.5, "#f9c802"], [1, "#a9d70b"]], // !!!!
+  colorStart: '#6FADCF',   // Colors
+  colorStop: '#8FC0DA',    // just experiment with them
+  strokeColor: '#E0E0E0',  // to see which ones work best for you
+  generateGradient: true,
+  highDpiSupport: true,     // High resolution support
+  staticLabels: {
+  font: "10px sans-serif",  // Specifies font
+  labels: [100, 200, 300, 400, 450],  // Print labels at these values
+  color: "#000000",  // Optional: Label text color
+  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
+	},
+};
+
+var battery_soc_gauge_target = document.getElementById('battery_soc_gauge');
+var battery_soc_gauge = new Gauge(battery_soc_gauge_target).setOptions(common_gauge_options_light);
 battery_soc_gauge.maxValue = 100; // set max gauge value
 battery_soc_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 battery_soc_gauge.setTextField(document.getElementById("battery_soc_value"));
 battery_soc_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
-var target = document.getElementById('starter_battery_voltage_gauge'); // your canvas element
-var starter_battery_voltage_gauge = new Gauge(target).setOptions(battery_voltage_gauge_options); // create sexy gauge!
+var starter_battery_voltage_gauge_target = document.getElementById('starter_battery_voltage_gauge');
+var starter_battery_voltage_gauge = new Gauge(starter_battery_voltage_gauge_target).setOptions(battery_voltage_gauge_options_dark);
 starter_battery_voltage_gauge.maxValue = 14; // set max gauge value
 starter_battery_voltage_gauge.setMinValue(11);  // Prefer setter over gauge.minValue = 0
 starter_battery_voltage_gauge.setTextField(document.getElementById("starter_battery_voltage_value"));
 starter_battery_voltage_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
-var target = document.getElementById('pv_power_gauge'); // your canvas element
-var pv_power_gauge = new Gauge(target).setOptions(power_gauge_options); // create sexy gauge!
+var pv_power_gauge_target = document.getElementById('pv_power_gauge');
+var pv_power_gauge = new Gauge(pv_power_gauge_target).setOptions(power_gauge_options_dark);
 pv_power_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 pv_power_gauge.setTextField(document.getElementById("pv_power_value"));
 pv_power_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
-target = document.getElementById('fuel_tank_gauge'); // your canvas element
-var fuel_tank_gauge = new Gauge(target).setOptions(common_gauge_options); // create sexy gauge!
+var fuel_tank_gauge_target = document.getElementById('fuel_tank_gauge');
+var fuel_tank_gauge = new Gauge(fuel_tank_gauge_target).setOptions(common_gauge_options_dark);
 fuel_tank_gauge.maxValue = 100; // set max gauge value
 fuel_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 fuel_tank_gauge.setTextField(document.getElementById("fuel_tank_value"));
 fuel_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
-target = document.getElementById('water_tank_gauge'); // your canvas element
-var water_tank_gauge = new Gauge(target).setOptions(common_gauge_options); // create sexy gauge!
+var water_tank_gauge_target = document.getElementById('water_tank_gauge');
+var water_tank_gauge = new Gauge(water_tank_gauge_target).setOptions(common_gauge_options_dark);
 water_tank_gauge.maxValue = 100; // set max gauge value
 water_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 water_tank_gauge.setTextField(document.getElementById("water_tank_value"));
@@ -432,6 +513,49 @@ function refreshData() {
 
             // Update the relevant part of the webpage with the new data
             document.getElementById('curr_time_id').innerHTML = data['curr_time'];
+
+            function switch_to_light_mode() {
+                document.getElementById("body-element-id").classList.add('text-dark');
+                document.getElementById("body-element-id").classList.remove('bg-dark');
+                document.getElementById("body-element-id").classList.remove('text-light');
+                document.getElementById("navbar-element-id").classList.remove('bg-dark');
+                document.getElementById("navbar-element-id").classList.add('bg-primary');
+                document.getElementById("summary-box-id").classList.add('border-dark');
+                document.getElementById("summary-box-id").classList.remove('border-light');
+                battery_soc_gauge.setOptions(common_gauge_options_light);
+                starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_light);
+                pv_power_gauge.setOptions(power_gauge_options_light);
+                fuel_tank_gauge.setOptions(common_gauge_options_light);
+                water_tank_gauge.setOptions(common_gauge_options_light);
+            }
+
+            function switch_to_dark_mode() {
+                document.getElementById("body-element-id").classList.add('bg-dark');
+                document.getElementById("body-element-id").classList.add('text-light');
+                document.getElementById("body-element-id").classList.remove('text-dark');
+                document.getElementById("navbar-element-id").classList.remove('bg-primary');
+                document.getElementById("navbar-element-id").classList.add('bg-dark');
+                document.getElementById("summary-box-id").classList.add('border-light');
+                document.getElementById("summary-box-id").classList.remove('border-dark');
+                battery_soc_gauge.setOptions(common_gauge_options_dark);
+                starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_dark);
+                pv_power_gauge.setOptions(power_gauge_options_dark);
+                fuel_tank_gauge.setOptions(common_gauge_options_dark);
+                water_tank_gauge.setOptions(common_gauge_options_dark);
+            }
+
+            if (data['web_theme'] == 'auto') {
+                if (data['day_light']) {
+                    switch_to_light_mode();
+                }
+                else {
+                    switch_to_dark_mode();
+                }
+            } else if (data['web_theme'] == 'light') {
+                    switch_to_light_mode();
+            } else if (data['web_theme'] == 'dark') {
+                    switch_to_dark_mode();
+            }
 
             if (data['last_notification'] != '') {
                 document.getElementById('alert_section').style.display = 'block';
