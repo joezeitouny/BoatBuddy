@@ -93,7 +93,7 @@ class FlaskManager:
             _database_manager = DatabaseManager(self._options, _log_manager, _plugin_manager, _notifications_manager)
             _console.print(f'[green]Loading database module...Done[/green]')
 
-        with _console.status(f'[bold bright_yellow]Firing up console UI...[/bold bright_yellow]'):
+        with _console.status(f'[bold bright_yellow]Firing up web UI...[/bold bright_yellow]'):
             time.sleep(0.1)
             # Play the application started chime
             _sound_manager.play_sound_async(SoundType.APPLICATION_STARTED)

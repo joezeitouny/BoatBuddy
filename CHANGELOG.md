@@ -1,3 +1,9 @@
+## 0.7.1 (2023-07-21)
+
+* Fine tune the requirements.txt file
+* Fixed a typo in a console message that appears when the flask web app is launching
+* Version bump to 0.7.1
+
 ## 0.7.0 (2023-03-22)
 
 * Added dark and light themes and ability to switch between those two automatically or manually.
