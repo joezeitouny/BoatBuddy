@@ -29,6 +29,10 @@
     "gps_module": "True",
     "gps_serial_port": ""
   },
+  "anchor_alarm": {
+    "anchor_alarm_module": "False",
+    "anchor_alarm_default_allowed_distance": 40
+  },
   "database": {
     "database_module": "False",
     "database_name": "BoatBuddy",

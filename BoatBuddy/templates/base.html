@@ -17,7 +17,8 @@
     <title>{{application_name}} v{{application_version}}</title>
 </head>
 
-<body id="body-element-id" class="container-fluid d-flex bg-dark bg-gradient text-light position-absolute mt-0 ms-0 me-0 mb-0">
+<body id="body-element-id"
+      class="container-fluid d-flex bg-dark bg-gradient text-light position-absolute mt-0 ms-0 me-0 mb-0">
 <div class="container-fluid p-0 m-0">
     <div class="row">
         <nav id="navbar-element-id" class="navbar navbar-expand-lg bg-dark bg-gradient shadow">
@@ -29,12 +30,24 @@
                     <span><i class="bi bi-clock"></i>&nbsp</span><span class="navbar-text" id="curr_time_id"></span>
                 </div>
                 <div class="col">
-                    <span class="d-flex flex-nowrap align-items-center justify-content-end">
+                    <span class="d-flex align-items-center justify-content-end">
+                        <div id="anchor_alarm_section">
+                        <span class="navbar-text" id="gps_position_id"></span>
+                        <button class="mx-2 btn btn-success" id="anchor_alarm_button_id" type="submit">
+                        <span>
+                            <span id="anchor_button_spinner" class="spinner-border spinner-border-sm"
+                                  style="visibility: hidden; display: none;" role="status"
+                                  aria-hidden="true"></span>
+                            <span id="anchor_button_text">Set Anchor</span>
+                        </span>
+                        </button>
+                        </div>
                         <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
                         <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
                             <span>
                                 <span id="session_button_spinner" class="spinner-border spinner-border-sm"
-                                      style="visibility: hidden; display: none;" role="status" aria-hidden="true"></span>
+                                      style="visibility: hidden; display: none;" role="status"
+                                      aria-hidden="true"></span>
                                 <span id="session_button_text">Start Session</span>
                             </span>
                         </button>

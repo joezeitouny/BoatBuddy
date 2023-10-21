@@ -55,6 +55,9 @@ if __name__ == '__main__':
             options.victron_pv_max_power = utils.try_parse_int(data['victron']['victron_pv_max_power'])
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
+            options.anchor_alarm_module = utils.try_parse_bool(data['anchor_alarm']['anchor_alarm_module'])
+            options.anchor_alarm_default_allowed_distance = \
+                utils.try_parse_int(data['anchor_alarm']['anchor_alarm_default_allowed_distance'])
             options.database_module = utils.try_parse_bool(data['database']['database_module'])
             options.database_name = data['database']['database_name']
             options.database_host = data['database']['database_host']
@@ -158,18 +161,27 @@ if __name__ == '__main__':
         elif options.session_disk_write_interval < globals.INITIAL_SNAPSHOT_INTERVAL:
             print(f'Invalid argument: Specified disk write interval cannot be less than ' +
                   f'{globals.INITIAL_SNAPSHOT_INTERVAL} seconds')
+            parser.print_help()
         elif options.session_paging_interval < options.session_disk_write_interval:
             print(f'Invalid argument: Specified run mode interval time cannot be less than the value chosen for ' +
                   f'disk write interval which is {options.session_disk_write_interval} seconds')
+            parser.print_help()
         elif options.email_module and not (options.email_address or options.email_password):
             print(f'Invalid argument: Email credentials need to be supplied in order to use the email module')
+            parser.print_help()
         elif options.email_session_report and not options.email_module:
             print(f'Invalid argument: Email module needs to be activated in order to use the email report feature')
+            parser.print_help()
         elif options.notifications_module and not options.notification_cool_off_interval:
             print(f'Invalid argument: Notification cool-off interval need to be provided if the '
                   f'notification module is turned on')
+            parser.print_help()
         elif options.web_module and not (options.web_host or options.web_port):
             print(f'Invalid argument: Web module requires the host and port parameters to be provided')
+            parser.print_help()
+        elif options.anchor_alarm_module and not options.gps_module:
+            print(f'Invalid argument: Anchor alarm module cannot be enabled without the GPS module being enabled too')
+            parser.print_help()
         else:
             if options.web_module:
                 FlaskManager(options)

@@ -8,6 +8,7 @@ from rich.console import Console
 from BoatBuddy import app
 from BoatBuddy import utils, globals
 from BoatBuddy.database_manager import DatabaseManager
+from BoatBuddy.anchor_manager import AnchorManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.log_manager import LogManager
@@ -19,7 +20,7 @@ from BoatBuddy.sound_manager import SoundManager, SoundType
 class ApplicationModules:
     def __init__(self, options, log_manager: LogManager, sound_manager: SoundManager, email_manager: EmailManager,
                  notifications_manager: NotificationsManager, plugin_manager: PluginManager,
-                 database_manager: DatabaseManager):
+                 database_manager: DatabaseManager, anchor_manager: AnchorManager):
         self._options = options
         self._log_manager = log_manager
         self._sound_manager = sound_manager
@@ -27,6 +28,7 @@ class ApplicationModules:
         self._notifications_manager = notifications_manager
         self._plugin_manager = plugin_manager
         self._database_manager = database_manager
+        self._anchor_manager = anchor_manager
 
     def get_options(self):
         return self._options
@@ -48,6 +50,9 @@ class ApplicationModules:
 
     def get_database_manager(self) -> DatabaseManager:
         return self._database_manager
+
+    def get_anchor_manager(self) -> AnchorManager:
+        return self._anchor_manager
 
 
 application_modules: ApplicationModules
@@ -93,6 +98,11 @@ class FlaskManager:
             _database_manager = DatabaseManager(self._options, _log_manager, _plugin_manager, _notifications_manager)
             _console.print(f'[green]Loading database module...Done[/green]')
 
+        with _console.status('[bold bright_yellow]Loading anchor module...[/bold bright_yellow]'):
+            time.sleep(0.1)
+            _anchor_manager = AnchorManager(self._options, _log_manager, _plugin_manager, _email_manager)
+            _console.print(f'[green]Loading anchor module...Done[/green]')
+
         with _console.status(f'[bold bright_yellow]Firing up web UI...[/bold bright_yellow]'):
             time.sleep(0.1)
             # Play the application started chime
@@ -101,7 +111,8 @@ class FlaskManager:
 
         global application_modules
         application_modules = ApplicationModules(self._options, _log_manager, _sound_manager, _email_manager,
-                                                 _notifications_manager, _plugin_manager, _database_manager)
+                                                 _notifications_manager, _plugin_manager, _database_manager,
+                                                 _anchor_manager)
 
         webbrowser.open(f'http://{self._options.web_host}:{self._options.web_port}')
         app.run(debug=False, host=self._options.web_host, port=self._options.web_port)
@@ -124,9 +135,10 @@ def index():
     application_name = utils.get_application_name()
     application_version = utils.get_application_version()
     session_run_mode = str(application_modules.get_options().session_run_mode).lower()
+    anchor_alarm_module = application_modules.get_options().anchor_alarm_module
 
     return render_template('index.html', application_name=application_name, application_version=application_version,
-                           session_run_mode=session_run_mode)
+                           session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module)
 
 
 @app.route('/toggle_session')
@@ -140,6 +152,47 @@ def start_stop_session():
         application_modules.get_plugin_manager().end_session()
 
     return jsonify({})
+
+
+@app.route('/anchor_alarm_data')
+def get_anchor_alarm_data():
+    anchor_is_set = False
+    anchor_alarm_is_active = False
+    anchor_allowed_distance = 0
+    anchor_distance = 0
+    anchor_latitude = ''
+    anchor_longitude = ''
+    anchor_alarm_default_allowed_distance = application_modules.get_options().anchor_alarm_default_allowed_distance
+
+    if application_modules.get_options().anchor_alarm_module:
+        anchor_is_set = application_modules.get_anchor_manager().anchor_is_set()
+        anchor_alarm_is_active = application_modules.get_anchor_manager().anchor_alarm_is_active()
+        anchor_allowed_distance = application_modules.get_anchor_manager().anchor_allowed_distance()
+        anchor_distance = application_modules.get_anchor_manager().anchor_distance()
+        anchor_latitude = application_modules.get_anchor_manager().anchor_latitude()
+        anchor_longitude = application_modules.get_anchor_manager().anchor_longitude()
+
+    data = {'anchor_is_set': anchor_is_set, 'anchor_alarm_is_active': anchor_alarm_is_active,
+            'anchor_allowed_distance': anchor_allowed_distance, 'anchor_distance': anchor_distance,
+            'anchor_latitude': anchor_latitude, 'anchor_longitude': anchor_longitude,
+            'anchor_alarm_default_allowed_distance': anchor_alarm_default_allowed_distance}
+
+    return jsonify(data)
+
+
+@app.route('/gps_coordinates')
+def get_gps_coordinates():
+    gps_latitude = ''
+    gps_longitude = ''
+
+    gps_entry = application_modules.get_plugin_manager().get_gps_plugin_metrics()
+    if len(gps_entry) > 0:
+        gps_latitude = gps_entry[0]
+        gps_longitude = gps_entry[1]
+
+    data = {'gps_latitude': gps_latitude, 'gps_longitude': gps_longitude}
+
+    return jsonify(data)
 
 
 @app.route('/data')
@@ -197,6 +250,7 @@ def get_data():
 
     gps_module = False
     gps_status = ''
+
     if application_modules.get_options().gps_module:
         gps_module = True
         plugin_status = application_modules.get_plugin_manager().get_gps_plugin_status()
@@ -288,7 +342,8 @@ def get_data():
             'active_input_source': active_input_source, 've_bus_state': ve_bus_state,
             'housing_battery_state': housing_battery_state, 'housing_battery_current': housing_battery_current,
             'pv_current': pv_current, 'status': status, 'nmea_module': nmea_module, 'nmea_status': nmea_status,
-            'gps_module': gps_module, 'gps_status': gps_status, 'session_name': session_name, 'start_time': start_time,
+            'gps_module': gps_module, 'gps_status': gps_status,
+            'session_name': session_name, 'start_time': start_time,
             'start_time_utc': start_time_utc, 'duration': duration, 'start_gps_lat': start_gps_lat,
             'start_gps_lon': start_gps_lon, 'distance': distance, 'heading': heading,
             'average_wind_speed': average_wind_speed, 'average_wind_direction': average_wind_direction,
