@@ -2,7 +2,7 @@ import time
 import datetime
 import webbrowser
 
-from flask import render_template, jsonify
+from flask import render_template, jsonify, request
 from rich.console import Console
 
 from BoatBuddy import app
@@ -193,6 +193,17 @@ def get_gps_coordinates():
     data = {'gps_latitude': gps_latitude, 'gps_longitude': gps_longitude}
 
     return jsonify(data)
+
+
+@app.route('/set_anchor', methods=['POST'])
+def set_anchor():
+    latitude = request.form.get('latitude')  # Get the latitude value from the request
+    longitude = request.form.get('longitude')  # Get the longitude value from the request
+    allowed_distance = request.form.get('allowed_distance')  # Get the allowed distance value from the request
+
+    application_modules.get_anchor_manager().set_anchor(latitude, longitude, utils.try_parse_int(allowed_distance))
+
+    return jsonify(True)
 
 
 @app.route('/data')

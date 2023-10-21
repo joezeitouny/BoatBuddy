@@ -563,6 +563,25 @@ document.getElementById("session_button_id").onclick = toggleSession;
 
 document.getElementById("anchor_alarm_button_id").onclick = showAnchorAlarmModal;
 document.getElementById("close_anchor_alarm_modal_button_id").onclick = hideAnchorAlarmModal;
+document.getElementById("set_anchor_button_id").onclick = setAnchor;
+
+function setAnchor() {
+    $.ajax({
+        url: '/set_anchor',
+        method: 'POST',
+        data: { latitude: document.getElementById("anchor_latitude_text_id").value,
+                longitude: document.getElementById("anchor_longitude_text_id").value,
+                allowed_distance: document.getElementById("anchor_allowed_distance_text_id").value },
+        success: function (response) {
+<!--            $('#loading_modal').modal('hide');-->
+<!--            notify_success('Rule ' + rule_id + ' status successfully changed!');-->
+        },
+        error: function (error) {
+<!--            $('#loading_modal').modal('hide');-->
+<!--            notify_warning('Error changing rule ' + rule_id + ' status: ' + error);-->
+        }
+    });
+}
 
 function toggleSession() {
     $.ajax({
