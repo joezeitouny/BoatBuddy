@@ -32,18 +32,21 @@
                 <div class="col">
                     <span class="d-flex align-items-center justify-content-end">
                         <div id="anchor_alarm_section">
-                        <span class="navbar-text" id="gps_position_id"></span>
-                        <button class="mx-2 btn btn-success" id="anchor_alarm_button_id" type="button" onclick="showAnchorAlarmModal()">
-                        <span>
-                            <span id="anchor_button_spinner" class="spinner-border spinner-border-sm"
-                                  style="visibility: hidden; display: none;" role="status"
-                                  aria-hidden="true"></span>
-                            <span id="anchor_button_text">Set Anchor</span>
-                        </span>
-                        </button>
+                            <button class="mx-2 btn btn-success" id="set_anchor_alarm_button_id" type="button"
+                                    style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()">
+                                <span>
+                                    <span><i class="bi bi-link-45deg"></i>&nbspSet anchor</span>
+                                </span>
+                            </button>
+                            <button class="mx-2 btn btn-danger" id="update_anchor_alarm_button_id" type="button"
+                                    style="visibility: hidden; display: None" onclick="showUpdateAnchorAlarmModal()">
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                Anchor distance:&nbsp<span id="anchor_distance_label_id"></span>m
+                            </button>
                         </div>
                         <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
-                        <button class="mx-2 btn btn-success" type="submit" id="session_button_id" onclick="toggleSession()">
+                        <button class="mx-2 btn btn-success" type="submit" id="session_button_id"
+                                onclick="toggleSession()">
                             <span>
                                 <span id="session_button_spinner" class="spinner-border spinner-border-sm"
                                       style="visibility: hidden; display: none;" role="status"
@@ -92,7 +95,8 @@
 <script type="text/javascript">
     connection_lost_dialog_shown = false;
 
-    function updateTime() {
+    function updateNavBar() {
+        // Update the time
         $.ajax({
             type: 'GET',
             url: '/current_time',
@@ -107,11 +111,33 @@
                 document.getElementById('curr_time_id').innerHTML = data['curr_time'];
             }
         });
+
+        // Update anchor alarm section
+        $.ajax({
+            type: 'GET',
+            url: '/anchor_alarm_data',
+            success: function(data) {
+                if (data['anchor_is_set']) {
+                    document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
+                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
+                    document.getElementById('update_anchor_alarm_button_id').style.display = 'block';
+                    document.getElementById('update_anchor_alarm_button_id').style.visibility = 'visible';
+                    document.getElementById('anchor_distance_label_id').innerHTML = data['anchor_distance'];
+                }
+                else {
+                    document.getElementById('update_anchor_alarm_button_id').style.display = 'none';
+                    document.getElementById('update_anchor_alarm_button_id').style.visibility = 'hidden';
+                    document.getElementById('anchor_distance_label_id').innerHTML = '';
+                    document.getElementById('set_anchor_alarm_button_id').style.display = 'block';
+                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'visible';
+                }
+            }
+        });
     }
 
     $(document).ready(function() {
         // Call the refreshData function every 1 seconds
-        setInterval(updateTime, 1000);
+        setInterval(updateNavBar, 1000);
     });
 
     $(document).ajaxError(function( event, request, settings ) {
@@ -123,6 +149,8 @@
             }
         }
     });
+
+
 </script>
 
 </body>

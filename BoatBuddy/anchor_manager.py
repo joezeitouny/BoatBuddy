@@ -32,6 +32,8 @@ class AnchorManager:
         self._anchor_is_set = False
         self._anchor_alarm_is_active = False
         self._anchor_distance = 0
+        self._current_longitude = ''
+        self._current_latitude = ''
 
         if self._options.anchor_alarm_module:
             self._anchor_thread = Thread(target=self._main_loop)
@@ -82,6 +84,12 @@ class AnchorManager:
     def anchor_distance(self):
         return self._anchor_distance
 
+    def current_longitude(self):
+        return self._current_longitude
+
+    def current_latitude(self):
+        return self._current_latitude
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
@@ -93,24 +101,21 @@ class AnchorManager:
                         continue
 
                     # Retrieve current gps position and calculate distance
-                    gps_latitude = ''
-                    gps_longitude = ''
-
                     gps_entry = self._plugin_manager.get_gps_plugin_metrics()
                     if len(gps_entry) > 0:
-                        gps_latitude = gps_entry[0]
-                        gps_longitude = gps_entry[1]
+                        self._current_latitude = gps_entry[0]
+                        self._current_longitude = gps_entry[1]
 
                     # calculate the distance from anchor
                     latlon_anchor = string2latlon(self._anchor_latitude, self._anchor_longitude, 'd%°%m%\'%S%\" %H')
-                    latlon_current = string2latlon(gps_latitude, gps_longitude, 'd%°%m%\'%S%\" %H')
+                    latlon_current = string2latlon(self._current_latitude, self._current_longitude, 'd%°%m%\'%S%\" %H')
 
                     # Only calculate the distance if the current position is different from the anchor position
                     if latlon_anchor.to_string() != latlon_current.to_string():
-                        distance_from_anchor = round(latlon_current.distance(latlon_anchor) * 1000, 1)
+                        self._anchor_distance = round(latlon_current.distance(latlon_anchor) * 1000, 1)
 
                         # check if current distance exceeds the allowed distance
-                        if distance_from_anchor > self._anchor_allowed_distance:
+                        if self._anchor_distance > self._anchor_allowed_distance:
                             self._anchor_alarm_is_active = True
                             continue
 

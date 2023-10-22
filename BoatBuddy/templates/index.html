@@ -1,45 +1,112 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div id="anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static" xmlns="http://www.w3.org/1999/html"
+<div id="set_anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static"
+     xmlns="http://www.w3.org/1999/html"
      role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" id="anchor_alarm_modal_content">
+        <div class="modal-content" id="set_anchor_alarm_modal_content">
             <div class="modal-header">
                 <h5 class="modal-title">Anchor alarm configuration</h5>
             </div>
             <div class="modal-body">
                 <h4>Anchor position</h4>
-                <div class="row mb-2">
-                    <div class="col">
-                        <div class="row">
-                            <span>Latitude:&nbsp<input type="text" id="anchor_latitude_text_id" placeholder="Latitude"/></span>
-                        </div>
-                        <div class="row">
-                            <span>Longitude:&nbsp<input type="text" id="anchor_longitude_text_id"
+                <div class="container mb-2" style="border: 1px solid #000; padding: 10px;">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                            <span>Latitude:&nbsp<input type="text" id="set_anchor_alarm_latitude_text_id"
+                                                       placeholder="Latitude"/></span>
+                            </div>
+                            <div class="row">
+                            <span>Longitude:&nbsp<input type="text" id="set_anchor_alarm_longitude_text_id"
                                                         placeholder="Longitude"/></span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col">
-                        <button class="btn btn-outline-primary" id="get_current_position_id" type="submit">
-                            <span><i class="bi bi-crosshair"></i>&nbspUse current position</span>
-                        </button>
+                        <div class="col">
+                            <button class="btn btn-outline-primary" type="button">
+                                <span><i class="bi bi-crosshair"></i>&nbspUse current position</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <h4>Distance</h4>
                 <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="text" id="anchor_allowed_distance_text_id"
+                    <span>Allowed distance:&nbsp<input type="text" id="set_anchor_alarm_allowed_distance_text_id"
                                                        placeholder="Distance (in meters)"/></span>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" onclick="setAnchor()">
-                    <span id="set_anchor_button_text_id">Set Anchor</span>
+                    Set Anchor
+                </button>
+                <button type="button" class="close btn btn-secondary" onclick="hideSetAnchorAlarmModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="update_anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static"
+     xmlns="http://www.w3.org/1999/html"
+     role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" id="update_anchor_alarm_modal_content">
+            <div class="modal-header">
+                <h5 class="modal-title">Anchor alarm configuration</h5>
+            </div>
+            <div class="modal-body">
+                <div class="container mb-2" style="border: 1px solid #000; padding: 10px;">
+                    <div class="row">
+                        <div class="col">
+                            <h4>Anchor position</h4>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <div class="row">
+                                                <span>Latitude:&nbsp<span
+                                                        id="update_anchor_alarm_latitude_label_id"></span></span>
+                                    </div>
+                                    <div class="row">
+                                    <span>Longitude:&nbsp<span
+                                            id="update_anchor_alarm_longitude_label_id"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h4>Current position</h4>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <div class="row">
+                                        <span>Latitude:&nbsp<span
+                                                id="update_anchor_alarm_current_latitude_label_id"></span></span>
+                                    </div>
+                                    <div class="row">
+                                    <span>Longitude:&nbsp<span
+                                            id="update_anchor_alarm_current_longitude_label_id"></span></span>
+                                    </div>
+                                    <div class="row">
+                                    <span>Distance from anchor:&nbsp<span
+                                            id="update_anchor_alarm_distance_from_anchor_label_id"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <span>Allowed distance:&nbsp<input type="text" id="update_anchor_alarm_allowed_distance_text_id"
+                                                       placeholder="Distance (in meters)"/></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="updateAnchor()">
+                    <span>Update</span>
                 </button>
                 <button type="button" class="btn btn-danger" onclick="showCancelAnchorAlarmModal()">
-                    Cancel Anchor
+                    <span>Cancel</span>
                 </button>
-                <button type="button" class="close btn btn-secondary" onclick="hideAnchorAlarmModal()">
+                <button type="button" class="close btn btn-secondary" onclick="hideUpdateAnchorAlarmModal()">
                     Close
                 </button>
             </div>
@@ -59,7 +126,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="hideCancelAnchorAlarmModal()">No</button>
-                <button type="button" class="btn btn-primary">Yes</button>
+                <button type="button" class="btn btn-primary" onclick="cancelAnchorAlarm()">Yes</button>
             </div>
         </div>
     </div>
@@ -370,7 +437,8 @@ document.getElementById('anchor_alarm_section').style.visibility = 'hidden';
 {% endif %}
 
 const connectionLostModal = new bootstrap.Modal(document.getElementById('connection_lost_modal'), {backdrop: 'static'})
-const anchorAlarmModal = new bootstrap.Modal(document.getElementById('anchor_alarm_modal'), {backdrop: 'static'})
+const setAnchorAlarmModal = new bootstrap.Modal(document.getElementById('set_anchor_alarm_modal'), {backdrop: 'static'})
+const updateAnchorAlarmModal = new bootstrap.Modal(document.getElementById('update_anchor_alarm_modal'), {backdrop: 'static'})
 const cancelAnchorAlarmModal = new bootstrap.Modal(document.getElementById('cancel_anchor_alarm_modal'), {backdrop: 'static'})
 
 var common_gauge_options_dark = {
@@ -570,15 +638,15 @@ water_tank_gauge.setTextField(document.getElementById("water_tank_value"));
 water_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
 function setAnchor() {
-    hideAnchorAlarmModal();
+    hideSetAnchorAlarmModal();
     $('#loading_modal').modal('show');
 
     $.ajax({
         url: '/set_anchor',
         method: 'POST',
-        data: { latitude: document.getElementById("anchor_latitude_text_id").value,
-                longitude: document.getElementById("anchor_longitude_text_id").value,
-                allowed_distance: document.getElementById("anchor_allowed_distance_text_id").value },
+        data: { latitude: document.getElementById("set_anchor_alarm_latitude_text_id").value,
+                longitude: document.getElementById("set_anchor_alarm_longitude_text_id").value,
+                allowed_distance: document.getElementById("set_anchor_alarm_allowed_distance_text_id").value },
         success: function (response) {
             $('#loading_modal').modal('hide');
             notify_success('Anchor alarm successfully set!');
@@ -592,7 +660,7 @@ function setAnchor() {
 
 function cancelAnchor() {
     hideCancelAnchorAlarmModal();
-    hideAnchorAlarmModal();
+    hideSetAnchorAlarmModal();
 
     $.ajax({
         type: 'GET',
@@ -615,41 +683,78 @@ function toggleSession() {
     });
 }
 
-function showAnchorAlarmModal() {
+function showSetAnchorAlarmModal() {
+    $('#loading_modal').modal('show');
+
     $.ajax({
         type: 'GET',
         url: '/anchor_alarm_data',
         success: function(data) {
-            if (data['anchor_is_set']) {
-                document.getElementById('set_anchor_button_text_id').innerHTML = 'Update Anchor';
-                document.getElementById('anchor_latitude_text_id').value = data['anchor_latitude'];
-                document.getElementById('anchor_longitude_text_id').value = data['anchor_longitude'];
-                document.getElementById('anchor_allowed_distance_text_id').value = data['anchor_allowed_distance'];
-            }
-            else {
-                document.getElementById('set_anchor_button_text_id').innerHTML = 'Set Anchor';
-                document.getElementById('anchor_allowed_distance_text_id').value = data['anchor_alarm_default_allowed_distance'];
+            $('#loading_modal').modal('hide');
+            document.getElementById('set_anchor_alarm_allowed_distance_text_id').value = data['anchor_alarm_default_allowed_distance'];
 
-                // Fill up GPS anchor position from last gps coordinates
-                $.ajax({
-                    type: 'GET',
-                    url: '/gps_coordinates',
-                    success: function(data) {
-                        document.getElementById('anchor_latitude_text_id').value = data['gps_latitude']
-                        document.getElementById('anchor_longitude_text_id').value = data['gps_longitude'];
-                    }
-                });
-            }
-            anchorAlarmModal.show();
+            // Fill up GPS anchor position from last gps coordinates
+            $.ajax({
+                type: 'GET',
+                url: '/gps_coordinates',
+                success: function(data) {
+                    document.getElementById('set_anchor_alarm_latitude_text_id').value = data['gps_latitude']
+                    document.getElementById('set_anchor_alarm_longitude_text_id').value = data['gps_longitude'];
+                }
+            });
+
+            setAnchorAlarmModal.show();
         },
         error: function (error) {
+            $('#loading_modal').modal('hide');
             notify_warning('Error while retrieving anchor alarm configuration! Reason: ' + error);
         }
     });
 }
 
-function hideAnchorAlarmModal() {
-    anchorAlarmModal.hide();
+function showUpdateAnchorAlarmModal() {
+    $('#loading_modal').modal('show');
+
+    $.ajax({
+        type: 'GET',
+        url: '/anchor_alarm_data',
+        success: function(data) {
+            $('#loading_modal').modal('hide');
+            document.getElementById('update_anchor_alarm_allowed_distance_text_id').value = data['anchor_alarm_default_allowed_distance'];
+            document.getElementById('update_anchor_alarm_latitude_label_id').innerHTML = data['anchor_latitude']
+            document.getElementById('update_anchor_alarm_longitude_label_id').innerHTML = data['anchor_longitude'];
+            document.getElementById('update_anchor_alarm_current_latitude_label_id').innerHTML = data['current_latitude']
+            document.getElementById('update_anchor_alarm_current_longitude_label_id').innerHTML = data['current_longitude'];
+            document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').innerHTML = data['anchor_distance']
+
+<!--            setInterval(function() {-->
+<!--                // Fill up GPS anchor position from last gps coordinates-->
+<!--                $.ajax({-->
+<!--                    type: 'GET',-->
+<!--                    url: '/anchor_alarm_data',-->
+<!--                    success: function(data) {-->
+<!--                        document.getElementById('update_anchor_alarm_current_latitude_label_id').value = data['current_latitude']-->
+<!--                        document.getElementById('update_anchor_alarm_current_longitude_label_id').value = data['current_longitude'];-->
+<!--                        document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').value = data['anchor_distance']-->
+<!--                    }-->
+<!--                });-->
+<!--            }, 1000);-->
+
+            updateAnchorAlarmModal.show();
+        },
+        error: function (error) {
+            $('#loading_modal').modal('hide');
+            notify_warning('Error while retrieving anchor alarm configuration! Reason: ' + error);
+        }
+    });
+}
+
+function hideUpdateAnchorAlarmModal() {
+    updateAnchorAlarmModal.hide();
+}
+
+function hideSetAnchorAlarmModal() {
+    setAnchorAlarmModal.hide();
 }
 
 function showCancelAnchorAlarmModal() {
@@ -660,8 +765,29 @@ function hideCancelAnchorAlarmModal() {
     cancelAnchorAlarmModal.hide();
 }
 
+function cancelAnchorAlarm() {
+    hideCancelAnchorAlarmModal();
+    hideUpdateAnchorAlarmModal();
+
+    $('#loading_modal').modal('show');
+
+    $.ajax({
+        type: 'GET',
+        url: '/cancel_anchor',
+        success: function(data) {
+            $('#loading_modal').modal('hide');
+            notify_success('Anchor alarm successfully canceled!');
+        },
+        error: function (error) {
+            $('#loading_modal').modal('hide');
+            notify_warning('Error while trying to cancel the anchor alarm! Reason: ' + error);
+        }
+    });
+}
+
 function switch_to_light_mode() {
-    document.getElementById("anchor_alarm_modal_content").classList.remove('bg-dark');
+    document.getElementById("set_anchor_alarm_modal_content").classList.remove('bg-dark');
+    document.getElementById("update_anchor_alarm_modal_content").classList.remove('bg-dark');
     document.getElementById("body-element-id").classList.add('text-dark');
     document.getElementById("body-element-id").classList.remove('bg-dark');
     document.getElementById("body-element-id").classList.remove('text-light');
@@ -679,7 +805,8 @@ function switch_to_light_mode() {
 }
 
 function switch_to_dark_mode() {
-    document.getElementById("anchor_alarm_modal_content").classList.add('bg-dark');
+    document.getElementById("set_anchor_alarm_modal_content").classList.add('bg-dark');
+    document.getElementById("update_anchor_alarm_modal_content").classList.add('bg-dark');
     document.getElementById("body-element-id").classList.add('bg-dark');
     document.getElementById("body-element-id").classList.add('text-light');
     document.getElementById("body-element-id").classList.remove('text-dark');
@@ -863,15 +990,6 @@ function refreshData() {
             }
         }
     });
-
-    // Refresh GPS data
-    $.ajax({
-        type: 'GET',
-        url: '/gps_coordinates',
-        success: function(data) {
-            document.getElementById("gps_position_id").innerHTML = "Lat: " + data['gps_latitude'] + " Lon: " + data['gps_longitude']
-        }
-    });
 }
 
 $(document).ready(function() {
@@ -895,6 +1013,12 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
+
+
+
+
+
 
 
 
