@@ -13,6 +13,7 @@ from BoatBuddy.sound_manager import SoundManager, SoundType
 class NotificationEntryType(Enum):
     METRIC = 'metric'
     MODULE = 'module'
+    ANCHOR_ALARM = 'anchor_alarm'
 
 
 class NotificationType(Enum):
@@ -26,7 +27,7 @@ class NotificationEvents(Events):
 
 class NotificationEntry:
     def __init__(self, timestamp, key, value, entry_type: NotificationEntryType, notification_types: [], severity,
-                 frequency, cool_off_interval, configuration_range=None, interval=None):
+                 frequency, cool_off_interval, configuration_range=None, interval=None, additional_message=''):
         self._timestamp = timestamp
         self._key = key
         self._value = value
@@ -37,6 +38,7 @@ class NotificationEntry:
         self._cool_off_interval = cool_off_interval
         self._configuration_range = configuration_range
         self._interval = interval
+        self._additional_message = additional_message
 
     def get_timestamp(self):
         return self._timestamp
@@ -68,6 +70,9 @@ class NotificationEntry:
     def get_interval(self):
         return self._interval
 
+    def get_additional_message(self):
+        return self._additional_message
+
 
 class NotificationsManager:
 
@@ -86,7 +91,7 @@ class NotificationsManager:
             self._notifications_thread.start()
             self._log_manager.info('Notifications module successfully started!')
 
-    def notify(self, key, value, entry_type):
+    def notify(self, key, value, entry_type, additional_message=''):
         if not self._options.notifications_module:
             return
 
@@ -121,7 +126,8 @@ class NotificationsManager:
                     self._schedule_notification(key, value, entry_type,
                                                 notification_configuration[severity]['notifications'],
                                                 severity, notification_configuration[severity]['frequency'],
-                                                cool_off_interval, configuration_range, notification_interval)
+                                                cool_off_interval, configuration_range, notification_interval,
+                                                additional_message)
                     return
             elif entry_type == NotificationEntryType.MODULE:
                 status = notification_configuration[severity]['status']
@@ -136,7 +142,7 @@ class NotificationsManager:
                     self._schedule_notification(key, value, entry_type,
                                                 notification_configuration[severity]['notifications'],
                                                 severity, notification_configuration[severity]['frequency'],
-                                                cool_off_interval, None, notification_interval)
+                                                cool_off_interval, None, notification_interval, additional_message)
                     return
 
         # If this point in the code is reached then notifications for this entry (if any) should be cleared
@@ -145,12 +151,13 @@ class NotificationsManager:
         self._mutex.release()
 
     def _schedule_notification(self, key, value, entry_type, notification_types, severity, frequency, cool_off_interval,
-                               configuration_range=None, interval=None):
+                               configuration_range=None, interval=None, additional_message=''):
         self._mutex.acquire()
         if key not in self._notifications_queue:
             # this is a new notification entry
             self._delayed_add_notification_entry(time.time(), key, value, entry_type, notification_types, severity,
-                                                 frequency, cool_off_interval, configuration_range, interval)
+                                                 frequency, cool_off_interval, configuration_range, interval,
+                                                 additional_message)
         elif key in self._notifications_queue and self._notifications_queue[key]['to_clear'] and \
                 (self._notifications_queue[key]['instance'].get_entry_type() == NotificationEntryType.METRIC and
                  self._notifications_queue[key]['instance'].get_configuration_range() == configuration_range or
@@ -179,7 +186,7 @@ class NotificationsManager:
         self._mutex.release()
 
     def _process_notification(self, key, value, entry_type, notification_types, severity, frequency, cool_off_interval,
-                              configuration_range, interval):
+                              configuration_range, interval, additional_message):
         if entry_type == NotificationEntryType.MODULE:
             self._log_manager.info(f'Processing notification for module \'{key}\'')
         elif entry_type == NotificationEntryType.METRIC:
@@ -190,7 +197,7 @@ class NotificationsManager:
 
         if NotificationType.EMAIL.value in notification_types:
             self._process_email_notification(key, value, entry_type, severity, frequency, cool_off_interval,
-                                             configuration_range, interval)
+                                             configuration_range, interval, additional_message)
 
         # Update the last_processed field value with the current time
         self._notifications_queue[key]['last_processed'] = time.time()
@@ -206,7 +213,7 @@ class NotificationsManager:
             self._sound_manager.play_sound_async(SoundType.WARNING)
 
     def _process_email_notification(self, key, value, entry_type, severity, frequency, cool_off_interval,
-                                    configuration_range, interval):
+                                    configuration_range, interval, additional_message):
         try:
             configuration_range_str = 'N/A'
             interval_str = 'N/A'
@@ -226,7 +233,8 @@ class NotificationsManager:
                        f'Status: {value}\r\nSeverity: {severity}' + \
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
                        f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
-                       f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
+                       f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n'\
+                       f'Additional message: {additional_message}\r\n\r\n' \
                        f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
                 subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
                           f'notification for \'{key}\' module'
@@ -236,6 +244,7 @@ class NotificationsManager:
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
                        f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
                        f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
+                       f'Additional message: {additional_message}\r\n\r\n' \
                        f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
                 subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
                           f'notification for metric \'{key}\''
@@ -275,10 +284,12 @@ class NotificationsManager:
                                     f'for {notification_entry.get_entry_type().value} \'{key}\'. Details: {e}')
 
     def _delayed_add_notification_entry(self, timestamp, key, value, entry_type, notification_types, severity,
-                                        frequency, cool_off_interval, configuration_range, interval):
+                                        frequency, cool_off_interval, configuration_range, interval,
+                                        additional_message):
 
         new_notification_entry = NotificationEntry(timestamp, key, value, entry_type, notification_types, severity,
-                                                   frequency, cool_off_interval, configuration_range, interval)
+                                                   frequency, cool_off_interval, configuration_range, interval,
+                                                   additional_message)
 
         self._notifications_queue[key] = {'instance': new_notification_entry, 'last_processed': None,
                                           'to_clear': False, 'clear_timestamp': None, 'notify_of_clearance': True}
@@ -355,7 +366,8 @@ class NotificationsManager:
                                                notification_entry.get_frequency(),
                                                notification_entry.get_cool_off_interval(),
                                                notification_entry.get_configuration_range(),
-                                               notification_entry.get_interval())
+                                               notification_entry.get_interval(),
+                                               notification_entry.get_additional_message())
 
                 elif not to_clear and last_processed is None and \
                         time.time() - notification_entry.get_timestamp() > cool_off_interval:
@@ -367,7 +379,8 @@ class NotificationsManager:
                                                notification_entry.get_frequency(),
                                                notification_entry.get_cool_off_interval(),
                                                notification_entry.get_configuration_range(),
-                                               notification_entry.get_interval())
+                                               notification_entry.get_interval(),
+                                               notification_entry.get_additional_message())
 
             if len(keys_for_entries_to_remove) > 0:
                 for key in keys_for_entries_to_remove:

@@ -474,6 +474,18 @@
   },
   "modules": {
     "modules_notifications_rules": {
+      "anchor": {
+        "alarm": {
+          "status": "alarm_active",
+          "frequency": "interval",
+          "interval": 60,
+          "cool-off-interval": 5,
+          "notifications": [
+            "sound",
+            "email"
+          ]
+        }
+      },
       "gps": {
         "alarm": {
           "status": "offline",

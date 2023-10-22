@@ -101,7 +101,8 @@ class FlaskManager:
 
         with _console.status('[bold bright_yellow]Loading anchor module...[/bold bright_yellow]'):
             time.sleep(0.1)
-            _anchor_manager = AnchorManager(self._options, _log_manager, _plugin_manager, _email_manager)
+            _anchor_manager = AnchorManager(self._options, _log_manager, _plugin_manager, _email_manager,
+                                            _notifications_manager)
             _console.print(f'[green]Loading anchor module...Done[/green]')
 
         with _console.status(f'[bold bright_yellow]Firing up web UI...[/bold bright_yellow]'):

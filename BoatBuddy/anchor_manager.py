@@ -8,7 +8,8 @@ from BoatBuddy.log_manager import LogManager
 from BoatBuddy.plugin_manager import PluginManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
-from BoatBuddy import utils
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
+from BoatBuddy.utils import ModuleStatus
 
 
 class AnchorManagerStatus(Enum):
@@ -18,11 +19,13 @@ class AnchorManagerStatus(Enum):
 
 
 class AnchorManager:
-    def __init__(self, options, log_manager: LogManager, plugin_manager: PluginManager, email_manager: EmailManager):
+    def __init__(self, options, log_manager: LogManager, plugin_manager: PluginManager, email_manager: EmailManager,
+                 notifications_manager: NotificationsManager):
         self._options = options
         self._log_manager = log_manager
         self._plugin_manager = plugin_manager
         self._email_manager = email_manager
+        self._notifications_manager = notifications_manager
         self._exit_signal = Event()
 
         self._status = AnchorManagerStatus.STARTING
@@ -72,7 +75,13 @@ class AnchorManager:
 
     def cancel_anchor(self):
         self._anchor_is_set = False
-        self._anchor_alarm_is_active = False
+
+        if self._anchor_alarm_is_active:
+            self._anchor_alarm_is_active = False
+
+            # send out a notification
+            self._notifications_manager.notify('anchor', ModuleStatus.ALARM_CLEARED.value,
+                                               NotificationEntryType.MODULE)
 
     def anchor_is_set(self):
         return self._anchor_is_set
@@ -126,14 +135,26 @@ class AnchorManager:
                         if self._anchor_distance > self._anchor_allowed_distance:
                             self._anchor_alarm_is_active = True
 
+                            # send out a notification
+                            self._notifications_manager.notify('anchor', ModuleStatus.ALARM_ACTIVE.value,
+                                                               NotificationEntryType.MODULE,
+                                                               f'Distance from anchor is {self._anchor_distance}m '
+                                                               f'whereas the allowed distance '
+                                                               f'is {self._anchor_allowed_distance}m')
+
                             # sleep for 1 second
                             time.sleep(1)
 
                             # skip the rest of the loop code
                             continue
 
-                    # If this point in this loop is reached then deactivate the alarm
-                    self._anchor_alarm_is_active = False
+                    # If this point in this loop is reached then deactivate the alarm (if active)
+                    if self._anchor_alarm_is_active:
+                        self._anchor_alarm_is_active = False
+
+                        # send out a notification
+                        self._notifications_manager.notify('anchor', ModuleStatus.ALARM_CLEARED.value,
+                                                           NotificationEntryType.MODULE)
 
                     # sleep for 1 second
                     time.sleep(1)

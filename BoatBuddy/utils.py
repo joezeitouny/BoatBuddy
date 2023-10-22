@@ -8,6 +8,8 @@ from BoatBuddy import globals
 class ModuleStatus(Enum):
     ONLINE = 'online'
     OFFLINE = 'offline'
+    ALARM_ACTIVE = 'alarm_active' # used in the anchor alarm module
+    ALARM_CLEARED = 'alarm_cleared' # used in the anchor alarm module
 
 
 def get_application_version():
