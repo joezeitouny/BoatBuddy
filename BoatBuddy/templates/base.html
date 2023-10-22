@@ -33,7 +33,7 @@
                     <span class="d-flex align-items-center justify-content-end">
                         <div id="anchor_alarm_section">
                         <span class="navbar-text" id="gps_position_id"></span>
-                        <button class="mx-2 btn btn-success" id="anchor_alarm_button_id" type="submit">
+                        <button class="mx-2 btn btn-success" id="anchor_alarm_button_id" type="button" onclick="showAnchorAlarmModal()">
                         <span>
                             <span id="anchor_button_spinner" class="spinner-border spinner-border-sm"
                                   style="visibility: hidden; display: none;" role="status"
@@ -43,7 +43,7 @@
                         </button>
                         </div>
                         <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
-                        <button class="mx-2 btn btn-success" id="session_button_id" type="submit">
+                        <button class="mx-2 btn btn-success" type="submit" id="session_button_id" onclick="toggleSession()">
                             <span>
                                 <span id="session_button_spinner" class="spinner-border spinner-border-sm"
                                       style="visibility: hidden; display: none;" role="status"

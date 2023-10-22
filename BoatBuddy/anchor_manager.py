@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 from threading import Thread, Event
 
@@ -115,6 +116,9 @@ class AnchorManager:
 
                     # If this point in this loop is reached then deactivate the alarm
                     self._anchor_alarm_is_active = False
+
+                    # sleep for 1 second
+                    time.sleep(1)
             except Exception as e:
                 if self._status != AnchorManagerStatus.DOWN:
                     self._log_manager.info(f'Exception occurred in Anchor manager main thread. Details {e}')

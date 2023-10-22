@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div id="anchor_alarm_modal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+<div id="anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static" xmlns="http://www.w3.org/1999/html"
+     role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content" id="anchor_alarm_modal_content">
             <div class="modal-header">
                 <h5 class="modal-title">Anchor alarm configuration</h5>
@@ -15,7 +16,8 @@
                             <span>Latitude:&nbsp<input type="text" id="anchor_latitude_text_id" placeholder="Latitude"/></span>
                         </div>
                         <div class="row">
-                            <span>Longitude:&nbsp<input type="text" id="anchor_longitude_text_id" placeholder="Longitude"/></span>
+                            <span>Longitude:&nbsp<input type="text" id="anchor_longitude_text_id"
+                                                        placeholder="Longitude"/></span>
                         </div>
                     </div>
                     <div class="col">
@@ -27,39 +29,37 @@
                 <h4>Distance</h4>
                 <div class="row mb-2">
                     <span>Allowed distance:&nbsp<input type="text" id="anchor_allowed_distance_text_id"
-                                                   placeholder="Distance (in meters)"/></span>
+                                                       placeholder="Distance (in meters)"/></span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="mx-2 btn btn-success" id="set_anchor_button_id" type="submit">
+                <button type="button" class="btn btn-success" onclick="setAnchor()">
                     <span id="set_anchor_button_text_id">Set Anchor</span>
                 </button>
-                <button class="mx-2 btn btn-danger" id="cancel_anchor_button_id" type="submit">
-                    <span>Cancel Anchor</span>
+                <button type="button" class="btn btn-danger" onclick="showCancelAnchorAlarmModal()">
+                    Cancel Anchor
                 </button>
-                <button class="mx-2 btn btn-primary" id="close_anchor_alarm_modal_button_id" type="submit">
-                    <span>Close</span>
+                <button type="button" class="close btn btn-secondary" onclick="hideAnchorAlarmModal()">
+                    Close
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="cancel_anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static" xmlns="http://www.w3.org/1999/html">
+<div id="cancel_anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static"
+     xmlns="http://www.w3.org/1999/html">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Cancel anchor alarm?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to exit the trade "<span id="exitTradeModalValue"></span>"?</p>
+                Are you sure you want to cancel the existing anchor alarm?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                <button id="cancel_anchor_alarm_button_id" type="button" class="btn btn-primary">Yes</button>
+                <button type="button" class="btn btn-secondary" onclick="hideCancelAnchorAlarmModal()">No</button>
+                <button type="button" class="btn btn-primary">Yes</button>
             </div>
         </div>
     </div>
@@ -73,13 +73,6 @@
     <div id="success_notification" class="alert alert-success ms-2 me-2 mb-0" role="alert"
          style="display: none">
         <span><i class="bi bi-check-square mb-2 me-2"></i><span id="success_notification_message">This is the success notification message placeholder</span></span>
-    </div>
-</div>
-
-<div class="container p-0 mt-1">
-    <div class="alert alert-warning ms-2 me-2 mb-0 text-danger" id="alert_section" role="alert"
-         style="display: none; visibility: hidden;">
-        <span id="alert_message"><i class="bi bi-exclamation-triangle"></i>This is the alert message placeholder</span>
     </div>
 </div>
 
@@ -378,7 +371,7 @@ document.getElementById('anchor_alarm_section').style.visibility = 'hidden';
 
 const connectionLostModal = new bootstrap.Modal(document.getElementById('connection_lost_modal'), {backdrop: 'static'})
 const anchorAlarmModal = new bootstrap.Modal(document.getElementById('anchor_alarm_modal'), {backdrop: 'static'})
-is_toast_shown = false;
+const cancelAnchorAlarmModal = new bootstrap.Modal(document.getElementById('cancel_anchor_alarm_modal'), {backdrop: 'static'})
 
 var common_gauge_options_dark = {
   angle: 0.15, // The span of the gauge arc
@@ -576,13 +569,8 @@ water_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 water_tank_gauge.setTextField(document.getElementById("water_tank_value"));
 water_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
-document.getElementById("session_button_id").onclick = toggleSession;
-
-document.getElementById("anchor_alarm_button_id").onclick = showAnchorAlarmModal;
-document.getElementById("close_anchor_alarm_modal_button_id").onclick = hideAnchorAlarmModal;
-document.getElementById("set_anchor_button_id").onclick = setAnchor;
-
 function setAnchor() {
+    hideAnchorAlarmModal();
     $('#loading_modal').modal('show');
 
     $.ajax({
@@ -598,6 +586,22 @@ function setAnchor() {
         error: function (error) {
             $('#loading_modal').modal('hide');
             notify_warning('Error while setting anchor alarm! Reason: ' + error);
+        }
+    });
+}
+
+function cancelAnchor() {
+    hideCancelAnchorAlarmModal();
+    hideAnchorAlarmModal();
+
+    $.ajax({
+        type: 'GET',
+        url: '/cancel_anchor',
+        success: function(data) {
+            notify_success('Anchor alarm successfully canceled!');
+        },
+        error: function (error) {
+            notify_warning('Error while canceling the anchor alarm! Reason: ' + error);
         }
     });
 }
@@ -637,12 +641,23 @@ function showAnchorAlarmModal() {
                 });
             }
             anchorAlarmModal.show();
+        },
+        error: function (error) {
+            notify_warning('Error while retrieving anchor alarm configuration! Reason: ' + error);
         }
     });
 }
 
 function hideAnchorAlarmModal() {
     anchorAlarmModal.hide();
+}
+
+function showCancelAnchorAlarmModal() {
+    cancelAnchorAlarmModal.show();
+}
+
+function hideCancelAnchorAlarmModal() {
+    cancelAnchorAlarmModal.hide();
 }
 
 function switch_to_light_mode() {
@@ -701,27 +716,11 @@ function refreshData() {
             }
 
             if (data['last_notification'] != '') {
-                document.getElementById('alert_section').style.display = 'block';
-                document.getElementById('alert_section').style.visibility = 'visible';
                 if (data['last_notification'].toLowerCase().includes('cleared')) {
-                    document.getElementById('alert_message').innerHTML = "<i class=\"bi bi-check-circle\"></i>" + " " + data['last_notification'];
-                    if (document.getElementById("alert_section").classList.contains('alert-warning'))
-                    {
-                        document.getElementById("alert_section").classList.remove('alert-warning');
-                        document.getElementById("alert_section").classList.add('alert-success');
-                    }
+                    notify_success(data['last_notification'])
                 } else {
-                    document.getElementById('alert_message').innerHTML = "<i class=\"bi bi-exclamation-triangle\"></i>" + " " + data['last_notification'];
-                    if (document.getElementById("alert_section").classList.contains('alert-success'))
-                    {
-                        document.getElementById("alert_section").classList.remove('alert-success');
-                        document.getElementById("alert_section").classList.add('alert-warning');
-                    }
+                    notify_warning(data['last_notification']);
                 }
-            } else {
-                document.getElementById('alert_message').innerHTML = "This is the alert message placeholder";
-                document.getElementById('alert_section').style.display = 'none';
-                document.getElementById('alert_section').style.visibility = 'hidden';
             }
 
             if (data['victron_module']) {
@@ -896,6 +895,7 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
 
 
 </script>

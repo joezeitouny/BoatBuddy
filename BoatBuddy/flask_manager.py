@@ -56,6 +56,7 @@ class ApplicationModules:
 
 
 application_modules: ApplicationModules
+notification_message = ''
 
 
 class FlaskManager:
@@ -206,6 +207,13 @@ def set_anchor():
     return jsonify(True)
 
 
+@app.route('/cancel_anchor')
+def cancel_anchor():
+    application_modules.get_anchor_manager().cancel_anchor()
+
+    return jsonify(True)
+
+
 @app.route('/current_time')
 def get_current_time():
     curr_time = time.strftime("%H:%M:%S", time.localtime())
@@ -351,6 +359,12 @@ def get_data():
             tank2_min_level = session_summary_metrics['[GX] Tank 2 min lvl']
             tank2_avg_level = session_summary_metrics['[GX] Tank 2 avg. lvl']
 
+    last_notification = ''
+    global notification_message
+    if notification_message != application_modules.get_notifications_manager().get_last_message():
+        notification_message = application_modules.get_notifications_manager().get_last_message()
+        last_notification = notification_message
+
     data = {'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
             'battery_soc': battery_soc,
             'victron_status': victron_status,
@@ -380,5 +394,5 @@ def get_data():
             'starter_battery_avg_voltage': starter_battery_avg_voltage,
             'tank1_max_level': tank1_max_level, 'tank1_min_level': tank1_min_level, 'tank1_avg_level': tank1_avg_level,
             'tank2_max_level': tank2_max_level, 'tank2_min_level': tank2_min_level, 'tank2_avg_level': tank2_avg_level,
-            'last_notification': application_modules.get_notifications_manager().get_last_message()}
+            'last_notification': last_notification}
     return jsonify(data)
