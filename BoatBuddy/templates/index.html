@@ -85,7 +85,7 @@
                                     <span>Longitude:&nbsp<span
                                             id="update_anchor_alarm_current_longitude_label_id"></span></span>
                                     </div>
-                                    <div class="row">
+                                    <div class="row" id="update_anchor_alarm_distance_from_anchor_div_id">
                                     <span>Distance from anchor:&nbsp<span
                                             id="update_anchor_alarm_distance_from_anchor_label_id"></span>&nbspm</span>
                                     </div>
@@ -765,6 +765,13 @@ function showUpdateAnchorAlarmModal() {
             document.getElementById('update_anchor_alarm_current_latitude_label_id').innerHTML = data['current_latitude']
             document.getElementById('update_anchor_alarm_current_longitude_label_id').innerHTML = data['current_longitude'];
             document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').innerHTML = data['anchor_distance']
+
+            if (data['anchor_distance'] > data['anchor_allowed_distance']) {
+                document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-danger');
+            }
+            else {
+                document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-danger');
+            }
 
             updateAnchorAlarmModal.show();
         },

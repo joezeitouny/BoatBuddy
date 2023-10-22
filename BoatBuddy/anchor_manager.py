@@ -125,6 +125,11 @@ class AnchorManager:
                         # check if current distance exceeds the allowed distance
                         if self._anchor_distance > self._anchor_allowed_distance:
                             self._anchor_alarm_is_active = True
+
+                            # sleep for 1 second
+                            time.sleep(1)
+
+                            # skip the rest of the loop code
                             continue
 
                     # If this point in this loop is reached then deactivate the alarm

@@ -38,7 +38,7 @@
                                     <span><i class="bi bi-link-45deg"></i>&nbspSet anchor</span>
                                 </span>
                             </button>
-                            <button class="mx-2 btn btn-danger" id="update_anchor_alarm_button_id" type="button"
+                            <button class="mx-2 btn btn-success" id="update_anchor_alarm_button_id" type="button"
                                     style="visibility: hidden; display: None" onclick="showUpdateAnchorAlarmModal()">
                                 <span class="spinner-border spinner-border-sm" role="status"></span>
                                 Anchor distance:&nbsp<span id="anchor_distance_label_id"></span>m
@@ -123,6 +123,14 @@
                     document.getElementById('update_anchor_alarm_button_id').style.display = 'block';
                     document.getElementById('update_anchor_alarm_button_id').style.visibility = 'visible';
                     document.getElementById('anchor_distance_label_id').innerHTML = data['anchor_distance'];
+                    if (data['anchor_distance'] > data['anchor_allowed_distance']) {
+                        document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-success');
+                        document.getElementById("update_anchor_alarm_button_id").classList.add('btn-danger');
+                    }
+                    else {
+                        document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-danger');
+                        document.getElementById("update_anchor_alarm_button_id").classList.add('btn-success');
+                    }
                 }
                 else {
                     document.getElementById('update_anchor_alarm_button_id').style.display = 'none';
