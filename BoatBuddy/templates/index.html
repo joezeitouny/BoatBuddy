@@ -87,7 +87,7 @@
                                     </div>
                                     <div class="row">
                                     <span>Distance from anchor:&nbsp<span
-                                            id="update_anchor_alarm_distance_from_anchor_label_id"></span></span>
+                                            id="update_anchor_alarm_distance_from_anchor_label_id"></span>&nbspm</span>
                                     </div>
                                 </div>
                             </div>
@@ -658,6 +658,27 @@ function setAnchor() {
     });
 }
 
+function updateAnchor() {
+    hideUpdateAnchorAlarmModal();
+    $('#loading_modal').modal('show');
+
+    $.ajax({
+        url: '/set_anchor',
+        method: 'POST',
+        data: { latitude: document.getElementById("update_anchor_alarm_latitude_label_id").value,
+                longitude: document.getElementById("update_anchor_alarm_longitude_label_id").value,
+                allowed_distance: document.getElementById("update_anchor_alarm_allowed_distance_text_id").value },
+        success: function (response) {
+            $('#loading_modal').modal('hide');
+            notify_success('Anchor alarm successfully updated!');
+        },
+        error: function (error) {
+            $('#loading_modal').modal('hide');
+            notify_warning('Error while updating anchor alarm! Reason: ' + error);
+        }
+    });
+}
+
 function cancelAnchor() {
     hideCancelAnchorAlarmModal();
     hideSetAnchorAlarmModal();
@@ -720,25 +741,12 @@ function showUpdateAnchorAlarmModal() {
         url: '/anchor_alarm_data',
         success: function(data) {
             $('#loading_modal').modal('hide');
-            document.getElementById('update_anchor_alarm_allowed_distance_text_id').value = data['anchor_alarm_default_allowed_distance'];
+            document.getElementById('update_anchor_alarm_allowed_distance_text_id').value = data['anchor_allowed_distance'];
             document.getElementById('update_anchor_alarm_latitude_label_id').innerHTML = data['anchor_latitude']
             document.getElementById('update_anchor_alarm_longitude_label_id').innerHTML = data['anchor_longitude'];
             document.getElementById('update_anchor_alarm_current_latitude_label_id').innerHTML = data['current_latitude']
             document.getElementById('update_anchor_alarm_current_longitude_label_id').innerHTML = data['current_longitude'];
             document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').innerHTML = data['anchor_distance']
-
-<!--            setInterval(function() {-->
-<!--                // Fill up GPS anchor position from last gps coordinates-->
-<!--                $.ajax({-->
-<!--                    type: 'GET',-->
-<!--                    url: '/anchor_alarm_data',-->
-<!--                    success: function(data) {-->
-<!--                        document.getElementById('update_anchor_alarm_current_latitude_label_id').value = data['current_latitude']-->
-<!--                        document.getElementById('update_anchor_alarm_current_longitude_label_id').value = data['current_longitude'];-->
-<!--                        document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').value = data['anchor_distance']-->
-<!--                    }-->
-<!--                });-->
-<!--            }, 1000);-->
 
             updateAnchorAlarmModal.show();
         },
