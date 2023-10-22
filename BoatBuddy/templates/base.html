@@ -57,10 +57,73 @@
         </nav>
     </div>
     <div class="row">
+        <div id="connection_lost_modal" class="modal fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-light">Warning !!!</h5>
+                    </div>
+                    <div class="modal-body bg-danger">
+                        <span><i class="bi bi-exclamation-triangle" style="color: white;"></i><span class="text-light">&nbspConnection to the server is lost!</span></span>
+                    </div>
+                    <div class="modal-footer bg-danger">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="loading_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content bg-dark" id="loading_modal_content_id">
+                    <div class="modal-body text-center">
+                        <div class="spinner-border" role="status">
+                        </div>
+                        <h5 class="mt-2">Loading...</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {% block content %}
         {% endblock %}
     </div>
 </div>
+
+<script type="text/javascript">
+    connection_lost_dialog_shown = false;
+
+    function updateTime() {
+        $.ajax({
+            type: 'GET',
+            url: '/current_time',
+            success: function(data) {
+                // if the connection has recovered and the connection error dialog was shown
+                if (connection_lost_dialog_shown) {
+                    // hide the connection lost dialog
+                    $('#connection_lost_modal').modal('hide');
+                    connection_lost_dialog_shown = false;
+                }
+                // Update the relevant part of the webpage with the new data
+                document.getElementById('curr_time_id').innerHTML = data['curr_time'];
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        // Call the refreshData function every 1 seconds
+        setInterval(updateTime, 1000);
+    });
+
+    $(document).ajaxError(function( event, request, settings ) {
+        //When XHR Status code is 0 there is no connection with the server
+        if (request.status == 0){
+            if (!connection_lost_dialog_shown) {
+                $('#connection_lost_modal').modal('show');
+                connection_lost_dialog_shown = true;
+            }
+        }
+    });
+</script>
 
 </body>
 

@@ -206,9 +206,16 @@ def set_anchor():
     return jsonify(True)
 
 
+@app.route('/current_time')
+def get_current_time():
+    curr_time = time.strftime("%H:%M:%S", time.localtime())
+
+    data = {'curr_time': curr_time}
+    return jsonify(data)
+
+
 @app.route('/data')
 def get_data():
-    curr_time = time.strftime("%H:%M:%S", time.localtime())
     status = application_modules.get_plugin_manager().get_status().value
 
     web_theme = str(application_modules.get_options().web_theme).lower()
@@ -344,7 +351,7 @@ def get_data():
             tank2_min_level = session_summary_metrics['[GX] Tank 2 min lvl']
             tank2_avg_level = session_summary_metrics['[GX] Tank 2 avg. lvl']
 
-    data = {'curr_time': curr_time, 'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
+    data = {'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
             'battery_soc': battery_soc,
             'victron_status': victron_status,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,

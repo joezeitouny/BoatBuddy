@@ -1,21 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div id="connection_lost_modal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-light">Warning !!!</h5>
-            </div>
-            <div class="modal-body bg-danger">
-                <span><i class="bi bi-exclamation-triangle"></i><span class="text-light">&nbspConnection to the web server is lost!</span></span>
-            </div>
-            <div class="modal-footer bg-danger">
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="anchor_alarm_modal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" id="anchor_alarm_modal_content">
@@ -57,6 +42,37 @@
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="cancel_anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static" xmlns="http://www.w3.org/1999/html">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel anchor alarm?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to exit the trade "<span id="exitTradeModalValue"></span>"?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button id="cancel_anchor_alarm_button_id" type="button" class="btn btn-primary">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container p-0 mt-1">
+    <div id="warning_notification" class="alert alert-warning ms-2 me-2 mb-0 text-danger" role="alert"
+         style="display: none">
+        <span><i class="bi bi-exclamation-triangle mb-2 me-2"></i><span id="warning_notification_message">This is the warning notification message placeholder</span></span>
+    </div>
+    <div id="success_notification" class="alert alert-success ms-2 me-2 mb-0" role="alert"
+         style="display: none">
+        <span><i class="bi bi-check-square mb-2 me-2"></i><span id="success_notification_message">This is the success notification message placeholder</span></span>
     </div>
 </div>
 
@@ -344,6 +360,7 @@
 </div>
 
 <script type="text/javascript">
+first_refresh_data_call = true;
 
 {% if session_run_mode == 'manual' %}
 document.getElementById('session_button_id').disabled = false;
@@ -566,6 +583,8 @@ document.getElementById("close_anchor_alarm_modal_button_id").onclick = hideAnch
 document.getElementById("set_anchor_button_id").onclick = setAnchor;
 
 function setAnchor() {
+    $('#loading_modal').modal('show');
+
     $.ajax({
         url: '/set_anchor',
         method: 'POST',
@@ -573,12 +592,12 @@ function setAnchor() {
                 longitude: document.getElementById("anchor_longitude_text_id").value,
                 allowed_distance: document.getElementById("anchor_allowed_distance_text_id").value },
         success: function (response) {
-<!--            $('#loading_modal').modal('hide');-->
-<!--            notify_success('Rule ' + rule_id + ' status successfully changed!');-->
+            $('#loading_modal').modal('hide');
+            notify_success('Anchor alarm successfully set!');
         },
         error: function (error) {
-<!--            $('#loading_modal').modal('hide');-->
-<!--            notify_warning('Error changing rule ' + rule_id + ' status: ' + error);-->
+            $('#loading_modal').modal('hide');
+            notify_warning('Error while setting anchor alarm! Reason: ' + error);
         }
     });
 }
@@ -626,51 +645,48 @@ function hideAnchorAlarmModal() {
     anchorAlarmModal.hide();
 }
 
+function switch_to_light_mode() {
+    document.getElementById("anchor_alarm_modal_content").classList.remove('bg-dark');
+    document.getElementById("body-element-id").classList.add('text-dark');
+    document.getElementById("body-element-id").classList.remove('bg-dark');
+    document.getElementById("body-element-id").classList.remove('text-light');
+    document.getElementById("navbar-element-id").classList.remove('bg-dark');
+    document.getElementById("navbar-element-id").classList.add('bg-primary');
+    document.getElementById("loading_modal_content_id").classList.remove('bg-dark');
+    document.getElementById("loading_modal_content_id").classList.add('bg-white');
+    document.getElementById("summary-box-id").classList.add('border-dark');
+    document.getElementById("summary-box-id").classList.remove('border-light');
+    battery_soc_gauge.setOptions(common_gauge_options_light);
+    starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_light);
+    pv_power_gauge.setOptions(power_gauge_options_light);
+    fuel_tank_gauge.setOptions(common_gauge_options_light);
+    water_tank_gauge.setOptions(common_gauge_options_light);
+}
+
+function switch_to_dark_mode() {
+    document.getElementById("anchor_alarm_modal_content").classList.add('bg-dark');
+    document.getElementById("body-element-id").classList.add('bg-dark');
+    document.getElementById("body-element-id").classList.add('text-light');
+    document.getElementById("body-element-id").classList.remove('text-dark');
+    document.getElementById("navbar-element-id").classList.remove('bg-primary');
+    document.getElementById("navbar-element-id").classList.add('bg-dark');
+    document.getElementById("loading_modal_content_id").classList.remove('bg-white');
+    document.getElementById("loading_modal_content_id").classList.add('bg-dark');
+    document.getElementById("summary-box-id").classList.add('border-light');
+    document.getElementById("summary-box-id").classList.remove('border-dark');
+    battery_soc_gauge.setOptions(common_gauge_options_dark);
+    starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_dark);
+    pv_power_gauge.setOptions(power_gauge_options_dark);
+    fuel_tank_gauge.setOptions(common_gauge_options_dark);
+    water_tank_gauge.setOptions(common_gauge_options_dark);
+}
+
 function refreshData() {
     $.ajax({
         type: 'GET',
         url: '/data',
         success: function(data) {
-            if (is_toast_shown) {
-                connectionLostModal.hide();
-                is_toast_shown = false;
-            }
-
             // Update the relevant part of the webpage with the new data
-            document.getElementById('curr_time_id').innerHTML = data['curr_time'];
-
-            function switch_to_light_mode() {
-                document.getElementById("anchor_alarm_modal_content").classList.remove('bg-dark');
-                document.getElementById("body-element-id").classList.add('text-dark');
-                document.getElementById("body-element-id").classList.remove('bg-dark');
-                document.getElementById("body-element-id").classList.remove('text-light');
-                document.getElementById("navbar-element-id").classList.remove('bg-dark');
-                document.getElementById("navbar-element-id").classList.add('bg-primary');
-                document.getElementById("summary-box-id").classList.add('border-dark');
-                document.getElementById("summary-box-id").classList.remove('border-light');
-                battery_soc_gauge.setOptions(common_gauge_options_light);
-                starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_light);
-                pv_power_gauge.setOptions(power_gauge_options_light);
-                fuel_tank_gauge.setOptions(common_gauge_options_light);
-                water_tank_gauge.setOptions(common_gauge_options_light);
-            }
-
-            function switch_to_dark_mode() {
-                document.getElementById("anchor_alarm_modal_content").classList.add('bg-dark');
-                document.getElementById("body-element-id").classList.add('bg-dark');
-                document.getElementById("body-element-id").classList.add('text-light');
-                document.getElementById("body-element-id").classList.remove('text-dark');
-                document.getElementById("navbar-element-id").classList.remove('bg-primary');
-                document.getElementById("navbar-element-id").classList.add('bg-dark');
-                document.getElementById("summary-box-id").classList.add('border-light');
-                document.getElementById("summary-box-id").classList.remove('border-dark');
-                battery_soc_gauge.setOptions(common_gauge_options_dark);
-                starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_dark);
-                pv_power_gauge.setOptions(power_gauge_options_dark);
-                fuel_tank_gauge.setOptions(common_gauge_options_dark);
-                water_tank_gauge.setOptions(common_gauge_options_dark);
-            }
-
             if (data['web_theme'] == 'auto') {
                 if (data['day_light']) {
                     switch_to_light_mode();
@@ -831,6 +847,21 @@ function refreshData() {
                 document.getElementById('tank2_min_level').innerHTML = data['tank2_min_level'];
                 document.getElementById('tank2_avg_level').innerHTML = data['tank2_avg_level'];
             }
+
+            if (first_refresh_data_call) {
+                $('#loading_modal').modal('hide');
+                first_refresh_data_call = false;
+            }
+        },
+        error: function (error) {
+            if (first_refresh_data_call) {
+                $('#loading_modal').modal('hide');
+                first_refresh_data_call = false;
+            }
+
+            if (!connection_lost_dialog_shown) {
+                notify_warning('Error refreshing data: ' + error);
+            }
         }
     });
 
@@ -845,21 +876,26 @@ function refreshData() {
 }
 
 $(document).ready(function() {
+    $('#loading_modal').modal('show');
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
 });
 
-$(document).ajaxError(function( event, request, settings ) {
-        //When XHR Status code is 0 there is no connection with the server
-        if (request.status == 0){
-            if (!is_toast_shown) {
-                connectionLostModal.show();
-                is_toast_shown = true;
-            }
-        }
+function notify_success(message) {
+    $('#success_notification_message').html(message);
+    $("#success_notification").fadeIn();
+    setTimeout(function () {
+        $("#success_notification").fadeOut();
+    }, 5000);
+}
 
-    });
-
+function notify_warning(message) {
+    $('#warning_notification_message').html(message);
+    $("#warning_notification").fadeIn();
+    setTimeout(function () {
+        $("#warning_notification").fadeOut();
+    }, 5000);
+}
 
 
 </script>
