@@ -53,7 +53,13 @@ class AnchorManager:
         self._status = AnchorManagerStatus.DOWN
         self._log_manager.info('Anchor manager instance is ready to be destroyed')
 
-    def set_anchor(self, latitude, longitude, allowed_distance: int):
+    def set_anchor(self, latitude, longitude, allowed_distance: int) -> bool:
+        # validate the input
+        try:
+            latlon_anchor = string2latlon(latitude, longitude, 'd%°%m%\'%S%\" %H')
+        except Exception as e:
+            return False
+
         # cancel existing anchor (if any)
         self.cancel_anchor()
 
@@ -61,6 +67,8 @@ class AnchorManager:
         self._anchor_longitude = longitude
         self._anchor_allowed_distance = allowed_distance
         self._anchor_is_set = True
+
+        return True
 
     def cancel_anchor(self):
         self._anchor_is_set = False

@@ -85,7 +85,7 @@ class FlaskManager:
         with _console.status('[bold bright_yellow]Loading notifications module...[/bold bright_yellow]'):
             time.sleep(0.1)
             _notifications_manager = NotificationsManager(self._options, _log_manager, _sound_manager,
-                                                               _email_manager)
+                                                          _email_manager)
             _console.print(f'[green]Loading notifications module...Done[/green]')
 
         with _console.status('[bold bright_yellow]Loading plugins module...[/bold bright_yellow]'):
@@ -207,9 +207,8 @@ def set_anchor():
     longitude = request.form.get('longitude')  # Get the longitude value from the request
     allowed_distance = request.form.get('allowed_distance')  # Get the allowed distance value from the request
 
-    application_modules.get_anchor_manager().set_anchor(latitude, longitude, utils.try_parse_int(allowed_distance))
-
-    return jsonify(True)
+    return jsonify(
+        application_modules.get_anchor_manager().set_anchor(latitude, longitude, utils.try_parse_int(allowed_distance)))
 
 
 @app.route('/cancel_anchor')

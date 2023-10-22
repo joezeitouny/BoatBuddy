@@ -24,15 +24,15 @@
                             </div>
                         </div>
                         <div class="col">
-                            <button class="btn btn-outline-primary" type="button">
+                            <button class="btn btn-outline-primary" type="button" onclick="useCurrentPosition()">
                                 <span><i class="bi bi-crosshair"></i>&nbspUse current position</span>
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="text" id="set_anchor_alarm_allowed_distance_text_id"
-                                                       placeholder="Distance (in meters)"/></span>
+                    <span>Allowed distance:&nbsp<input type="number" step="1" id="set_anchor_alarm_allowed_distance_text_id"
+                                                       placeholder="Distance (in meters)"/>&nbspin meters</span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -95,8 +95,8 @@
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="text" id="update_anchor_alarm_allowed_distance_text_id"
-                                                       placeholder="Distance (in meters)"/></span>
+                    <span>Allowed distance:&nbsp<input type="number" step="1" id="update_anchor_alarm_allowed_distance_text_id"
+                                                       placeholder="Distance (in meters)"/>&nbspin meters</span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -637,6 +637,18 @@ water_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 water_tank_gauge.setTextField(document.getElementById("water_tank_value"));
 water_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
+function useCurrentPosition() {
+    // Fill up GPS anchor position on the set anchor dialog from last gps coordinates
+    $.ajax({
+        type: 'GET',
+        url: '/gps_coordinates',
+        success: function(data) {
+            document.getElementById('set_anchor_alarm_latitude_text_id').value = data['gps_latitude']
+            document.getElementById('set_anchor_alarm_longitude_text_id').value = data['gps_longitude'];
+        }
+    });
+}
+
 function setAnchor() {
     hideSetAnchorAlarmModal();
     $('#loading_modal').modal('show');
@@ -649,11 +661,14 @@ function setAnchor() {
                 allowed_distance: document.getElementById("set_anchor_alarm_allowed_distance_text_id").value },
         success: function (response) {
             $('#loading_modal').modal('hide');
-            notify_success('Anchor alarm successfully set!');
+            if (!response)
+                notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
+            else
+                notify_success('Anchor alarm successfully set!');
         },
         error: function (error) {
             $('#loading_modal').modal('hide');
-            notify_warning('Error while setting anchor alarm! Reason: ' + error);
+            notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
         }
     });
 }
@@ -665,12 +680,15 @@ function updateAnchor() {
     $.ajax({
         url: '/set_anchor',
         method: 'POST',
-        data: { latitude: document.getElementById("update_anchor_alarm_latitude_label_id").value,
-                longitude: document.getElementById("update_anchor_alarm_longitude_label_id").value,
+        data: { latitude: document.getElementById("update_anchor_alarm_latitude_label_id").innerHTML,
+                longitude: document.getElementById("update_anchor_alarm_longitude_label_id").innerHTML,
                 allowed_distance: document.getElementById("update_anchor_alarm_allowed_distance_text_id").value },
         success: function (response) {
             $('#loading_modal').modal('hide');
-            notify_success('Anchor alarm successfully updated!');
+            if (!response)
+                notify_warning('Error while updating anchor alarm! Please check your anchor configuration');
+            else
+                notify_success('Anchor alarm successfully updated!');
         },
         error: function (error) {
             $('#loading_modal').modal('hide');
