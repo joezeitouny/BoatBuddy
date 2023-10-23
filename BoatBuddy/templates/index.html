@@ -31,7 +31,8 @@
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="number" step="1" id="set_anchor_alarm_allowed_distance_text_id"
+                    <span>Allowed distance:&nbsp<input type="number" step="1"
+                                                       id="set_anchor_alarm_allowed_distance_text_id"
                                                        placeholder="Distance (in meters)"/>&nbspin meters</span>
                 </div>
             </div>
@@ -95,7 +96,8 @@
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="number" step="1" id="update_anchor_alarm_allowed_distance_text_id"
+                    <span>Allowed distance:&nbsp<input type="number" step="1"
+                                                       id="update_anchor_alarm_allowed_distance_text_id"
                                                        placeholder="Distance (in meters)"/>&nbspin meters</span>
                 </div>
             </div>
@@ -117,7 +119,7 @@
 <div id="cancel_anchor_alarm_modal" tabindex="-1" class="modal fade" data-backdrop="static"
      xmlns="http://www.w3.org/1999/html">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
+        <div class="modal-content" id="cancel_anchor_alarm_modal_content">
             <div class="modal-header">
                 <h5 class="modal-title">Cancel anchor alarm?</h5>
             </div>
@@ -242,155 +244,197 @@
                 </div>
             </div>
         </div>
-        <div class="col m-2 border border-5 border-danger rounded text-center d-flex">
-            <!-- Session column-->
-            <div id="no_session_message" class="container-fluid align-self-center">
-                <h5>No session in progress</h5>
+        <div class="col m-2">
+            <div class="row">
+                <ul class="nav nav-tabs" id="session-anchor-navbar" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="session-tab" data-bs-toggle="tab" data-bs-target="#session"
+                                type="button" role="tab" aria-controls="session" aria-selected="true">Session
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="anchor-tab" data-bs-toggle="tab" data-bs-target="#anchor"
+                                type="button" role="tab" aria-controls="anchor" aria-selected="false">Anchor
+                        </button>
+                    </li>
+                </ul>
             </div>
-            <div id="session_container" style="display: none; visibility: hidden;"
-                 class="container-fluid align-self-top">
-                <h5 id="session_name">Session name</h5>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Start time (Local):&nbsp;<span id="start_time"></span></span>
-                    </div>
-                    <div class="col">
-                        <span>Start time (UTC):&nbsp;<span id="start_time_utc"></span></span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <span>Duration:&nbsp;<span id="duration"></span></span>
-                </div>
-                <div class="row">
-                    <hr class="mt-1 mb-1"/>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Starting GPS latitude:&nbsp;<span id="start_gps_lat"></span></span>
-                    </div>
-                    <div class="col">
-                        <span>Starting GPS longitude:&nbsp;<span id="start_gps_lon"></span></span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Distance:&nbsp;<span id="distance"></span>&nbsp;miles</span>
-                    </div>
-                    <div class="col">
-                        <span>Heading:&nbsp;<span id="heading"></span>&nbsp;Degrees</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Average wind speed:&nbsp;<span id="average_wind_speed"></span>&nbsp;knots</span>
-                    </div>
-                    <div class="col">
-                        <span>Average wind direction:&nbsp;<span id="average_wind_direction"></span>&nbsp;Degrees</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Average water temperature:&nbsp;<span id="average_water_temperature"></span>&nbsp;Celsius</span>
-                    </div>
-                    <div class="col">
-                        <span>Average depth:&nbsp;<span id="average_depth"></span>&nbsp;meters</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Average speed over ground:&nbsp;<span id="average_sog"></span>&nbsp;knots</span>
-                    </div>
-                    <div class="col">
-                        <span>Average speed over water:&nbsp;<span id="average_sow"></span>&nbsp;knots</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
+            <div class="row border border-5 border-danger rounded text-center d-flex">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="session" role="tabpanel" aria-labelledby="session-tab">
+                        <!-- Session panel-->
+                        <div id="no_session_message" class="container-fluid align-self-center">
+                            <h5>No session in progress</h5>
+                        </div>
+                        <div id="session_container" style="display: none; visibility: hidden;"
+                             class="container-fluid align-self-top">
+                            <h5 id="session_name">Session name</h5>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Start time (Local):&nbsp;<span id="start_time"></span></span>
+                                </div>
+                                <div class="col">
+                                    <span>Start time (UTC):&nbsp;<span id="start_time_utc"></span></span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <span>Duration:&nbsp;<span id="duration"></span></span>
+                            </div>
+                            <div class="row">
+                                <hr class="mt-1 mb-1"/>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Starting GPS latitude:&nbsp;<span id="start_gps_lat"></span></span>
+                                </div>
+                                <div class="col">
+                                    <span>Starting GPS longitude:&nbsp;<span id="start_gps_lon"></span></span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Distance:&nbsp;<span id="distance"></span>&nbsp;miles</span>
+                                </div>
+                                <div class="col">
+                                    <span>Heading:&nbsp;<span id="heading"></span>&nbsp;Degrees</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Average wind speed:&nbsp;<span
+                                            id="average_wind_speed"></span>&nbsp;knots</span>
+                                </div>
+                                <div class="col">
+                                    <span>Average wind direction:&nbsp;<span id="average_wind_direction"></span>&nbsp;Degrees</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Average water temperature:&nbsp;<span id="average_water_temperature"></span>&nbsp;Celsius</span>
+                                </div>
+                                <div class="col">
+                                    <span>Average depth:&nbsp;<span id="average_depth"></span>&nbsp;meters</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Average speed over ground:&nbsp;<span
+                                            id="average_sog"></span>&nbsp;knots</span>
+                                </div>
+                                <div class="col">
+                                    <span>Average speed over water:&nbsp;<span
+                                            id="average_sow"></span>&nbsp;knots</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
                         <span>Housing battery max voltage:&nbsp;<span
                                 id="housing_battery_max_voltage"></span>&nbsp;V</span>
-                    </div>
-                    <div class="col">
+                                </div>
+                                <div class="col">
                         <span>Housing battery min voltage:&nbsp;<span
                                 id="housing_battery_min_voltage"></span>&nbsp;V</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
                         <span>Housing battery avg. voltage:&nbsp;<span
                                 id="housing_battery_avg_voltage"></span>&nbsp;V</span>
-                    </div>
-                    <div class="col">
+                                </div>
+                                <div class="col">
                         <span>Housing battery max current:&nbsp;<span
                                 id="housing_battery_max_current"></span>&nbsp;A</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
                         <span>Housing battery avg. current:&nbsp;<span
                                 id="housing_battery_avg_current"></span>&nbsp;A</span>
-                    </div>
-                    <div class="col">
-                        <span>Housing battery max power:&nbsp;<span id="housing_battery_max_power"></span>&nbsp;W</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
+                                </div>
+                                <div class="col">
+                                    <span>Housing battery max power:&nbsp;<span id="housing_battery_max_power"></span>&nbsp;W</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
                         <span>Housing battery avg. power:&nbsp;<span
                                 id="housing_battery_avg_power"></span>&nbsp;W</span>
-                    </div>
-                    <div class="col">
-                        <span>PV max power:&nbsp;<span id="pv_max_power"></span>&nbsp;W</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>PV avg. power:&nbsp;<span id="pv_avg_power"></span>&nbsp;W</span>
-                    </div>
-                    <div class="col">
-                        <span>PV max current:&nbsp;<span id="pv_max_current"></span>&nbsp;A</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>PV avg. current:&nbsp;<span id="pv_avg_current"></span>&nbsp;A</span>
-                    </div>
-                    <div class="col">
+                                </div>
+                                <div class="col">
+                                    <span>PV max power:&nbsp;<span id="pv_max_power"></span>&nbsp;W</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>PV avg. power:&nbsp;<span id="pv_avg_power"></span>&nbsp;W</span>
+                                </div>
+                                <div class="col">
+                                    <span>PV max current:&nbsp;<span id="pv_max_current"></span>&nbsp;A</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>PV avg. current:&nbsp;<span id="pv_avg_current"></span>&nbsp;A</span>
+                                </div>
+                                <div class="col">
                         <span>Starter battery max voltage:&nbsp;<span
                                 id="starter_battery_max_voltage"></span>&nbsp;V</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
                         <span>Starter battery min voltage:&nbsp;<span
                                 id="starter_battery_min_voltage"></span>&nbsp;V</span>
-                    </div>
-                    <div class="col">
+                                </div>
+                                <div class="col">
                         <span>Starter battery avg. voltage:&nbsp;<span
                                 id="starter_battery_avg_voltage"></span>&nbsp;V</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Tank 1 max level:&nbsp;<span id="tank1_max_level"></span>&nbsp;%</span>
+                                </div>
+                                <div class="col">
+                                    <span>Tank 1 min level:&nbsp;<span id="tank1_min_level"></span>&nbsp;%</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Tank 1 avg. level:&nbsp;<span id="tank1_avg_level"></span>&nbsp;%</span>
+                                </div>
+                                <div class="col">
+                                    <span>Tank 2 max level:&nbsp;<span id="tank2_max_level"></span>&nbsp;%</span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Tank 2 min level:&nbsp;<span id="tank2_min_level"></span>&nbsp;%</span>
+                                </div>
+                                <div class="col">
+                                    <span>Tank 2 avg. level:&nbsp;<span id="tank2_avg_level"></span>&nbsp;%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Tank 1 max level:&nbsp;<span id="tank1_max_level"></span>&nbsp;%</span>
-                    </div>
-                    <div class="col">
-                        <span>Tank 1 min level:&nbsp;<span id="tank1_min_level"></span>&nbsp;%</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Tank 1 avg. level:&nbsp;<span id="tank1_avg_level"></span>&nbsp;%</span>
-                    </div>
-                    <div class="col">
-                        <span>Tank 2 max level:&nbsp;<span id="tank2_max_level"></span>&nbsp;%</span>
-                    </div>
-                </div>
-                <div class="row text-start">
-                    <div class="col">
-                        <span>Tank 2 min level:&nbsp;<span id="tank2_min_level"></span>&nbsp;%</span>
-                    </div>
-                    <div class="col">
-                        <span>Tank 2 avg. level:&nbsp;<span id="tank2_avg_level"></span>&nbsp;%</span>
+                    <div class="tab-pane fade" id="anchor" role="tabpanel" aria-labelledby="anchor-tab">
+                        <!-- Anchor panel-->
+                        <div id="anchor_alarm_is_not_set_message" class="container-fluid align-self-center">
+                            <h5>Anchor alarm is not set</h5>
+                        </div>
+                        <div id="anchor_container" style="display: none; visibility: hidden;"
+                             class="container-fluid align-self-top">
+                            <h5>Anchor position</h5>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
+                                </div>
+                                <div class="col">
+                                    <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -821,6 +865,7 @@ function cancelAnchorAlarm() {
 function switch_to_light_mode() {
     document.getElementById("set_anchor_alarm_modal_content").classList.remove('bg-dark');
     document.getElementById("update_anchor_alarm_modal_content").classList.remove('bg-dark');
+    document.getElementById("cancel_anchor_alarm_modal_content").classList.remove('bg-dark');
     document.getElementById("body-element-id").classList.add('text-dark');
     document.getElementById("body-element-id").classList.remove('bg-dark');
     document.getElementById("body-element-id").classList.remove('text-light');
@@ -840,6 +885,7 @@ function switch_to_light_mode() {
 function switch_to_dark_mode() {
     document.getElementById("set_anchor_alarm_modal_content").classList.add('bg-dark');
     document.getElementById("update_anchor_alarm_modal_content").classList.add('bg-dark');
+    document.getElementById("cancel_anchor_alarm_modal_content").classList.add('bg-dark');
     document.getElementById("body-element-id").classList.add('bg-dark');
     document.getElementById("body-element-id").classList.add('text-light');
     document.getElementById("body-element-id").classList.remove('text-dark');
@@ -1007,6 +1053,32 @@ function refreshData() {
                 document.getElementById('tank2_avg_level').innerHTML = data['tank2_avg_level'];
             }
 
+            // Refresh anchor data if anchor alarm is active
+            $.ajax({
+                type: 'GET',
+                url: '/anchor_alarm_data',
+                async: false, // Synchronous request
+                success: function(data) {
+                    if (data['anchor_alarm_module'] && data['anchor_is_set']) {
+                        document.getElementById('anchor_alarm_is_not_set_message').style.display = 'none';
+                        document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'hidden';
+                        document.getElementById('anchor_container').style.display = 'block';
+                        document.getElementById('anchor_container').style.visibility = 'visible';
+                        document.getElementById('anchor_latitude').innerHTML = data['anchor_latitude']
+                        document.getElementById('anchor_longitude').innerHTML = data['anchor_longitude'];
+                    }
+                    else {
+                        document.getElementById('anchor_container').style.display = 'none';
+                        document.getElementById('anchor_container').style.visibility = 'hidden';
+                        document.getElementById('anchor_alarm_is_not_set_message').style.display = 'block';
+                        document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'visible';
+                    }
+                },
+                error: function (error) {
+                    notify_warning('Error while retrieving anchor alarm configuration! Reason: ' + error);
+                }
+            });
+
             if (first_refresh_data_call) {
                 $('#loading_modal').modal('hide');
                 first_refresh_data_call = false;
@@ -1046,6 +1118,19 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
