@@ -10,6 +10,7 @@ from BoatBuddy import utils, globals
 from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.anchor_manager import AnchorManager
 from BoatBuddy.email_manager import EmailManager
+from BoatBuddy.telegram_manager import TelegramManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.log_manager import LogManager
 from BoatBuddy.notifications_manager import NotificationsManager, NotificationEvents, NotificationEntryType
@@ -20,7 +21,7 @@ from BoatBuddy.sound_manager import SoundManager, SoundType
 class ApplicationModules:
     def __init__(self, options, log_manager: LogManager, sound_manager: SoundManager, email_manager: EmailManager,
                  notifications_manager: NotificationsManager, plugin_manager: PluginManager,
-                 database_manager: DatabaseManager, anchor_manager: AnchorManager):
+                 database_manager: DatabaseManager, anchor_manager: AnchorManager, telegram_manager: TelegramManager):
         self._options = options
         self._log_manager = log_manager
         self._sound_manager = sound_manager
@@ -29,6 +30,7 @@ class ApplicationModules:
         self._plugin_manager = plugin_manager
         self._database_manager = database_manager
         self._anchor_manager = anchor_manager
+        self._telegram_manager = telegram_manager
 
     def get_options(self):
         return self._options
@@ -53,6 +55,9 @@ class ApplicationModules:
 
     def get_anchor_manager(self) -> AnchorManager:
         return self._anchor_manager
+
+    def get_telegram_manager(self) -> TelegramManager:
+        return self._telegram_manager
 
 
 application_modules: ApplicationModules
@@ -82,10 +87,15 @@ class FlaskManager:
             _email_manager = EmailManager(self._options, _log_manager)
             _console.print(f'[green]Loading email module...Done[/green]')
 
+        with _console.status('[bold bright_yellow]Loading Telegram module...[/bold bright_yellow]'):
+            time.sleep(0.1)
+            _telegram_manager = TelegramManager(self._options, _log_manager)
+            _console.print(f'[green]Loading Telegram module...Done[/green]')
+
         with _console.status('[bold bright_yellow]Loading notifications module...[/bold bright_yellow]'):
             time.sleep(0.1)
             _notifications_manager = NotificationsManager(self._options, _log_manager, _sound_manager,
-                                                          _email_manager)
+                                                          _email_manager, _telegram_manager)
             _console.print(f'[green]Loading notifications module...Done[/green]')
 
         with _console.status('[bold bright_yellow]Loading plugins module...[/bold bright_yellow]'):
@@ -114,7 +124,7 @@ class FlaskManager:
         global application_modules
         application_modules = ApplicationModules(self._options, _log_manager, _sound_manager, _email_manager,
                                                  _notifications_manager, _plugin_manager, _database_manager,
-                                                 _anchor_manager)
+                                                 _anchor_manager, _telegram_manager)
 
         webbrowser.open(f'http://{self._options.web_host}:{self._options.web_port}')
         app.run(debug=False, host=self._options.web_host, port=self._options.web_port)

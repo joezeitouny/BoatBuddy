@@ -8,6 +8,7 @@ from BoatBuddy import globals, utils
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.log_manager import LogManager
 from BoatBuddy.sound_manager import SoundManager, SoundType
+from BoatBuddy.telegram_manager import TelegramManager
 
 
 class NotificationEntryType(Enum):
@@ -19,6 +20,7 @@ class NotificationEntryType(Enum):
 class NotificationType(Enum):
     SOUND = 'sound'
     EMAIL = 'email'
+    TELEGRAM = 'telegram'
 
 
 class NotificationEvents(Events):
@@ -76,11 +78,13 @@ class NotificationEntry:
 
 class NotificationsManager:
 
-    def __init__(self, options, log_manager: LogManager, sound_manager: SoundManager, email_manager: EmailManager):
+    def __init__(self, options, log_manager: LogManager, sound_manager: SoundManager, email_manager: EmailManager,
+                 telegram_manager: TelegramManager):
         self._options = options
         self._log_manager = log_manager
         self._sound_manager = sound_manager
         self._email_manager = email_manager
+        self._telegram_manager = telegram_manager
         self._events = None
         self._last_message = ''
         self._notifications_queue = {}
@@ -199,12 +203,19 @@ class NotificationsManager:
             self._process_email_notification(key, value, entry_type, severity, frequency, cool_off_interval,
                                              configuration_range, interval, additional_message)
 
+        if NotificationType.TELEGRAM.value in notification_types:
+            self._process_telegram_notification(key, value, entry_type, severity, frequency, cool_off_interval,
+                                                configuration_range, interval, additional_message)
+
         # Update the last_processed field value with the current time
         self._notifications_queue[key]['last_processed'] = time.time()
 
     def _process_clear_notification(self, key, notification_types, severity):
         if NotificationType.EMAIL.value in notification_types:
             self._process_clear_email_notification(key, severity)
+
+        if NotificationType.TELEGRAM.value in notification_types:
+            self._process_clear_telegram_notification(key)
 
     def _process_sound_notification(self, severity):
         if severity == 'alarm':
@@ -232,8 +243,8 @@ class NotificationsManager:
                 body = f'Notification triggered for the \'{key}\' module @ {local_time} on {local_date}:\r\n' \
                        f'Status: {value}\r\nSeverity: {severity}' + \
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
-                       f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
-                       f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n'\
+                       f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n' \
+                       f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
                        f'Additional message: {additional_message}\r\n\r\n' \
                        f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
                 subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
@@ -242,7 +253,7 @@ class NotificationsManager:
                 body = f'Notification triggered for metric with key \'{key}\' @ {local_time} on {local_date}:\r\n' \
                        f'Value: {value}\r\nSeverity: {severity}' + \
                        f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
-                       f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n ' \
+                       f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n' \
                        f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
                        f'Additional message: {additional_message}\r\n\r\n' \
                        f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
@@ -281,6 +292,72 @@ class NotificationsManager:
                                    f'An email will be sent out shortly!')
         except Exception as e:
             self._log_manager.error(f'Error while clearing email notification '
+                                    f'for {notification_entry.get_entry_type().value} \'{key}\'. Details: {e}')
+
+    def _process_telegram_notification(self, key, value, entry_type, severity, frequency, cool_off_interval,
+                                       configuration_range, interval, additional_message):
+        try:
+            configuration_range_str = 'N/A'
+            interval_str = 'N/A'
+
+            if configuration_range:
+                configuration_range_str = str(configuration_range)
+
+            if interval:
+                interval_str = str(interval)
+
+            message = 'N/A'
+            local_time = time.strftime('%H:%M:%S')
+            local_date = time.strftime('%Y-%m-%d')
+            if entry_type == NotificationEntryType.MODULE:
+                message = f'Notification triggered for the \'{key}\' module @ {local_time} on {local_date}:\r\n' \
+                          f'Status: {value}\r\nSeverity: {severity}' + \
+                          f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
+                          f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n' \
+                          f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
+                          f'Additional message: {additional_message}\r\n\r\n' \
+                          f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
+            elif entry_type == NotificationEntryType.METRIC:
+                message = f'Notification triggered for metric with key \'{key}\' @ {local_time} on {local_date}:\r\n' \
+                          f'Value: {value}\r\nSeverity: {severity}' + \
+                          f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
+                          f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n' \
+                          f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
+                          f'Additional message: {additional_message}\r\n\r\n' \
+                          f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
+            self._telegram_manager.send_message(message)
+            if entry_type == NotificationEntryType.MODULE:
+                self._log_manager.info(f'Telegram notification triggered '
+                                       f'for the {key} module. Status: {value} '
+                                       f'Severity: {severity} Frequency: {frequency} '
+                                       f'Configuration Range: {configuration_range_str} Interval: {interval_str} '
+                                       f'Cool Off Interval: {cool_off_interval}. An Telegram message will be sent '
+                                       f'out shortly!')
+            elif entry_type == NotificationEntryType.METRIC:
+                self._log_manager.info(f'Telegram notification triggered '
+                                       f'for the following {entry_type.value}. Key: {key} Value: {value} '
+                                       f'Severity: {severity} Frequency: {frequency} '
+                                       f'Configuration Range: {configuration_range_str} Interval: {interval_str} '
+                                       f'Cool Off Interval: {cool_off_interval}. An Telegram message will be sent '
+                                       f'out shortly!')
+        except Exception as e:
+            self._log_manager.error(f'Error while triggering Telegram notification for {entry_type.value} '
+                                    f'\'{key}\'. Details: {e}')
+
+    def _process_clear_telegram_notification(self, key):
+        notification_entry = self._notifications_queue[key]['instance']
+        try:
+            local_time = time.strftime('%H:%M:%S')
+            local_date = time.strftime('%Y-%m-%d')
+            message = f'Notification cleared for ' \
+                      f'{notification_entry.get_entry_type().value} \'{key}\' @ {local_time} on {local_date}\r\n\r\n' \
+                      f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
+            self._telegram_manager.send_message(message)
+            self._log_manager.info(f'Notification cleared for '
+                                   f' {notification_entry.get_entry_type().value} \'{key}\'. '
+                                   f'A Telegram message will be sent out shortly!')
+        except Exception as e:
+            self._log_manager.error(f'Error while clearing Telegram notification '
                                     f'for {notification_entry.get_entry_type().value} \'{key}\'. Details: {e}')
 
     def _delayed_add_notification_entry(self, timestamp, key, value, entry_type, notification_types, severity,

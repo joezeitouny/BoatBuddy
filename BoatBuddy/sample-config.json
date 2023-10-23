@@ -151,6 +151,11 @@
     "email_password": "",
     "email_session_report": "True"
   },
+  "telegram": {
+    "telegram_module": "False",
+    "telegram_bot_token": "",
+    "telegram_recipient_id": ""
+  },
   "notification": {
     "notifications_module": "True",
     "notification_email": "True",
