@@ -38,7 +38,8 @@ class TelegramManager:
         self._log_manager.info('Telegram manager instance is ready to be destroyed')
 
     def send_message(self, message: str):
-        asyncio.run(self.async_send_message(message))
+        if self._options.telegram_module:
+            asyncio.run(self.async_send_message(message))
 
     async def async_send_message(self, message: str):
         async with Bot(self._options.telegram_bot_token) as bot:
