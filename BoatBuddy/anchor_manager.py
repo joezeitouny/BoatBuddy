@@ -29,6 +29,8 @@ class AnchorManager:
         self._exit_signal = Event()
 
         self._status = AnchorManagerStatus.STARTING
+        self._anchor_timestamp_utc = None
+        self._anchor_timestamp_local = None
         self._anchor_latitude = ''
         self._anchor_longitude = ''
         self._anchor_allowed_distance = 0
@@ -69,6 +71,12 @@ class AnchorManager:
         self._anchor_latitude = latitude
         self._anchor_longitude = longitude
         self._anchor_allowed_distance = allowed_distance
+
+        # record the current timestamp
+        self._anchor_timestamp_utc = time.gmtime()
+        self._anchor_timestamp_local = time.localtime()
+
+        # register that the anchor is set
         self._anchor_is_set = True
 
         return True
@@ -107,6 +115,18 @@ class AnchorManager:
     def current_latitude(self):
         return self._current_latitude
 
+    def anchor_timestamp_utc(self):
+        if self._anchor_timestamp_utc:
+            return time.strftime("%Y-%m-%d %H:%M:%S", self._anchor_timestamp_utc)
+        else:
+            return ''
+
+    def anchor_timestamp_local(self):
+        if self._anchor_timestamp_local:
+            return time.strftime("%Y-%m-%d %H:%M:%S", self._anchor_timestamp_local)
+        else:
+            return ''
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
@@ -133,6 +153,7 @@ class AnchorManager:
 
                         # check if current distance exceeds the allowed distance
                         if self._anchor_distance > self._anchor_allowed_distance:
+                            # mark the anchor alarm as active
                             self._anchor_alarm_is_active = True
 
                             # send out a notification

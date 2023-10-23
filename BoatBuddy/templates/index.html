@@ -86,7 +86,7 @@
                                     <span>Longitude:&nbsp<span
                                             id="update_anchor_alarm_current_longitude_label_id"></span></span>
                                     </div>
-                                    <div class="row" id="update_anchor_alarm_distance_from_anchor_div_id">
+                                    <div class="row text-success fw-bolder" id="update_anchor_alarm_distance_from_anchor_div_id">
                                     <span>Distance from anchor:&nbsp<span
                                             id="update_anchor_alarm_distance_from_anchor_label_id"></span>&nbspm</span>
                                     </div>
@@ -424,15 +424,43 @@
                         </div>
                         <div id="anchor_container" style="display: none; visibility: hidden;"
                              class="container-fluid align-self-top">
-                            <h5>Anchor position</h5>
+                            <h5>Anchor alarm details</h5>
                             <div class="row text-start">
                                 <div class="col">
-                                    <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
+                                    <span>Start time (Local):&nbsp;<span id="anchor_start_time"></span></span>
                                 </div>
                                 <div class="col">
-                                    <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
+                                    <span>Start time (UTC):&nbsp;<span id="anchor_start_time_utc"></span></span>
                                 </div>
                             </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Anchor Latitude:&nbsp<span id="anchor_latitude"></span></span>
+                                </div>
+                                <div class="col">
+                                    <span>Anchor Longitude:&nbsp<span id="anchor_longitude"></span></span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Current Latitude:&nbsp<span id="current_latitude"></span></span>
+                                </div>
+                                <div class="col">
+                                    <span>Current Longitude:&nbsp<span id="current_longitude"></span></span>
+                                </div>
+                            </div>
+                            <div class="row text-start">
+                                <div class="col">
+                                    <span>Allowed Distance:&nbsp<span id="anchor_allowed_distance"></span>&nbspm</span>
+                                </div>
+                                <div class="col fw-bolder text-success" id="distance_from_anchor_div">
+                                    <span>Distance from anchor:&nbsp<span id="anchor_distance"></span>&nbspm</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <hr class="mt-1 mb-1"/>
+                            </div>
+                            
                         </div>
 
                     </div>
@@ -811,10 +839,12 @@ function showUpdateAnchorAlarmModal() {
             document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').innerHTML = data['anchor_distance']
 
             if (data['anchor_distance'] > data['anchor_allowed_distance']) {
+                document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-success');
                 document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-danger');
             }
             else {
                 document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-danger');
+                document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-success');
             }
 
             updateAnchorAlarmModal.show();
@@ -1066,6 +1096,21 @@ function refreshData() {
                         document.getElementById('anchor_container').style.visibility = 'visible';
                         document.getElementById('anchor_latitude').innerHTML = data['anchor_latitude']
                         document.getElementById('anchor_longitude').innerHTML = data['anchor_longitude'];
+                        document.getElementById('anchor_start_time').innerHTML = data['anchor_timestamp_local'];
+                        document.getElementById('anchor_start_time_utc').innerHTML = data['anchor_timestamp_utc'];
+                        document.getElementById('current_latitude').innerHTML = data['current_latitude']
+                        document.getElementById('current_longitude').innerHTML = data['current_longitude'];
+                        document.getElementById('anchor_distance').innerHTML = data['anchor_distance'];
+                        document.getElementById('anchor_allowed_distance').innerHTML = data['anchor_allowed_distance'];
+
+                        if (data['anchor_distance'] > data['anchor_allowed_distance']) {
+                            document.getElementById("distance_from_anchor_div").classList.remove('text-success');
+                            document.getElementById("distance_from_anchor_div").classList.add('text-danger');
+                        }
+                        else {
+                            document.getElementById("distance_from_anchor_div").classList.remove('text-danger');
+                            document.getElementById("distance_from_anchor_div").classList.add('text-success');
+                        }
                     }
                     else {
                         document.getElementById('anchor_container').style.display = 'none';
