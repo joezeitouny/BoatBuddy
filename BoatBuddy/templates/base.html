@@ -117,27 +117,33 @@
             type: 'GET',
             url: '/anchor_alarm_data',
             success: function(data) {
-                if (data['anchor_is_set']) {
-                    document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
-                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
-                    document.getElementById('update_anchor_alarm_button_id').style.display = 'block';
-                    document.getElementById('update_anchor_alarm_button_id').style.visibility = 'visible';
-                    document.getElementById('anchor_distance_label_id').innerHTML = data['anchor_distance'];
-                    if (data['anchor_distance'] > data['anchor_allowed_distance']) {
-                        document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-warning');
-                        document.getElementById("update_anchor_alarm_button_id").classList.add('btn-danger');
+                if (data['anchor_alarm_module']) {
+                    if (data['anchor_is_set']) {
+                        document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
+                        document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
+                        document.getElementById('update_anchor_alarm_button_id').style.display = 'block';
+                        document.getElementById('update_anchor_alarm_button_id').style.visibility = 'visible';
+                        document.getElementById('anchor_distance_label_id').innerHTML = data['anchor_distance'];
+                        if (data['anchor_distance'] > data['anchor_allowed_distance']) {
+                            document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-warning');
+                            document.getElementById("update_anchor_alarm_button_id").classList.add('btn-danger');
+                        }
+                        else {
+                            document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-danger');
+                            document.getElementById("update_anchor_alarm_button_id").classList.add('btn-warning');
+                        }
                     }
                     else {
-                        document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-danger');
-                        document.getElementById("update_anchor_alarm_button_id").classList.add('btn-warning');
+                        document.getElementById('update_anchor_alarm_button_id').style.display = 'none';
+                        document.getElementById('update_anchor_alarm_button_id').style.visibility = 'hidden';
+                        document.getElementById('anchor_distance_label_id').innerHTML = '';
+                        document.getElementById('set_anchor_alarm_button_id').style.display = 'block';
+                        document.getElementById('set_anchor_alarm_button_id').style.visibility = 'visible';
                     }
                 }
                 else {
-                    document.getElementById('update_anchor_alarm_button_id').style.display = 'none';
-                    document.getElementById('update_anchor_alarm_button_id').style.visibility = 'hidden';
-                    document.getElementById('anchor_distance_label_id').innerHTML = '';
-                    document.getElementById('set_anchor_alarm_button_id').style.display = 'block';
-                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'visible';
+                    document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
+                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
                 }
             }
         });

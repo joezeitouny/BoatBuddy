@@ -177,6 +177,7 @@ def get_anchor_alarm_data():
     current_latitude = ''
     current_longitude = ''
     anchor_alarm_default_allowed_distance = application_modules.get_options().anchor_alarm_default_allowed_distance
+    anchor_alarm_module = application_modules.get_options().anchor_alarm_module
 
     if application_modules.get_options().anchor_alarm_module:
         anchor_is_set = application_modules.get_anchor_manager().anchor_is_set()
@@ -188,7 +189,8 @@ def get_anchor_alarm_data():
         current_latitude = application_modules.get_anchor_manager().current_latitude()
         current_longitude = application_modules.get_anchor_manager().current_longitude()
 
-    data = {'anchor_is_set': anchor_is_set, 'anchor_alarm_is_active': anchor_alarm_is_active,
+    data = {'anchor_alarm_module': anchor_alarm_module,
+            'anchor_is_set': anchor_is_set, 'anchor_alarm_is_active': anchor_alarm_is_active,
             'anchor_allowed_distance': anchor_allowed_distance, 'anchor_distance': anchor_distance,
             'anchor_latitude': anchor_latitude, 'anchor_longitude': anchor_longitude,
             'anchor_alarm_default_allowed_distance': anchor_alarm_default_allowed_distance,

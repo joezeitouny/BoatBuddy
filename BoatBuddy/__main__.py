@@ -185,6 +185,10 @@ if __name__ == '__main__':
         elif options.anchor_alarm_module and not options.gps_module:
             print(f'Invalid argument: Anchor alarm module cannot be enabled without the GPS module being enabled too')
             parser.print_help()
+        elif options.telegram_module and not options.telegram_bot_token and not options.telegram_recipient_id:
+            print(f'Invalid argument: Telegram module requires the bot token and the recipient id '
+                  f'parameters to be provided')
+            parser.print_help()
         else:
             if options.web_module:
                 FlaskManager(options)
