@@ -1,3 +1,8 @@
+## 0.8.1 (2023-10-24)
+
+* Added the ability to render satellite images in the anchor alarm map when supplying Mapbox API token to the configuration file
+* Version bump to 0.8.1
+
 ## 0.8.0 (2023-10-24)
 
 * Added the anchor alarm feature

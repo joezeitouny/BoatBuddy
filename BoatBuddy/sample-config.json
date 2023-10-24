@@ -31,7 +31,8 @@
   },
   "anchor_alarm": {
     "anchor_alarm_module": "False",
-    "anchor_alarm_default_allowed_distance": 40
+    "anchor_alarm_default_allowed_distance": 40,
+    "anchor_alarm_mapbox_api_key": ""
   },
   "database": {
     "database_module": "False",

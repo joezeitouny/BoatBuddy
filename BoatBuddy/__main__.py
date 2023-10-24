@@ -58,6 +58,7 @@ if __name__ == '__main__':
             options.anchor_alarm_module = utils.try_parse_bool(data['anchor_alarm']['anchor_alarm_module'])
             options.anchor_alarm_default_allowed_distance = \
                 utils.try_parse_int(data['anchor_alarm']['anchor_alarm_default_allowed_distance'])
+            options.anchor_alarm_mapbox_api_key = data['anchor_alarm']['anchor_alarm_mapbox_api_key']
             options.database_module = utils.try_parse_bool(data['database']['database_module'])
             options.database_name = data['database']['database_name']
             options.database_host = data['database']['database_host']

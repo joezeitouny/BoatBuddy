@@ -148,9 +148,11 @@ def index():
     application_version = utils.get_application_version()
     session_run_mode = str(application_modules.get_options().session_run_mode).lower()
     anchor_alarm_module = application_modules.get_options().anchor_alarm_module
+    anchor_alarm_mapbox_api_key = application_modules.get_options().anchor_alarm_mapbox_api_key
 
     return render_template('index.html', application_name=application_name, application_version=application_version,
-                           session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module)
+                           session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module,
+                           anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key)
 
 
 @app.route('/toggle_session')

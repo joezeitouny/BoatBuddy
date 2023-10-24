@@ -763,15 +763,31 @@ function drawAnchorOnMap(latitude, longitude, allowed_distance) {
     divContainer.innerHTML = '';
 
     // re-initialize the anchor map
+    {% if anchor_alarm_mapbox_api_key | length > 0 %}
     anchorMap = new ol.Map({
         layers: [
                 new ol.layer.Tile({
-                source: new ol.source.OSM()
+                source: new ol.source.OSM ({
+                    // Set the OSM source to use satellite imagery
+                    url: 'https://{a-c}.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={{anchor_alarm_mapbox_api_key}}',
+                    maxZoom: 19 // Adjust max zoom level as needed
+                })
             })
         ],
         target: 'anchor-map',
         controls: []
     });
+    {% else %}
+    anchorMap = new ol.Map({
+        layers: [
+                new ol.layer.Tile({
+                source: new ol.source.OSM ()
+            })
+        ],
+        target: 'anchor-map',
+        controls: []
+    });
+    {% endif %}
 
     decimalLat = dmsToDD(latitude);
     decimalLon = dmsToDD(longitude)
