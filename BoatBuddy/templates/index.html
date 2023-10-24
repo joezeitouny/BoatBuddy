@@ -1290,28 +1290,6 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
-
-<!--// Check for internet connection-->
-<!--if (navigator.onLine) {-->
-<!--    // Internet connection is available, load the map-->
-<!--    loadMap();-->
-<!--} else {-->
-<!--    // Internet connection is not available, handle this scenario (e.g., show a message)-->
-<!--    document.getElementById('anchor-map').innerHTML = "Internet connection is not available. Map features are disabled.";-->
-<!--}-->
-
-<!--// Function to load the map-->
-<!--function loadMap() {-->
-<!--// For example, you can add markers, layers, etc.-->
-<!--    anchorMap = new ol.Map({-->
-<!--        layers: [-->
-<!--                new ol.layer.Tile({-->
-<!--                source: new ol.source.OSM()-->
-<!--            })-->
-<!--        ],-->
-<!--        target: 'anchor-map'-->
-<!--    });-->
-<!--}-->
 </script>
 
 {% endblock %}

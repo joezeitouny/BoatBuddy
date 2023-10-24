@@ -135,6 +135,15 @@ class AnchorManager:
                     gps_plugin_status = self._plugin_manager.get_gps_plugin_status()
                     if not gps_plugin_status == PluginStatus.RUNNING:
                         self._anchor_alarm_is_active = True
+
+                        # send out a notification
+                        self._notifications_manager.notify('anchor', ModuleStatus.ALARM_ACTIVE.value,
+                                                           NotificationEntryType.MODULE,
+                                                           f'GPS Module is down')
+
+                        # sleep for 1 second
+                        time.sleep(1)
+
                         continue
 
                     # Retrieve current gps position and calculate distance

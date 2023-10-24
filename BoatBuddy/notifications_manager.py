@@ -378,6 +378,8 @@ class NotificationsManager:
         elif entry_type == NotificationEntryType.MODULE:
             message = f'New notification added for module \'{key}\', status \'{value}\', ' + \
                       f'severity \'{severity}\''
+        if len(additional_message) > 0:
+            message = message + f' additional message: {additional_message}'
         self._log_manager.info(message)
         if self._events:
             self._events.on_notification(entry_type, message)

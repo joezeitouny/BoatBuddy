@@ -180,8 +180,10 @@ def get_anchor_alarm_data():
     anchor_timestamp_utc = ''
     anchor_timestamp_local = ''
     anchor_alarm_module = application_modules.get_options().anchor_alarm_module
+    gps_module_running = False
 
     if application_modules.get_options().anchor_alarm_module:
+        gps_module_running = application_modules.get_plugin_manager().get_gps_plugin_status() == PluginStatus.RUNNING
         anchor_alarm_default_allowed_distance = application_modules.get_options().anchor_alarm_default_allowed_distance
         anchor_is_set = application_modules.get_anchor_manager().anchor_is_set()
         anchor_timestamp_utc = application_modules.get_anchor_manager().anchor_timestamp_utc()
@@ -194,7 +196,7 @@ def get_anchor_alarm_data():
         current_latitude = application_modules.get_anchor_manager().current_latitude()
         current_longitude = application_modules.get_anchor_manager().current_longitude()
 
-    data = {'anchor_alarm_module': anchor_alarm_module,
+    data = {'gps_module_running': gps_module_running, 'anchor_alarm_module': anchor_alarm_module,
             'anchor_is_set': anchor_is_set,
             'anchor_timestamp_utc': anchor_timestamp_utc, 'anchor_timestamp_local': anchor_timestamp_local,
             'anchor_alarm_is_active': anchor_alarm_is_active,

@@ -35,7 +35,7 @@
                     <span class="d-flex align-items-center justify-content-end">
                         <div id="anchor_alarm_section">
                             <button class="mx-2 btn btn-success" id="set_anchor_alarm_button_id" type="button"
-                                    style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()">
+                                    style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()" disabled>
                                 <span>
                                     <span><i class="bi bi-link-45deg"></i>&nbspSet anchor</span>
                                 </span>
@@ -141,6 +141,12 @@
                         document.getElementById('anchor_distance_label_id').innerHTML = '';
                         document.getElementById('set_anchor_alarm_button_id').style.display = 'block';
                         document.getElementById('set_anchor_alarm_button_id').style.visibility = 'visible';
+                        if (data['gps_module_running']) {
+                            document.getElementById('set_anchor_alarm_button_id').removeAttribute("disabled");
+                        }
+                        else {
+                            document.getElementById('set_anchor_alarm_button_id').setAttribute("disabled", "disabled");
+                        }
                     }
                 }
                 else {
