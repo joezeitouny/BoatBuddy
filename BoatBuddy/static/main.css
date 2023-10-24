@@ -41,8 +41,8 @@
 }
 
 .relevant-position-marker {
-  width: 10px;
-  height: 10px;
+  width: 5px;
+  height: 5px;
   background-color: yellow;
   border: 0px solid white;
   border-radius: 50%;

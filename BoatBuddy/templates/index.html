@@ -1243,20 +1243,7 @@ function refreshData() {
                             document.getElementById("distance_from_anchor_div").classList.add('text-success');
                         }
 
-                        // Draw boat marker on the map
-                        if (boatMarker)
-                            anchorMap.removeOverlay(boatMarker);
-
-                        decimalLon = dmsToDD(data['current_longitude']);
-                        decimalLat = dmsToDD(data['current_latitude']);
-                        boatMarker = new ol.Overlay({
-                          position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
-                          positioning: 'center-center',
-                          element: document.createElement('div'),
-                        });
-                        boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
-                        anchorMap.addOverlay(boatMarker);
-
+                        // draw relevant boat positions on the map
                         if (data['position_history'] && data['position_history'].length > 0) {
                             relevantPositionLatitude = data['position_history'][data['position_history'].length - 1][0];
                             relevantPositionLongitude = data['position_history'][data['position_history'].length - 1][1];
@@ -1275,6 +1262,20 @@ function refreshData() {
                                 lastPositionLongitude = relevantPositionLongitude;
                             }
                         }
+
+                        // Draw the boat marker on the map for the current boat position
+                        if (boatMarker)
+                            anchorMap.removeOverlay(boatMarker);
+
+                        decimalLon = dmsToDD(data['current_longitude']);
+                        decimalLat = dmsToDD(data['current_latitude']);
+                        boatMarker = new ol.Overlay({
+                          position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
+                          positioning: 'center-center',
+                          element: document.createElement('div'),
+                        });
+                        boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
+                        anchorMap.addOverlay(boatMarker);
                     }
                     else {
                         document.getElementById('anchor_container').style.display = 'none';

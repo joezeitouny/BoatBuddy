@@ -1,3 +1,8 @@
+## 0.8.2 (2023-10-24)
+
+* Fixed the order in which relevant boat position markers (the yellow dots) appear on the map compared to the boat marker (the blue dot)
+* Version bump to 0.8.2
+
 ## 0.8.1 (2023-10-24)
 
 * Added the ability to render satellite images in the anchor alarm map when supplying Mapbox API token to the configuration file
