@@ -1,3 +1,9 @@
+## 0.8.0 (2023-10-24)
+
+* Added the anchor alarm feature
+* UI based notifications on the webpage now fade out after few seconds
+* Version bump to 0.8.0
+
 ## 0.7.1 (2023-07-21)
 
 * Fine tune the requirements.txt file
