@@ -181,6 +181,7 @@ def get_anchor_alarm_data():
     anchor_timestamp_local = ''
     anchor_alarm_module = application_modules.get_options().anchor_alarm_module
     gps_module_running = False
+    position_history = []
 
     if application_modules.get_options().anchor_alarm_module:
         gps_module_running = application_modules.get_plugin_manager().get_gps_plugin_status() == PluginStatus.RUNNING
@@ -195,6 +196,7 @@ def get_anchor_alarm_data():
         anchor_longitude = application_modules.get_anchor_manager().anchor_longitude()
         current_latitude = application_modules.get_anchor_manager().current_latitude()
         current_longitude = application_modules.get_anchor_manager().current_longitude()
+        position_history = application_modules.get_anchor_manager().position_history()
 
     data = {'gps_module_running': gps_module_running, 'anchor_alarm_module': anchor_alarm_module,
             'anchor_is_set': anchor_is_set,
@@ -203,7 +205,8 @@ def get_anchor_alarm_data():
             'anchor_allowed_distance': anchor_allowed_distance, 'anchor_distance': anchor_distance,
             'anchor_latitude': anchor_latitude, 'anchor_longitude': anchor_longitude,
             'anchor_alarm_default_allowed_distance': anchor_alarm_default_allowed_distance,
-            'current_latitude': current_latitude, 'current_longitude': current_longitude}
+            'current_latitude': current_latitude, 'current_longitude': current_longitude,
+            'position_history': position_history}
 
     return jsonify(data)
 

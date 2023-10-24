@@ -519,6 +519,8 @@ anchorMap = new ol.Map({
 });
 
 boatMarker = undefined;
+lastPositionLatitude = '';
+lastPositionLongitude = '';
 
 const connectionLostModal = new bootstrap.Modal(document.getElementById('connection_lost_modal'), {backdrop: 'static'});
 const setAnchorAlarmModal = new bootstrap.Modal(document.getElementById('set_anchor_alarm_modal'), {backdrop: 'static'});
@@ -1238,6 +1240,25 @@ function refreshData() {
                         });
                         boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
                         anchorMap.addOverlay(boatMarker);
+
+                        if (data['position_history'] && data['position_history'].length > 0) {
+                            relevantPositionLatitude = data['position_history'][data['position_history'].length - 1][0];
+                            relevantPositionLongitude = data['position_history'][data['position_history'].length - 1][1];
+                            if ((relevantPositionLatitude != lastPositionLatitude) && (relevantPositionLongitude != lastPositionLongitude)) {
+                                decimalLon = dmsToDD(relevantPositionLongitude);
+                                decimalLat = dmsToDD(relevantPositionLatitude);
+                                relevantPositionMarker = new ol.Overlay({
+                                  position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
+                                  positioning: 'center-center',
+                                  element: document.createElement('div'),
+                                });
+                                relevantPositionMarker.getElement().className = 'relevant-position-marker'; // Apply CSS class for styling
+                                anchorMap.addOverlay(relevantPositionMarker);
+
+                                lastPositionLatitude = relevantPositionLatitude;
+                                lastPositionLongitude = relevantPositionLongitude;
+                            }
+                        }
                     }
                     else {
                         document.getElementById('anchor_container').style.display = 'none';

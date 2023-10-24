@@ -39,6 +39,7 @@ class AnchorManager:
         self._anchor_distance = 0
         self._current_longitude = ''
         self._current_latitude = ''
+        self._position_history = []
 
         if self._options.anchor_alarm_module:
             self._anchor_thread = Thread(target=self._main_loop)
@@ -75,6 +76,9 @@ class AnchorManager:
         # record the current timestamp
         self._anchor_timestamp_utc = time.gmtime()
         self._anchor_timestamp_local = time.localtime()
+
+        # reset the history and its associated counter
+        self._position_history = []
 
         # register that the anchor is set
         self._anchor_is_set = True
@@ -127,6 +131,9 @@ class AnchorManager:
         else:
             return ''
 
+    def position_history(self):
+        return self._position_history
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
@@ -159,6 +166,19 @@ class AnchorManager:
                     # Only calculate the distance if the current position is different from the anchor position
                     if latlon_anchor.to_string() != latlon_current.to_string():
                         self._anchor_distance = round(latlon_current.distance(latlon_anchor) * 1000, 1)
+
+                        # if current distance from the previous recorded position is larger than
+                        # the save it to memory
+                        if len(self._position_history) == 0:
+                            if self._anchor_distance > 1:
+                                self._position_history.append([self._current_latitude, self._current_longitude])
+                        else:
+                            latlon_previous_entry = string2latlon(
+                                self._position_history[len(self._position_history) - 1][0],
+                                self._position_history[len(self._position_history) - 1][1], 'd%°%m%\'%S%\" %H')
+                            distance = round(latlon_current.distance(latlon_previous_entry) * 1000, 1)
+                            if distance > 1:
+                                self._position_history.append([self._current_latitude, self._current_longitude])
 
                         # check if current distance exceeds the allowed distance
                         if self._anchor_distance > self._anchor_allowed_distance:
