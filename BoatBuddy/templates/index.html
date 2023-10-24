@@ -460,7 +460,7 @@
                             <div class="row">
                                 <hr class="mt-1 mb-1"/>
                             </div>
-                            
+                            <div id="anchor-map" style="height: 327px"></div>
                         </div>
 
                     </div>
@@ -508,10 +508,22 @@ document.getElementById('anchor_alarm_section').style.display = 'none';
 document.getElementById('anchor_alarm_section').style.visibility = 'hidden';
 {% endif %}
 
-const connectionLostModal = new bootstrap.Modal(document.getElementById('connection_lost_modal'), {backdrop: 'static'})
-const setAnchorAlarmModal = new bootstrap.Modal(document.getElementById('set_anchor_alarm_modal'), {backdrop: 'static'})
-const updateAnchorAlarmModal = new bootstrap.Modal(document.getElementById('update_anchor_alarm_modal'), {backdrop: 'static'})
-const cancelAnchorAlarmModal = new bootstrap.Modal(document.getElementById('cancel_anchor_alarm_modal'), {backdrop: 'static'})
+anchorMap = new ol.Map({
+    layers: [
+            new ol.layer.Tile({
+            source: new ol.source.OSM()
+        })
+    ],
+    target: 'anchor-map',
+    controls: []
+});
+
+boatMarker = undefined;
+
+const connectionLostModal = new bootstrap.Modal(document.getElementById('connection_lost_modal'), {backdrop: 'static'});
+const setAnchorAlarmModal = new bootstrap.Modal(document.getElementById('set_anchor_alarm_modal'), {backdrop: 'static'});
+const updateAnchorAlarmModal = new bootstrap.Modal(document.getElementById('update_anchor_alarm_modal'), {backdrop: 'static'});
+const cancelAnchorAlarmModal = new bootstrap.Modal(document.getElementById('cancel_anchor_alarm_modal'), {backdrop: 'static'});
 
 var common_gauge_options_dark = {
   angle: 0.15, // The span of the gauge arc
@@ -721,6 +733,93 @@ function useCurrentPosition() {
     });
 }
 
+function dmsToDD(dms) {
+    dms = dms.replace('\"', '');
+    dms = dms.replace('\'', ' ');
+    dms = dms.replace('°', ' ');
+    const [degrees, minutes, seconds, hemisphere] = dms.split(' ');
+    const dd = parseFloat(degrees) + parseFloat(minutes) / 60 + parseFloat(seconds) / 3600;
+
+    if (hemisphere === 'S' || hemisphere === 'W') {
+        return -dd; // For south (S) or west (W) hemispheres
+    }
+
+    return dd;
+}
+
+function radiusFromValue(value) {
+    const earthRadius = 6371000; // Earth's radius in meters
+    const circumference = 2 * Math.PI * earthRadius;
+    const scale = circumference / 360;
+
+    return (value / scale)
+}
+
+function drawAnchorOnMap(latitude, longitude, allowed_distance) {
+    divContainer = document.getElementById('anchor-map'); // Replace 'yourDivId' with the actual ID of your div
+    // Empty the div by setting its innerHTML to an empty string
+    divContainer.innerHTML = '';
+
+    // re-initialize the anchor map
+    anchorMap = new ol.Map({
+        layers: [
+                new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
+        ],
+        target: 'anchor-map',
+        controls: []
+    });
+
+    decimalLat = dmsToDD(latitude);
+    decimalLon = dmsToDD(longitude)
+
+    anchorMap.setView(new ol.View({
+        projection: 'EPSG:4326',
+        center: [decimalLon, decimalLat],
+        zoom: 18,
+    }));
+
+    anchorMarker = new ol.Overlay({
+      position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
+      positioning: 'center-center',
+      element: document.createElement('div'),
+    });
+    anchorMarker.getElement().className = 'anchor-marker'; // Apply CSS class for styling
+    anchorMap.addOverlay(anchorMarker);
+
+    // Calculate the circle's geometry
+    radiusMeters = radiusFromValue(allowed_distance);
+    circle = new ol.geom.Circle([decimalLon, decimalLat], radiusMeters);
+
+    // Create a feature for the circle
+    circleFeature = new ol.Feature({
+      geometry: circle,
+    });
+
+    // Create a vector source for the circle feature
+    vectorSource = new ol.source.Vector({
+      features: [circleFeature],
+    });
+
+    // Create a vector layer for the circle
+    vectorLayer = new ol.layer.Vector({
+      source: vectorSource,
+      style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: 'red', // Circle border color
+          width: 2, // Border width
+        }),
+        fill: new ol.style.Fill({
+          color: 'rgba(255, 0, 0, 0.1)', // Circle fill color with transparency
+        })
+      })
+    });
+
+    // Add the circle layer to the map
+    anchorMap.addLayer(vectorLayer);
+}
+
 function setAnchor() {
     hideSetAnchorAlarmModal();
     $('#loading_modal').modal('show');
@@ -735,8 +834,15 @@ function setAnchor() {
             $('#loading_modal').modal('hide');
             if (!response)
                 notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
-            else
+            else {
                 notify_success('Anchor alarm successfully set!');
+
+                // draw the anchor position and allowed distance radius on the map
+                latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
+                longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
+                allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
+                drawAnchorOnMap(latitude, longitude, allowed_distance);
+            }
         },
         error: function (error) {
             $('#loading_modal').modal('hide');
@@ -759,8 +865,15 @@ function updateAnchor() {
             $('#loading_modal').modal('hide');
             if (!response)
                 notify_warning('Error while updating anchor alarm! Please check your anchor configuration');
-            else
+            else {
                 notify_success('Anchor alarm successfully updated!');
+
+                // draw the anchor position and allowed distance radius on the map
+                latitude = document.getElementById("update_anchor_alarm_latitude_label_id").innerHTML;
+                longitude = document.getElementById("update_anchor_alarm_longitude_label_id").innerHTML;
+                allowed_distance = parseInt(document.getElementById("update_anchor_alarm_allowed_distance_text_id").value);
+                drawAnchorOnMap(latitude, longitude, allowed_distance);
+            }
         },
         error: function (error) {
             $('#loading_modal').modal('hide');
@@ -1094,11 +1207,11 @@ function refreshData() {
                         document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'hidden';
                         document.getElementById('anchor_container').style.display = 'block';
                         document.getElementById('anchor_container').style.visibility = 'visible';
-                        document.getElementById('anchor_latitude').innerHTML = data['anchor_latitude']
+                        document.getElementById('anchor_latitude').innerHTML = data['anchor_latitude'];
                         document.getElementById('anchor_longitude').innerHTML = data['anchor_longitude'];
                         document.getElementById('anchor_start_time').innerHTML = data['anchor_timestamp_local'];
                         document.getElementById('anchor_start_time_utc').innerHTML = data['anchor_timestamp_utc'];
-                        document.getElementById('current_latitude').innerHTML = data['current_latitude']
+                        document.getElementById('current_latitude').innerHTML = data['current_latitude'];
                         document.getElementById('current_longitude').innerHTML = data['current_longitude'];
                         document.getElementById('anchor_distance').innerHTML = data['anchor_distance'];
                         document.getElementById('anchor_allowed_distance').innerHTML = data['anchor_allowed_distance'];
@@ -1111,6 +1224,20 @@ function refreshData() {
                             document.getElementById("distance_from_anchor_div").classList.remove('text-danger');
                             document.getElementById("distance_from_anchor_div").classList.add('text-success');
                         }
+
+                        // Draw boat marker on the map
+                        if (boatMarker)
+                            anchorMap.removeOverlay(boatMarker);
+
+                        decimalLon = dmsToDD(data['current_longitude']);
+                        decimalLat = dmsToDD(data['current_latitude']);
+                        boatMarker = new ol.Overlay({
+                          position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
+                          positioning: 'center-center',
+                          element: document.createElement('div'),
+                        });
+                        boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
+                        anchorMap.addOverlay(boatMarker);
                     }
                     else {
                         document.getElementById('anchor_container').style.display = 'none';
@@ -1164,27 +1291,27 @@ function notify_warning(message) {
     }, 5000);
 }
 
+<!--// Check for internet connection-->
+<!--if (navigator.onLine) {-->
+<!--    // Internet connection is available, load the map-->
+<!--    loadMap();-->
+<!--} else {-->
+<!--    // Internet connection is not available, handle this scenario (e.g., show a message)-->
+<!--    document.getElementById('anchor-map').innerHTML = "Internet connection is not available. Map features are disabled.";-->
+<!--}-->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<!--// Function to load the map-->
+<!--function loadMap() {-->
+<!--// For example, you can add markers, layers, etc.-->
+<!--    anchorMap = new ol.Map({-->
+<!--        layers: [-->
+<!--                new ol.layer.Tile({-->
+<!--                source: new ol.source.OSM()-->
+<!--            })-->
+<!--        ],-->
+<!--        target: 'anchor-map'-->
+<!--    });-->
+<!--}-->
 </script>
 
 {% endblock %}
