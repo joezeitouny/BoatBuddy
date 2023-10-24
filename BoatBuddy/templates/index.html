@@ -757,7 +757,7 @@ function radiusFromValue(value) {
     return (value / scale)
 }
 
-function drawAnchorOnMap(latitude, longitude, allowed_distance) {
+function drawAnchorOnMap(latitude, longitude, allowed_distance, position_history) {
     divContainer = document.getElementById('anchor-map'); // Replace 'yourDivId' with the actual ID of your div
     // Empty the div by setting its innerHTML to an empty string
     divContainer.innerHTML = '';
@@ -801,7 +801,7 @@ function drawAnchorOnMap(latitude, longitude, allowed_distance) {
     anchorMarker = new ol.Overlay({
       position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
       positioning: 'center-center',
-      element: document.createElement('div'),
+      element: document.createElement('div')
     });
     anchorMarker.getElement().className = 'anchor-marker'; // Apply CSS class for styling
     anchorMap.addOverlay(anchorMarker);
@@ -836,6 +836,26 @@ function drawAnchorOnMap(latitude, longitude, allowed_distance) {
 
     // Add the circle layer to the map
     anchorMap.addLayer(vectorLayer);
+
+    // draw position history markers if provided
+    if (position_history && position_history.length > 0) {
+        for (let i = 0; i < position_history.length; i++) {
+            relevantPositionLatitude = position_history[i][0];
+            relevantPositionLongitude = position_history[i][1];
+            decimalLon = dmsToDD(relevantPositionLongitude);
+            decimalLat = dmsToDD(relevantPositionLatitude);
+            relevantPositionMarker = new ol.Overlay({
+              position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
+              positioning: 'center-center',
+              element: document.createElement('div')
+            });
+            relevantPositionMarker.getElement().className = 'relevant-position-marker'; // Apply CSS class for styling
+            anchorMap.addOverlay(relevantPositionMarker);
+
+            lastPositionLatitude = relevantPositionLatitude;
+            lastPositionLongitude = relevantPositionLongitude;
+        }
+    }
 }
 
 function setAnchor() {
@@ -859,7 +879,7 @@ function setAnchor() {
                 latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
                 longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
                 allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
-                drawAnchorOnMap(latitude, longitude, allowed_distance);
+                drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
             }
         },
         error: function (error) {
@@ -890,7 +910,7 @@ function updateAnchor() {
                 latitude = document.getElementById("update_anchor_alarm_latitude_label_id").innerHTML;
                 longitude = document.getElementById("update_anchor_alarm_longitude_label_id").innerHTML;
                 allowed_distance = parseInt(document.getElementById("update_anchor_alarm_allowed_distance_text_id").value);
-                drawAnchorOnMap(latitude, longitude, allowed_distance);
+                drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
             }
         },
         error: function (error) {
@@ -1221,6 +1241,10 @@ function refreshData() {
                 async: false, // Synchronous request
                 success: function(data) {
                     if (data['anchor_alarm_module'] && data['anchor_is_set']) {
+                        if (first_refresh_data_call) {
+                            drawAnchorOnMap(data['anchor_latitude'], data['anchor_longitude'], data['anchor_allowed_distance'], data['position_history']);
+                        }
+
                         document.getElementById('anchor_alarm_is_not_set_message').style.display = 'none';
                         document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'hidden';
                         document.getElementById('anchor_container').style.display = 'block';
@@ -1253,7 +1277,7 @@ function refreshData() {
                                 relevantPositionMarker = new ol.Overlay({
                                   position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
                                   positioning: 'center-center',
-                                  element: document.createElement('div'),
+                                  element: document.createElement('div')
                                 });
                                 relevantPositionMarker.getElement().className = 'relevant-position-marker'; // Apply CSS class for styling
                                 anchorMap.addOverlay(relevantPositionMarker);
@@ -1272,7 +1296,7 @@ function refreshData() {
                         boatMarker = new ol.Overlay({
                           position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
                           positioning: 'center-center',
-                          element: document.createElement('div'),
+                          element: document.createElement('div')
                         });
                         boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
                         anchorMap.addOverlay(boatMarker);

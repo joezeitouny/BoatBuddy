@@ -1,3 +1,8 @@
+## 0.8.3 (2023-10-24)
+
+* Fixed an issue where the anchor map only loads on the webpage where the anchor alarm is set
+* Version bump to 0.8.3
+
 ## 0.8.2 (2023-10-24)
 
 * Fixed the order in which relevant boat position markers (the yellow dots) appear on the map compared to the boat marker (the blue dot)
