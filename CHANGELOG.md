@@ -1,3 +1,9 @@
+## 0.8.5 (2023-10-25)
+
+* Layout improvements
+* Added zoom animation on the map that plays after setting an anchor
+* Version bump to 0.8.5
+
 ## 0.8.4 (2023-10-25)
 
 * Added anchor bearing and duration of metrics
