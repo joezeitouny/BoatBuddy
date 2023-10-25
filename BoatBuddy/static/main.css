@@ -30,7 +30,7 @@
   background-color: red;
   border: 2px solid white;
   border-radius: 50%;
-  z-index: 1;
+  z-index: 2;
 }
 
 .boat-marker {
@@ -39,7 +39,7 @@
   background-color: blue;
   border: 2px solid white;
   border-radius: 50%;
-  z-index: 2;
+  z-index: 3;
 }
 
 .relevant-position-marker {
@@ -48,5 +48,13 @@
   background-color: yellow;
   border: 0px solid white;
   border-radius: 50%;
-  z-index: 0;
+  z-index: 1;
+}
+
+.bi-clock {
+    color: white;
+}
+
+.bi-bootstrap-reboot {
+    color: white;
 }
