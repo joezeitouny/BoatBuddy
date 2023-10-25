@@ -1,4 +1,5 @@
 from enum import Enum
+import math
 
 from latloncalc.latlon import Latitude, Longitude
 
@@ -157,3 +158,38 @@ def get_smallest_number(number1, number2):
     if number1 < number2:
         return number1
     return number2
+
+
+def dms_to_dd(degrees, minutes, seconds, direction):
+    # Convert DMS to DD
+    dd = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
+    if direction in ['S', 'W']:
+        dd *= -1  # Apply negative sign for South and West directions
+    return dd
+
+
+def calculate_bearing(lat1, lon1, lat2, lon2):
+    # Convert latitude and longitude from degrees to radians
+    lat1 = math.radians(lat1)
+    lon1 = math.radians(lon1)
+    lat2 = math.radians(lat2)
+    lon2 = math.radians(lon2)
+
+    # Calculate the bearing using the Haversine formula
+    delta_lon = lon2 - lon1
+
+    y = math.sin(delta_lon)
+    x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(delta_lon)
+
+    bearing = math.atan2(y, x)
+
+    # Convert the bearing from radians to degrees
+    bearing = math.degrees(bearing)
+
+    # Normalize the initial bearing to the range [0, 360]
+    bearing = (bearing + 360) % 360
+
+    # round it
+    bearing = round(bearing)
+
+    return bearing

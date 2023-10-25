@@ -150,7 +150,7 @@
     <div class="d-lg-flex flex-lg-row d-sm-flex flex-sm-row mb-1">
         <div class="col-lg-5 col-md-4 col-sm-4 m-2 border border-5 border-success rounded text-center">
             <!-- System metrics column-->
-            <h5>System metrics</h5>
+            <h5 class="fw-bolder mb-2">System metrics</h5>
             <div class="container">
                 <div class="row">
                     <div class="col">
@@ -426,33 +426,41 @@
                         <div id="anchor_container" style="display: none; visibility: hidden;"
                              class="container-fluid align-self-top">
                             <div class="row text-start">
-                                <div class="col-lg-6 col-sm-3">
-                                    <h5>Clock metrics</h5>
-                                    <span>Start time (Local):&nbsp;<span id="anchor_start_time"></span></span>
+                                <div class="col-lg-4 col-sm-3 mb-2">
+                                    <h5 class="fw-bolder">Start time</h5>
+                                    <span>Local:&nbsp;<span id="anchor_start_time"></span></span>
                                     <br>
-                                    <span>Start time (UTC):&nbsp;<span id="anchor_start_time_utc"></span></span>
+                                    <span>UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
                                 </div>
-                                <div class="col-lg-6 col-sm-3">
-                                    <h5>Distances</h5>
+                                <div class="col-lg-4 col-sm-3 mb-2">
+                                    <h5 class="fw-bolder">Distance</h5>
                                     <span class="fw-bolder">Allowed Distance:&nbsp<span
                                             id="anchor_allowed_distance"></span>&nbspm</span>
                                     <br>
                                     <span id="distance_from_anchor_span" class="fw-bolder text-success">Distance from anchor:&nbsp<span
                                             id="anchor_distance"></span>&nbspm</span>
                                 </div>
+                                <div class="col-lg-4 col-sm-3 mb-2">
+                                    <h5 class="fw-bolder">Other metrics</h5>
+                                    <span>Duration:&nbsp<span
+                                            id="anchor_duration"></span>&nbspminutes</span>
+                                    <br>
+                                    <span>Anchor bearing:&nbsp<span
+                                            id="anchor_bearing"></span>&nbspdegrees</span>
+                                </div>
                             </div>
                             <div class="row text-start">
-                                <div class="col-lg-6 col-sm-3">
-                                    <h5>Anchor Position</h5>
-                                    <span>Anchor Latitude:&nbsp<span id="anchor_latitude"></span></span>
+                                <div class="col-lg-4 col-sm-3 mb-2">
+                                    <h5 class="fw-bolder">Anchor position</h5>
+                                    <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
                                     <br>
-                                    <span>Anchor Longitude:&nbsp<span id="anchor_longitude"></span></span>
+                                    <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
                                 </div>
-                                <div class="col-lg-6 col-sm-3">
-                                    <h5>Current Position</h5>
-                                    <span>Current Latitude:&nbsp<span id="current_latitude"></span></span>
+                                <div class="col-lg-4 col-sm-3 mb-2">
+                                    <h5 class="fw-bolder">Current position</h5>
+                                    <span>Latitude:&nbsp<span id="current_latitude"></span></span>
                                     <br>
-                                    <span>Current Longitude:&nbsp<span id="current_longitude"></span></span>
+                                    <span>Longitude:&nbsp<span id="current_longitude"></span></span>
                                 </div>
                             </div>
                             <div class="row">
@@ -1255,6 +1263,8 @@ function refreshData() {
                         document.getElementById('current_longitude').innerHTML = data['current_longitude'];
                         document.getElementById('anchor_distance').innerHTML = data['anchor_distance'];
                         document.getElementById('anchor_allowed_distance').innerHTML = data['anchor_allowed_distance'];
+                        document.getElementById('anchor_duration').innerHTML = Math.round(data['anchor_duration_in_seconds'] / 60);
+                        document.getElementById('anchor_bearing').innerHTML = data['anchor_bearing'];
 
                         if (data['anchor_distance'] > data['anchor_allowed_distance']) {
                             document.getElementById("distance_from_anchor_span").classList.remove('text-success');

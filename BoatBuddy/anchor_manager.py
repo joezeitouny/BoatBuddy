@@ -10,6 +10,7 @@ from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 from BoatBuddy.utils import ModuleStatus
+from BoatBuddy import utils
 
 
 class AnchorManagerStatus(Enum):
@@ -40,6 +41,7 @@ class AnchorManager:
         self._current_longitude = ''
         self._current_latitude = ''
         self._position_history = []
+        self._anchor_bearing = 0
 
         if self._options.anchor_alarm_module:
             self._anchor_thread = Thread(target=self._main_loop)
@@ -79,6 +81,9 @@ class AnchorManager:
 
         # reset the history and its associated counter
         self._position_history = []
+
+        # reset the anchor bearing
+        self._anchor_bearing = 0
 
         # register that the anchor is set
         self._anchor_is_set = True
@@ -134,6 +139,15 @@ class AnchorManager:
     def position_history(self):
         return self._position_history
 
+    def anchor_duration_in_seconds(self):
+        if self._anchor_timestamp_utc:
+            return abs(time.mktime(time.gmtime()) - time.mktime(self._anchor_timestamp_utc))
+        else:
+            return 0
+
+    def anchor_bearing(self):
+        return self._anchor_bearing
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
@@ -159,10 +173,14 @@ class AnchorManager:
                         self._current_latitude = gps_entry[0]
                         self._current_longitude = gps_entry[1]
 
-                    # calculate the distance from anchor
                     latlon_anchor = string2latlon(self._anchor_latitude, self._anchor_longitude, 'd%°%m%\'%S%\" %H')
                     latlon_current = string2latlon(self._current_latitude, self._current_longitude, 'd%°%m%\'%S%\" %H')
 
+                    # calculate the bearing to anchor
+                    self._anchor_bearing = utils.calculate_bearing(latlon_current.lat, latlon_current.lon,
+                                                                   latlon_anchor.lat, latlon_anchor.lon)
+
+                    # Calculate the distance from anchor
                     # Only calculate the distance if the current position is different from the anchor position
                     if latlon_anchor.to_string() != latlon_current.to_string():
                         self._anchor_distance = round(latlon_current.distance(latlon_anchor) * 1000, 1)
@@ -213,4 +231,6 @@ class AnchorManager:
                     self._log_manager.info(f'Exception occurred in Anchor manager main thread. Details {e}')
 
                     self._status = AnchorManagerStatus.DOWN
+
+
 
