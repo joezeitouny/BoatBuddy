@@ -1,3 +1,9 @@
+## 0.8.4 (2023-10-25)
+
+* Added anchor bearing and duration of metrics
+* Layout improvements
+* Version bump to 0.8.4
+
 ## 0.8.3 (2023-10-24)
 
 * Fixed an issue where the anchor map only loads on the webpage where the anchor alarm is set
