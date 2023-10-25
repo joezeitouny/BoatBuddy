@@ -895,6 +895,12 @@ function setAnchor() {
                 latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
                 longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
                 allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
+
+                // switch to the anchor tab
+                var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
+                anchorTab.show();
+
+                // draw anchor on map
                 drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
             }
         },
@@ -926,6 +932,12 @@ function updateAnchor() {
                 latitude = document.getElementById("update_anchor_alarm_latitude_label_id").innerHTML;
                 longitude = document.getElementById("update_anchor_alarm_longitude_label_id").innerHTML;
                 allowed_distance = parseInt(document.getElementById("update_anchor_alarm_allowed_distance_text_id").value);
+
+                // switch to the anchor tab
+                var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
+                anchorTab.show();
+
+                // draw anchor on map
                 drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
             }
         },
@@ -957,6 +969,9 @@ function toggleSession() {
         type: 'GET',
         url: '/toggle_session',
         success: function(data) {
+            // switch to the session tab
+            var sessionTab = new bootstrap.Tab(document.getElementById("session-tab"));
+            sessionTab.show();
         }
     });
 }

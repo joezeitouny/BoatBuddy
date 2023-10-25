@@ -28,14 +28,16 @@
                 <div class="col">
                     <a class="navbar-brand" href="#"><span><img src="/static/logo.png" alt="..." width="32" height="32"> {{application_name}} <small>({{application_version}})</small></span></a>
                 </div>
-                <div class="col text-center">
-                    <span><i class="bi bi-clock"></i>&nbsp</span><span class="navbar-text fw-bolder" id="curr_time_id"></span>
+                <div class="col-1 text-center">
+                    <span><i class="bi bi-clock"></i>&nbsp</span><span class="navbar-text fw-bolder"
+                                                                       id="curr_time_id"></span>
                 </div>
                 <div class="col">
                     <span class="d-flex align-items-center justify-content-end">
                         <div id="anchor_alarm_section">
                             <button class="mx-2 btn btn-success" id="set_anchor_alarm_button_id" type="button"
-                                    style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()" disabled>
+                                    style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()"
+                                    disabled>
                                 <span>
                                     <span><i class="bi bi-link-45deg"></i>&nbspSet anchor</span>
                                 </span>
@@ -46,16 +48,18 @@
                                 Anchor distance:&nbsp<span id="anchor_distance_label_id"></span>m
                             </button>
                         </div>
-                        <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
-                        <button class="mx-2 btn btn-success" type="submit" id="session_button_id"
-                                onclick="toggleSession()">
-                            <span>
-                                <span id="session_button_spinner" class="spinner-border spinner-border-sm"
-                                      style="visibility: hidden; display: none;" role="status"
-                                      aria-hidden="true"></span>
-                                <span id="session_button_text">Start Session</span>
-                            </span>
-                        </button>
+                        <div class="border border-2 p-1 mx-1 border-white rounded">
+                            <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
+                            <button class="mx-2 btn btn-success" type="submit" id="session_button_id"
+                                    onclick="toggleSession()">
+                                <span>
+                                    <span id="session_button_spinner" class="spinner-border spinner-border-sm"
+                                          style="visibility: hidden; display: none;" role="status"
+                                          aria-hidden="true"></span>
+                                    <span id="session_button_text">Start Session</span>
+                                </span>
+                            </button>
+                        </div>
                     </span>
                 </div>
             </div>
@@ -171,6 +175,9 @@
             }
         }
     });
+
+
+
 
 
 
