@@ -798,11 +798,13 @@ function drawAnchorOnMap(latitude, longitude, allowed_distance, position_history
     decimalLat = dmsToDD(latitude);
     decimalLon = dmsToDD(longitude)
 
-    anchorMap.setView(new ol.View({
+    anchorView = new ol.View({
         projection: 'EPSG:4326',
         center: [decimalLon, decimalLat],
-        zoom: 18,
-    }));
+        zoom: 8,
+    });
+
+    anchorMap.setView(anchorView);
 
     anchorMarker = new ol.Overlay({
       position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
@@ -862,6 +864,14 @@ function drawAnchorOnMap(latitude, longitude, allowed_distance, position_history
             lastPositionLongitude = relevantPositionLongitude;
         }
     }
+
+    // Set the center coordinate to the target coordinate and apply the zoom animation
+    anchorView.animate({
+      center: [decimalLon, decimalLat],
+      zoom: 18, // Adjust the zoom level as needed
+      duration: 4000,
+      easing: ol.easing.easeOut, // Use a suitable easing function
+    });
 }
 
 function setAnchor() {
