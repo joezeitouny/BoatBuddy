@@ -35,13 +35,16 @@
                 <div class="col col-lg col-sm">
                     <span class="d-flex align-items-center justify-content-end">
                         <div id="anchor_alarm_section">
-                            <button class="mx-2 btn btn-success" id="set_anchor_alarm_button_id" type="button"
-                                    style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()"
-                                    disabled>
-                                <span>
-                                    <span><i class="bi bi-link-45deg"></i>&nbspSet anchor</span>
-                                </span>
-                            </button>
+                            <span class="d-inline-block" tabindex="0" data-toggle="tooltip" data-bs-placement="left"
+                                  title="Feature is disabled because the GPS module is down" id="set_anchor_tooltip_id">
+                                <button class="mx-2 btn btn-success" id="set_anchor_alarm_button_id" type="button"
+                                        style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()"
+                                        disabled>
+                                    <span>
+                                        <span><i class="bi bi-link-45deg"></i>&nbspSet anchor</span>
+                                    </span>
+                                </button>
+                            </span>
                             <button class="mx-2 btn btn-warning" id="update_anchor_alarm_button_id" type="button"
                                     style="visibility: hidden; display: None" onclick="showUpdateAnchorAlarmModal()">
                                 <span class="spinner-border spinner-border-sm" role="status"></span>
@@ -99,84 +102,87 @@
 </div>
 
 <script type="text/javascript">
-    connection_lost_dialog_shown = false;
+connection_lost_dialog_shown = false;
 
-    function updateNavBar() {
-        // Update the time
-        $.ajax({
-            type: 'GET',
-            url: '/current_time',
-            success: function(data) {
-                // if the connection has recovered and the connection error dialog was shown
-                if (connection_lost_dialog_shown) {
-                    // hide the connection lost dialog
-                    $('#connection_lost_modal').modal('hide');
-                    connection_lost_dialog_shown = false;
-                }
-                // Update the relevant part of the webpage with the new data
-                document.getElementById('curr_time_id').innerHTML = data['curr_time'];
+function updateNavBar() {
+    // Update the time
+    $.ajax({
+        type: 'GET',
+        url: '/current_time',
+        success: function(data) {
+            // if the connection has recovered and the connection error dialog was shown
+            if (connection_lost_dialog_shown) {
+                // hide the connection lost dialog
+                $('#connection_lost_modal').modal('hide');
+                connection_lost_dialog_shown = false;
             }
-        });
-
-        // Update anchor alarm section
-        $.ajax({
-            type: 'GET',
-            url: '/anchor_alarm_data',
-            success: function(data) {
-                if (data['anchor_alarm_module']) {
-                    if (data['anchor_is_set']) {
-                        document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
-                        document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
-                        document.getElementById('update_anchor_alarm_button_id').style.display = 'block';
-                        document.getElementById('update_anchor_alarm_button_id').style.visibility = 'visible';
-                        document.getElementById('anchor_distance_label_id').innerHTML = data['anchor_distance'];
-                        if (data['anchor_distance'] > data['anchor_allowed_distance']) {
-                            document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-warning');
-                            document.getElementById("update_anchor_alarm_button_id").classList.add('btn-danger');
-                        }
-                        else {
-                            document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-danger');
-                            document.getElementById("update_anchor_alarm_button_id").classList.add('btn-warning');
-                        }
-                    }
-                    else {
-                        document.getElementById('update_anchor_alarm_button_id').style.display = 'none';
-                        document.getElementById('update_anchor_alarm_button_id').style.visibility = 'hidden';
-                        document.getElementById('anchor_distance_label_id').innerHTML = '';
-                        document.getElementById('set_anchor_alarm_button_id').style.display = 'block';
-                        document.getElementById('set_anchor_alarm_button_id').style.visibility = 'visible';
-                        if (data['gps_module_running']) {
-                            document.getElementById('set_anchor_alarm_button_id').removeAttribute("disabled");
-                        }
-                        else {
-                            document.getElementById('set_anchor_alarm_button_id').setAttribute("disabled", "disabled");
-                        }
-                    }
-                }
-                else {
-                    document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
-                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
-                }
-            }
-        });
-    }
-
-    $(document).ready(function() {
-        // Call the refreshData function every 1 seconds
-        setInterval(updateNavBar, 1000);
-    });
-
-    $(document).ajaxError(function( event, request, settings ) {
-        //When XHR Status code is 0 there is no connection with the server
-        if (request.status == 0){
-            if (!connection_lost_dialog_shown) {
-                $('#connection_lost_modal').modal('show');
-                connection_lost_dialog_shown = true;
-            }
+            // Update the relevant part of the webpage with the new data
+            document.getElementById('curr_time_id').innerHTML = data['curr_time'];
         }
     });
 
+    // Update anchor alarm section
+    $.ajax({
+        type: 'GET',
+        url: '/anchor_alarm_data',
+        success: function(data) {
+            if (data['anchor_alarm_module']) {
+                if (data['anchor_is_set']) {
+                    document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
+                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
+                    document.getElementById('update_anchor_alarm_button_id').style.display = 'block';
+                    document.getElementById('update_anchor_alarm_button_id').style.visibility = 'visible';
+                    document.getElementById('anchor_distance_label_id').innerHTML = data['anchor_distance'];
+                    if (data['anchor_distance'] > data['anchor_allowed_distance']) {
+                        document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-warning');
+                        document.getElementById("update_anchor_alarm_button_id").classList.add('btn-danger');
+                    }
+                    else {
+                        document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-danger');
+                        document.getElementById("update_anchor_alarm_button_id").classList.add('btn-warning');
+                    }
+                }
+                else {
+                    document.getElementById('update_anchor_alarm_button_id').style.display = 'none';
+                    document.getElementById('update_anchor_alarm_button_id').style.visibility = 'hidden';
+                    document.getElementById('anchor_distance_label_id').innerHTML = '';
+                    document.getElementById('set_anchor_alarm_button_id').style.display = 'block';
+                    document.getElementById('set_anchor_alarm_button_id').style.visibility = 'visible';
+                    if (data['gps_module_running']) {
+                        document.getElementById('set_anchor_alarm_button_id').removeAttribute("disabled");
+                        $('#set_anchor_tooltip_id').tooltip('disable');
+                    }
+                    else {
+                        document.getElementById('set_anchor_alarm_button_id').setAttribute("disabled", "disabled");
+                        $('#set_anchor_tooltip_id').tooltip('enable');
+                    }
+                }
+            }
+            else {
+                document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
+                document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
+            }
+        }
+    });
+}
 
+$(document).ready(function() {
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // Call the refreshData function every 1 seconds
+    setInterval(updateNavBar, 1000);
+});
+
+$(document).ajaxError(function( event, request, settings ) {
+    //When XHR Status code is 0 there is no connection with the server
+    if (request.status == 0){
+        if (!connection_lost_dialog_shown) {
+            $('#connection_lost_modal').modal('show');
+            connection_lost_dialog_shown = true;
+        }
+    }
+});
 
 
 

@@ -58,3 +58,9 @@
 .bi-bootstrap-reboot {
     color: white;
 }
+
+/* Apply Bootstrap classes to the active nav-link */
+.nav-item .nav-link.active {
+  background-color: #6c757d; /* Bootstrap's bg-secondary */
+  color: #fff; /* Bootstrap's text-light */
+}
