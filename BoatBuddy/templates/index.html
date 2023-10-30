@@ -1083,8 +1083,6 @@ function switch_to_light_mode() {
     document.getElementById("body-element-id").classList.remove('text-light');
     document.getElementById("navbar-element-id").classList.remove('bg-dark');
     document.getElementById("navbar-element-id").classList.add('bg-primary');
-    document.getElementById("loading_modal_content_id").classList.remove('bg-dark');
-    document.getElementById("loading_modal_content_id").classList.add('bg-white');
     document.getElementById("summary-box-id").classList.add('border-dark');
     document.getElementById("summary-box-id").classList.remove('border-light');
     battery_soc_gauge.setOptions(common_gauge_options_light);
@@ -1103,8 +1101,6 @@ function switch_to_dark_mode() {
     document.getElementById("body-element-id").classList.remove('text-dark');
     document.getElementById("navbar-element-id").classList.remove('bg-primary');
     document.getElementById("navbar-element-id").classList.add('bg-dark');
-    document.getElementById("loading_modal_content_id").classList.remove('bg-white');
-    document.getElementById("loading_modal_content_id").classList.add('bg-dark');
     document.getElementById("summary-box-id").classList.add('border-light');
     document.getElementById("summary-box-id").classList.remove('border-dark');
     battery_soc_gauge.setOptions(common_gauge_options_dark);
