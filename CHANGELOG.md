@@ -1,3 +1,11 @@
+## 0.8.7 (2023-10-30)
+
+* Added map buttons to switch between default and satellite layers
+* Added map buttons to zoom in / out
+* Rewrote the code logic for drawing boat historical points on the map to use layers instead of overlays
+* Layout improvements
+* Version bump to 0.8.7
+
 ## 0.8.6 (2023-10-26)
 
 * Layout improvements
