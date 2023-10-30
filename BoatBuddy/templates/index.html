@@ -466,7 +466,15 @@
                             <div class="row">
                                 <hr class="mt-1 mb-1"/>
                             </div>
-                            <div id="anchor-map" style="height: 327px"></div>
+                            <div id="map-container">
+                                <div id="map-button-container">
+                                    <button id="default_map_layer_button" class="bg-secondary" onclick="showDefaultMapLayer()" disabled>Default</button>
+                                    <button id="satellite_map_layer_button" class="bg-secondary text-light" onclick="showSatelliteMapLayer()">Satellite</button>
+                                    <button id="zoom_in_button" class="bg-secondary text-light" onclick="zoomIn()">Zoom In <i class="bi bi-zoom-in"></i></button>
+                                    <button id="zoom_out_button" class="bg-secondary text-light" onclick="zoomOut()">Zoom Out <i class="bi bi-zoom-out"></i></button>
+                                </div>
+                                <div id="anchor-map"></div>
+                            </div>
                         </div>
 
                     </div>
@@ -524,6 +532,10 @@ anchorMap = new ol.Map({
     controls: []
 });
 
+anchorDecimalLatitude = ''
+anchorDecimalLongitude = ''
+anchorAllowedDistance = ''
+anchorPositionHistory = ''
 boatMarker = undefined;
 lastPositionLatitude = '';
 lastPositionLongitude = '';
@@ -729,6 +741,21 @@ water_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
 water_tank_gauge.setTextField(document.getElementById("water_tank_value"));
 water_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
+// Create the OpenStreetMap layer
+const osmLayer = new ol.layer.Tile({
+  source: new ol.source.OSM(),
+  maxZoom: 19 // Adjust max zoom level as needed
+});
+
+// Create the Mapbox Satellite layer
+const mapboxSatelliteLayer = new ol.layer.Tile({
+    source: new ol.source.OSM ({
+        // Set the OSM source to use satellite imagery
+        url: 'https://{a-c}.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={{anchor_alarm_mapbox_api_key}}',
+        maxZoom: 19 // Adjust max zoom level as needed
+    })
+});
+
 function useCurrentPosition() {
     // Fill up GPS anchor position on the set anchor dialog from last gps coordinates
     $.ajax({
@@ -763,60 +790,76 @@ function radiusFromValue(value) {
     return (value / scale)
 }
 
-function drawAnchorOnMap(latitude, longitude, allowed_distance, position_history) {
-    divContainer = document.getElementById('anchor-map'); // Replace 'yourDivId' with the actual ID of your div
-    // Empty the div by setting its innerHTML to an empty string
-    divContainer.innerHTML = '';
+function showDefaultMapLayer() {
+    anchorMap.removeLayer(mapboxSatelliteLayer);
+    anchorMap.addLayer(osmLayer);
 
-    // re-initialize the anchor map
-    {% if anchor_alarm_mapbox_api_key | length > 0 %}
-    anchorMap = new ol.Map({
-        layers: [
-                new ol.layer.Tile({
-                source: new ol.source.OSM ({
-                    // Set the OSM source to use satellite imagery
-                    url: 'https://{a-c}.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token={{anchor_alarm_mapbox_api_key}}',
-                    maxZoom: 19 // Adjust max zoom level as needed
-                })
-            })
-        ],
-        target: 'anchor-map',
-        controls: []
+    // Disable the default map layer button and enable the satellite button
+    document.getElementById('default_map_layer_button').disabled = true;
+    document.getElementById("default_map_layer_button").classList.remove('text-light');
+    document.getElementById('satellite_map_layer_button').disabled = false;
+    document.getElementById("satellite_map_layer_button").classList.add('text-light');
+
+
+    // redraw map layers
+    redrawMapLayers();
+}
+
+function showSatelliteMapLayer() {
+    anchorMap.removeLayer(osmLayer);
+    anchorMap.addLayer(mapboxSatelliteLayer);
+
+    // Disable the satellite button and enable the default button
+    document.getElementById('satellite_map_layer_button').disabled = true;
+    document.getElementById("satellite_map_layer_button").classList.remove('text-light');
+    document.getElementById('default_map_layer_button').disabled = false;
+    document.getElementById("default_map_layer_button").classList.add('text-light');
+
+    // redraw map layers
+    redrawMapLayers();
+}
+
+function zoomIn() {
+    // Get the current view from the map
+    const view = anchorMap.getView();
+
+    // Get the current zoom level
+    currentZoom = view.getZoom();
+
+    // Set the new zoom level for the view
+    view.setZoom(currentZoom + 1);
+}
+
+function zoomOut() {
+    // Get the current view from the map
+    const view = anchorMap.getView();
+
+    // Get the current zoom level
+    currentZoom = view.getZoom();
+
+    // Set the new zoom level for the view
+    view.setZoom(currentZoom - 1);
+}
+
+function clearMapLayers() {
+    // Get a reference to the map's layers
+    const mapLayers = anchorMap.getLayers();
+
+    // Loop through the layers and remove each one
+    mapLayers.forEach((layer) => {
+        if (layer !== osmLayer && layer !== mapboxSatelliteLayer) {
+            anchorMap.removeLayer(layer);
+        }
     });
-    {% else %}
-    anchorMap = new ol.Map({
-        layers: [
-                new ol.layer.Tile({
-                source: new ol.source.OSM ()
-            })
-        ],
-        target: 'anchor-map',
-        controls: []
-    });
-    {% endif %}
+}
 
-    decimalLat = dmsToDD(latitude);
-    decimalLon = dmsToDD(longitude)
+function redrawMapLayers() {
+    // first clear all map layers except the tile layer
+    clearMapLayers();
 
-    anchorView = new ol.View({
-        projection: 'EPSG:4326',
-        center: [decimalLon, decimalLat],
-        zoom: 8,
-    });
-
-    anchorMap.setView(anchorView);
-
-    anchorMarker = new ol.Overlay({
-      position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
-      positioning: 'center-center',
-      element: document.createElement('div')
-    });
-    anchorMarker.getElement().className = 'anchor-marker'; // Apply CSS class for styling
-    anchorMap.addOverlay(anchorMarker);
-
-    // Calculate the circle's geometry
-    radiusMeters = radiusFromValue(allowed_distance);
-    circle = new ol.geom.Circle([decimalLon, decimalLat], radiusMeters);
+    // Calculate the anchor circle's geometry taking into consideration the allowed distance
+    radiusMeters = radiusFromValue(anchorAllowedDistance);
+    circle = new ol.geom.Circle([anchorDecimalLongitude, anchorDecimalLatitude], radiusMeters);
 
     // Create a feature for the circle
     circleFeature = new ol.Feature({
@@ -846,24 +889,90 @@ function drawAnchorOnMap(latitude, longitude, allowed_distance, position_history
     anchorMap.addLayer(vectorLayer);
 
     // draw position history markers if provided
-    if (position_history && position_history.length > 0) {
-        for (let i = 0; i < position_history.length; i++) {
-            relevantPositionLatitude = position_history[i][0];
-            relevantPositionLongitude = position_history[i][1];
+    if (anchorPositionHistory && anchorPositionHistory.length > 0) {
+        // Create a vector source for the position dots feature
+        positionHistoryVectorSource = new ol.source.Vector();
+
+        // Create a style for the dots (points)
+        positionHistoryDotStyle = new ol.style.Style({
+          image: new ol.style.Circle({
+            radius: 5, // Adjust the size of the dots as needed
+            fill: new ol.style.Fill({ color: 'yellow' }), // Dot color
+            stroke: new ol.style.Stroke({ color: 'black', width: 1 }), // Dot border color
+          }),
+        });
+
+        // Create a vector layer and add features (points) to it
+        positionHistoryVectorLayer = new ol.layer.Vector({
+          source: positionHistoryVectorSource,
+          style: positionHistoryDotStyle,
+        });
+
+        for (let i = 0; i < anchorPositionHistory.length; i++) {
+            relevantPositionLatitude = anchorPositionHistory[i][0];
+            relevantPositionLongitude = anchorPositionHistory[i][1];
             decimalLon = dmsToDD(relevantPositionLongitude);
             decimalLat = dmsToDD(relevantPositionLatitude);
-            relevantPositionMarker = new ol.Overlay({
-              position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
-              positioning: 'center-center',
-              element: document.createElement('div')
+
+            const point = new ol.Feature({
+                geometry: new ol.geom.Point([decimalLon, decimalLat]),
             });
-            relevantPositionMarker.getElement().className = 'relevant-position-marker'; // Apply CSS class for styling
-            anchorMap.addOverlay(relevantPositionMarker);
+            positionHistoryVectorSource.addFeature(point);
 
             lastPositionLatitude = relevantPositionLatitude;
             lastPositionLongitude = relevantPositionLongitude;
         }
+
+        // Add the dots layer to the map
+        anchorMap.addLayer(positionHistoryVectorLayer);
     }
+}
+
+function drawAnchorOnMap(latitude, longitude, allowed_distance, position_history) {
+    divContainer = document.getElementById('anchor-map'); // Replace 'yourDivId' with the actual ID of your div
+    // Empty the div by setting its innerHTML to an empty string
+    divContainer.innerHTML = '';
+
+    // re-initialize the anchor map
+    anchorMap = new ol.Map({
+        layers: [osmLayer],
+        target: 'anchor-map',
+        controls: []
+    });
+
+    {% if anchor_alarm_mapbox_api_key | length > 0 %}
+
+    {% else %}
+    document.getElementById('satellite_map_layer_button').disabled = true;
+    document.getElementById("satellite_map_layer_button").classList.remove('text-light');
+    {% endif %}
+
+    decimalLat = dmsToDD(latitude);
+    decimalLon = dmsToDD(longitude)
+
+    anchorDecimalLatitude = decimalLat;
+    anchorDecimalLongitude = decimalLon;
+
+    anchorView = new ol.View({
+        projection: 'EPSG:4326',
+        center: [decimalLon, decimalLat],
+        zoom: 8,
+    });
+
+    anchorMap.setView(anchorView);
+
+    anchorMarker = new ol.Overlay({
+      position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
+      positioning: 'center-center',
+      element: document.createElement('div')
+    });
+    anchorMarker.getElement().className = 'anchor-marker'; // Apply CSS class for styling
+    anchorMap.addOverlay(anchorMarker);
+
+    anchorAllowedDistance = allowed_distance;
+    anchorPositionHistory = position_history;
+
+    redrawMapLayers();
 
     // Set the center coordinate to the target coordinate and apply the zoom animation
     anchorView.animate({
@@ -1298,22 +1407,8 @@ function refreshData() {
 
                         // draw relevant boat positions on the map
                         if (data['position_history'] && data['position_history'].length > 0) {
-                            relevantPositionLatitude = data['position_history'][data['position_history'].length - 1][0];
-                            relevantPositionLongitude = data['position_history'][data['position_history'].length - 1][1];
-                            if ((relevantPositionLatitude != lastPositionLatitude) && (relevantPositionLongitude != lastPositionLongitude)) {
-                                decimalLon = dmsToDD(relevantPositionLongitude);
-                                decimalLat = dmsToDD(relevantPositionLatitude);
-                                relevantPositionMarker = new ol.Overlay({
-                                  position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
-                                  positioning: 'center-center',
-                                  element: document.createElement('div')
-                                });
-                                relevantPositionMarker.getElement().className = 'relevant-position-marker'; // Apply CSS class for styling
-                                anchorMap.addOverlay(relevantPositionMarker);
-
-                                lastPositionLatitude = relevantPositionLatitude;
-                                lastPositionLongitude = relevantPositionLongitude;
-                            }
+                            anchorPositionHistory = data['position_history'];
+                            redrawMapLayers();
                         }
 
                         // Draw the boat marker on the map for the current boat position
@@ -1381,6 +1476,8 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
+
 
 </script>
 
