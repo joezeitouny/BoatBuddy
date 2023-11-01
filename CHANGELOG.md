@@ -1,3 +1,8 @@
+## 0.8.8 (2023-11-01)
+
+* Added support for versioning to JSON responses
+* Version bump to 0.8.8
+
 ## 0.8.7 (2023-10-30)
 
 * Added map buttons to switch between default and satellite layers

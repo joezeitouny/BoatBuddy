@@ -204,7 +204,8 @@ def get_anchor_alarm_data():
         anchor_duration_in_seconds = application_modules.get_anchor_manager().anchor_duration_in_seconds()
         anchor_bearing = application_modules.get_anchor_manager().anchor_bearing()
 
-    data = {'gps_module_running': gps_module_running, 'anchor_alarm_module': anchor_alarm_module,
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
+            'gps_module_running': gps_module_running, 'anchor_alarm_module': anchor_alarm_module,
             'anchor_is_set': anchor_is_set,
             'anchor_timestamp_utc': anchor_timestamp_utc, 'anchor_timestamp_local': anchor_timestamp_local,
             'anchor_alarm_is_active': anchor_alarm_is_active,
@@ -228,7 +229,8 @@ def get_gps_coordinates():
         gps_latitude = gps_entry[0]
         gps_longitude = gps_entry[1]
 
-    data = {'gps_latitude': gps_latitude, 'gps_longitude': gps_longitude}
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION, 'gps_latitude': gps_latitude,
+            'gps_longitude': gps_longitude}
 
     return jsonify(data)
 
@@ -254,7 +256,7 @@ def cancel_anchor():
 def get_current_time():
     curr_time = time.strftime("%H:%M:%S", time.localtime())
 
-    data = {'curr_time': curr_time}
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION, 'curr_time': curr_time}
     return jsonify(data)
 
 
@@ -401,7 +403,8 @@ def get_data():
         notification_message = application_modules.get_notifications_manager().get_last_message()
         last_notification = notification_message
 
-    data = {'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
+            'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
             'battery_soc': battery_soc,
             'victron_status': victron_status,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,
