@@ -130,6 +130,7 @@ function updateNavBar() {
                 if (data['anchor_is_set']) {
                     document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
                     document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
+                    document.getElementById("set_anchor_tooltip_id").classList.remove('d-inline-block');
                     document.getElementById('update_anchor_alarm_button_id').style.display = 'block';
                     document.getElementById('update_anchor_alarm_button_id').style.visibility = 'visible';
                     document.getElementById('anchor_distance_label_id').innerHTML = data['anchor_distance'];
@@ -148,6 +149,7 @@ function updateNavBar() {
                     document.getElementById('anchor_distance_label_id').innerHTML = '';
                     document.getElementById('set_anchor_alarm_button_id').style.display = 'block';
                     document.getElementById('set_anchor_alarm_button_id').style.visibility = 'visible';
+                    document.getElementById("set_anchor_tooltip_id").classList.add('d-inline-block');
                     if (data['gps_module_running']) {
                         document.getElementById('set_anchor_alarm_button_id').removeAttribute("disabled");
                         $('#set_anchor_tooltip_id').tooltip('disable');
