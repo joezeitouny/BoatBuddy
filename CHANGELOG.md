@@ -1,3 +1,8 @@
+## 0.8.9 (2023-11-03)
+
+* Layout improvements
+* Version bump to 0.8.9
+
 ## 0.8.8 (2023-11-01)
 
 * Added support for versioning to JSON responses
