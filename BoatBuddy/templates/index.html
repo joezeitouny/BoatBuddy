@@ -63,6 +63,10 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <div class="d-flex col" id="set_anchor_check_your_input_div_id"
+                     style="visibility: hidden; display: none">
+                    <label class="text-danger">Check your input! </label>
+                </div>
                 <button type="button" class="btn btn-success" onclick="setAnchor()">
                     Set Anchor
                 </button>
@@ -1030,7 +1034,44 @@ function drawAnchorOnMap(latitude, longitude, allowed_distance, position_history
     });
 }
 
+function isValidGPSCoordinate(value) {
+    // Regular expression for matching valid GPS coordinates
+    // The pattern allows for degrees (0-90) and minutes/seconds (0-59), with the hemisphere at the end (N, S, E, or W)
+    const regex = /^(-?\d{1,3})°(\d{1,2})'((\d{1,2}(\.\d*)?)|(\.\d+))" [NSEW]$/;
+
+    return regex.test(value);
+}
+
 function setAnchor() {
+    // validate the form before proceeding any further
+    if (document.getElementById("default_anchor_configuration_button_id").checked) {
+        if (!isValidGPSCoordinate(document.getElementById("set_anchor_alarm_latitude_text_id").value) ||
+            !isValidGPSCoordinate(document.getElementById("set_anchor_alarm_longitude_text_id").value) ||
+            parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value) <= 0) {
+            document.getElementById('set_anchor_check_your_input_div_id').style.display = 'block';
+            document.getElementById('set_anchor_check_your_input_div_id').style.visibility = 'visible';
+            return;
+        }
+        else {
+            document.getElementById('set_anchor_check_your_input_div_id').style.display = 'none';
+            document.getElementById('set_anchor_check_your_input_div_id').style.visibility = 'hidden';
+        }
+    }
+    else {
+        if (parseInt(document.getElementById("set_anchor_alarm_bearing_text_id").value) > 359 ||
+            parseInt(document.getElementById("set_anchor_alarm_bearing_text_id").value) < 0 ||
+            parseInt(document.getElementById("set_anchor_alarm_distance_text_id").value) < 0 ||
+            parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value) <= 0) {
+            document.getElementById('set_anchor_check_your_input_div_id').style.display = 'block';
+            document.getElementById('set_anchor_check_your_input_div_id').style.visibility = 'visible';
+            return;
+        }
+        else {
+            document.getElementById('set_anchor_check_your_input_div_id').style.display = 'none';
+            document.getElementById('set_anchor_check_your_input_div_id').style.visibility = 'hidden';
+        }
+    }
+
     hideSetAnchorAlarmModal();
     $('#loading_modal').modal('show');
 
@@ -1204,11 +1245,16 @@ function showSetAnchorAlarmModal() {
             $.ajax({
                 type: 'GET',
                 url: '/gps_coordinates',
+                async: false, // Synchronous request
                 success: function(data) {
                     document.getElementById('set_anchor_alarm_latitude_text_id').value = data['gps_latitude']
                     document.getElementById('set_anchor_alarm_longitude_text_id').value = data['gps_longitude'];
                 }
             });
+
+            // hide the check your input warning message
+            document.getElementById('set_anchor_check_your_input_div_id').style.display = 'none';
+            document.getElementById('set_anchor_check_your_input_div_id').style.visibility = 'hidden';
 
             setAnchorAlarmModal.show();
         },
@@ -1581,6 +1627,8 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
+
 
 
 
