@@ -133,6 +133,10 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <div class="d-flex col" id="update_anchor_check_your_input_div_id"
+                     style="visibility: hidden; display: none">
+                    <label class="text-danger">Check your input! </label>
+                </div>
                 <button type="button" class="btn btn-success" onclick="updateAnchor()">
                     <span>Update</span>
                 </button>
@@ -1164,6 +1168,17 @@ function setAnchor() {
 }
 
 function updateAnchor() {
+    // validate the form before proceeding any further
+    if (parseInt(document.getElementById("update_anchor_alarm_allowed_distance_text_id").value) <= 0) {
+        document.getElementById('update_anchor_check_your_input_div_id').style.display = 'block';
+        document.getElementById('update_anchor_check_your_input_div_id').style.visibility = 'visible';
+        return;
+    }
+    else {
+        document.getElementById('update_anchor_check_your_input_div_id').style.display = 'none';
+        document.getElementById('update_anchor_check_your_input_div_id').style.visibility = 'hidden';
+    }
+
     hideUpdateAnchorAlarmModal();
     $('#loading_modal').modal('show');
 
@@ -1288,6 +1303,10 @@ function showUpdateAnchorAlarmModal() {
                 document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-danger');
                 document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-success');
             }
+
+            // hide the check your input warning message
+            document.getElementById('update_anchor_check_your_input_div_id').style.display = 'none';
+            document.getElementById('update_anchor_check_your_input_div_id').style.visibility = 'hidden';
 
             updateAnchorAlarmModal.show();
         },
