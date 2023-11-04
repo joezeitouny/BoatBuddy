@@ -9,6 +9,7 @@ LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 EMPTY_METRIC_VALUE = "N/A"
 JSON_RESPONSE_FORMAT_VERSION = 1
+EARTH_RADIUS = 6371000  # Approximately 6,371 km
 
 # NMEA Plugin
 BUFFER_SIZE = 4096

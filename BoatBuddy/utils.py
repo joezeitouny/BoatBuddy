@@ -9,8 +9,8 @@ from BoatBuddy import globals
 class ModuleStatus(Enum):
     ONLINE = 'online'
     OFFLINE = 'offline'
-    ALARM_ACTIVE = 'alarm_active' # used in the anchor alarm module
-    ALARM_CLEARED = 'alarm_cleared' # used in the anchor alarm module
+    ALARM_ACTIVE = 'alarm_active'  # used in the anchor alarm module
+    ALARM_CLEARED = 'alarm_cleared'  # used in the anchor alarm module
 
 
 def get_application_version():
@@ -162,7 +162,7 @@ def get_smallest_number(number1, number2):
 
 def dms_to_dd(degrees, minutes, seconds, direction):
     # Convert DMS to DD
-    dd = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
+    dd = float(degrees) + float(minutes) / 60 + float(seconds) / (60 * 60)
     if direction in ['S', 'W']:
         dd *= -1  # Apply negative sign for South and West directions
     return dd
@@ -193,3 +193,24 @@ def calculate_bearing(lat1, lon1, lat2, lon2):
     bearing = round(bearing)
 
     return bearing
+
+
+def calculate_destination_point(lat1, lon1, bearing, distance):
+    # Convert latitude and longitude from degrees to radians
+    lat1 = math.radians(lat1)
+    lon1 = math.radians(lon1)
+    bearing = math.radians(bearing)
+
+    # Calculate the destination point's latitude
+    lat2 = math.asin(math.sin(lat1) * math.cos(distance / globals.EARTH_RADIUS) +
+                     math.cos(lat1) * math.sin(distance / globals.EARTH_RADIUS) * math.cos(bearing))
+
+    # Calculate the destination point's longitude
+    lon2 = lon1 + math.atan2(math.sin(bearing) * math.sin(distance / globals.EARTH_RADIUS) * math.cos(lat1),
+                             math.cos(distance / globals.EARTH_RADIUS) - math.sin(lat1) * math.sin(lat2))
+
+    # Convert the latitude and longitude back to degrees
+    lat2 = math.degrees(lat2)
+    lon2 = math.degrees(lon2)
+
+    return lat2, lon2

@@ -61,6 +61,22 @@ class AnchorManager:
         self._status = AnchorManagerStatus.DOWN
         self._log_manager.info('Anchor manager instance is ready to be destroyed')
 
+    def set_anchor_alternative(self, latitude, longitude, bearing: int, distance: int, allowed_distance: int) -> bool:
+        # validate the input
+        latlon_anchor = None
+        try:
+            latlon_anchor = string2latlon(latitude, longitude, 'd%°%m%\'%S%\" %H')
+        except Exception as e:
+            return False
+
+        anchor_coordinates = utils.calculate_destination_point(latlon_anchor.lat.decimal_degree,
+                                                               latlon_anchor.lon.decimal_degree,
+                                                               bearing, distance)
+        anchor_latlon = LatLon(Latitude(anchor_coordinates[0]), Longitude(anchor_coordinates[1]))
+
+        return self.set_anchor(anchor_latlon.lat.to_string('d%°%m%\'%S%\" %H'),
+                               anchor_latlon.lon.to_string('d%°%m%\'%S%\" %H'), allowed_distance)
+
     def set_anchor(self, latitude, longitude, allowed_distance: int) -> bool:
         # validate the input
         try:
@@ -231,6 +247,3 @@ class AnchorManager:
                     self._log_manager.info(f'Exception occurred in Anchor manager main thread. Details {e}')
 
                     self._status = AnchorManagerStatus.DOWN
-
-
-

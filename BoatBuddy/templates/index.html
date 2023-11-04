@@ -13,20 +13,46 @@
                 <h4>Anchor position</h4>
                 <div class="container mb-2" style="border: 1px solid #000; padding: 10px;">
                     <div class="row">
-                        <div class="col">
-                            <div class="row">
+                        <div class="row border-1">
+                            <label class="col col-sm-3">
+                                <input type="radio" name="toggleRadio" value="default"
+                                       id="default_anchor_configuration_button_id"
+                                       onchange="setAnchorDefaultConfigurationOnChange()" checked> Default
+                            </label>
+                            <label class="col col-sm-4">
+                                <input type="radio" name="toggleRadio" value="alternative"
+                                       id="alternative_anchor_configuration_button_id"
+                                       onchange="setAnchorAlternativeConfigurationOnChange()"> Alternative
+                            </label>
+                        </div>
+                        <div class="row align-items-center" id="default_anchor_configuration_div_id">
+                            <div class="col col-sm">
+                                <div class="row">
                             <span>Latitude:&nbsp<input type="text" id="set_anchor_alarm_latitude_text_id"
                                                        placeholder="Latitude"/></span>
-                            </div>
-                            <div class="row">
+                                </div>
+                                <div class="row">
                             <span>Longitude:&nbsp<input type="text" id="set_anchor_alarm_longitude_text_id"
                                                         placeholder="Longitude"/></span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm">
+                                <button class="btn btn-outline-primary" type="button" onclick="useCurrentPosition()">
+                                    <span><i class="bi bi-crosshair"></i>&nbspUse current position</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="col">
-                            <button class="btn btn-outline-primary" type="button" onclick="useCurrentPosition()">
-                                <span><i class="bi bi-crosshair"></i>&nbspUse current position</span>
-                            </button>
+                        <div id="alternative_anchor_configuration_div_id" style="display: none; visibility: hidden">
+                            <div class="col col-sm">
+                                <div class="row">
+                            <span>Bearing to anchor:&nbsp<input type="number" id="set_anchor_alarm_bearing_text_id"
+                                                                placeholder="Bearing (in degrees)"/></span>
+                                </div>
+                                <div class="row">
+                            <span>Distance to anchor:&nbsp<input type="number" id="set_anchor_alarm_distance_text_id"
+                                                                 placeholder="Distance (in meters)"/></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -468,10 +494,16 @@
                             </div>
                             <div id="map-container">
                                 <div id="map-button-container">
-                                    <button id="default_map_layer_button" class="bg-secondary" onclick="showDefaultMapLayer()" disabled>Default</button>
-                                    <button id="satellite_map_layer_button" class="bg-secondary text-light" onclick="showSatelliteMapLayer()">Satellite</button>
-                                    <button id="zoom_in_button" class="bg-secondary text-light" onclick="zoomIn()">Zoom In <i class="bi bi-zoom-in"></i></button>
-                                    <button id="zoom_out_button" class="bg-secondary text-light" onclick="zoomOut()">Zoom Out <i class="bi bi-zoom-out"></i></button>
+                                    <button id="default_map_layer_button" class="bg-secondary"
+                                            onclick="showDefaultMapLayer()" disabled>Default
+                                    </button>
+                                    <button id="satellite_map_layer_button" class="bg-secondary text-light"
+                                            onclick="showSatelliteMapLayer()">Satellite
+                                    </button>
+                                    <button id="zoom_in_button" class="bg-secondary text-light" onclick="zoomIn()">Zoom
+                                        In <i class="bi bi-zoom-in"></i></button>
+                                    <button id="zoom_out_button" class="bg-secondary text-light" onclick="zoomOut()">
+                                        Zoom Out <i class="bi bi-zoom-out"></i></button>
                                 </div>
                                 <div id="anchor-map"></div>
                             </div>
@@ -756,6 +788,21 @@ const mapboxSatelliteLayer = new ol.layer.Tile({
     })
 });
 
+
+function setAnchorDefaultConfigurationOnChange() {
+    document.getElementById('alternative_anchor_configuration_div_id').style.display = 'none';
+    document.getElementById('alternative_anchor_configuration_div_id').style.visibility = 'hidden';
+    document.getElementById('default_anchor_configuration_div_id').style.display = 'block';
+    document.getElementById('default_anchor_configuration_div_id').style.visibility = 'visible';
+}
+
+function setAnchorAlternativeConfigurationOnChange() {
+    document.getElementById('default_anchor_configuration_div_id').style.display = 'none';
+    document.getElementById('default_anchor_configuration_div_id').style.visibility = 'hidden';
+    document.getElementById('alternative_anchor_configuration_div_id').style.display = 'block';
+    document.getElementById('alternative_anchor_configuration_div_id').style.visibility = 'visible';
+}
+
 function useCurrentPosition() {
     // Fill up GPS anchor position on the set anchor dialog from last gps coordinates
     $.ajax({
@@ -987,37 +1034,92 @@ function setAnchor() {
     hideSetAnchorAlarmModal();
     $('#loading_modal').modal('show');
 
-    $.ajax({
-        url: '/set_anchor',
-        method: 'POST',
-        data: { latitude: document.getElementById("set_anchor_alarm_latitude_text_id").value,
-                longitude: document.getElementById("set_anchor_alarm_longitude_text_id").value,
-                allowed_distance: document.getElementById("set_anchor_alarm_allowed_distance_text_id").value },
-        success: function (response) {
-            $('#loading_modal').modal('hide');
-            if (!response)
+    if (document.getElementById("default_anchor_configuration_button_id").checked) {
+        $.ajax({
+            url: '/set_anchor',
+            method: 'POST',
+            data: { latitude: document.getElementById("set_anchor_alarm_latitude_text_id").value,
+                    longitude: document.getElementById("set_anchor_alarm_longitude_text_id").value,
+                    allowed_distance: document.getElementById("set_anchor_alarm_allowed_distance_text_id").value },
+            success: function (response) {
+                $('#loading_modal').modal('hide');
+                if (!response)
+                    notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
+                else {
+                    notify_success('Anchor alarm successfully set!');
+
+                    // draw the anchor position and allowed distance radius on the map
+                    latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
+                    longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
+                    allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
+
+                    // switch to the anchor tab
+                    var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
+                    anchorTab.show();
+
+                    // show the default map layer
+                    showDefaultMapLayer();
+
+                    // draw anchor on map
+                    drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
+                }
+            },
+            error: function (error) {
+                $('#loading_modal').modal('hide');
                 notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
-            else {
-                notify_success('Anchor alarm successfully set!');
-
-                // draw the anchor position and allowed distance radius on the map
-                latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
-                longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
-                allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
-
-                // switch to the anchor tab
-                var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
-                anchorTab.show();
-
-                // draw anchor on map
-                drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
             }
-        },
-        error: function (error) {
-            $('#loading_modal').modal('hide');
-            notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
-        }
-    });
+        });
+    }
+    else {
+        current_latitude = ''
+        current_longitude = ''
+        $.ajax({
+            type: 'GET',
+            url: '/gps_coordinates',
+            async: false, // Synchronous request
+            success: function(data) {
+                current_latitude = data['gps_latitude']
+                current_longitude = data['gps_longitude'];
+            }
+        });
+
+        $.ajax({
+            url: '/set_anchor_alternative',
+            method: 'POST',
+            data: { latitude: current_latitude,
+                    longitude: current_longitude,
+                    bearing: document.getElementById("set_anchor_alarm_bearing_text_id").value,
+                    distance: document.getElementById("set_anchor_alarm_distance_text_id").value,
+                    allowed_distance: document.getElementById("set_anchor_alarm_allowed_distance_text_id").value },
+            success: function (response) {
+                $('#loading_modal').modal('hide');
+                if (!response)
+                    notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
+                else {
+                    notify_success('Anchor alarm successfully set!');
+
+                    // draw the anchor position and allowed distance radius on the map
+                    latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
+                    longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
+                    allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
+
+                    // switch to the anchor tab
+                    var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
+                    anchorTab.show();
+
+                    // show the default map layer
+                    showDefaultMapLayer();
+
+                    // draw anchor on map
+                    drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
+                }
+            },
+            error: function (error) {
+                $('#loading_modal').modal('hide');
+                notify_warning('Error while setting anchor alarm! Please check your anchor configuration');
+            }
+        });
+    }
 }
 
 function updateAnchor() {
@@ -1045,6 +1147,9 @@ function updateAnchor() {
                 // switch to the anchor tab
                 var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
                 anchorTab.show();
+
+                // show the default map layer
+                showDefaultMapLayer();
 
                 // draw anchor on map
                 drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
@@ -1476,6 +1581,12 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
+
+
+
+
+
 
 
 

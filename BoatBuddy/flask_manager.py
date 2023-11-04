@@ -245,6 +245,21 @@ def set_anchor():
         application_modules.get_anchor_manager().set_anchor(latitude, longitude, utils.try_parse_int(allowed_distance)))
 
 
+@app.route('/set_anchor_alternative', methods=['POST'])
+def set_anchor_alternative():
+    latitude = request.form.get('latitude')  # Get the latitude value from the request
+    longitude = request.form.get('longitude')  # Get the longitude value from the request
+    bearing = request.form.get('bearing')  # Get the bearing value from the request
+    distance = request.form.get('distance')  # Get the distance value from the request
+    allowed_distance = request.form.get('allowed_distance')  # Get the allowed distance value from the request
+
+    return jsonify(
+        application_modules.get_anchor_manager().set_anchor_alternative(latitude, longitude,
+                                                                        utils.try_parse_int(bearing),
+                                                                        utils.try_parse_int(distance),
+                                                                        utils.try_parse_int(allowed_distance)))
+
+
 @app.route('/cancel_anchor')
 def cancel_anchor():
     application_modules.get_anchor_manager().cancel_anchor()
