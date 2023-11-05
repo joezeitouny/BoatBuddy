@@ -1,4 +1,5 @@
 import time
+import copy
 from enum import Enum
 from threading import Thread, Event
 
@@ -10,7 +11,7 @@ from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 from BoatBuddy.utils import ModuleStatus
-from BoatBuddy import utils
+from BoatBuddy import utils, globals
 
 
 class AnchorManagerStatus(Enum):
@@ -213,6 +214,9 @@ class AnchorManager:
                             distance = round(latlon_current.distance(latlon_previous_entry) * 1000, 1)
                             if distance > 1:
                                 self._position_history.append([self._current_latitude, self._current_longitude])
+
+                        # cleanup history
+                        self._position_history = copy.deepcopy(self._position_history[-globals.HISTORY_CACHE_LIMIT:])
 
                         # check if current distance exceeds the allowed distance
                         if self._anchor_distance > self._anchor_allowed_distance:
