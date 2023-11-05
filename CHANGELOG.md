@@ -1,3 +1,10 @@
+## 0.8.10 (2023-11-05)
+
+* Added a feature to limit the history of anchor data to a predefined threshold
+* Added input validation checks for the set and update anchor alarm form
+* Added the ability to set an anchor with a current position, a distance from anchor and a bearing to anchor
+* Version bump to 0.8.10
+
 ## 0.8.9 (2023-11-03)
 
 * Layout improvements
