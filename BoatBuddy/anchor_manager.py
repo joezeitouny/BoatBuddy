@@ -75,8 +75,21 @@ class AnchorManager:
                                                                bearing, distance)
         anchor_latlon = LatLon(Latitude(anchor_coordinates[0]), Longitude(anchor_coordinates[1]))
 
-        return self.set_anchor(anchor_latlon.lat.to_string('d%°%m%\'%S%\" %H'),
-                               anchor_latlon.lon.to_string('d%°%m%\'%S%\" %H'), allowed_distance)
+        # Get the string representation with reduced precision for seconds
+        anchor_lat_formatted_string = '{lat}°{lat_min}\'{lat_sec}" {lat_hem}'.format(
+            lat=round(anchor_latlon.lat.degree), lat_min=round(anchor_latlon.lat.minute),
+            lat_sec=round(anchor_latlon.lat.second, 2),
+            lat_hem=anchor_latlon.lat.to_string('%H')
+        )
+
+        anchor_lon_formatted_string = '{lon}°{lon_min}\'{lon_sec}" {lon_hem}'.format(
+            lon=round(anchor_latlon.lon.degree), lon_min=round(anchor_latlon.lon.minute),
+            lon_sec=round(anchor_latlon.lon.second, 2),
+            lon_hem=anchor_latlon.lon.to_string('%H')
+        )
+
+        return self.set_anchor(anchor_lat_formatted_string,
+                               anchor_lon_formatted_string, allowed_distance)
 
     def set_anchor(self, latitude, longitude, allowed_distance: int) -> bool:
         # validate the input
