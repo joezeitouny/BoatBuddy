@@ -33,8 +33,8 @@
                                                                        id="curr_time_id"></span>
                 </div>
                 <div class="col col-lg col-sm">
-                    <span class="d-flex align-items-center justify-content-end">
-                        <div id="anchor_alarm_section">
+                    <span class="row align-items-center justify-content-end">
+                        <div class="col-5 col-sm-auto" id="anchor_alarm_section">
                             <span class="d-inline-block" tabindex="0" data-toggle="tooltip" data-bs-placement="left"
                                   title="Feature is disabled because the GPS module is down" id="set_anchor_tooltip_id">
                                 <button class="mx-2 btn btn-success" id="set_anchor_alarm_button_id" type="button"
@@ -51,17 +51,19 @@
                                 Anchor distance:&nbsp<span id="anchor_distance_label_id"></span>m
                             </button>
                         </div>
-                        <div class="border border-2 p-1 mx-1 border-white rounded">
-                            <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
-                            <button class="ms-2 btn btn-success" type="submit" id="session_button_id"
-                                    onclick="toggleSession()">
-                                <span>
-                                    <span id="session_button_spinner" class="spinner-border spinner-border-sm"
-                                          style="visibility: hidden; display: none;" role="status"
-                                          aria-hidden="true"></span>
-                                    <span id="session_button_text">Start Session</span>
-                                </span>
-                            </button>
+                        <div class="col-7 col-sm-auto border border-2 p-2 p-sm-1 mx-sm-1 border-white rounded">
+
+                                <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
+                                <button class="ms-2 btn btn-success" type="submit" id="session_button_id"
+                                        onclick="toggleSession()">
+                                    <span>
+                                        <span id="session_button_spinner" class="spinner-border spinner-border-sm"
+                                              style="visibility: hidden; display: none;" role="status"
+                                              aria-hidden="true"></span>
+                                        <span id="session_button_text">Start Session</span>
+                                    </span>
+                                </button>
+
                         </div>
                     </span>
                 </div>
@@ -185,6 +187,10 @@ $(document).ajaxError(function( event, request, settings ) {
         }
     }
 });
+
+
+
+
 
 
 
