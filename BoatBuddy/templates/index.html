@@ -460,13 +460,13 @@
                         <div id="anchor_container" style="display: none; visibility: hidden;"
                              class="container-fluid align-self-top">
                             <div class="row text-start">
-                                <div class="col-lg-4 col-sm-3 mb-2">
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
                                     <h5 class="fw-bolder">Start time</h5>
                                     <span>Local:&nbsp;<span id="anchor_start_time"></span></span>
                                     <br>
                                     <span>UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
                                 </div>
-                                <div class="col-lg-4 col-sm-3 mb-2">
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
                                     <h5 class="fw-bolder">Distance</h5>
                                     <span class="fw-bolder">Allowed Distance:&nbsp<span
                                             id="anchor_allowed_distance"></span>&nbspm</span>
@@ -474,7 +474,19 @@
                                     <span id="distance_from_anchor_span" class="fw-bolder text-success">Distance from anchor:&nbsp<span
                                             id="anchor_distance"></span>&nbspm</span>
                                 </div>
-                                <div class="col-lg-4 col-sm-3 mb-2">
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                    <h5 class="fw-bolder">Anchor position</h5>
+                                    <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
+                                    <br>
+                                    <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
+                                </div>
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                    <h5 class="fw-bolder">Current position</h5>
+                                    <span>Latitude:&nbsp<span id="current_latitude"></span></span>
+                                    <br>
+                                    <span>Longitude:&nbsp<span id="current_longitude"></span></span>
+                                </div>
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
                                     <h5 class="fw-bolder">Other metrics</h5>
                                     <span>Duration:&nbsp<span
                                             id="anchor_duration"></span>&nbspminutes</span>
@@ -484,20 +496,6 @@
                                     <br>
                                     <span>GPS Accuracy:&nbsp<span
                                             id="gps_accuracy"></span></span>
-                                </div>
-                            </div>
-                            <div class="row text-start">
-                                <div class="col-lg-4 col-sm-3 mb-2">
-                                    <h5 class="fw-bolder">Anchor position</h5>
-                                    <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
-                                    <br>
-                                    <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
-                                </div>
-                                <div class="col-lg-4 col-sm-3 mb-2">
-                                    <h5 class="fw-bolder">Current position</h5>
-                                    <span>Latitude:&nbsp<span id="current_latitude"></span></span>
-                                    <br>
-                                    <span>Longitude:&nbsp<span id="current_longitude"></span></span>
                                 </div>
                             </div>
                             <div class="row">
@@ -1650,6 +1648,7 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
 
 
 
