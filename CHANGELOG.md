@@ -1,3 +1,8 @@
+## 0.8.12 (2023-11-11)
+
+* Layout improvements
+* Version bump to 0.8.12
+
 ## 0.8.11 (2023-11-11)
 
 * Reduced the amount of digits in the seconds coordinates of the calculated anchor position when setting the anchor using a bearing and a distance
