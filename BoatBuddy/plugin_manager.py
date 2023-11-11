@@ -492,5 +492,11 @@ class PluginManager:
 
         return self._gps_plugin.get_status()
 
+    def get_gps_plugin_accuracy(self):
+        if not self._gps_plugin:
+            return 'N/A'
+
+        return self._gps_plugin.get_accuracy()
+
     def register_for_events(self, events):
         self._events = events

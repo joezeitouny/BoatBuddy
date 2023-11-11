@@ -77,6 +77,7 @@ class GPSPlugin(GenericPlugin):
         self._location = globals.EMPTY_METRIC_VALUE
         self._speed_over_ground = globals.EMPTY_METRIC_VALUE
         self._course_over_ground = globals.EMPTY_METRIC_VALUE
+        self._pdop = globals.EMPTY_METRIC_VALUE
         self._gps_fix_captured = False
         self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
@@ -97,6 +98,7 @@ class GPSPlugin(GenericPlugin):
         self._location = globals.EMPTY_METRIC_VALUE
         self._speed_over_ground = globals.EMPTY_METRIC_VALUE
         self._course_over_ground = globals.EMPTY_METRIC_VALUE
+        self._pdop = globals.EMPTY_METRIC_VALUE
         self._gps_fix_captured = False
         self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
@@ -287,6 +289,8 @@ class GPSPlugin(GenericPlugin):
             self._speed_over_ground = utils.try_parse_float(csv_list[5])
             self._log_manager.debug(
                 f'Detected COG: {self._course_over_ground} SOG: {self._speed_over_ground}')
+        elif str(csv_list[0]).endswith('GSA'):
+            self._pdop = utils.try_parse_float(csv_list[15])
 
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
@@ -328,3 +332,20 @@ class GPSPlugin(GenericPlugin):
             return self._log_entries[len(self._log_entries) - 1].get_gps_longitude()
         else:
             return self._gps_longitude
+
+    def get_accuracy(self):
+        if self._pdop == globals.EMPTY_METRIC_VALUE:
+            return
+
+        if self._pdop <= 2:
+            return 'Excellent'
+        elif 2 < self._pdop <= 5:
+            return 'Good'
+        elif 5 < self._pdop <= 10:
+            return 'Moderate'
+        elif 10 < self._pdop <= 20:
+            return 'Fair'
+        elif 20 < self._pdop <= 50:
+            return 'Poor'
+        else:
+            return 'Very Poor'

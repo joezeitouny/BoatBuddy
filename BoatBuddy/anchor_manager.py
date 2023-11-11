@@ -29,7 +29,6 @@ class AnchorManager:
         self._email_manager = email_manager
         self._notifications_manager = notifications_manager
         self._exit_signal = Event()
-
         self._status = AnchorManagerStatus.STARTING
         self._anchor_timestamp_utc = None
         self._anchor_timestamp_local = None
@@ -43,6 +42,7 @@ class AnchorManager:
         self._current_latitude = ''
         self._position_history = []
         self._anchor_bearing = 0
+        self._gps_accuracy = 'N/A'
 
         if self._options.anchor_alarm_module:
             self._anchor_thread = Thread(target=self._main_loop)
@@ -118,6 +118,9 @@ class AnchorManager:
         # register that the anchor is set
         self._anchor_is_set = True
 
+        # gps accuracy
+        self._gps_accuracy = 'N/A'
+
         return True
 
     def cancel_anchor(self):
@@ -178,6 +181,9 @@ class AnchorManager:
     def anchor_bearing(self):
         return self._anchor_bearing
 
+    def gps_accuracy(self):
+        return self._gps_accuracy
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
@@ -196,6 +202,9 @@ class AnchorManager:
                         time.sleep(1)
 
                         continue
+
+                    # retrieve the current gps accuracy and store it
+                    self._gps_accuracy = self._plugin_manager.get_gps_plugin_accuracy()
 
                     # Retrieve current gps position and calculate distance
                     gps_entry = self._plugin_manager.get_gps_plugin_metrics()
