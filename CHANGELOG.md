@@ -1,3 +1,9 @@
+## 0.8.13 (2023-11-12)
+
+* Added ability to track current boat position on map when using the anchor alarm feature
+* Anchor duration is now represented in days hours and minutes format
+* Version bump to 0.8.13
+
 ## 0.8.12 (2023-11-11)
 
 * Layout improvements
