@@ -1,3 +1,8 @@
+## 0.8.14 (2023-11-12)
+
+* Layout improvements
+* Version bump to 0.8.14
+
 ## 0.8.13 (2023-11-12)
 
 * Added ability to track current boat position on map when using the anchor alarm feature
