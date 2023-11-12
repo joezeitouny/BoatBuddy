@@ -489,7 +489,7 @@
                                 <div class="col-12 col-sm-6 col-xl-4 mb-2">
                                     <h5 class="fw-bolder">Other metrics</h5>
                                     <span>Duration:&nbsp<span
-                                            id="anchor_duration"></span>&nbspminutes</span>
+                                            id="anchor_duration"></span></span>
                                     <br>
                                     <span>Anchor bearing:&nbsp<span
                                             id="anchor_bearing"></span>&nbspdegrees</span>
@@ -1394,6 +1394,15 @@ function switch_to_dark_mode() {
     water_tank_gauge.setOptions(common_gauge_options_dark);
 }
 
+// Function to format minutes into "%d days %h hours %m minutes"
+function formatMinutes(minutes) {
+    const days = Math.floor(minutes / (24 * 60));
+    const hours = Math.floor((minutes % (24 * 60)) / 60);
+    const remainingMinutes = minutes % 60;
+
+    return `${days} days ${hours} hours ${remainingMinutes} minutes`;
+}
+
 function refreshData() {
     $.ajax({
         type: 'GET',
@@ -1568,7 +1577,7 @@ function refreshData() {
                         document.getElementById('current_longitude').innerHTML = data['current_longitude'];
                         document.getElementById('anchor_distance').innerHTML = data['anchor_distance'];
                         document.getElementById('anchor_allowed_distance').innerHTML = data['anchor_allowed_distance'];
-                        document.getElementById('anchor_duration').innerHTML = Math.round(data['anchor_duration_in_seconds'] / 60);
+                        document.getElementById('anchor_duration').innerHTML = formatMinutes(Math.round(data['anchor_duration_in_seconds'] / 60));
                         document.getElementById('anchor_bearing').innerHTML = data['anchor_bearing'];
                         document.getElementById('gps_accuracy').innerHTML = data['gps_accuracy'];
 
