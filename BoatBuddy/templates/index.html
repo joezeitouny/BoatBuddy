@@ -513,6 +513,10 @@
                                         In <i class="bi bi-zoom-in"></i></button>
                                     <button id="zoom_out_button" class="bg-secondary text-light" onclick="zoomOut()">
                                         Zoom Out <i class="bi bi-zoom-out"></i></button>
+                                    <label class="bg-secondary text-light p-1">
+                                        <input type="checkbox" id="track_current_position_checkbox">
+                                        <span>Track current position</span>
+                                    </label>
                                 </div>
                                 <div id="anchor-map"></div>
                             </div>
@@ -1596,6 +1600,11 @@ function refreshData() {
                         });
                         boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
                         anchorMap.addOverlay(boatMarker);
+
+                        if (document.getElementById('track_current_position_checkbox').checked) {
+                            // recenter the map to the latest boat position
+                            anchorMap.getView().setCenter([decimalLon, decimalLat]);
+                        }
                     }
                     else {
                         document.getElementById('anchor_container').style.display = 'none';
@@ -1648,6 +1657,7 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
 
 
 
