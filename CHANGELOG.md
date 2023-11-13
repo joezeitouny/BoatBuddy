@@ -1,3 +1,9 @@
+## 0.8.15 (2023-11-13)
+
+* Layout improvements
+* Added max anchor distance metric
+* Version bump to 0.8.15
+
 ## 0.8.14 (2023-11-12)
 
 * Layout improvements
