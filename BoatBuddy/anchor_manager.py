@@ -43,6 +43,7 @@ class AnchorManager:
         self._position_history = []
         self._anchor_bearing = 0
         self._gps_accuracy = 'N/A'
+        self._max_anchor_distance = 0
 
         if self._options.anchor_alarm_module:
             self._anchor_thread = Thread(target=self._main_loop)
@@ -118,8 +119,11 @@ class AnchorManager:
         # register that the anchor is set
         self._anchor_is_set = True
 
-        # gps accuracy
+        # reset the gps accuracy
         self._gps_accuracy = 'N/A'
+
+        # reset the max anchor distance register
+        self._max_anchor_distance = 0
 
         return True
 
@@ -184,6 +188,9 @@ class AnchorManager:
     def gps_accuracy(self):
         return self._gps_accuracy
 
+    def max_anchor_distance(self):
+        return self._max_anchor_distance
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
@@ -223,6 +230,10 @@ class AnchorManager:
                     # Only calculate the distance if the current position is different from the anchor position
                     if latlon_anchor.to_string() != latlon_current.to_string():
                         self._anchor_distance = round(latlon_current.distance(latlon_anchor) * 1000, 1)
+
+                        # update the max distance field
+                        if self._anchor_distance > self._max_anchor_distance:
+                            self._max_anchor_distance = self._anchor_distance
 
                         # if current distance from the previous recorded position is larger than
                         # the save it to memory

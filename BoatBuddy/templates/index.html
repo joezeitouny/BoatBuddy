@@ -486,16 +486,25 @@
                                     <br>
                                     <span>Longitude:&nbsp<span id="current_longitude"></span></span>
                                 </div>
-                                <div class="col-12 col-sm-12 col-xl-6 mb-2">
+                                <div class="col-12 col-sm-12 col-xl-8 mb-2">
                                     <h5 class="fw-bolder">Other metrics</h5>
-                                    <span>Duration:&nbsp<span
-                                            id="anchor_duration"></span></span>
-                                    <br>
-                                    <span>Anchor bearing:&nbsp<span
-                                            id="anchor_bearing"></span>&nbspdegrees</span>
-                                    <br>
-                                    <span>GPS Accuracy:&nbsp<span
-                                            id="gps_accuracy"></span></span>
+                                    <div class="row">
+                                        <div class="col-12 col-sm-6">
+                                        <span>Duration:&nbsp<span
+                                                id="anchor_duration"></span></span>
+                                            <br>
+                                            <span>Anchor bearing:&nbsp<span
+                                                    id="anchor_bearing"></span>&nbspdegrees</span>
+                                            <br>
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <span>GPS Accuracy:&nbsp<span
+                                                    id="gps_accuracy"></span></span>
+                                            <br>
+                                            <span>Max. Distance:&nbsp<span
+                                                    id="max_anchor_distance"></span>&nbspmeters</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
@@ -1400,7 +1409,7 @@ function formatMinutes(minutes) {
     const hours = Math.floor((minutes % (24 * 60)) / 60);
     const remainingMinutes = minutes % 60;
 
-    return `${days} days ${hours} hours ${remainingMinutes} minutes`;
+    return `${days} days ${hours} hrs ${remainingMinutes} m`;
 }
 
 function refreshData() {
@@ -1580,6 +1589,7 @@ function refreshData() {
                         document.getElementById('anchor_duration').innerHTML = formatMinutes(Math.round(data['anchor_duration_in_seconds'] / 60));
                         document.getElementById('anchor_bearing').innerHTML = data['anchor_bearing'];
                         document.getElementById('gps_accuracy').innerHTML = data['gps_accuracy'];
+                        document.getElementById('max_anchor_distance').innerHTML = data['max_anchor_distance'];
 
                         if (data['anchor_distance'] > data['anchor_allowed_distance']) {
                             document.getElementById("distance_from_anchor_span").classList.remove('text-success');
@@ -1666,6 +1676,8 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
+
 
 
 

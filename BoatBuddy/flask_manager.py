@@ -187,6 +187,7 @@ def get_anchor_alarm_data():
     anchor_duration_in_seconds = 0
     anchor_bearing = 0
     gps_accuracy = 'N/A'
+    max_anchor_distance = 0
 
     if application_modules.get_options().anchor_alarm_module:
         gps_module_running = application_modules.get_plugin_manager().get_gps_plugin_status() == PluginStatus.RUNNING
@@ -205,6 +206,7 @@ def get_anchor_alarm_data():
         anchor_duration_in_seconds = application_modules.get_anchor_manager().anchor_duration_in_seconds()
         anchor_bearing = application_modules.get_anchor_manager().anchor_bearing()
         gps_accuracy = application_modules.get_anchor_manager().gps_accuracy()
+        max_anchor_distance = application_modules.get_anchor_manager().max_anchor_distance()
 
     data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
             'gps_module_running': gps_module_running, 'anchor_alarm_module': anchor_alarm_module,
@@ -216,7 +218,7 @@ def get_anchor_alarm_data():
             'anchor_alarm_default_allowed_distance': anchor_alarm_default_allowed_distance,
             'current_latitude': current_latitude, 'current_longitude': current_longitude,
             'position_history': position_history, 'anchor_duration_in_seconds': anchor_duration_in_seconds,
-            'anchor_bearing': anchor_bearing, 'gps_accuracy': gps_accuracy}
+            'anchor_bearing': anchor_bearing, 'gps_accuracy': gps_accuracy, 'max_anchor_distance': max_anchor_distance}
 
     return jsonify(data)
 
