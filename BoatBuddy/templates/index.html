@@ -452,7 +452,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="anchor" role="tabpanel" aria-labelledby="anchor-tab">
+                    <div class="tab-pane fade" id="anchor" role="tabpanel" aria-labelledby="anchor-tab"
+                         style="position: relative;">
                         <!-- Anchor panel-->
                         <div id="anchor_alarm_is_not_set_message" class="container-fluid align-self-center">
                             <h5>Anchor alarm is not set</h5>
@@ -530,7 +531,10 @@
                                 <div id="anchor-map"></div>
                             </div>
                         </div>
-
+                        <div id="anchor_section_gps_module_is_down_overlay"
+                             style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(255, 0, 0, 0.5); display: none; visibility: hidden; align-items: center; justify-content: center;">
+                            <h3 class="text-white">Anchor alarm is not running because the GPS module is down!</h3>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1624,6 +1628,15 @@ function refreshData() {
                             // recenter the map to the latest boat position
                             anchorMap.getView().setCenter([decimalLon, decimalLat]);
                         }
+
+                        if (data['gps_module_running']) {
+                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.display = 'none';
+                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.visibility = 'hidden';
+                        }
+                        else {
+                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.display = 'flex';
+                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.visibility = 'visible';
+                        }
                     }
                     else {
                         document.getElementById('anchor_container').style.display = 'none';
@@ -1676,6 +1689,7 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
 
 
 
