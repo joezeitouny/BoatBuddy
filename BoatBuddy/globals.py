@@ -8,7 +8,7 @@ LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 EMPTY_METRIC_VALUE = "N/A"
-JSON_RESPONSE_FORMAT_VERSION = 3
+JSON_RESPONSE_FORMAT_VERSION = 4
 
 # Anchor alarm
 EARTH_RADIUS = 6371000  # Approximately 6,371 km

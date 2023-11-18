@@ -92,7 +92,7 @@ class AnchorManager:
         return self.set_anchor(anchor_lat_formatted_string,
                                anchor_lon_formatted_string, allowed_distance)
 
-    def set_anchor(self, latitude, longitude, allowed_distance: int) -> bool:
+    def set_anchor(self, latitude, longitude, allowed_distance: int, preserve_history=False) -> bool:
         # validate the input
         try:
             latlon_anchor = string2latlon(latitude, longitude, 'd%°%m%\'%S%\" %H')
@@ -111,7 +111,8 @@ class AnchorManager:
         self._anchor_timestamp_local = time.localtime()
 
         # reset the history and its associated counter
-        self._position_history = []
+        if not preserve_history:
+            self._position_history = []
 
         # reset the anchor bearing
         self._anchor_bearing = 0

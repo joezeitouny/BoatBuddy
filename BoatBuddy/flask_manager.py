@@ -244,9 +244,13 @@ def set_anchor():
     latitude = request.form.get('latitude')  # Get the latitude value from the request
     longitude = request.form.get('longitude')  # Get the longitude value from the request
     allowed_distance = request.form.get('allowed_distance')  # Get the allowed distance value from the request
+    preserve_history = False
+    if 'preserve_history' in request.form:
+        preserve_history = utils.try_parse_bool(request.form.get('preserve_history'))
 
     return jsonify(
-        application_modules.get_anchor_manager().set_anchor(latitude, longitude, utils.try_parse_int(allowed_distance)))
+        application_modules.get_anchor_manager().set_anchor(latitude, longitude, utils.try_parse_int(allowed_distance),
+                                                            preserve_history))
 
 
 @app.route('/set_anchor_alternative', methods=['POST'])

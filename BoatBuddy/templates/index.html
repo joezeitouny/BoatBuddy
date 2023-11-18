@@ -1205,7 +1205,8 @@ function updateAnchor() {
         method: 'POST',
         data: { latitude: document.getElementById("update_anchor_alarm_latitude_label_id").innerHTML,
                 longitude: document.getElementById("update_anchor_alarm_longitude_label_id").innerHTML,
-                allowed_distance: document.getElementById("update_anchor_alarm_allowed_distance_text_id").value },
+                allowed_distance: document.getElementById("update_anchor_alarm_allowed_distance_text_id").value,
+                preserve_history: true.toString()},
         success: function (response) {
             $('#loading_modal').modal('hide');
             if (!response)
