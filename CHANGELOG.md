@@ -1,3 +1,11 @@
+## 0.8.16 (2023-11-18)
+
+* Layout improvements
+* Update anchor allowed distance during an anchor session no longer erases the boat position history markers
+* Added overlay message to appear when anchor alarm is running and the GPS module goes down
+* Renamed system metrics section to electrical system metrics
+* Version bump to 0.8.16
+
 ## 0.8.15 (2023-11-13)
 
 * Layout improvements
