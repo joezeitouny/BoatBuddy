@@ -590,10 +590,10 @@ anchorMap = new ol.Map({
     controls: []
 });
 
-anchorDecimalLatitude = ''
-anchorDecimalLongitude = ''
-anchorAllowedDistance = ''
-anchorPositionHistory = ''
+anchorDecimalLatitude = '';
+anchorDecimalLongitude = '';
+anchorAllowedDistance = '';
+anchorPositionHistory = '';
 boatMarker = undefined;
 lastPositionLatitude = '';
 lastPositionLongitude = '';
@@ -991,9 +991,6 @@ function redrawMapLayers() {
                 geometry: new ol.geom.Point([decimalLon, decimalLat]),
             });
             positionHistoryVectorSource.addFeature(point);
-
-            lastPositionLatitude = relevantPositionLatitude;
-            lastPositionLongitude = relevantPositionLongitude;
         }
 
         // Add the dots layer to the map
@@ -1134,24 +1131,10 @@ function setAnchor() {
         });
     }
     else {
-        current_latitude = ''
-        current_longitude = ''
-        $.ajax({
-            type: 'GET',
-            url: '/gps_coordinates',
-            async: false, // Synchronous request
-            success: function(data) {
-                current_latitude = data['gps_latitude']
-                current_longitude = data['gps_longitude'];
-            }
-        });
-
         $.ajax({
             url: '/set_anchor_alternative',
             method: 'POST',
-            data: { latitude: current_latitude,
-                    longitude: current_longitude,
-                    bearing: document.getElementById("set_anchor_alarm_bearing_text_id").value,
+            data: { bearing: document.getElementById("set_anchor_alarm_bearing_text_id").value,
                     distance: document.getElementById("set_anchor_alarm_distance_text_id").value,
                     allowed_distance: document.getElementById("set_anchor_alarm_allowed_distance_text_id").value },
             success: function (response) {
@@ -1276,15 +1259,8 @@ function showSetAnchorAlarmModal() {
             document.getElementById('set_anchor_alarm_allowed_distance_text_id').value = data['anchor_alarm_default_allowed_distance'];
 
             // Fill up GPS anchor position from last gps coordinates
-            $.ajax({
-                type: 'GET',
-                url: '/gps_coordinates',
-                async: false, // Synchronous request
-                success: function(data) {
-                    document.getElementById('set_anchor_alarm_latitude_text_id').value = data['gps_latitude']
-                    document.getElementById('set_anchor_alarm_longitude_text_id').value = data['gps_longitude'];
-                }
-            });
+            document.getElementById('set_anchor_alarm_latitude_text_id').value = lastPositionLatitude
+            document.getElementById('set_anchor_alarm_longitude_text_id').value = lastPositionLongitude
 
             // hide the check your input warning message
             document.getElementById('set_anchor_check_your_input_div_id').style.display = 'none';
@@ -1568,89 +1544,6 @@ function refreshData() {
                 document.getElementById('tank2_avg_level').innerHTML = data['tank2_avg_level'];
             }
 
-            // Refresh anchor data if anchor alarm is active
-            $.ajax({
-                type: 'GET',
-                url: '/anchor_alarm_data',
-                async: false, // Synchronous request
-                success: function(data) {
-                    if (data['anchor_alarm_module'] && data['anchor_is_set']) {
-                        if (first_refresh_data_call) {
-                            drawAnchorOnMap(data['anchor_latitude'], data['anchor_longitude'], data['anchor_allowed_distance'], data['position_history']);
-                        }
-
-                        document.getElementById('anchor_alarm_is_not_set_message').style.display = 'none';
-                        document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'hidden';
-                        document.getElementById('anchor_container').style.display = 'block';
-                        document.getElementById('anchor_container').style.visibility = 'visible';
-                        document.getElementById('anchor_latitude').innerHTML = data['anchor_latitude'];
-                        document.getElementById('anchor_longitude').innerHTML = data['anchor_longitude'];
-                        document.getElementById('anchor_start_time').innerHTML = data['anchor_timestamp_local'];
-                        document.getElementById('anchor_start_time_utc').innerHTML = data['anchor_timestamp_utc'];
-                        document.getElementById('current_latitude').innerHTML = data['current_latitude'];
-                        document.getElementById('current_longitude').innerHTML = data['current_longitude'];
-                        document.getElementById('anchor_distance').innerHTML = data['anchor_distance'];
-                        document.getElementById('anchor_allowed_distance').innerHTML = data['anchor_allowed_distance'];
-                        document.getElementById('anchor_duration').innerHTML = formatMinutes(Math.round(data['anchor_duration_in_seconds'] / 60));
-                        document.getElementById('anchor_bearing').innerHTML = data['anchor_bearing'];
-                        document.getElementById('gps_accuracy').innerHTML = data['gps_accuracy'];
-                        document.getElementById('max_anchor_distance').innerHTML = data['max_anchor_distance'];
-
-                        if (data['anchor_distance'] > data['anchor_allowed_distance']) {
-                            document.getElementById("distance_from_anchor_span").classList.remove('text-success');
-                            document.getElementById("distance_from_anchor_span").classList.add('text-danger');
-                        }
-                        else {
-                            document.getElementById("distance_from_anchor_span").classList.remove('text-danger');
-                            document.getElementById("distance_from_anchor_span").classList.add('text-success');
-                        }
-
-                        // draw relevant boat positions on the map
-                        if (data['position_history'] && data['position_history'].length > 0) {
-                            anchorPositionHistory = data['position_history'];
-                            redrawMapLayers();
-                        }
-
-                        // Draw the boat marker on the map for the current boat position
-                        if (boatMarker)
-                            anchorMap.removeOverlay(boatMarker);
-
-                        decimalLon = dmsToDD(data['current_longitude']);
-                        decimalLat = dmsToDD(data['current_latitude']);
-                        boatMarker = new ol.Overlay({
-                          position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
-                          positioning: 'center-center',
-                          element: document.createElement('div')
-                        });
-                        boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
-                        anchorMap.addOverlay(boatMarker);
-
-                        if (document.getElementById('track_current_position_checkbox').checked) {
-                            // recenter the map to the latest boat position
-                            anchorMap.getView().setCenter([decimalLon, decimalLat]);
-                        }
-
-                        if (data['gps_module_running']) {
-                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.display = 'none';
-                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.visibility = 'hidden';
-                        }
-                        else {
-                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.display = 'flex';
-                            document.getElementById('anchor_section_gps_module_is_down_overlay').style.visibility = 'visible';
-                        }
-                    }
-                    else {
-                        document.getElementById('anchor_container').style.display = 'none';
-                        document.getElementById('anchor_container').style.visibility = 'hidden';
-                        document.getElementById('anchor_alarm_is_not_set_message').style.display = 'block';
-                        document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'visible';
-                    }
-                },
-                error: function (error) {
-                    notify_warning('Error while retrieving anchor alarm configuration! Reason: ' + error);
-                }
-            });
-
             if (first_refresh_data_call) {
                 $('#loading_modal').modal('hide');
                 first_refresh_data_call = false;
@@ -1669,10 +1562,107 @@ function refreshData() {
     });
 }
 
+function refreshAnchorData() {
+    // Refresh anchor data if anchor alarm is active
+    $.ajax({
+        type: 'GET',
+        url: '/anchor_alarm_data',
+        success: function(data) {
+            if (data['anchor_alarm_module'] && data['anchor_is_set']) {
+                if (first_refresh_data_call) {
+                    drawAnchorOnMap(data['anchor_latitude'], data['anchor_longitude'], data['anchor_allowed_distance'], data['position_history']);
+                }
+
+                document.getElementById('anchor_alarm_is_not_set_message').style.display = 'none';
+                document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'hidden';
+                document.getElementById('anchor_container').style.display = 'block';
+                document.getElementById('anchor_container').style.visibility = 'visible';
+                document.getElementById('anchor_latitude').innerHTML = data['anchor_latitude'];
+                document.getElementById('anchor_longitude').innerHTML = data['anchor_longitude'];
+                document.getElementById('anchor_start_time').innerHTML = data['anchor_timestamp_local'];
+                document.getElementById('anchor_start_time_utc').innerHTML = data['anchor_timestamp_utc'];
+                document.getElementById('current_latitude').innerHTML = data['current_latitude'];
+                document.getElementById('current_longitude').innerHTML = data['current_longitude'];
+                document.getElementById('anchor_distance').innerHTML = data['anchor_distance'];
+                document.getElementById('anchor_allowed_distance').innerHTML = data['anchor_allowed_distance'];
+                document.getElementById('anchor_duration').innerHTML = formatMinutes(Math.round(data['anchor_duration_in_seconds'] / 60));
+                document.getElementById('anchor_bearing').innerHTML = data['anchor_bearing'];
+                document.getElementById('gps_accuracy').innerHTML = data['gps_accuracy'];
+                document.getElementById('max_anchor_distance').innerHTML = data['max_anchor_distance'];
+
+                if (data['anchor_distance'] > data['anchor_allowed_distance']) {
+                    document.getElementById("distance_from_anchor_span").classList.remove('text-success');
+                    document.getElementById("distance_from_anchor_span").classList.add('text-danger');
+                }
+                else {
+                    document.getElementById("distance_from_anchor_span").classList.remove('text-danger');
+                    document.getElementById("distance_from_anchor_span").classList.add('text-success');
+                }
+
+                // draw relevant boat positions on the map
+                if (data['position_history'] && data['position_history'].length > 0) {
+                    anchorPositionHistory = data['position_history'];
+                    redrawMapLayers();
+                }
+
+                // Draw the boat marker on the map for the current boat position
+                if (boatMarker)
+                    anchorMap.removeOverlay(boatMarker);
+
+                decimalLon = dmsToDD(data['current_longitude']);
+                decimalLat = dmsToDD(data['current_latitude']);
+                boatMarker = new ol.Overlay({
+                  position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
+                  positioning: 'center-center',
+                  element: document.createElement('div')
+                });
+                boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
+                anchorMap.addOverlay(boatMarker);
+
+                if (document.getElementById('track_current_position_checkbox').checked) {
+                    // recenter the map to the latest boat position
+                    anchorMap.getView().setCenter([decimalLon, decimalLat]);
+                }
+
+                if (data['gps_module_running']) {
+                    document.getElementById('anchor_section_gps_module_is_down_overlay').style.display = 'none';
+                    document.getElementById('anchor_section_gps_module_is_down_overlay').style.visibility = 'hidden';
+                }
+                else {
+                    document.getElementById('anchor_section_gps_module_is_down_overlay').style.display = 'flex';
+                    document.getElementById('anchor_section_gps_module_is_down_overlay').style.visibility = 'visible';
+                }
+            }
+            else {
+                document.getElementById('anchor_container').style.display = 'none';
+                document.getElementById('anchor_container').style.visibility = 'hidden';
+                document.getElementById('anchor_alarm_is_not_set_message').style.display = 'block';
+                document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'visible';
+            }
+        },
+        error: function (error) {
+            notify_warning('Error while retrieving anchor alarm configuration! Reason: ' + error);
+        }
+    });
+}
+
+function getGPSPosition() {
+    $.ajax({
+        type: 'GET',
+        url: '/gps_coordinates',
+        success: function(data) {
+            lastPositionLatitude = data['gps_latitude']
+            lastPositionLongitude = data['gps_longitude'];
+        }
+    });
+}
+
 $(document).ready(function() {
     $('#loading_modal').modal('show');
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
+    setInterval(refreshAnchorData, 1000);
+    setInterval(getGPSPosition, 2000);
 });
 
 function notify_success(message) {

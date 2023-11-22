@@ -255,14 +255,21 @@ def set_anchor():
 
 @app.route('/set_anchor_alternative', methods=['POST'])
 def set_anchor_alternative():
-    latitude = request.form.get('latitude')  # Get the latitude value from the request
-    longitude = request.form.get('longitude')  # Get the longitude value from the request
+    # Get current GPS coordinates
+    gps_latitude = ''
+    gps_longitude = ''
+
+    gps_entry = application_modules.get_plugin_manager().get_gps_plugin_metrics()
+    if len(gps_entry) > 0:
+        gps_latitude = gps_entry[0]
+        gps_longitude = gps_entry[1]
+
     bearing = request.form.get('bearing')  # Get the bearing value from the request
     distance = request.form.get('distance')  # Get the distance value from the request
     allowed_distance = request.form.get('allowed_distance')  # Get the allowed distance value from the request
 
     return jsonify(
-        application_modules.get_anchor_manager().set_anchor_alternative(latitude, longitude,
+        application_modules.get_anchor_manager().set_anchor_alternative(gps_latitude, gps_longitude,
                                                                         utils.try_parse_int(bearing),
                                                                         utils.try_parse_int(distance),
                                                                         utils.try_parse_int(allowed_distance)))
