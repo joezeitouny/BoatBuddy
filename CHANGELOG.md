@@ -1,3 +1,10 @@
+## 0.8.17 (2023-11-22)
+
+* Updated third party libraries
+* Removed all synchronous calls from the Web UI
+* Fixed browser reported issues
+* Version bump to 0.8.17
+
 ## 0.8.16 (2023-11-18)
 
 * Layout improvements
