@@ -1,3 +1,8 @@
+## 0.8.18 (2023-11-22)
+
+* Fixed an issue where anchor map doesn't show after a web page refresh
+* Version bump to 0.8.18
+
 ## 0.8.17 (2023-11-22)
 
 * Updated third party libraries

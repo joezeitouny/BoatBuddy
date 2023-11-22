@@ -565,6 +565,7 @@
 
 <script type="text/javascript">
 first_refresh_data_call = true;
+first_refresh_anchor_data_call = true;
 
 {% if session_run_mode == 'manual' %}
 document.getElementById('session_button_id').disabled = false;
@@ -1569,8 +1570,9 @@ function refreshAnchorData() {
         url: '/anchor_alarm_data',
         success: function(data) {
             if (data['anchor_alarm_module'] && data['anchor_is_set']) {
-                if (first_refresh_data_call) {
+                if (first_refresh_anchor_data_call) {
                     drawAnchorOnMap(data['anchor_latitude'], data['anchor_longitude'], data['anchor_allowed_distance'], data['position_history']);
+                    first_refresh_anchor_data_call = false;
                 }
 
                 document.getElementById('anchor_alarm_is_not_set_message').style.display = 'none';
