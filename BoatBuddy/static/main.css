@@ -80,3 +80,85 @@
   left: 10px;
   z-index: 1;
 }
+
+.GaugeMeter-Light {
+  Position: Relative;
+  Text-Align: Center;
+  Overflow: Hidden;
+  Cursor: Default;
+}
+
+.GaugeMeter-Light SPAN,
+.GaugeMeter-Light B{
+    Margin:          0 23%;
+    Width:           54%;
+    Position:        Absolute;
+    Text-align:      Center;
+    Display:         Inline-Block;
+    Color:           RGBa(0,0,0,.8);
+    Font-Weight:     100;
+    Font-Family:     "Open Sans", Arial;
+    Overflow:        Hidden;
+    White-Space:     NoWrap;
+    Text-Overflow:   Ellipsis;
+}
+
+.GaugeMeter-Light[data-style="Semi"] B{
+    Margin:          0 10%;
+    Width:           80%;
+}
+
+.GaugeMeter-Light S,
+.GaugeMeter-Light U{
+    Text-Decoration: None;
+    Font-Size:       .5em;
+    Opacity:         .5;
+}
+
+.GaugeMeter-Light B{
+    Color:           Black;
+    Font-Weight:     300;
+    Font-Size:       .9em;
+    Opacity:         1;
+}
+
+.GaugeMeter-Dark {
+  Position: Relative;
+  Text-Align: Center;
+  Overflow: Hidden;
+  Cursor: Default;
+}
+
+.GaugeMeter-Dark SPAN,
+.GaugeMeter-Dark B{
+    Margin:          0 23%;
+    Width:           54%;
+    Position:        Absolute;
+    Text-align:      Center;
+    Display:         Inline-Block;
+    Color:           RGBa(255,255,255,1);
+    Font-Weight:     100;
+    Font-Family:     "Open Sans", Arial;
+    Overflow:        Hidden;
+    White-Space:     NoWrap;
+    Text-Overflow:   Ellipsis;
+}
+
+.GaugeMeter-Dark[data-style="Semi"] B{
+    Margin:          0 10%;
+    Width:           80%;
+}
+
+.GaugeMeter-Dark S,
+.GaugeMeter-Dark U{
+    Text-Decoration: None;
+    Font-Size:       .5em;
+    Opacity:         .5;
+}
+
+.GaugeMeter-Dark B{
+    Color:           white;
+    Font-Weight:     300;
+    Font-Size:       .9em;
+    Opacity:         1;
+}

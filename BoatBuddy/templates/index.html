@@ -65,7 +65,7 @@
             <div class="modal-footer">
                 <div class="d-flex col" id="set_anchor_check_your_input_div_id"
                      style="visibility: hidden; display: none">
-                    <div class="text-danger">Check your input! </div>
+                    <div class="text-danger">Check your input!</div>
                 </div>
                 <button type="button" class="btn btn-success" onclick="setAnchor()">
                     Set Anchor
@@ -135,7 +135,7 @@
             <div class="modal-footer">
                 <div class="d-flex col" id="update_anchor_check_your_input_div_id"
                      style="visibility: hidden; display: none">
-                    <div class="text-danger">Check your input! </div>
+                    <div class="text-danger">Check your input!</div>
                 </div>
                 <button type="button" class="btn btn-success" onclick="updateAnchor()">
                     <span>Update</span>
@@ -182,97 +182,115 @@
 
 <div class="container-fluid">
     <div class="d-lg-flex flex-lg-row d-sm-flex flex-sm-row mb-1">
-        <div class="col-lg-5 col-md-4 col-sm-4 m-2 border border-5 border-success rounded text-center">
+        <div class="col-xl-4 col-lg-5 col-md-4 col-sm-4 m-2 border border-5 border-success rounded text-center">
             <!-- System metrics column-->
             <h5 class="fw-bolder mb-2">Electrical system metrics</h5>
             <div class="container">
-                <div class="row">
-                    <div class="col">
-                        <div class="mb-1" style="font-weight: regular;">Battery SOC</div>
-                        <canvas id="battery_soc_gauge" style="width: 200px; height: 95px;"></canvas>
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <span>
-                                    <span id="battery_soc_value"></span>&nbsp;%
-                                </span>
-                            </div>
-                        </div>
+                <div class="row align-items-center">
+                    <div class="col d-flex justify-content-center">
+                        <div class="GaugeMeter-Light" id="battery_soc_gauge"
+                             data-min="0"
+                             data-total="100"
+                             data-size="170"
+                             data-append="%"
+                             data-theme="Red-Gold-Green"
+                             data-width="15"
+                             data-style="Arch"
+                             data-animate_gauge_colors=false
+                             data-animate_text_colors=false
+                             data-label="Battery SOC"
+                             data-text_size="0.22"
+                             data-animationstep=0
+                             data-back="Silver"
+                        ></div>
                     </div>
-                    <div class="col">
-                        <div class="mb-1" style="font-weight: regular;">Fuel Tank Level</div>
-                        <canvas id="fuel_tank_gauge" style="width: 200px; height: 95px;"></canvas>
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <span>
-                                    <span id="fuel_tank_value"></span>&nbsp;%
-                                </span>
-                            </div>
-                        </div>
+                    <div class="col d-flex justify-content-center">
+                        <div class="GaugeMeter-Light" id="fuel_tank_gauge"
+                             data-min="0"
+                             data-total="100"
+                             data-size="170"
+                             data-append="%"
+                             data-theme="Red-Gold-Green"
+                             data-width="15"
+                             data-style="Arch"
+                             data-animate_gauge_colors=false
+                             data-animate_text_colors=false
+                             data-label="Fuel Tank"
+                             data-text_size="0.22"
+                             data-animationstep=0
+                             data-back="Silver"
+                        ></div>
                     </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col">
-                        <div class="mb-1" style="font-weight: regular;">Starter Batt. V.</div>
-                        <canvas id="starter_battery_voltage_gauge" style="width: 200px; height: 95px;"></canvas>
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <span>
-                                    <span id="starter_battery_voltage_value"></span>&nbsp;V
-                                </span>
-                            </div>
-                        </div>
+                    <div class="col d-flex justify-content-center">
+                        <div class="GaugeMeter-Light" id="starter_battery_voltage_gauge"
+                             data-min="11"
+                             data-total="15"
+                             data-size="170"
+                             data-append="V"
+                             data-theme="Red-Gold-Green"
+                             data-width="15"
+                             data-style="Arch"
+                             data-animate_gauge_colors=false
+                             data-animate_text_colors=false
+                             data-label="Starter Batt"
+                             data-text_size="0.22"
+                             data-animationstep=0
+                             data-showvalue=true
+                             data-back="Silver"
+                        ></div>
                     </div>
-                    <div class="col">
-                        <div class="mb-1" style="font-weight: regular;">Water Tank Level</div>
-                        <canvas id="water_tank_gauge" style="width: 200px; height: 95px;"></canvas>
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <span>
-                                    <span id="water_tank_value"></span>&nbsp;%
-                                </span>
-                            </div>
-                        </div>
+                    <div class="col d-flex justify-content-center">
+                        <div class="GaugeMeter-Light" id="water_tank_gauge"
+                             data-min="0"
+                             data-total="100"
+                             data-size="170"
+                             data-append="%"
+                             data-theme="Red-Gold-Green"
+                             data-width="15"
+                             data-style="Arch"
+                             data-animate_gauge_colors=false
+                             data-animate_text_colors=false
+                             data-label="Water Tank"
+                             data-text_size="0.22"
+                             data-animationstep=0
+                             data-back="Silver"
+                        ></div>
                     </div>
-                </div>
-                <div class="row mt-2 mb-2 align-items-center">
-                    <div class="col">
-                        <div class="mb-1" style="font-weight: regular;">PV Power</div>
-                        <canvas id="pv_power_gauge" style="width: 200px; height: 95px;"></canvas>
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <span>
-                                    <span id="pv_power_value"></span>&nbsp;W
-                                </span>
-                            </div>
-                        </div>
+                    <div class="col d-flex justify-content-center">
+                        <div class="GaugeMeter-Light" id="pv_power_gauge"
+                             data-min="0"
+                             data-total="450"
+                             data-size="170"
+                             data-append="W"
+                             data-theme="Red-Gold-Green"
+                             data-width="15"
+                             data-style="Arch"
+                             data-animate_gauge_colors=false
+                             data-animate_text_colors=false
+                             data-label="PV Power"
+                             data-text_size="0.22"
+                             data-animationstep=0
+                             data-showvalue=true
+                             data-back="Silver"
+                        ></div>
                     </div>
-                    <div class="col">
+                    <div class="col d-flex justify-content-center">
                         <div id="summary-box-id"
                              class="container border-1 border border-light rounded gx-0 gy-0 text-start">
-                            <div class="row ms-1 mt-1">
-                                <span>
-                                    Active input source:&nbsp;<span id="active_input_source_value">N/A</span>
-                                </span>
+                            <div class="row ps-1 pt-1">
+                                <span>Active Input Src:&nbsp;<span id="active_input_source_value">N/A</span></span>
                             </div>
-                            <div class="row ms-1">
-                                <span>
-                                    VE.Bus state:&nbsp;<span id="ve_bus_state_value">N/A</span>
-                                </span>
+                            <div class="row ps-1">
+                                <span>VE.Bus State:&nbsp;<span id="ve_bus_state_value">N/A</span></span>
                             </div>
-                            <div class="row ms-1">
-                                <span>
-                                    Housing battery state:&nbsp;<span id="housing_battery_state_value">N/A</span>
-                                </span>
+                            <div class="row ps-1">
+                                <span>Housing Batt. State:&nbsp;<span id="housing_battery_state_value">N/A</span></span>
                             </div>
-                            <div class="row ms-1">
-                                <span>
-                                    Housing battery current:&nbsp;<span id="housing_battery_current_value">N/A</span>A
-                                </span>
+                            <div class="row ps-1">
+                                <span>Housing Batt. Current:&nbsp;<span id="housing_battery_current_value">N/A</span>A</span>
                             </div>
-                            <div class="row ms-1 mb-1">
-                                <span>
-                                    PV current:&nbsp;<span id="pv_current_value">N/A</span>A
-                                </span>
+                            <div class="row ps-1 pb-1">
+                                <span>PV Current:&nbsp;<span id="pv_current_value">N/A</span>A</span>
                             </div>
                         </div>
                     </div>
@@ -603,202 +621,6 @@ const connectionLostModal = new bootstrap.Modal(document.getElementById('connect
 const setAnchorAlarmModal = new bootstrap.Modal(document.getElementById('set_anchor_alarm_modal'), {backdrop: 'static'});
 const updateAnchorAlarmModal = new bootstrap.Modal(document.getElementById('update_anchor_alarm_modal'), {backdrop: 'static'});
 const cancelAnchorAlarmModal = new bootstrap.Modal(document.getElementById('cancel_anchor_alarm_modal'), {backdrop: 'static'});
-
-var common_gauge_options_dark = {
-  angle: 0.15, // The span of the gauge arc
-  lineWidth: 0.44, // The line thickness
-  radiusScale: 1, // Relative radius
-  pointer: {
-    length: 0.6, // // Relative to gauge radius
-    strokeWidth: 0.035, // The thickness
-    color: '#ffffff' // Fill color
-  },
-  limitMax: false,     // If false, max value increases automatically if value > maxValue
-  limitMin: false,     // If true, the min value of the gauge will be fixed
-  percentColors: [[0.0, "#ff0000" ], [0.5, "#f9c802"], [1, "#a9d70b"]], // !!!!
-  colorStart: '#6FADCF',   // Colors
-  colorStop: '#8FC0DA',    // just experiment with them
-  strokeColor: '#E0E0E0',  // to see which ones work best for you
-  generateGradient: true,
-  highDpiSupport: true,     // High resolution support
-  staticLabels: {
-  font: "10px sans-serif",  // Specifies font
-  labels: [25, 50, 75, 100],  // Print labels at these values
-  color: "#ffffff",  // Optional: Label text color
-  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
-	},
-};
-
-var common_gauge_options_light = {
-  angle: 0.15, // The span of the gauge arc
-  lineWidth: 0.44, // The line thickness
-  radiusScale: 1, // Relative radius
-  pointer: {
-    length: 0.6, // // Relative to gauge radius
-    strokeWidth: 0.035, // The thickness
-    color: '#000000' // Fill color
-  },
-  limitMax: false,     // If false, max value increases automatically if value > maxValue
-  limitMin: false,     // If true, the min value of the gauge will be fixed
-  percentColors: [[0.0, "#ff0000" ], [0.5, "#f9c802"], [1, "#a9d70b"]], // !!!!
-  colorStart: '#6FADCF',   // Colors
-  colorStop: '#8FC0DA',    // just experiment with them
-  strokeColor: '#E0E0E0',  // to see which ones work best for you
-  generateGradient: true,
-  highDpiSupport: true,     // High resolution support
-  staticLabels: {
-  font: "10px sans-serif",  // Specifies font
-  labels: [25, 50, 75, 100],  // Print labels at these values
-  color: "#000000",  // Optional: Label text color
-  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
-	},
-};
-
-var battery_voltage_gauge_options_dark = {
-  lines: 12,
-  angle: 0.15,
-  lineWidth: 0.44,
-  pointer: {
-    length: 0.6, // // Relative to gauge radius
-    strokeWidth: 0.035, // The thickness
-    color: '#ffffff' // Fill color
-  },
-  limitMax: 'false',
-  percentColors: [[0.0, "#ff0000" ], [0.6, "#f9c802"], [0.7, "#a9d70b"]], // !!!!
-  strokeColor: '#E0E0E0',
-  generateGradient: true,
-  staticLabels: {
-  font: "10px sans-serif",  // Specifies font
-  labels: [11, 12, 13, 14],  // Print labels at these values
-  color: "#ffffff",  // Optional: Label text color
-  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
-    },
-    renderTicks: {
-          divisions: 3,
-          divWidth: 1.2,
-          divLength: 0.7,
-          divColor: "#333333",
-          subDivisions: 3,
-          subLength: 0.5,
-          subWidth: 0.6,
-          subColor: "#666666",
-        },
-};
-
-var battery_voltage_gauge_options_light = {
-  lines: 12,
-  angle: 0.15,
-  lineWidth: 0.44,
-  pointer: {
-    length: 0.6, // // Relative to gauge radius
-    strokeWidth: 0.035, // The thickness
-    color: '#000000' // Fill color
-  },
-  limitMax: 'false',
-  percentColors: [[0.0, "#ff0000" ], [0.6, "#f9c802"], [0.7, "#a9d70b"]], // !!!!
-  strokeColor: '#E0E0E0',
-  generateGradient: true,
-  staticLabels: {
-  font: "10px sans-serif",  // Specifies font
-  labels: [11, 12, 13, 14],  // Print labels at these values
-  color: "#000000",  // Optional: Label text color
-  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
-    },
-    renderTicks: {
-          divisions: 3,
-          divWidth: 1.2,
-          divLength: 0.7,
-          divColor: "#333333",
-          subDivisions: 3,
-          subLength: 0.5,
-          subWidth: 0.6,
-          subColor: "#666666",
-        },
-};
-
-var power_gauge_options_dark = {
-  angle: 0.15, // The span of the gauge arc
-  lineWidth: 0.44, // The line thickness
-  radiusScale: 1, // Relative radius
-  pointer: {
-    length: 0.6, // // Relative to gauge radius
-    strokeWidth: 0.035, // The thickness
-    color: '#ffffff' // Fill color
-  },
-  limitMax: false,     // If false, max value increases automatically if value > maxValue
-  limitMin: false,     // If true, the min value of the gauge will be fixed
-  percentColors: [[0.0, "#ff0000" ], [0.5, "#f9c802"], [1, "#a9d70b"]], // !!!!
-  colorStart: '#6FADCF',   // Colors
-  colorStop: '#8FC0DA',    // just experiment with them
-  strokeColor: '#E0E0E0',  // to see which ones work best for you
-  generateGradient: true,
-  highDpiSupport: true,     // High resolution support
-  staticLabels: {
-  font: "10px sans-serif",  // Specifies font
-  labels: [100, 200, 300, 400, 450],  // Print labels at these values
-  color: "#ffffff",  // Optional: Label text color
-  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
-	},
-};
-
-var power_gauge_options_light = {
-  angle: 0.15, // The span of the gauge arc
-  lineWidth: 0.44, // The line thickness
-  radiusScale: 1, // Relative radius
-  pointer: {
-    length: 0.6, // // Relative to gauge radius
-    strokeWidth: 0.035, // The thickness
-    color: '#000000' // Fill color
-  },
-  limitMax: false,     // If false, max value increases automatically if value > maxValue
-  limitMin: false,     // If true, the min value of the gauge will be fixed
-  percentColors: [[0.0, "#ff0000" ], [0.5, "#f9c802"], [1, "#a9d70b"]], // !!!!
-  colorStart: '#6FADCF',   // Colors
-  colorStop: '#8FC0DA',    // just experiment with them
-  strokeColor: '#E0E0E0',  // to see which ones work best for you
-  generateGradient: true,
-  highDpiSupport: true,     // High resolution support
-  staticLabels: {
-  font: "10px sans-serif",  // Specifies font
-  labels: [100, 200, 300, 400, 450],  // Print labels at these values
-  color: "#000000",  // Optional: Label text color
-  fractionDigits: 0  // Optional: Numerical precision. 0=round off.
-	},
-};
-
-var battery_soc_gauge_target = document.getElementById('battery_soc_gauge');
-var battery_soc_gauge = new Gauge(battery_soc_gauge_target).setOptions(common_gauge_options_light);
-battery_soc_gauge.maxValue = 100; // set max gauge value
-battery_soc_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
-battery_soc_gauge.setTextField(document.getElementById("battery_soc_value"));
-battery_soc_gauge.animationSpeed = 32; // set animation speed (32 is default value)
-
-var starter_battery_voltage_gauge_target = document.getElementById('starter_battery_voltage_gauge');
-var starter_battery_voltage_gauge = new Gauge(starter_battery_voltage_gauge_target).setOptions(battery_voltage_gauge_options_dark);
-starter_battery_voltage_gauge.maxValue = 14; // set max gauge value
-starter_battery_voltage_gauge.setMinValue(11);  // Prefer setter over gauge.minValue = 0
-starter_battery_voltage_gauge.setTextField(document.getElementById("starter_battery_voltage_value"));
-starter_battery_voltage_gauge.animationSpeed = 32; // set animation speed (32 is default value)
-
-var pv_power_gauge_target = document.getElementById('pv_power_gauge');
-var pv_power_gauge = new Gauge(pv_power_gauge_target).setOptions(power_gauge_options_dark);
-pv_power_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
-pv_power_gauge.setTextField(document.getElementById("pv_power_value"));
-pv_power_gauge.animationSpeed = 32; // set animation speed (32 is default value)
-
-var fuel_tank_gauge_target = document.getElementById('fuel_tank_gauge');
-var fuel_tank_gauge = new Gauge(fuel_tank_gauge_target).setOptions(common_gauge_options_dark);
-fuel_tank_gauge.maxValue = 100; // set max gauge value
-fuel_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
-fuel_tank_gauge.setTextField(document.getElementById("fuel_tank_value"));
-fuel_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
-
-var water_tank_gauge_target = document.getElementById('water_tank_gauge');
-var water_tank_gauge = new Gauge(water_tank_gauge_target).setOptions(common_gauge_options_dark);
-water_tank_gauge.maxValue = 100; // set max gauge value
-water_tank_gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
-water_tank_gauge.setTextField(document.getElementById("water_tank_value"));
-water_tank_gauge.animationSpeed = 32; // set animation speed (32 is default value)
 
 // Create the OpenStreetMap layer
 const osmLayer = new ol.layer.Tile({
@@ -1360,11 +1182,13 @@ function switch_to_light_mode() {
     document.getElementById("navbar-element-id").classList.add('bg-primary');
     document.getElementById("summary-box-id").classList.add('border-dark');
     document.getElementById("summary-box-id").classList.remove('border-light');
-    battery_soc_gauge.setOptions(common_gauge_options_light);
-    starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_light);
-    pv_power_gauge.setOptions(power_gauge_options_light);
-    fuel_tank_gauge.setOptions(common_gauge_options_light);
-    water_tank_gauge.setOptions(common_gauge_options_light);
+
+    const gauges = document.querySelectorAll(".GaugeMeter-Dark");
+    gauges.forEach(gauge => {
+        gauge.classList.remove('GaugeMeter-Dark');
+        gauge.classList.add('GaugeMeter-Light');
+        gauge.setAttribute("data-label_color", "Black");
+    });
 }
 
 function switch_to_dark_mode() {
@@ -1378,11 +1202,13 @@ function switch_to_dark_mode() {
     document.getElementById("navbar-element-id").classList.add('bg-dark');
     document.getElementById("summary-box-id").classList.add('border-light');
     document.getElementById("summary-box-id").classList.remove('border-dark');
-    battery_soc_gauge.setOptions(common_gauge_options_dark);
-    starter_battery_voltage_gauge.setOptions(battery_voltage_gauge_options_dark);
-    pv_power_gauge.setOptions(power_gauge_options_dark);
-    fuel_tank_gauge.setOptions(common_gauge_options_dark);
-    water_tank_gauge.setOptions(common_gauge_options_dark);
+
+    const gauges = document.querySelectorAll(".GaugeMeter-Light");
+    gauges.forEach(gauge => {
+        gauge.classList.remove('GaugeMeter-Light');
+        gauge.classList.add('GaugeMeter-Dark');
+        gauge.setAttribute("data-label_color", "White");
+    });
 }
 
 // Function to format minutes into "%d days %h hours %m minutes"
@@ -1422,17 +1248,11 @@ function refreshData() {
             }
 
             if (data['victron_module']) {
-                battery_soc_gauge.set(data['battery_soc']);
-                document.getElementById('battery_soc_value').innerHTML = data['battery_soc'];
-                starter_battery_voltage_gauge.set(data['starter_battery_voltage']);
-                document.getElementById('starter_battery_voltage_value').innerHTML = data['starter_battery_voltage'];
-                pv_power_gauge.maxValue = data['pv_max_configured_power']
-                pv_power_gauge.set(data['pv_power']);
-                document.getElementById('pv_power_value').innerHTML = data['pv_power'];
-                fuel_tank_gauge.set(data['fuel_tank']);
-                document.getElementById('fuel_tank_value').innerHTML = data['fuel_tank'];
-                water_tank_gauge.set(data['water_tank']);
-                document.getElementById('water_tank_value').innerHTML = data['water_tank'];
+                $("#battery_soc_gauge").gaugeMeter({used:parseInt(data['battery_soc'])});
+                $("#starter_battery_voltage_gauge").gaugeMeter({used:parseInt(data['starter_battery_voltage'])});
+                $("#pv_power_gauge").gaugeMeter({used:parseInt(data['pv_power'])});
+                $("#fuel_tank_gauge").gaugeMeter({used:parseInt(data['fuel_tank'])});
+                $("#water_tank_gauge").gaugeMeter({used:parseInt(data['water_tank'])});
                 document.getElementById('active_input_source_value').innerHTML = data['active_input_source'];
                 document.getElementById('ve_bus_state_value').innerHTML = data['ve_bus_state'];
                 document.getElementById('housing_battery_state_value').innerHTML = data['housing_battery_state'];
@@ -1661,6 +1481,7 @@ function getGPSPosition() {
 
 $(document).ready(function() {
     $('#loading_modal').modal('show');
+    $(".GaugeMeter").gaugeMeter();
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
     setInterval(refreshAnchorData, 1000);
@@ -1682,6 +1503,9 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
+
+
+
 
 
 
