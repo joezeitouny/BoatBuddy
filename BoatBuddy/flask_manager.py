@@ -149,10 +149,12 @@ def index():
     session_run_mode = str(application_modules.get_options().session_run_mode).lower()
     anchor_alarm_module = application_modules.get_options().anchor_alarm_module
     anchor_alarm_mapbox_api_key = application_modules.get_options().anchor_alarm_mapbox_api_key
+    metrics_electrical_system = application_modules.get_options().metrics_electrical_system
 
     return render_template('index.html', application_name=application_name, application_version=application_version,
                            session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module,
-                           anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key)
+                           anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key,
+                           metrics_electrical_system=metrics_electrical_system)
 
 
 @app.route('/toggle_session')
@@ -314,11 +316,9 @@ def get_data():
     starter_battery_voltage = 0.0
     fuel_tank = 0
     water_tank = 0
-    pv_max_configured_power = 0
     pv_power = 0
     if application_modules.get_options().victron_module:
         victron_module = True
-        pv_max_configured_power = application_modules.get_options().victron_pv_max_power
         # Populate the victron layout
         plugin_status = application_modules.get_plugin_manager().get_victron_plugin_status()
         victron_status = get_plugin_status_str(plugin_status)
@@ -438,7 +438,7 @@ def get_data():
             'battery_soc': battery_soc,
             'victron_status': victron_status,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,
-            'starter_battery_voltage': starter_battery_voltage, 'pv_max_configured_power': pv_max_configured_power,
+            'starter_battery_voltage': starter_battery_voltage,
             'pv_power': pv_power,
             'active_input_source': active_input_source, 've_bus_state': ve_bus_state,
             'housing_battery_state': housing_battery_state, 'housing_battery_current': housing_battery_current,

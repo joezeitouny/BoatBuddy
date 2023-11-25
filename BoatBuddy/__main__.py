@@ -52,7 +52,6 @@ if __name__ == '__main__':
             options.victron_module = utils.try_parse_bool(data['victron']['victron_module'])
             options.victron_server_ip = data['victron']['victron_server_ip']
             options.victron_tcp_port = utils.try_parse_int(data['victron']['victron_tcp_port'])
-            options.victron_pv_max_power = utils.try_parse_int(data['victron']['victron_pv_max_power'])
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
             options.anchor_alarm_module = utils.try_parse_bool(data['anchor_alarm']['anchor_alarm_module'])
@@ -102,6 +101,7 @@ if __name__ == '__main__':
             options.log_module = utils.try_parse_bool(data['log']['log_module'])
             options.log_level = data['log']['log_level']
             options.sound_module = utils.try_parse_bool(data['sound']['sound_module'])
+            options.metrics_electrical_system = data['metrics']['metrics_electrical_system']
             options.metrics_colouring_scheme = data['metrics']['metrics_colouring_scheme']
             options.metrics_notifications_rules = data['metrics']['metrics_notifications_rules']
             options.modules_notifications_rules = data['modules']['modules_notifications_rules']

@@ -22,8 +22,7 @@
   "victron": {
     "victron_module": "True",
     "victron_server_ip": "",
-    "victron_tcp_port": "502",
-    "victron_pv_max_power": "760"
+    "victron_tcp_port": "502"
   },
   "gps": {
     "gps_module": "True",
@@ -179,6 +178,80 @@
     "sound_module": "True"
   },
   "metrics": {
+    "metrics_electrical_system": {
+      "battery_soc_gauge" : {
+        "order": "1",
+        "name": "Battery SOC",
+        "data_field": "battery_soc",
+        "type": "gauge",
+        "max_value": 100,
+        "min_value": 0,
+        "style": "common_gauge"
+      },
+      "fuel_tank_gauge": {
+        "order": "2",
+        "name": "Fuel Tank Level",
+        "data_field": "fuel_tank",
+        "type": "gauge",
+        "max_value": 100,
+        "min_value": 0,
+        "style": "common_gauge"
+      },
+      "starter_battery_voltage_gauge": {
+        "order": "3",
+        "name": "Starter Batt. V.",
+        "data_field": "starter_battery_voltage",
+        "type": "gauge",
+        "max_value": 14,
+        "min_value": 11,
+        "style": "battery_voltage_gauge"
+      },
+      "water_tank_gauge": {
+        "order": "4",
+        "name": "Water Tank Level",
+        "data_field": "water_tank",
+        "type": "gauge",
+        "max_value": 100,
+        "min_value": 0,
+        "style": "common_gauge"
+      },
+      "pv_power_gauge" : {
+        "order": "5",
+        "name": "PV Power",
+        "data_field": "pv_power",
+        "type": "gauge",
+        "max_value": 760,
+        "min_value": 0,
+        "style": "power_gauge"
+      },
+      "summary-box": {
+        "order": "6",
+        "type": "list",
+        "items": {
+          "active_input_source": {
+            "name": "Active input source",
+            "data_field": "active_input_source"
+          },
+          "ve_bus_state": {
+            "name": "VE.Bus state",
+            "data_field": "ve_bus_state"
+          },
+          "housing_battery_state": {
+            "name": "Housing battery state",
+            "data_field": "housing_battery_state"
+          },
+          "housing_battery_current": {
+            "name": "Housing battery current",
+            "data_field": "housing_battery_current"
+          },
+          "pv_current": {
+            "name": "PV current",
+            "data_field": "pv_current"
+          }
+        }
+      }
+    },
+    "metrics_nmea": {},
     "metrics_colouring_scheme": {
       "[GX] Tank 1 lvl (%)": {
         "green": [

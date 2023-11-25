@@ -186,115 +186,7 @@
             <!-- System metrics column-->
             <h5 class="fw-bolder mb-2">Electrical system metrics</h5>
             <div class="container">
-                <div class="row align-items-center">
-                    <div class="col d-flex justify-content-center">
-                        <div class="GaugeMeter-Light" id="battery_soc_gauge"
-                             data-min="0"
-                             data-total="100"
-                             data-size="170"
-                             data-append="%"
-                             data-theme="Red-Gold-Green"
-                             data-width="15"
-                             data-style="Arch"
-                             data-animate_gauge_colors=false
-                             data-animate_text_colors=false
-                             data-label="Battery SOC"
-                             data-text_size="0.22"
-                             data-animationstep=0
-                             data-back="Silver"
-                        ></div>
-                    </div>
-                    <div class="col d-flex justify-content-center">
-                        <div class="GaugeMeter-Light" id="fuel_tank_gauge"
-                             data-min="0"
-                             data-total="100"
-                             data-size="170"
-                             data-append="%"
-                             data-theme="Red-Gold-Green"
-                             data-width="15"
-                             data-style="Arch"
-                             data-animate_gauge_colors=false
-                             data-animate_text_colors=false
-                             data-label="Fuel Tank"
-                             data-text_size="0.22"
-                             data-animationstep=0
-                             data-back="Silver"
-                        ></div>
-                    </div>
-                    <div class="col d-flex justify-content-center">
-                        <div class="GaugeMeter-Light" id="starter_battery_voltage_gauge"
-                             data-min="11"
-                             data-total="15"
-                             data-size="170"
-                             data-append="V"
-                             data-theme="Red-Gold-Green"
-                             data-width="15"
-                             data-style="Arch"
-                             data-animate_gauge_colors=false
-                             data-animate_text_colors=false
-                             data-label="Starter Batt"
-                             data-text_size="0.22"
-                             data-animationstep=0
-                             data-showvalue=true
-                             data-back="Silver"
-                        ></div>
-                    </div>
-                    <div class="col d-flex justify-content-center">
-                        <div class="GaugeMeter-Light" id="water_tank_gauge"
-                             data-min="0"
-                             data-total="100"
-                             data-size="170"
-                             data-append="%"
-                             data-theme="Red-Gold-Green"
-                             data-width="15"
-                             data-style="Arch"
-                             data-animate_gauge_colors=false
-                             data-animate_text_colors=false
-                             data-label="Water Tank"
-                             data-text_size="0.22"
-                             data-animationstep=0
-                             data-back="Silver"
-                        ></div>
-                    </div>
-                    <div class="col d-flex justify-content-center">
-                        <div class="GaugeMeter-Light" id="pv_power_gauge"
-                             data-min="0"
-                             data-total="450"
-                             data-size="170"
-                             data-append="W"
-                             data-theme="Red-Gold-Green"
-                             data-width="15"
-                             data-style="Arch"
-                             data-animate_gauge_colors=false
-                             data-animate_text_colors=false
-                             data-label="PV Power"
-                             data-text_size="0.22"
-                             data-animationstep=0
-                             data-showvalue=true
-                             data-back="Silver"
-                        ></div>
-                    </div>
-                    <div class="col d-flex justify-content-center">
-                        <div id="summary-box-id"
-                             class="container border-1 border border-light rounded gx-0 gy-0 text-start">
-                            <div class="row ps-1 pt-1">
-                                <span>Active Input Src:&nbsp;<span id="active_input_source_value">N/A</span></span>
-                            </div>
-                            <div class="row ps-1">
-                                <span>VE.Bus State:&nbsp;<span id="ve_bus_state_value">N/A</span></span>
-                            </div>
-                            <div class="row ps-1">
-                                <span>Housing Batt. State:&nbsp;<span id="housing_battery_state_value">N/A</span></span>
-                            </div>
-                            <div class="row ps-1">
-                                <span>Housing Batt. Current:&nbsp;<span id="housing_battery_current_value">N/A</span>A</span>
-                            </div>
-                            <div class="row ps-1 pb-1">
-                                <span>PV Current:&nbsp;<span id="pv_current_value">N/A</span>A</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="row align-items-center" id="electrical_system_metrics_row_id"></div>
             </div>
         </div>
         <div class="col m-2">
@@ -621,6 +513,114 @@ const connectionLostModal = new bootstrap.Modal(document.getElementById('connect
 const setAnchorAlarmModal = new bootstrap.Modal(document.getElementById('set_anchor_alarm_modal'), {backdrop: 'static'});
 const updateAnchorAlarmModal = new bootstrap.Modal(document.getElementById('update_anchor_alarm_modal'), {backdrop: 'static'});
 const cancelAnchorAlarmModal = new bootstrap.Modal(document.getElementById('cancel_anchor_alarm_modal'), {backdrop: 'static'});
+
+{% if metrics_electrical_system | length > 0 %}
+var metrics_electrical_system_dictionary = {{ metrics_electrical_system|tojson|safe }};
+var elementsList = {};
+
+// Draw electrical system panel components
+for (var key in metrics_electrical_system_dictionary) {
+    if (metrics_electrical_system_dictionary.hasOwnProperty(key)) {
+        var currentItem = metrics_electrical_system_dictionary[key];
+
+        if (currentItem['type'] == 'gauge') {
+            // Create a new col element
+            var col = document.createElement('div');
+            col.className = "col d-flex justify-content-center";
+
+            var gaugeDiv = document.createElement('div');
+            gaugeDiv.className = "GaugeMeter-Light";
+            gaugeDiv.id = key;
+            gaugeDiv.setAttribute("data-label", currentItem['name']);
+
+            if (currentItem['style'] == 'common_gauge') {
+                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-size", "170");
+                gaugeDiv.setAttribute("data-append", "%");
+                gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Arch");
+                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                gaugeDiv.setAttribute("data-animate_text_colors", false);
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-animationstep", 0);
+                gaugeDiv.setAttribute("data-back", "Silver");
+            } else if (currentItem['style'] == 'battery_voltage_gauge') {
+                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-size", "170");
+                gaugeDiv.setAttribute("data-append", "V");
+                gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Arch");
+                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                gaugeDiv.setAttribute("data-animate_text_colors", false);
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-animationstep", 0);
+                gaugeDiv.setAttribute("data-showvalue", true);
+                gaugeDiv.setAttribute("data-back", "Silver");
+            } else if (currentItem['style'] == 'power_gauge') {
+                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-size", "170");
+                gaugeDiv.setAttribute("data-append", "W");
+                gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Arch");
+                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                gaugeDiv.setAttribute("data-animate_text_colors", false);
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-animationstep", 0);
+                gaugeDiv.setAttribute("data-showvalue", true);
+                gaugeDiv.setAttribute("data-back", "Silver");
+            }
+
+            col.appendChild(gaugeDiv)
+
+            elementsList[currentItem['order']] = col;
+        } else if (currentItem['type'] == 'list') {
+            // Create a new col element
+            var col = document.createElement('div');
+            col.className = "col d-flex justify-content-center";
+
+            var summaryBox = document.createElement('div');
+            summaryBox.id = "summary-box-id";
+            summaryBox.className = "container border-1 border border-light rounded gx-0 gy-0 text-start";
+            col.appendChild(summaryBox);
+
+            itemsList = currentItem['items'];
+            for (var listItemKey in itemsList) {
+                if (itemsList.hasOwnProperty(listItemKey)) {
+                    var row = document.createElement('div');
+                    row.className = "row ps-1";
+                    summaryBox.appendChild(row);
+
+                    var nameField = document.createElement('span');
+                    nameField.textContent = itemsList[listItemKey]['name'] + ": ";
+                    row.appendChild(nameField);
+
+                    var valueField = document.createElement('span');
+                    valueField.id = listItemKey;
+                    nameField.appendChild(valueField);
+                }
+            }
+
+            elementsList[currentItem['order']] = col;
+        }
+    }
+}
+
+if (Object.entries(elementsList).length > 0) {
+    document.getElementById('electrical_system_metrics_row_id').appendChild(elementsList[Object.entries(elementsList).length.toString()]);
+
+    if (Object.entries(elementsList).length > 1) {
+        for (let i = Object.entries(elementsList).length - 1; i > 0; i--) {
+            document.getElementById('electrical_system_metrics_row_id').insertBefore(elementsList[i.toString()], document.getElementById('electrical_system_metrics_row_id').childNodes[0])
+        }
+    }
+}
+{% endif %}
 
 // Create the OpenStreetMap layer
 const osmLayer = new ol.layer.Tile({
@@ -1180,8 +1180,11 @@ function switch_to_light_mode() {
     document.getElementById("body-element-id").classList.remove('text-light');
     document.getElementById("navbar-element-id").classList.remove('bg-dark');
     document.getElementById("navbar-element-id").classList.add('bg-primary');
-    document.getElementById("summary-box-id").classList.add('border-dark');
-    document.getElementById("summary-box-id").classList.remove('border-light');
+
+    if (document.getElementById("summary-box-id") !== null) {
+        document.getElementById("summary-box-id").classList.add('border-dark');
+        document.getElementById("summary-box-id").classList.remove('border-light');
+    }
 
     const gauges = document.querySelectorAll(".GaugeMeter-Dark");
     gauges.forEach(gauge => {
@@ -1200,8 +1203,11 @@ function switch_to_dark_mode() {
     document.getElementById("body-element-id").classList.remove('text-dark');
     document.getElementById("navbar-element-id").classList.remove('bg-primary');
     document.getElementById("navbar-element-id").classList.add('bg-dark');
-    document.getElementById("summary-box-id").classList.add('border-light');
-    document.getElementById("summary-box-id").classList.remove('border-dark');
+
+    if (document.getElementById("summary-box-id") !== null) {
+        document.getElementById("summary-box-id").classList.add('border-light');
+        document.getElementById("summary-box-id").classList.remove('border-dark');
+    }
 
     const gauges = document.querySelectorAll(".GaugeMeter-Light");
     gauges.forEach(gauge => {
@@ -1248,16 +1254,46 @@ function refreshData() {
             }
 
             if (data['victron_module']) {
-                $("#battery_soc_gauge").gaugeMeter({used:parseInt(data['battery_soc'])});
-                $("#starter_battery_voltage_gauge").gaugeMeter({used:parseInt(data['starter_battery_voltage'])});
-                $("#pv_power_gauge").gaugeMeter({used:parseInt(data['pv_power'])});
-                $("#fuel_tank_gauge").gaugeMeter({used:parseInt(data['fuel_tank'])});
-                $("#water_tank_gauge").gaugeMeter({used:parseInt(data['water_tank'])});
-                document.getElementById('active_input_source_value').innerHTML = data['active_input_source'];
-                document.getElementById('ve_bus_state_value').innerHTML = data['ve_bus_state'];
-                document.getElementById('housing_battery_state_value').innerHTML = data['housing_battery_state'];
-                document.getElementById('housing_battery_current_value').innerHTML = data['housing_battery_current'];
-                document.getElementById('pv_current_value').innerHTML = data['pv_current'];
+                if (document.getElementById("battery_soc_gauge") !== null) {
+                    $("#battery_soc_gauge").gaugeMeter({used:parseInt(data['battery_soc'])});
+                }
+
+                if (document.getElementById("starter_battery_voltage_gauge") !== null) {
+                    $("#starter_battery_voltage_gauge").gaugeMeter({used:parseInt(data['starter_battery_voltage'])});
+                }
+
+                if (document.getElementById("pv_power_gauge") !== null) {
+                    $("#pv_power_gauge").gaugeMeter({used:parseInt(data['pv_power'])});
+                }
+
+                if (document.getElementById("fuel_tank_gauge") !== null) {
+                    $("#fuel_tank_gauge").gaugeMeter({used:parseInt(data['fuel_tank'])});
+                }
+
+                if (document.getElementById("water_tank_gauge") !== null) {
+                    $("#water_tank_gauge").gaugeMeter({used:parseInt(data['water_tank'])});
+                }
+
+                if (document.getElementById('active_input_source') !== null) {
+                    document.getElementById('active_input_source').innerHTML = data['active_input_source'];
+                }
+
+                if (document.getElementById('ve_bus_state') !== null) {
+                    document.getElementById('ve_bus_state').innerHTML = data['ve_bus_state'];
+                }
+
+                if (document.getElementById('housing_battery_state') !== null) {
+                    document.getElementById('housing_battery_state').innerHTML = data['housing_battery_state'];
+                }
+
+                if (document.getElementById('housing_battery_current') !== null) {
+                    document.getElementById('housing_battery_current').innerHTML = data['housing_battery_current'] + 'A';
+                }
+
+                if (document.getElementById('pv_current') !== null) {
+                    document.getElementById('pv_current').innerHTML = data['pv_current'] + 'A';
+                }
+
                 document.getElementById('victron_module_status').innerHTML = data['victron_status'];
                 if (data['victron_status'] == "Running") {
                     document.getElementById("victron_module_spinner").className = "spinner-border text-success me-2";
@@ -1503,26 +1539,6 @@ function notify_warning(message) {
         $("#warning_notification").fadeOut();
     }, 5000);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </script>
 
 {% endblock %}
