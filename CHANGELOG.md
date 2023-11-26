@@ -1,3 +1,11 @@
+## 0.9.0 (2023-11-26)
+
+* Replaced Gauge Plugin
+* Refactored code to dynamically load Electrical metrics section UI elements at runtime
+* Added NMEA Instruments section
+* Layout improvements
+* Version bump to 0.9.0
+
 ## 0.8.18 (2023-11-22)
 
 * Fixed an issue where anchor map doesn't show after a web page refresh
