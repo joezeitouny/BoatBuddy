@@ -548,49 +548,86 @@ for (var key in metrics_electrical_system_dictionary) {
             gaugeDiv.className = "GaugeMeter-Light";
             gaugeDiv.id = key;
             gaugeDiv.setAttribute("data-label", currentItem['name']);
+            gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+            gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+            gaugeDiv.setAttribute("data-size", "170");
+            gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+            gaugeDiv.setAttribute("data-animate_text_colors", false);
+            gaugeDiv.setAttribute("data-animationstep", 0);
+            gaugeDiv.setAttribute("data-back", "Silver");
 
             if (currentItem['style'] == 'common_gauge') {
-                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
-                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
-                gaugeDiv.setAttribute("data-size", "170");
                 gaugeDiv.setAttribute("data-append", "%");
                 gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
                 gaugeDiv.setAttribute("data-width", "15");
                 gaugeDiv.setAttribute("data-style", "Arch");
-                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
-                gaugeDiv.setAttribute("data-animate_text_colors", false);
                 gaugeDiv.setAttribute("data-text_size", "0.22");
-                gaugeDiv.setAttribute("data-animationstep", 0);
-                gaugeDiv.setAttribute("data-back", "Silver");
             } else if (currentItem['style'] == 'battery_voltage_gauge') {
-                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
-                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
-                gaugeDiv.setAttribute("data-size", "170");
                 gaugeDiv.setAttribute("data-append", "V");
                 gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
                 gaugeDiv.setAttribute("data-width", "15");
                 gaugeDiv.setAttribute("data-style", "Arch");
-                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
-                gaugeDiv.setAttribute("data-animate_text_colors", false);
                 gaugeDiv.setAttribute("data-text_size", "0.2");
-                gaugeDiv.setAttribute("data-animationstep", 0);
                 gaugeDiv.setAttribute("data-showvalue", true);
-                gaugeDiv.setAttribute("data-back", "Silver");
                 gaugeDiv.setAttribute("data-stripe", "4");
             } else if (currentItem['style'] == 'power_gauge') {
-                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
-                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
-                gaugeDiv.setAttribute("data-size", "170");
                 gaugeDiv.setAttribute("data-append", "W");
                 gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
                 gaugeDiv.setAttribute("data-width", "15");
                 gaugeDiv.setAttribute("data-style", "Arch");
-                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
-                gaugeDiv.setAttribute("data-animate_text_colors", false);
                 gaugeDiv.setAttribute("data-text_size", "0.22");
-                gaugeDiv.setAttribute("data-animationstep", 0);
                 gaugeDiv.setAttribute("data-showvalue", true);
-                gaugeDiv.setAttribute("data-back", "Silver");
+            } else if (currentItem['style'] == 'current_gauge') {
+                gaugeDiv.setAttribute("data-append", "A");
+                gaugeDiv.setAttribute("data-theme", "Red-Green");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Arch");
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-showvalue", true);
+
+<!--                gaugeDiv = document.createElement('canvas');-->
+<!--                gaugeDiv.id = key;-->
+<!--                gaugeDiv.setAttribute("data-type", "radial-gauge");-->
+<!--                gaugeDiv.setAttribute("data-min-value", currentItem['min_value']);-->
+<!--                gaugeDiv.setAttribute("data-max-value", currentItem['max_value']);-->
+<!--                gaugeDiv.setAttribute("data-major-ticks", currentItem['min_value'] + ",0," + currentItem['max_value']);-->
+<!--                gaugeDiv.setAttribute("data-highlights", "false");-->
+<!--                gaugeDiv.setAttribute("data-minor-ticks", "10");-->
+<!--                gaugeDiv.setAttribute("data-start-angle", "90");-->
+<!--                gaugeDiv.setAttribute("data-ticks-angle", "180");-->
+<!--                gaugeDiv.setAttribute("data-stroke-ticks", "false");-->
+<!--                gaugeDiv.setAttribute("data-color-plate", "#222");-->
+<!--                gaugeDiv.setAttribute("data-color-major-ticks", "#f5f5f5");-->
+<!--                gaugeDiv.setAttribute("data-color-minor-ticks", "#ddd");-->
+<!--                gaugeDiv.setAttribute("data-color-numbers", "#ccc");-->
+<!--                gaugeDiv.setAttribute("data-color-needle", "rgba(240, 128, 128, 1)");-->
+<!--                gaugeDiv.setAttribute("data-color-needle-end", "rgba(255, 160, 122, .9)");-->
+<!--                gaugeDiv.setAttribute("data-value-box", "true");-->
+<!--                gaugeDiv.setAttribute("data-value-text-shadow", "true");-->
+<!--                gaugeDiv.setAttribute("data-color-circle-inner", "#fff");-->
+<!--                gaugeDiv.setAttribute("data-color-needle-circle-outer", "#ccc");-->
+<!--                gaugeDiv.setAttribute("data-needle-circle-size", "20");-->
+<!--                gaugeDiv.setAttribute("data-needle-circle-outer", "false");-->
+<!--                gaugeDiv.setAttribute("data-animation-rule", "linear");-->
+<!--                gaugeDiv.setAttribute("data-needle-type", "line");-->
+<!--                gaugeDiv.setAttribute("data-needle-width", "5");-->
+<!--                gaugeDiv.setAttribute("data-borders", "false");-->
+<!--                gaugeDiv.setAttribute("data-border-inner-width", "0");-->
+<!--                gaugeDiv.setAttribute("data-border-middle-width", "0");-->
+<!--                gaugeDiv.setAttribute("data-border-outer-width", "5");-->
+<!--                gaugeDiv.setAttribute("data-color-border-outer", "#fff");-->
+<!--                gaugeDiv.setAttribute("data-color-border-outer-end", "#fff");-->
+<!--                gaugeDiv.setAttribute("data-color-needle-shadow-down", "#222");-->
+<!--                gaugeDiv.setAttribute("data-color-title", "#fff");-->
+<!--                gaugeDiv.setAttribute("data-border-shadow-width", "0");-->
+<!--                gaugeDiv.setAttribute("data-animation-duration", "500");-->
+<!--                gaugeDiv.setAttribute("data-title", currentItem['name']);-->
+<!--                gaugeDiv.setAttribute("data-color-value-box-background", "#fff");-->
+<!--                gaugeDiv.setAttribute("data-font-title-size", "32");-->
+<!--                gaugeDiv.setAttribute("data-font-value-size", "40");-->
+<!--                gaugeDiv.setAttribute("data-width", "170px");-->
+<!--                gaugeDiv.setAttribute("data-height", "170px");-->
+<!--                gaugeDiv.setAttribute("data-value-dec", "1");-->
             }
 
             col.appendChild(gaugeDiv)
@@ -1483,6 +1520,11 @@ function refreshData() {
                     $("#water_tank_gauge").gaugeMeter({used:parseInt(data['water_tank'])});
                 }
 
+                if (document.getElementById("housing_battery_current_gauge") !== null) {
+                    $("#housing_battery_current_gauge").gaugeMeter({used:parseFloat(data['housing_battery_current'])});
+<!--                    document.getElementById("housing_battery_current_gauge").setAttribute("data-value", data['housing_battery_current']);-->
+                }
+
                 if (document.getElementById('active_input_source') !== null) {
                     document.getElementById('active_input_source').innerHTML = data['active_input_source'];
                 }
@@ -1735,7 +1777,7 @@ function refreshNMEAInstrumentsData() {
         type: 'GET',
         url: '/nmea_data',
         success: function(data) {
-            //TODO: Populate the nmea0183 instruments fields
+            //Populate the nmea0183 instruments fields
             if (data['nmea_module']) {
                 if (data['nmea_status'] == "Running") {
                     if (document.getElementById("heading_gauge") !== null && data['heading'].trim().length) {

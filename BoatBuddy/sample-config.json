@@ -224,8 +224,17 @@
         "min_value": 0,
         "style": "power_gauge"
       },
-      "summary-box": {
+      "housing_battery_current_gauge": {
         "order": "6",
+        "name": "Housing Batt.",
+        "data_field": "housing_battery_current",
+        "type": "gauge",
+        "max_value": 20,
+        "min_value": -20,
+        "style": "current_gauge"
+      },
+      "summary-box": {
+        "order": "7",
         "type": "list",
         "items": {
           "active_input_source": {
