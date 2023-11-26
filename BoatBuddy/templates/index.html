@@ -191,10 +191,15 @@
         </div>
         <div class="col m-2">
             <div class="row">
-                <ul class="nav nav-tabs" id="session-anchor-navbar" role="tablist">
+                <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="session-tab" data-bs-toggle="tab" data-bs-target="#session"
                                 type="button" role="tab" aria-controls="session" aria-selected="true">Session
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="nmea-tab" data-bs-toggle="tab" data-bs-target="#nmea"
+                                type="button" role="tab" aria-controls="nmea" aria-selected="true">NMEA0183 Instruments
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -359,6 +364,17 @@
                                 <div class="col">
                                     <span>Tank 2 avg. level:&nbsp;<span id="tank2_avg_level"></span>&nbsp;%</span>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="nmea" role="tabpanel" aria-labelledby="nmea-tab">
+                        <!-- NMEA panel-->
+                        <div id="no_available_nmea_instruments_message" class="container-fluid align-self-center">
+                            <h5>No available NMEA0183 instruments</h5>
+                        </div>
+                        <div id="nmea_container" class="container" style="display: none; visibility: hidden;">
+                            <div id="nmea_metrics_row_id" class="row align-items-center">
+
                             </div>
                         </div>
                     </div>
@@ -617,6 +633,140 @@ if (Object.entries(elementsList).length > 0) {
     if (Object.entries(elementsList).length > 1) {
         for (let i = Object.entries(elementsList).length - 1; i > 0; i--) {
             document.getElementById('electrical_system_metrics_row_id').insertBefore(elementsList[i.toString()], document.getElementById('electrical_system_metrics_row_id').childNodes[0])
+        }
+    }
+}
+{% endif %}
+
+{% if metrics_nmea | length > 0 %}
+var metrics_nmea_dictionary = {{ metrics_nmea|tojson|safe }};
+var nmeaElementsList = {};
+
+// Draw electrical system panel components
+for (var key in metrics_nmea_dictionary) {
+    if (metrics_nmea_dictionary.hasOwnProperty(key)) {
+        var currentItem = metrics_nmea_dictionary[key];
+
+        // Create a new col element
+        var col = document.createElement('div');
+        col.className = "col d-flex justify-content-center";
+
+        if (currentItem['type'] == 'gauge') {
+            if (currentItem['style'] == 'wind_gauge') {
+                var gaugeDiv = document.createElement('div');
+                gaugeDiv.className = "GaugeMeter-Light";
+                gaugeDiv.id = key;
+                gaugeDiv.setAttribute("data-label", currentItem['name']);
+                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-size", "170");
+                gaugeDiv.setAttribute("data-append", "kts");
+                gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Semi");
+                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                gaugeDiv.setAttribute("data-animate_text_colors", false);
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-animationstep", 0);
+                gaugeDiv.setAttribute("data-showvalue", true);
+                gaugeDiv.setAttribute("data-back", "Silver");
+
+                col.appendChild(gaugeDiv)
+            } else if (currentItem['style'] == 'compass_gauge') {
+                var gaugeDiv = document.createElement('canvas');
+                gaugeDiv.id = key;
+                gaugeDiv.setAttribute("data-type", "radial-gauge");
+                gaugeDiv.setAttribute("data-min-value", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-max-value", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-major-ticks", "N,NE,E,SE,S,SW,W,NW,N");
+                gaugeDiv.setAttribute("data-minor-ticks", "22");
+                gaugeDiv.setAttribute("data-ticks-angle", "360");
+                gaugeDiv.setAttribute("data-start-angle", "180");
+                gaugeDiv.setAttribute("data-stroke-ticks", "false");
+                gaugeDiv.setAttribute("data-highlights", "false");
+                gaugeDiv.setAttribute("data-color-plate", "#222");
+                gaugeDiv.setAttribute("data-color-major-ticks", "#f5f5f5");
+                gaugeDiv.setAttribute("data-color-minor-ticks", "#ddd");
+                gaugeDiv.setAttribute("data-color-numbers", "#ccc");
+                gaugeDiv.setAttribute("data-color-needle", "rgba(240, 128, 128, 1)");
+                gaugeDiv.setAttribute("data-color-needle-end", "rgba(255, 160, 122, .9)");
+                gaugeDiv.setAttribute("data-value-box", "true");
+                gaugeDiv.setAttribute("data-value-text-shadow", "true");
+                gaugeDiv.setAttribute("data-color-circle-inner", "#fff");
+                gaugeDiv.setAttribute("data-color-needle-circle-outer", "#ccc");
+                gaugeDiv.setAttribute("data-needle-circle-size", "20");
+                gaugeDiv.setAttribute("data-needle-circle-outer", "false");
+                gaugeDiv.setAttribute("data-animation-rule", "linear");
+                gaugeDiv.setAttribute("data-needle-type", "line");
+                gaugeDiv.setAttribute("data-needle-width", "5");
+                gaugeDiv.setAttribute("data-borders", "false");
+                gaugeDiv.setAttribute("data-border-inner-width", "0");
+                gaugeDiv.setAttribute("data-border-middle-width", "0");
+                gaugeDiv.setAttribute("data-border-outer-width", "5");
+                gaugeDiv.setAttribute("data-color-border-outer", "#fff");
+                gaugeDiv.setAttribute("data-color-border-outer-end", "#fff");
+                gaugeDiv.setAttribute("data-color-needle-shadow-down", "#222");
+                gaugeDiv.setAttribute("data-color-title", "#fff");
+                gaugeDiv.setAttribute("data-border-shadow-width", "0");
+                gaugeDiv.setAttribute("data-animation-duration", "500");
+                gaugeDiv.setAttribute("data-title", currentItem['name']);
+                gaugeDiv.setAttribute("data-color-value-box-background", "#fff");
+                gaugeDiv.setAttribute("data-font-title-size", "32");
+                gaugeDiv.setAttribute("data-width", "170px");
+                gaugeDiv.setAttribute("data-height", "170px");
+
+                col.appendChild(gaugeDiv)
+            } else if (currentItem['style'] == 'speed_gauge') {
+                var gaugeDiv = document.createElement('div');
+                gaugeDiv.className = "GaugeMeter-Light";
+                gaugeDiv.id = key;
+                gaugeDiv.setAttribute("data-label", currentItem['name']);
+                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-size", "170");
+                gaugeDiv.setAttribute("data-append", "kts");
+                gaugeDiv.setAttribute("data-theme", "LightGreen-DarkGreen");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Semi");
+                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                gaugeDiv.setAttribute("data-animate_text_colors", false);
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-animationstep", 0);
+                gaugeDiv.setAttribute("data-showvalue", true);
+                gaugeDiv.setAttribute("data-back", "Silver");
+
+                col.appendChild(gaugeDiv)
+            } else if (currentItem['style'] == 'temperature_gauge') {
+                var gaugeDiv = document.createElement('canvas');
+                gaugeDiv.id = key;
+                gaugeDiv.setAttribute("data-type", "linear-gauge");
+                gaugeDiv.setAttribute("data-units", "°C");
+                gaugeDiv.setAttribute("data-title", currentItem['name']);
+                gaugeDiv.setAttribute("data-width", "170px");
+                gaugeDiv.setAttribute("data-height", "170px");
+
+                col.appendChild(gaugeDiv)
+            }
+        } else if (currentItem['type'] == 'label') {
+            var depthSpan = document.createElement('span');
+            depthSpan.textContent = currentItem['name'] + " (in meters): ";
+            col.appendChild(depthSpan);
+
+            var labelSpan = document.createElement('span');
+            labelSpan.id = key;
+            depthSpan.appendChild(labelSpan);
+        }
+
+        nmeaElementsList[currentItem['order']] = col;
+    }
+}
+
+if (Object.entries(nmeaElementsList).length > 0) {
+    document.getElementById('nmea_metrics_row_id').appendChild(nmeaElementsList[Object.entries(nmeaElementsList).length.toString()]);
+
+    if (Object.entries(nmeaElementsList).length > 1) {
+        for (let i = Object.entries(nmeaElementsList).length - 1; i > 0; i--) {
+            document.getElementById('nmea_metrics_row_id').insertBefore(nmeaElementsList[i.toString()], document.getElementById('nmea_metrics_row_id').childNodes[0])
         }
     }
 }
@@ -1311,14 +1461,31 @@ function refreshData() {
                 document.getElementById('nmea_module_status').innerHTML = data['nmea_status'];
                 if (data['nmea_status'] == "Running") {
                     document.getElementById("nmea_module_spinner").className = "spinner-border text-success me-2";
+
+                    document.getElementById('no_available_nmea_instruments_message').style.display = 'none';
+                    document.getElementById('no_available_nmea_instruments_message').style.visibility = 'hidden';
+                    document.getElementById('nmea_container').style.display = 'block';
+                    document.getElementById('nmea_container').style.visibility = 'visible';
                 } else if (data['nmea_status'] == "Down") {
                     document.getElementById("nmea_module_spinner").className = "spinner-grow text-danger me-2";
+                    document.getElementById('no_available_nmea_instruments_message').style.display = 'block';
+                    document.getElementById('no_available_nmea_instruments_message').style.visibility = 'visible';
+                    document.getElementById('nmea_container').style.display = 'none';
+                    document.getElementById('nmea_container').style.visibility = 'hidden';
                 } else if (data['nmea_status'] == "Starting") {
                     document.getElementById("nmea_module_spinner").className = "spinner-grow text-warning me-2";
+                    document.getElementById('no_available_nmea_instruments_message').style.display = 'block';
+                    document.getElementById('no_available_nmea_instruments_message').style.visibility = 'visible';
+                    document.getElementById('nmea_container').style.display = 'none';
+                    document.getElementById('nmea_container').style.visibility = 'hidden';
                 }
             } else {
                 document.getElementById('nmea_module_status').innerHTML = "Disabled";
                 document.getElementById("nmea_module_spinner").className = "spinner-grow text-secondary me-2";
+                document.getElementById('no_available_nmea_instruments_message').style.display = 'block';
+                document.getElementById('no_available_nmea_instruments_message').style.visibility = 'visible';
+                document.getElementById('nmea_container').style.display = 'none';
+                document.getElementById('nmea_container').style.visibility = 'hidden';
             }
 
             if (data['gps_module']) {
@@ -1504,6 +1671,55 @@ function refreshAnchorData() {
     });
 }
 
+function refreshNMEAInstrumentsData() {
+    $.ajax({
+        type: 'GET',
+        url: '/nmea_data',
+        success: function(data) {
+            //TODO: Populate the nmea0183 instruments fields
+            if (data['nmea_module']) {
+                if (data['nmea_status'] == "Running") {
+                    if (document.getElementById("heading_gauge") !== null && data['heading'].trim().length) {
+                        document.getElementById("heading_gauge").setAttribute("data-value", data['heading']);
+                    }
+
+                    if (document.getElementById("true_wind_speed_gauge") !== null && data['true_wind_speed'].trim().length) {
+                        $("#true_wind_speed_gauge").gaugeMeter({used:parseInt(data['true_wind_speed'])});
+                    }
+
+                    if (document.getElementById("true_wind_direction_gauge") !== null && data['true_wind_direction'].trim().length) {
+                        document.getElementById("true_wind_direction_gauge").setAttribute("data-value", data['true_wind_direction']);
+                    }
+
+                    if (document.getElementById("apparent_wind_speed_gauge") !== null && data['apparent_wind_speed'].trim().length) {
+                        $("#apparent_wind_speed_gauge").gaugeMeter({used:parseInt(data['apparent_wind_speed'])});
+                    }
+
+                    if (document.getElementById("apparent_wind_angle_gauge") !== null && data['apparent_wind_angle'].trim().length) {
+                        document.getElementById("apparent_wind_angle_gauge").setAttribute("data-value", data['apparent_wind_angle']);
+                    }
+
+                    if (document.getElementById("water_temperature_gauge") !== null && data['water_temperature'].trim().length) {
+                        document.getElementById("water_temperature_gauge").setAttribute("data-value", data['water_temperature']);
+                    }
+
+                    if (document.getElementById("speed_over_ground_gauge") !== null && data['speed_over_ground'].trim().length) {
+                        $("#speed_over_ground_gauge").gaugeMeter({used:parseInt(data['speed_over_ground'])});
+                    }
+
+                    if (document.getElementById("speed_over_water_gauge") !== null && data['speed_over_water'].trim().length) {
+                        $("#speed_over_water_gauge").gaugeMeter({used:parseInt(data['speed_over_water'])});
+                    }
+
+                    if (document.getElementById('depth_label') !== null && data['depth'].trim().length) {
+                        document.getElementById('depth_label').innerHTML = data['depth'] + ' m';
+                    }
+                }
+            }
+        }
+    });
+}
+
 function getGPSPosition() {
     $.ajax({
         type: 'GET',
@@ -1521,6 +1737,7 @@ $(document).ready(function() {
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
     setInterval(refreshAnchorData, 1000);
+    setInterval(refreshNMEAInstrumentsData, 1000);
     setInterval(getGPSPosition, 2000);
 });
 

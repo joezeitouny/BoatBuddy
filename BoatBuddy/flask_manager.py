@@ -150,11 +150,12 @@ def index():
     anchor_alarm_module = application_modules.get_options().anchor_alarm_module
     anchor_alarm_mapbox_api_key = application_modules.get_options().anchor_alarm_mapbox_api_key
     metrics_electrical_system = application_modules.get_options().metrics_electrical_system
+    metrics_nmea = application_modules.get_options().metrics_nmea
 
     return render_template('index.html', application_name=application_name, application_version=application_version,
                            session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module,
                            anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key,
-                           metrics_electrical_system=metrics_electrical_system)
+                           metrics_electrical_system=metrics_electrical_system, metrics_nmea=metrics_nmea)
 
 
 @app.route('/toggle_session')
@@ -289,6 +290,51 @@ def get_current_time():
     curr_time = time.strftime("%H:%M:%S", time.localtime())
 
     data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION, 'curr_time': curr_time}
+    return jsonify(data)
+
+
+@app.route('/nmea_data')
+def get_nmea_data():
+    heading = ""
+    true_wind_speed = ""
+    true_wind_direction = ""
+    apparent_wind_speed = ""
+    apparent_wind_angle = ""
+    latitude = ""
+    longitude = ""
+    water_temperature = ""
+    depth = ""
+    speed_over_ground = ""
+    speed_over_water = ""
+    nmea_module = False
+    nmea_status = ""
+
+    if application_modules.get_options().nmea_module:
+        nmea_module = True
+        plugin_status = application_modules.get_plugin_manager().get_nmea_plugin_status()
+        nmea_status = get_plugin_status_str(plugin_status)
+
+        nmea_metrics = application_modules.get_plugin_manager().get_nmea_plugin_metrics()
+        if nmea_metrics and len(nmea_metrics) > 0:
+            heading = nmea_metrics[0]
+            true_wind_speed = nmea_metrics[1]
+            true_wind_direction = nmea_metrics[2]
+            apparent_wind_speed = nmea_metrics[3]
+            apparent_wind_angle = nmea_metrics[4]
+            latitude = nmea_metrics[5]
+            longitude = nmea_metrics[6]
+            water_temperature = nmea_metrics[7]
+            depth = nmea_metrics[8]
+            speed_over_ground = nmea_metrics[9]
+            speed_over_water = nmea_metrics[10]
+
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
+            'nmea_status': nmea_status, 'nmea_module': nmea_module, 'heading': heading,
+            'true_wind_speed': true_wind_speed, 'true_wind_direction': true_wind_direction,
+            'apparent_wind_speed': apparent_wind_speed, 'apparent_wind_angle': apparent_wind_angle,
+            'latitude': latitude, 'longitude': longitude, 'water_temperature': water_temperature,
+            'depth': depth, 'speed_over_ground': speed_over_ground, 'speed_over_water': speed_over_water}
+
     return jsonify(data)
 
 
