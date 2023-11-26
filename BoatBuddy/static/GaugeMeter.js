@@ -321,7 +321,7 @@
       p.addClass('gaugeMeter');
       getDataAttr(p);
 
-      if (Number.isInteger(option.used) && Number.isInteger(option.total)) {
+      if (Number.isInteger(option.total)) {
         var u = option.used;
         var t = option.total;
         if (Number.isInteger(option.min)) {

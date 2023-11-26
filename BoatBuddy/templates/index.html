@@ -572,7 +572,7 @@ for (var key in metrics_electrical_system_dictionary) {
                 gaugeDiv.setAttribute("data-style", "Arch");
                 gaugeDiv.setAttribute("data-animate_gauge_colors", false);
                 gaugeDiv.setAttribute("data-animate_text_colors", false);
-                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-text_size", "0.2");
                 gaugeDiv.setAttribute("data-animationstep", 0);
                 gaugeDiv.setAttribute("data-showvalue", true);
                 gaugeDiv.setAttribute("data-back", "Silver");
@@ -1468,7 +1468,7 @@ function refreshData() {
                 }
 
                 if (document.getElementById("starter_battery_voltage_gauge") !== null) {
-                    $("#starter_battery_voltage_gauge").gaugeMeter({used:parseInt(data['starter_battery_voltage'])});
+                    $("#starter_battery_voltage_gauge").gaugeMeter({used:parseFloat(data['starter_battery_voltage'])});
                 }
 
                 if (document.getElementById("pv_power_gauge") !== null) {
@@ -1743,7 +1743,7 @@ function refreshNMEAInstrumentsData() {
                     }
 
                     if (document.getElementById("true_wind_speed_gauge") !== null && data['true_wind_speed'].trim().length) {
-                        $("#true_wind_speed_gauge").gaugeMeter({used:parseInt(data['true_wind_speed'])});
+                        $("#true_wind_speed_gauge").gaugeMeter({used:parseFloat(data['true_wind_speed'])});
                     }
 
                     if (document.getElementById("true_wind_direction_gauge") !== null && data['true_wind_direction'].trim().length) {
@@ -1751,7 +1751,7 @@ function refreshNMEAInstrumentsData() {
                     }
 
                     if (document.getElementById("apparent_wind_speed_gauge") !== null && data['apparent_wind_speed'].trim().length) {
-                        $("#apparent_wind_speed_gauge").gaugeMeter({used:parseInt(data['apparent_wind_speed'])});
+                        $("#apparent_wind_speed_gauge").gaugeMeter({used:parseFloat(data['apparent_wind_speed'])});
                     }
 
                     if (document.getElementById("apparent_wind_angle_gauge") !== null && data['apparent_wind_angle'].trim().length) {
@@ -1759,15 +1759,15 @@ function refreshNMEAInstrumentsData() {
                     }
 
                     if (document.getElementById("water_temperature_gauge") !== null && data['water_temperature'].trim().length) {
-                        $("#water_temperature_gauge").gaugeMeter({used:parseInt(data['water_temperature'])});
+                        $("#water_temperature_gauge").gaugeMeter({used:parseFloat(data['water_temperature'])});
                     }
 
                     if (document.getElementById("speed_over_ground_gauge") !== null && data['speed_over_ground'].trim().length) {
-                        $("#speed_over_ground_gauge").gaugeMeter({used:parseInt(data['speed_over_ground'])});
+                        $("#speed_over_ground_gauge").gaugeMeter({used:parseFloat(data['speed_over_ground'])});
                     }
 
                     if (document.getElementById("speed_over_water_gauge") !== null && data['speed_over_water'].trim().length) {
-                        $("#speed_over_water_gauge").gaugeMeter({used:parseInt(data['speed_over_water'])});
+                        $("#speed_over_water_gauge").gaugeMeter({used:parseFloat(data['speed_over_water'])});
                     }
 
                     if (document.getElementById('depth_label') !== null && data['depth'].trim().length) {
