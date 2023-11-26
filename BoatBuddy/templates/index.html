@@ -1679,10 +1679,6 @@ function refreshData() {
                 $('#loading_modal').modal('hide');
                 first_refresh_data_call = false;
             }
-
-            if (!connection_lost_dialog_shown) {
-                notify_warning('Error refreshing data: ' + error);
-            }
         }
     });
 }
@@ -1765,9 +1761,6 @@ function refreshAnchorData() {
                 document.getElementById('anchor_alarm_is_not_set_message').style.display = 'block';
                 document.getElementById('anchor_alarm_is_not_set_message').style.visibility = 'visible';
             }
-        },
-        error: function (error) {
-            notify_warning('Error while retrieving anchor alarm configuration! Reason: ' + error);
         }
     });
 }
