@@ -295,7 +295,7 @@
         "type": "gauge",
         "max_value": 360,
         "min_value": 0,
-        "style": "compass_gauge"
+        "style": "wind_angle_gauge"
       },
       "water_temperature_gauge" : {
         "order": "6",

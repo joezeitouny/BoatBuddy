@@ -316,17 +316,36 @@ def get_nmea_data():
 
         nmea_metrics = application_modules.get_plugin_manager().get_nmea_plugin_metrics()
         if nmea_metrics and len(nmea_metrics) > 0:
-            heading = nmea_metrics[0]
-            true_wind_speed = nmea_metrics[1]
-            true_wind_direction = nmea_metrics[2]
-            apparent_wind_speed = nmea_metrics[3]
-            apparent_wind_angle = nmea_metrics[4]
-            latitude = nmea_metrics[5]
-            longitude = nmea_metrics[6]
-            water_temperature = nmea_metrics[7]
-            depth = nmea_metrics[8]
-            speed_over_ground = nmea_metrics[9]
-            speed_over_water = nmea_metrics[10]
+            if nmea_metrics[0] != globals.EMPTY_METRIC_VALUE:
+                heading = nmea_metrics[0]
+
+            if nmea_metrics[1] != globals.EMPTY_METRIC_VALUE:
+                true_wind_speed = nmea_metrics[1]
+
+            if nmea_metrics[2] != globals.EMPTY_METRIC_VALUE:
+                true_wind_direction = nmea_metrics[2]
+
+            if nmea_metrics[3] != globals.EMPTY_METRIC_VALUE:
+                apparent_wind_speed = nmea_metrics[3]
+
+            if nmea_metrics[4] != globals.EMPTY_METRIC_VALUE:
+                apparent_wind_angle = nmea_metrics[4]
+
+            if nmea_metrics[5] != globals.EMPTY_METRIC_VALUE and nmea_metrics[6] != globals.EMPTY_METRIC_VALUE:
+                latitude = nmea_metrics[5]
+                longitude = nmea_metrics[6]
+
+            if nmea_metrics[7] != globals.EMPTY_METRIC_VALUE:
+                water_temperature = nmea_metrics[7]
+
+            if nmea_metrics[8] != globals.EMPTY_METRIC_VALUE:
+                depth = nmea_metrics[8]
+
+            if nmea_metrics[9] != globals.EMPTY_METRIC_VALUE:
+                speed_over_ground = nmea_metrics[9]
+
+            if nmea_metrics[10] != globals.EMPTY_METRIC_VALUE:
+                speed_over_water = nmea_metrics[10]
 
     data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
             'nmea_status': nmea_status, 'nmea_module': nmea_module, 'heading': heading,

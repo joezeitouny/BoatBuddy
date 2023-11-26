@@ -680,11 +680,11 @@ for (var key in metrics_nmea_dictionary) {
                 gaugeDiv.setAttribute("data-min-value", currentItem['min_value']);
                 gaugeDiv.setAttribute("data-max-value", currentItem['max_value']);
                 gaugeDiv.setAttribute("data-major-ticks", "N,NE,E,SE,S,SW,W,NW,N");
+                gaugeDiv.setAttribute("data-highlights", "false");
                 gaugeDiv.setAttribute("data-minor-ticks", "22");
                 gaugeDiv.setAttribute("data-ticks-angle", "360");
                 gaugeDiv.setAttribute("data-start-angle", "180");
                 gaugeDiv.setAttribute("data-stroke-ticks", "false");
-                gaugeDiv.setAttribute("data-highlights", "false");
                 gaugeDiv.setAttribute("data-color-plate", "#222");
                 gaugeDiv.setAttribute("data-color-major-ticks", "#f5f5f5");
                 gaugeDiv.setAttribute("data-color-minor-ticks", "#ddd");
@@ -713,8 +713,56 @@ for (var key in metrics_nmea_dictionary) {
                 gaugeDiv.setAttribute("data-title", currentItem['name']);
                 gaugeDiv.setAttribute("data-color-value-box-background", "#fff");
                 gaugeDiv.setAttribute("data-font-title-size", "32");
+                gaugeDiv.setAttribute("data-font-value-size", "40");
                 gaugeDiv.setAttribute("data-width", "170px");
                 gaugeDiv.setAttribute("data-height", "170px");
+                gaugeDiv.setAttribute("data-value-dec", "0");
+
+                col.appendChild(gaugeDiv)
+            } else if (currentItem['style'] == 'wind_angle_gauge') {
+                var gaugeDiv = document.createElement('canvas');
+                gaugeDiv.id = key;
+                gaugeDiv.setAttribute("data-type", "radial-gauge");
+                gaugeDiv.setAttribute("data-min-value", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-max-value", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-major-ticks", "N,NE,E,SE,S,SW,W,NW,N");
+                gaugeDiv.setAttribute("data-highlights", '[{"from": 300, "to": 355, "color": "rgba(255, 0, 0, .75)"}, {"from": 5, "to": 60, "color": "rgba(0, 255, 0, .75)"}]');
+                gaugeDiv.setAttribute("data-minor-ticks", "22");
+                gaugeDiv.setAttribute("data-ticks-angle", "360");
+                gaugeDiv.setAttribute("data-start-angle", "180");
+                gaugeDiv.setAttribute("data-stroke-ticks", "false");
+                gaugeDiv.setAttribute("data-color-plate", "#222");
+                gaugeDiv.setAttribute("data-color-major-ticks", "#f5f5f5");
+                gaugeDiv.setAttribute("data-color-minor-ticks", "#ddd");
+                gaugeDiv.setAttribute("data-color-numbers", "#ccc");
+                gaugeDiv.setAttribute("data-color-needle", "rgba(240, 128, 128, 1)");
+                gaugeDiv.setAttribute("data-color-needle-end", "rgba(255, 160, 122, .9)");
+                gaugeDiv.setAttribute("data-value-box", "true");
+                gaugeDiv.setAttribute("data-value-text-shadow", "true");
+                gaugeDiv.setAttribute("data-color-circle-inner", "#fff");
+                gaugeDiv.setAttribute("data-color-needle-circle-outer", "#ccc");
+                gaugeDiv.setAttribute("data-needle-circle-size", "20");
+                gaugeDiv.setAttribute("data-needle-circle-outer", "false");
+                gaugeDiv.setAttribute("data-animation-rule", "linear");
+                gaugeDiv.setAttribute("data-needle-type", "line");
+                gaugeDiv.setAttribute("data-needle-width", "5");
+                gaugeDiv.setAttribute("data-borders", "false");
+                gaugeDiv.setAttribute("data-border-inner-width", "0");
+                gaugeDiv.setAttribute("data-border-middle-width", "0");
+                gaugeDiv.setAttribute("data-border-outer-width", "5");
+                gaugeDiv.setAttribute("data-color-border-outer", "#fff");
+                gaugeDiv.setAttribute("data-color-border-outer-end", "#fff");
+                gaugeDiv.setAttribute("data-color-needle-shadow-down", "#222");
+                gaugeDiv.setAttribute("data-color-title", "#fff");
+                gaugeDiv.setAttribute("data-border-shadow-width", "0");
+                gaugeDiv.setAttribute("data-animation-duration", "500");
+                gaugeDiv.setAttribute("data-title", currentItem['name']);
+                gaugeDiv.setAttribute("data-color-value-box-background", "#fff");
+                gaugeDiv.setAttribute("data-font-title-size", "32");
+                gaugeDiv.setAttribute("data-font-value-size", "40");
+                gaugeDiv.setAttribute("data-width", "170px");
+                gaugeDiv.setAttribute("data-height", "170px");
+                gaugeDiv.setAttribute("data-value-dec", "0");
 
                 col.appendChild(gaugeDiv)
             } else if (currentItem['style'] == 'speed_gauge') {
@@ -738,13 +786,23 @@ for (var key in metrics_nmea_dictionary) {
 
                 col.appendChild(gaugeDiv)
             } else if (currentItem['style'] == 'temperature_gauge') {
-                var gaugeDiv = document.createElement('canvas');
+                var gaugeDiv = document.createElement('div');
+                gaugeDiv.className = "GaugeMeter-Light";
                 gaugeDiv.id = key;
-                gaugeDiv.setAttribute("data-type", "linear-gauge");
-                gaugeDiv.setAttribute("data-units", "°C");
-                gaugeDiv.setAttribute("data-title", currentItem['name']);
-                gaugeDiv.setAttribute("data-width", "170px");
-                gaugeDiv.setAttribute("data-height", "170px");
+                gaugeDiv.setAttribute("data-label", currentItem['name']);
+                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-size", "170");
+                gaugeDiv.setAttribute("data-append", "°C");
+                gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Semi");
+                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                gaugeDiv.setAttribute("data-animate_text_colors", false);
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-animationstep", 0);
+                gaugeDiv.setAttribute("data-showvalue", true);
+                gaugeDiv.setAttribute("data-back", "Silver");
 
                 col.appendChild(gaugeDiv)
             }
@@ -1701,7 +1759,7 @@ function refreshNMEAInstrumentsData() {
                     }
 
                     if (document.getElementById("water_temperature_gauge") !== null && data['water_temperature'].trim().length) {
-                        document.getElementById("water_temperature_gauge").setAttribute("data-value", data['water_temperature']);
+                        $("#water_temperature_gauge").gaugeMeter({used:parseInt(data['water_temperature'])});
                     }
 
                     if (document.getElementById("speed_over_ground_gauge") !== null && data['speed_over_ground'].trim().length) {
