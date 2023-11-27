@@ -1,3 +1,9 @@
+## 0.9.1 (2023-11-27)
+
+* Added support for current gauge
+* Removed unnecessary error notifications
+* Version bump to 0.9.1
+
 ## 0.9.0 (2023-11-26)
 
 * Replaced Gauge Plugin
