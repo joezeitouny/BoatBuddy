@@ -112,7 +112,7 @@
 .GaugeMeter-Light U{
     Text-Decoration: None;
     Font-Size:       .5em;
-    Opacity:         .5;
+    Opacity:         .8;
 }
 
 .GaugeMeter-Light B{
@@ -153,7 +153,7 @@
 .GaugeMeter-Dark U{
     Text-Decoration: None;
     Font-Size:       .5em;
-    Opacity:         .5;
+    Opacity:         0.8;
 }
 
 .GaugeMeter-Dark B{
