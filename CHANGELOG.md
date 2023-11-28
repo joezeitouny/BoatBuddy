@@ -1,3 +1,8 @@
+## 0.9.2 (2023-11-28)
+
+* Layout improvements
+* Version bump to 0.9.2
+
 ## 0.9.1 (2023-11-27)
 
 * Added support for current gauge
