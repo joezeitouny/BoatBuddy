@@ -1,3 +1,8 @@
+## 0.9.3 (2023-11-29)
+
+* Layout improvements
+* Version bump to 0.9.3
+
 ## 0.9.2 (2023-11-28)
 
 * Layout improvements
