@@ -37,7 +37,8 @@
         text: '',
         text_size: 0.22,
         fill: '',
-        showvalue: false
+        showvalue: false,
+        middle_value_format: false
       },
       t
     );
@@ -270,11 +271,38 @@
           ? g.setLineDash([option.stripe], 1)
           : (g.lineCap = 'round');
         g.stroke();
+
+        if (option.middle_value_format) {
+            // Draw a line from the center to the specified value
+            g.beginPath();
+            startAngle = 0;
+            endAngle = 0
+            if (a <= 0.5) {
+                startAngle = P * a - I;
+                endAngle = P * 0.5 - I;
+            } else {
+                startAngle = P * 0.5 - I;
+                endAngle = P * a - I;
+            }
+            g.arc(m, v, x, startAngle, endAngle, !1);
+            g.lineWidth = lw;
+            g.strokeStyle = option.fgcolor;
+            g.stroke();
+        } else {
+            g.beginPath();
+            g.arc(m, v, x, -I, P * a - I, !1);
+            g.lineWidth = lw;
+            g.strokeStyle = option.fgcolor;
+            g.stroke();
+        }
+
+        // Highlight Circle
         g.beginPath();
-        g.arc(m, v, x, -I, P * a - I, !1);
-        g.lineWidth = lw;
+        g.arc(m, v, x, P * a - I, P * a - I,!1);
+        g.lineWidth = lw + 5;
         g.strokeStyle = option.fgcolor;
         g.stroke();
+
         c > M &&
           ((M += z),
           requestAnimationFrame(function () {
@@ -312,7 +340,8 @@
           'text',
           'text_size',
           'fill',
-          'showvalue'
+          'showvalue',
+          'middle_value_format'
         ],
         option = {},
         c = 0,

@@ -584,6 +584,7 @@ for (var key in metrics_electrical_system_dictionary) {
                 gaugeDiv.setAttribute("data-style", "Arch");
                 gaugeDiv.setAttribute("data-text_size", "0.22");
                 gaugeDiv.setAttribute("data-showvalue", true);
+                gaugeDiv.setAttribute("data-middle_value_format", true);
             }
 
             col.appendChild(gaugeDiv)
@@ -1477,7 +1478,7 @@ function refreshData() {
                 }
 
                 if (document.getElementById("housing_battery_current_gauge") !== null) {
-                    $("#housing_battery_current_gauge").customGaugeMeter({used:parseFloat(data['housing_battery_current'])});
+                    $("#housing_battery_current_gauge").gaugeMeter({used:parseFloat(data['housing_battery_current'])});
                 }
 
                 if (document.getElementById('active_input_source') !== null) {
@@ -1783,7 +1784,6 @@ function getGPSPosition() {
 $(document).ready(function() {
     $('#loading_modal').modal('show');
     $(".GaugeMeter").gaugeMeter();
-    $(".GaugeMeter").customGaugeMeter();
     // Call the refreshData function every 1 seconds
     setInterval(refreshData, 1000);
     setInterval(refreshAnchorData, 1000);
