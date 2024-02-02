@@ -144,6 +144,7 @@ def get_plugin_status_str(plugin_status: PluginStatus):
 @app.route('/')
 def index():
     # Get application name and version
+    boat_name = application_modules.get_options().boat_name
     application_name = utils.get_application_name()
     application_version = utils.get_application_version()
     session_run_mode = str(application_modules.get_options().session_run_mode).lower()
@@ -152,7 +153,8 @@ def index():
     metrics_electrical_system = application_modules.get_options().metrics_electrical_system
     metrics_nmea = application_modules.get_options().metrics_nmea
 
-    return render_template('index.html', application_name=application_name, application_version=application_version,
+    return render_template('index.html', boat_name=boat_name, application_name=application_name,
+                           application_version=application_version,
                            session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module,
                            anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key,
                            metrics_electrical_system=metrics_electrical_system, metrics_nmea=metrics_nmea)

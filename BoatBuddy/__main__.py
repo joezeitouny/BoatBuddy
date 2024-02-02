@@ -33,6 +33,7 @@ if __name__ == '__main__':
             # a dictionary
             data = json.load(f)
 
+            options.boat_name = data['boat_name']
             options.output_path = data['output_path']
             options.tmp_path = data['tmp_path']
             options.filename_prefix = data['filename_prefix']
@@ -112,7 +113,11 @@ if __name__ == '__main__':
             quit()
 
         log_numeric_level = getattr(logging, options.log_level.upper(), None)
-        if not options.output_path:
+
+        if not options.boat_name:
+            print(f'Invalid argument: Boat name is required.\r\n')
+            parser.print_help()
+        elif not options.output_path:
             print(f'Invalid argument: Output directory defined in OUTPUT_PATH is required.\r\n')
             parser.print_help()
         elif not isinstance(log_numeric_level, int):
