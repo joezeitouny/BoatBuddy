@@ -1,3 +1,9 @@
+## 0.10.1 (2024-02-02)
+
+* Added boat name on main UI
+* UI layout improvements
+* Version bump to 0.10.1
+
 ## 0.9.5 (2023-12-03)
 
 * Layout improvements
