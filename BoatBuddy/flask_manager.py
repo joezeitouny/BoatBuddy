@@ -362,8 +362,8 @@ def get_data():
     if sunrise_time <= current_time.strftime('%H:%M') <= sunset_time:
         day_light = True
 
-    victron_module = False
-    victron_status = ''
+    victron_modbus_tcp_module = False
+    victron_modbus_tcp_status = ''
     active_input_source = 'N/A'
     ve_bus_state = 'N/A'
     housing_battery_state = 'N/A'
@@ -376,23 +376,23 @@ def get_data():
     water_tank = 0
     pv_power = 0
     if application_modules.get_options().victron_modbus_tcp_module:
-        victron_module = True
+        victron_modbus_tcp_module = True
         # Populate the victron layout
-        plugin_status = application_modules.get_plugin_manager().get_victron_plugin_status()
-        victron_status = get_plugin_status_str(plugin_status)
-        victron_metrics = application_modules.get_plugin_manager().get_victron_modbus_tcp_plugin_metrics()
-        if victron_metrics and len(victron_metrics) > 0:
-            active_input_source = victron_metrics[0]
-            ve_bus_state = victron_metrics[6]
-            housing_battery_state = victron_metrics[12]
-            housing_battery_current = utils.try_parse_float(victron_metrics[9])
-            battery_soc = utils.try_parse_int(victron_metrics[11])
-            battery_voltage = utils.try_parse_float(victron_metrics[8])
-            starter_battery_voltage = utils.try_parse_float(victron_metrics[15])
-            pv_power = utils.try_parse_int(victron_metrics[13])
-            pv_current = utils.try_parse_float(victron_metrics[14])
-            fuel_tank = utils.try_parse_int(victron_metrics[16])
-            water_tank = utils.try_parse_int(victron_metrics[18])
+        plugin_status = application_modules.get_plugin_manager().get_victron_modbus_tcp_plugin_status()
+        victron_modbus_tcp_status = get_plugin_status_str(plugin_status)
+        victron_modbus_tcp_metrics = application_modules.get_plugin_manager().get_victron_modbus_tcp_plugin_metrics()
+        if victron_modbus_tcp_metrics and len(victron_modbus_tcp_metrics) > 0:
+            active_input_source = victron_modbus_tcp_metrics[0]
+            ve_bus_state = victron_modbus_tcp_metrics[6]
+            housing_battery_state = victron_modbus_tcp_metrics[12]
+            housing_battery_current = utils.try_parse_float(victron_modbus_tcp_metrics[9])
+            battery_soc = utils.try_parse_int(victron_modbus_tcp_metrics[11])
+            battery_voltage = utils.try_parse_float(victron_modbus_tcp_metrics[8])
+            starter_battery_voltage = utils.try_parse_float(victron_modbus_tcp_metrics[15])
+            pv_power = utils.try_parse_int(victron_modbus_tcp_metrics[13])
+            pv_current = utils.try_parse_float(victron_modbus_tcp_metrics[14])
+            fuel_tank = utils.try_parse_int(victron_modbus_tcp_metrics[16])
+            water_tank = utils.try_parse_int(victron_modbus_tcp_metrics[18])
 
     nmea_module = False
     nmea_status = ''
@@ -493,10 +493,10 @@ def get_data():
         last_notification = notification_message
 
     data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
-            'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
+            'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_modbus_tcp_module,
             'battery_soc': battery_soc,
             'battery_voltage': battery_voltage,
-            'victron_status': victron_status,
+            'victron_status': victron_modbus_tcp_status,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,
             'starter_battery_voltage': starter_battery_voltage,
             'pv_power': pv_power,

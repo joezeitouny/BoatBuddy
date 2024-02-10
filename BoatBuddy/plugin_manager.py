@@ -468,7 +468,7 @@ class PluginManager:
 
         return summary_key_value_list
 
-    def get_victron_plugin_status(self) -> PluginStatus:
+    def get_victron_modbus_tcp_plugin_status(self) -> PluginStatus:
         if not self._victron_modbus_tcp_plugin:
             return PluginStatus.DOWN
 

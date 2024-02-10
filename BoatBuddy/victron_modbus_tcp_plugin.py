@@ -366,7 +366,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
             self._log_manager.info(
-                f'Problem with Victron system on {self._options.victron_modbus_tcp_server_ip}. Details: {message}')
+                f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. Details: {message}')
 
             self._plugin_status = PluginStatus.DOWN
 
@@ -387,7 +387,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
                                       self._tank2_level, self._tank2_type_string)
 
         if store_entry:
-            self._log_manager.debug(f'Adding new Victron entry')
+            self._log_manager.debug(f'Adding new Victron Modbus TCP entry')
             self._log_manager.debug(f'Active Input source: {self._input_source_string} ' +
                                     f'Grid Power: {self._grid_power} W ' +
                                     f'Generator Power: {self._generator_power} W ' +

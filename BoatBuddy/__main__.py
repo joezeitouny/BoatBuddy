@@ -118,8 +118,9 @@ if __name__ == '__main__':
             parser.print_help()
         elif options.victron_modbus_tcp_module and not (
                 options.victron_modbus_tcp_server_ip and options.victron_modbus_tcp_port):
-            print(f'Invalid argument: Victron server IP and port need to be configured to be able to use the '
-                  f'victron module\r\n')
+            print(
+                f'Invalid argument: Victron Modbus TCP server IP and port need to be configured to be able to use the '
+                f'victron Modbus TCP module\r\n')
             parser.print_help()
         elif options.gps_module and not options.gps_serial_port:
             print(f'Invalid argument: GPS serial port need to be configured to be able to use the GPS module\r\n')
