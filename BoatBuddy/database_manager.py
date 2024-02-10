@@ -104,7 +104,7 @@ class DatabaseManager:
             columns.append('nmea_plugin_status')
             values.append(self._plugin_manager.get_nmea_plugin_status().value)
 
-        if self._options.victron_module:
+        if self._options.victron_modbus_tcp_module:
             columns.extend(globals.DB_VICTRON_PLUGIN_METADATA_HEADERS)
             values.extend(self._plugin_manager.get_victron_plugin_metrics())
             columns.append('victron_plugin_status')
@@ -150,7 +150,7 @@ class DatabaseManager:
         if self._options.nmea_module:
             columns.extend(globals.DB_NMEA_PLUGIN_METADATA_HEADERS)
 
-        if self._options.victron_module:
+        if self._options.victron_modbus_tcp_module:
             columns.extend(globals.DB_VICTRON_PLUGIN_METADATA_HEADERS)
 
         columns.append('session_id')
@@ -173,7 +173,7 @@ class DatabaseManager:
         if self._options.nmea_module:
             columns.extend(globals.DB_NMEA_PLUGIN_SUMMARY_HEADERS)
 
-        if self._options.victron_module:
+        if self._options.victron_modbus_tcp_module:
             columns.extend(globals.DB_VICTRON_PLUGINS_SUMMARY_HEADERS)
 
         columns.append('session_id')

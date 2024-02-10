@@ -20,7 +20,7 @@ from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
 from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 from BoatBuddy.sound_manager import SoundManager, SoundType
 from BoatBuddy.utils import ModuleStatus
-from BoatBuddy.victron_plugin import VictronPlugin, VictronPluginEvents
+from BoatBuddy.victron_modbus_tcp_plugin import VictronModbusTCPPlugin, VictronModbusTCPPluginEvents
 
 
 class PluginManagerEvents(Events):
@@ -77,11 +77,11 @@ class PluginManager:
             gps_connection_events.on_disconnect += self._on_disconnect_gps_plugin
             self._gps_plugin.register_for_events(gps_connection_events)
 
-        if self._options.victron_module:
+        if self._options.victron_modbus_tcp_module:
             # initialize the Victron plugin
-            self._victron_plugin = VictronPlugin(self._options, self._log_manager)
+            self._victron_plugin = VictronModbusTCPPlugin(self._options, self._log_manager)
 
-            victron_connection_events = VictronPluginEvents()
+            victron_connection_events = VictronModbusTCPPluginEvents()
             victron_connection_events.on_connect += self._on_connect_victron_plugin
             victron_connection_events.on_disconnect += self._on_disconnect_victron_plugin
             self._victron_plugin.register_for_events(victron_connection_events)

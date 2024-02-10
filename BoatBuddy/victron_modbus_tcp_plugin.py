@@ -8,11 +8,11 @@ from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 
-class VictronPluginEvents(Events):
+class VictronModbusTCPPluginEvents(Events):
     __events__ = ('on_connect', 'on_disconnect',)
 
 
-class VictronEntry:
+class VictronModbusTCPEntry:
     def __init__(self, input_source_string, grid_power, generator_power, ac_input_voltage, ac_input_current,
                  ac_input_frequency, ve_bus_state_string, ac_consumption, battery_voltage,
                  battery_current, battery_power, battery_soc, battery_state_string,
@@ -84,7 +84,7 @@ class VictronEntry:
         return self._tank2_type
 
 
-class VictronPlugin(GenericPlugin):
+class VictronModbusTCPPlugin(GenericPlugin):
     _events = None
 
     def __init__(self, options, log_manager):
@@ -200,8 +200,8 @@ class VictronPlugin(GenericPlugin):
             self._log_manager.info('Victron plugin instance is ready to be destroyed')
             return
 
-        server_ip = f'{self._options.victron_server_ip}'
-        server_port = self._options.victron_tcp_port
+        server_ip = f'{self._options.victron_modbus_tcp_server_ip}'
+        server_port = self._options.victron_modbus_tcp_port
 
         try:
             # TCP auto connect on modbus request, close after it
@@ -366,7 +366,7 @@ class VictronPlugin(GenericPlugin):
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
             self._log_manager.info(
-                f'Problem with Victron system on {self._options.victron_server_ip}. Details: {message}')
+                f'Problem with Victron system on {self._options.victron_modbus_tcp_server_ip}. Details: {message}')
 
             self._plugin_status = PluginStatus.DOWN
 
@@ -378,13 +378,13 @@ class VictronPlugin(GenericPlugin):
         return globals.VICTRON_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
-        entry = VictronEntry(self._input_source_string, self._grid_power, self._generator_power,
-                             self._ac_input_voltage, self._ac_input_current, self._ac_input_frequency,
-                             self._ve_bus_state_string, self._ac_consumption, self._battery_voltage,
-                             self._battery_current, self._battery_power, self._battery_soc,
-                             self._battery_state_string, self._pv_power, self._pv_current,
-                             self._starter_battery_voltage, self._tank1_level, self._tank1_type_string,
-                             self._tank2_level, self._tank2_type_string)
+        entry = VictronModbusTCPEntry(self._input_source_string, self._grid_power, self._generator_power,
+                                      self._ac_input_voltage, self._ac_input_current, self._ac_input_frequency,
+                                      self._ve_bus_state_string, self._ac_consumption, self._battery_voltage,
+                                      self._battery_current, self._battery_power, self._battery_soc,
+                                      self._battery_state_string, self._pv_power, self._pv_current,
+                                      self._starter_battery_voltage, self._tank1_level, self._tank1_type_string,
+                                      self._tank2_level, self._tank2_type_string)
 
         if store_entry:
             self._log_manager.debug(f'Adding new Victron entry')

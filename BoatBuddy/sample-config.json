@@ -20,10 +20,27 @@
     "nmea_server_ip": "",
     "nmea_server_port": "10110"
   },
-  "victron": {
-    "victron_module": "True",
-    "victron_server_ip": "",
-    "victron_tcp_port": "502"
+  "victron_modbus_tcp": {
+    "victron_modbus_tcp_module": "True",
+    "victron_modbus_tcp_server_ip": "",
+    "victron_modbus_tcp_port": "502"
+  },
+  "victron_ble": {
+    "victron_ble_module": "True",
+    "victron_ble_devices" : {
+      "bmv_monitor_1": {
+        "name": "BMV 712",
+        "type": "battery_monitor",
+        "address": "",
+        "advertisement_key": ""
+      },
+      "mppt_controller_1": {
+        "name": "SmartSolar MPPT 75/10",
+        "type": "mppt_controller",
+        "address": "",
+        "advertisement_key": ""
+      }
+    }
   },
   "gps": {
     "gps_module": "True",

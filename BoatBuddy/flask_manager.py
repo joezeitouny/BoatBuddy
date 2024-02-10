@@ -385,7 +385,7 @@ def get_data():
     fuel_tank = 0
     water_tank = 0
     pv_power = 0
-    if application_modules.get_options().victron_module:
+    if application_modules.get_options().victron_modbus_tcp_module:
         victron_module = True
         # Populate the victron layout
         plugin_status = application_modules.get_plugin_manager().get_victron_plugin_status()
@@ -474,7 +474,7 @@ def get_data():
             average_sog = session_summary_metrics['[NM] Avg. SOG (kts)']
             average_sow = session_summary_metrics['[NM] Avg. SOW (kts)']
 
-        if application_modules.get_options().victron_module:
+        if application_modules.get_options().victron_modbus_tcp_module:
             housing_battery_max_voltage = session_summary_metrics['[GX] Batt. max voltage (V)']
             housing_battery_min_voltage = session_summary_metrics['[GX] Batt. min voltage (V)']
             housing_battery_avg_voltage = session_summary_metrics['[GX] Batt. avg. voltage (V)']

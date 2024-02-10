@@ -50,9 +50,10 @@ if __name__ == '__main__':
             options.nmea_module = utils.try_parse_bool(data['nmea']['nmea_module'])
             options.nmea_server_ip = data['nmea']['nmea_server_ip']
             options.nmea_server_port = utils.try_parse_int(data['nmea']['nmea_server_port'])
-            options.victron_module = utils.try_parse_bool(data['victron']['victron_module'])
-            options.victron_server_ip = data['victron']['victron_server_ip']
-            options.victron_tcp_port = utils.try_parse_int(data['victron']['victron_tcp_port'])
+            options.victron_modbus_tcp_module = utils.try_parse_bool(
+                data['victron_modbus_tcp']['victron_modbus_tcp_module'])
+            options.victron_modbus_tcp_server_ip = data['victron_modbus_tcp']['victron_modbus_tcp_server_ip']
+            options.victron_modbus_tcp_port = utils.try_parse_int(data['victron_modbus_tcp']['victron_modbus_tcp_port'])
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
             options.anchor_alarm_module = utils.try_parse_bool(data['anchor_alarm']['anchor_alarm_module'])
@@ -138,7 +139,8 @@ if __name__ == '__main__':
             print(f'Invalid argument: NMEA server IP and port need to be configured to be able to use the NMEA '
                   f'module\r\n')
             parser.print_help()
-        elif options.victron_module and not (options.victron_server_ip and options.victron_tcp_port):
+        elif options.victron_modbus_tcp_module and not (
+                options.victron_modbus_tcp_server_ip and options.victron_modbus_tcp_port):
             print(f'Invalid argument: Victron server IP and port need to be configured to be able to use the '
                   f'victron module\r\n')
             parser.print_help()
@@ -160,7 +162,7 @@ if __name__ == '__main__':
                   f'when the NMEA module is disabled\r\n')
             parser.print_help()
         elif str(options.session_run_mode).lower() == globals.SessionRunMode.AUTO_VICTRON.value and \
-                not options.victron_module:
+                not options.victron_modbus_tcp_module:
             print(f'Invalid argument: Cannot use the \'auto-victron\' session run mode ' +
                   f'when the Victron module is disabled\r\n')
             parser.print_help()

@@ -179,7 +179,7 @@ class ConsoleManager:
                                                                 self._options.console_nmea_summary_fields.copy())
             summary_key_value_list.update(nmea_dictionary)
 
-        if self._options.victron_module:
+        if self._options.victron_modbus_tcp_module:
             victron_dictionary = utils.get_filtered_key_value_list(summary_key_value_list,
                                                                    self._options.console_victron_summary_fields.copy())
             summary_key_value_list.update(victron_dictionary)
@@ -259,7 +259,7 @@ class ConsoleManager:
         nmea_layout = None
         summary_layout = None
 
-        if self._options.victron_module and self._options.console_show_victron_plugin:
+        if self._options.victron_modbus_tcp_module and self._options.console_show_victron_plugin:
             victron_layout = Layout(name="victron")
             # Populate the victron layout
             plugin_status = self._plugin_manager.get_victron_plugin_status()
