@@ -84,10 +84,10 @@
   },
   "metrics": {
     "metrics_electrical_system": {
-      "battery_soc_gauge" : {
+      "housing_battery_soc_gauge" : {
         "order": "1",
-        "name": "Battery SOC",
-        "data_field": "battery_soc",
+        "name": "Housing Batt.",
+        "data_field": "housing_battery_soc",
         "type": "gauge",
         "max_value": 100,
         "min_value": 0,
