@@ -470,8 +470,8 @@
         <div class="col d-flex justify-content-center">
             <span>
                 <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;"
-                      id="victron_module_spinner" role="status"></span>Victron module:&nbsp;<span
-                    id="victron_module_status"></span>
+                      id="victron_modbus_tcp_module_spinner" role="status"></span>Victron Modbus TCP module:&nbsp;<span
+                    id="victron_modbus_tcp_module_status"></span>
             </span>
         </div>
         <div class="col d-flex justify-content-center">
@@ -1456,9 +1456,9 @@ function refreshData() {
                 }
             }
 
-            if (data['victron_module']) {
-                if (document.getElementById("battery_soc_gauge") !== null) {
-                    $("#battery_soc_gauge").gaugeMeter({used:parseInt(data['battery_soc'])});
+            if (data['victron_modbus_tcp_module']) {
+                if (document.getElementById("housing_battery_soc_gauge") !== null) {
+                    $("#housing_battery_soc_gauge").gaugeMeter({used:parseInt(data['housing_battery_soc'])});
                 }
 
                 if (document.getElementById("battery_voltage_gauge") !== null) {
@@ -1505,17 +1505,17 @@ function refreshData() {
                     document.getElementById('pv_current').innerHTML = data['pv_current'] + 'A';
                 }
 
-                document.getElementById('victron_module_status').innerHTML = data['victron_status'];
-                if (data['victron_status'] == "Running") {
-                    document.getElementById("victron_module_spinner").className = "spinner-border text-success me-2";
-                } else if (data['victron_status'] == "Down") {
-                    document.getElementById("victron_module_spinner").className = "spinner-grow text-danger me-2";
-                } else if (data['victron_status'] == "Starting") {
-                    document.getElementById("victron_module_spinner").className = "spinner-grow text-warning me-2";
+                document.getElementById('victron_modbus_tcp_module_status').innerHTML = data['victron_modbus_tcp_status'];
+                if (data['victron_modbus_tcp_status'] == "Running") {
+                    document.getElementById("victron_modbus_tcp_module_spinner").className = "spinner-border text-success me-2";
+                } else if (data['victron_modbus_tcp_status'] == "Down") {
+                    document.getElementById("victron_modbus_tcp_module_spinner").className = "spinner-grow text-danger me-2";
+                } else if (data['victron_modbus_tcp_status'] == "Starting") {
+                    document.getElementById("victron_modbus_tcp_module_spinner").className = "spinner-grow text-warning me-2";
                 }
             } else {
-                document.getElementById('victron_module_status').innerHTML = "Disabled";
-                document.getElementById("victron_module_spinner").className = "spinner-grow text-secondary me-2";
+                document.getElementById('victron_modbus_tcp_module_status').innerHTML = "Disabled";
+                document.getElementById("victron_modbus_tcp_module_spinner").className = "spinner-grow text-secondary me-2";
             }
 
             if (data['nmea_module']) {
