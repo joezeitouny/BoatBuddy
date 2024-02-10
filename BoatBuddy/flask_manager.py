@@ -380,6 +380,7 @@ def get_data():
     housing_battery_current = 0
     pv_current = 0
     battery_soc = 0
+    battery_voltage = 0.0
     starter_battery_voltage = 0.0
     fuel_tank = 0
     water_tank = 0
@@ -396,6 +397,7 @@ def get_data():
             housing_battery_state = victron_metrics[12]
             housing_battery_current = utils.try_parse_float(victron_metrics[9])
             battery_soc = utils.try_parse_int(victron_metrics[11])
+            battery_voltage = utils.try_parse_float(victron_metrics[8])
             starter_battery_voltage = utils.try_parse_float(victron_metrics[15])
             pv_power = utils.try_parse_int(victron_metrics[13])
             pv_current = utils.try_parse_float(victron_metrics[14])
@@ -503,6 +505,7 @@ def get_data():
     data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
             'web_theme': web_theme, 'day_light': day_light, 'victron_module': victron_module,
             'battery_soc': battery_soc,
+            'battery_voltage': battery_voltage,
             'victron_status': victron_status,
             'fuel_tank': fuel_tank, 'water_tank': water_tank,
             'starter_battery_voltage': starter_battery_voltage,

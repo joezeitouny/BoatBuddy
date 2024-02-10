@@ -1461,6 +1461,10 @@ function refreshData() {
                     $("#battery_soc_gauge").gaugeMeter({used:parseInt(data['battery_soc'])});
                 }
 
+                if (document.getElementById("battery_voltage_gauge") !== null) {
+                    $("#battery_voltage_gauge").gaugeMeter({used:parseFloat(data['battery_voltage'])});
+                }
+
                 if (document.getElementById("starter_battery_voltage_gauge") !== null) {
                     $("#starter_battery_voltage_gauge").gaugeMeter({used:parseFloat(data['starter_battery_voltage'])});
                 }
