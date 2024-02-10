@@ -142,9 +142,9 @@ class VictronModbusTCPPlugin(GenericPlugin):
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
         self._exit_signal = threading.Event()
-        self._timer = threading.Timer(globals.VICTRON_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
-        self._log_manager.info('Victron module successfully started!')
+        self._log_manager.info('Victron Modbus TCP module successfully started!')
 
     def reset_instance_metrics(self):
         self._grid_power = globals.EMPTY_METRIC_VALUE
@@ -197,7 +197,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
     def main_loop(self):
         if self._exit_signal.is_set():
             self._plugin_status = PluginStatus.DOWN
-            self._log_manager.info('Victron plugin instance is ready to be destroyed')
+            self._log_manager.info('Victron Modbus TCP plugin instance is ready to be destroyed')
             return
 
         server_ip = f'{self._options.victron_modbus_tcp_server_ip}'
@@ -212,7 +212,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
                 raise ValueError('Modbus TCP server is unreachable')
 
             if self._plugin_status != PluginStatus.RUNNING:
-                self._log_manager.info(f'Connection to Victron system on {server_ip} is established')
+                self._log_manager.info(f'Connection to Victron Modbus TCP system on {server_ip} is established')
 
                 self._plugin_status = PluginStatus.RUNNING
 
@@ -360,7 +360,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
             self._handle_connection_exception(e)
 
         # Reset the timer
-        self._timer = threading.Timer(globals.VICTRON_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self.main_loop)
         self._timer.start()
 
     def _handle_connection_exception(self, message):
@@ -375,7 +375,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
     def get_metadata_headers(self):
-        return globals.VICTRON_PLUGIN_METADATA_HEADERS.copy()
+        return globals.VICTRON_MODBUS_TCP_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         entry = VictronModbusTCPEntry(self._input_source_string, self._grid_power, self._generator_power,
@@ -588,10 +588,10 @@ class VictronModbusTCPPlugin(GenericPlugin):
         self._exit_signal.set()
         if self._timer:
             self._timer.cancel()
-        self._log_manager.info("Victron plugin worker thread notified...")
+        self._log_manager.info("Victron Modbus TCP plugin worker thread notified...")
 
     def get_summary_headers(self):
-        return globals.VICTRON_PLUGINS_SUMMARY_HEADERS.copy()
+        return globals.VICTRON_MODBUS_TCP_PLUGIN_SUMMARY_HEADERS.copy()
 
     def get_summary_values(self):
         return self._summary_values.copy()

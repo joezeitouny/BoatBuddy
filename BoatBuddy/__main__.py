@@ -4,8 +4,6 @@ import optparse
 import os
 
 from BoatBuddy import globals, utils
-from BoatBuddy.console_manager import ConsoleManager
-from BoatBuddy.database_manager import DatabaseWrapper
 from BoatBuddy.flask_manager import FlaskManager
 
 if __name__ == '__main__':
@@ -41,7 +39,6 @@ if __name__ == '__main__':
             options.excel = utils.try_parse_bool(data['output_to_excel'])
             options.csv = utils.try_parse_bool(data['output_to_csv'])
             options.gpx = utils.try_parse_bool(data['output_to_gpx'])
-            options.web_module = utils.try_parse_bool(data['web_application']['web_module'])
             options.web_host = data['web_application']['web_host']
             options.web_port = data['web_application']['web_port']
             options.web_theme = data['web_application']['web_theme']
@@ -54,34 +51,14 @@ if __name__ == '__main__':
                 data['victron_modbus_tcp']['victron_modbus_tcp_module'])
             options.victron_modbus_tcp_server_ip = data['victron_modbus_tcp']['victron_modbus_tcp_server_ip']
             options.victron_modbus_tcp_port = utils.try_parse_int(data['victron_modbus_tcp']['victron_modbus_tcp_port'])
+            options.victron_ble_module = utils.try_parse_bool(data['victron_ble']['victron_ble_module'])
+            options.victron_ble_devices = data['victron_ble']['victron_ble_devices']
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
             options.anchor_alarm_module = utils.try_parse_bool(data['anchor_alarm']['anchor_alarm_module'])
             options.anchor_alarm_default_allowed_distance = \
                 utils.try_parse_int(data['anchor_alarm']['anchor_alarm_default_allowed_distance'])
             options.anchor_alarm_mapbox_api_key = data['anchor_alarm']['anchor_alarm_mapbox_api_key']
-            options.database_module = utils.try_parse_bool(data['database']['database_module'])
-            options.database_name = data['database']['database_name']
-            options.database_host = data['database']['database_host']
-            options.database_user = data['database']['database_user']
-            options.database_password = data['database']['database_password']
-            options.database_wrapper = data['database']['database_wrapper']
-            options.database_live_feed_entry_interval = \
-                utils.try_parse_int(data['database']['database_live_feed_entry_interval'])
-            options.database_cleanup_events = utils.try_parse_bool(data['database']['database_cleanup_events'])
-            options.database_log_table_limit = utils.try_parse_int(data['database']['database_log_table_limit'])
-            options.database_event_table_limit = utils.try_parse_int(data['database']['database_event_table_limit'])
-            options.console_show_victron_plugin = utils.try_parse_bool(data['console']['console_show_victron_plugin'])
-            options.console_show_nmea_plugin = utils.try_parse_bool(data['console']['console_show_nmea_plugin'])
-            options.console_show_gps_plugin = utils.try_parse_bool(data['console']['console_show_gps_plugin'])
-            options.console_show_log = utils.try_parse_bool(data['console']['console_show_log'])
-            options.console_session_header_fields = data['console']['console_session_header_fields']
-            options.console_victron_summary_fields = data['console']['console_victron_summary_fields']
-            options.console_nmea_summary_fields = data['console']['console_nmea_summary_fields']
-            options.console_gps_summary_fields = data['console']['console_gps_summary_fields']
-            options.console_victron_metrics = data['console']['console_victron_metrics']
-            options.console_nmea_metrics = data['console']['console_nmea_metrics']
-            options.console_gps_metrics = data['console']['console_gps_metrics']
             options.email_module = utils.try_parse_bool(data['email']['email_module'])
             options.email_address = data['email']['email_address']
             options.email_password = data['email']['email_password']
@@ -127,12 +104,12 @@ if __name__ == '__main__':
         elif not options.excel and not options.gpx and not options.csv and not options.session_summary_report:
             print(f'Invalid argument: At least one output medium needs to be specified\r\n')
             parser.print_help()
-        elif options.web_module and not options.web_theme:
+        elif not options.web_theme:
             print(f'Invalid argument: Web theme option must be specified')
             parser.print_help()
-        elif options.web_module and not (str(options.web_theme).lower() == "auto" or
-                                         str(options.web_theme).lower() == "dark" or
-                                         str(options.web_theme).lower() == "light"):
+        elif not (str(options.web_theme).lower() == "auto" or
+                  str(options.web_theme).lower() == "dark" or
+                  str(options.web_theme).lower() == "light"):
             print(f'Invalid argument: Invalid web theme option')
             parser.print_help()
         elif options.nmea_module and not (options.nmea_server_ip and options.nmea_server_port):
@@ -146,15 +123,6 @@ if __name__ == '__main__':
             parser.print_help()
         elif options.gps_module and not options.gps_serial_port:
             print(f'Invalid argument: GPS serial port need to be configured to be able to use the GPS module\r\n')
-            parser.print_help()
-        elif options.database_module and options.database_wrapper != DatabaseWrapper.MYSQL.value:
-            print(f'Invalid argument: Invalid database wrapper value provided\r\n')
-            parser.print_help()
-        elif options.database_module and (not options.database_host or not options.database_name
-                                          or not options.database_user or not options.database_password
-                                          or options.database_live_feed_entry_interval == 0):
-            print(f'Invalid argument: All database module configuration need to be supplied '
-                  f'in order to this feature\r\n')
             parser.print_help()
         elif str(options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value and \
                 not options.nmea_module:
@@ -188,7 +156,7 @@ if __name__ == '__main__':
             print(f'Invalid argument: Notification cool-off interval need to be provided if the '
                   f'notification module is turned on')
             parser.print_help()
-        elif options.web_module and not (options.web_host or options.web_port):
+        elif not (options.web_host or options.web_port):
             print(f'Invalid argument: Web module requires the host and port parameters to be provided')
             parser.print_help()
         elif options.anchor_alarm_module and not options.gps_module:
@@ -199,8 +167,4 @@ if __name__ == '__main__':
                   f'parameters to be provided')
             parser.print_help()
         else:
-            if options.web_module:
-                FlaskManager(options)
-            else:
-                # Load the console manager
-                ConsoleManager(options)
+            FlaskManager(options)

@@ -7,7 +7,6 @@ from rich.console import Console
 
 from BoatBuddy import app
 from BoatBuddy import utils, globals
-from BoatBuddy.database_manager import DatabaseManager
 from BoatBuddy.anchor_manager import AnchorManager
 from BoatBuddy.email_manager import EmailManager
 from BoatBuddy.telegram_manager import TelegramManager
@@ -21,14 +20,13 @@ from BoatBuddy.sound_manager import SoundManager, SoundType
 class ApplicationModules:
     def __init__(self, options, log_manager: LogManager, sound_manager: SoundManager, email_manager: EmailManager,
                  notifications_manager: NotificationsManager, plugin_manager: PluginManager,
-                 database_manager: DatabaseManager, anchor_manager: AnchorManager, telegram_manager: TelegramManager):
+                 anchor_manager: AnchorManager, telegram_manager: TelegramManager):
         self._options = options
         self._log_manager = log_manager
         self._sound_manager = sound_manager
         self._email_manager = email_manager
         self._notifications_manager = notifications_manager
         self._plugin_manager = plugin_manager
-        self._database_manager = database_manager
         self._anchor_manager = anchor_manager
         self._telegram_manager = telegram_manager
 
@@ -49,9 +47,6 @@ class ApplicationModules:
 
     def get_plugin_manager(self) -> PluginManager:
         return self._plugin_manager
-
-    def get_database_manager(self) -> DatabaseManager:
-        return self._database_manager
 
     def get_anchor_manager(self) -> AnchorManager:
         return self._anchor_manager
@@ -104,11 +99,6 @@ class FlaskManager:
                                             _email_manager)
             _console.print(f'[green]Loading plugins module...Done[/green]')
 
-        with _console.status('[bold bright_yellow]Loading database module...[/bold bright_yellow]'):
-            time.sleep(0.1)
-            _database_manager = DatabaseManager(self._options, _log_manager, _plugin_manager, _notifications_manager)
-            _console.print(f'[green]Loading database module...Done[/green]')
-
         with _console.status('[bold bright_yellow]Loading anchor module...[/bold bright_yellow]'):
             time.sleep(0.1)
             _anchor_manager = AnchorManager(self._options, _log_manager, _plugin_manager, _email_manager,
@@ -123,7 +113,7 @@ class FlaskManager:
 
         global application_modules
         application_modules = ApplicationModules(self._options, _log_manager, _sound_manager, _email_manager,
-                                                 _notifications_manager, _plugin_manager, _database_manager,
+                                                 _notifications_manager, _plugin_manager,
                                                  _anchor_manager, _telegram_manager)
 
         webbrowser.open(f'http://{self._options.web_host}:{self._options.web_port}')
@@ -390,7 +380,7 @@ def get_data():
         # Populate the victron layout
         plugin_status = application_modules.get_plugin_manager().get_victron_plugin_status()
         victron_status = get_plugin_status_str(plugin_status)
-        victron_metrics = application_modules.get_plugin_manager().get_victron_plugin_metrics()
+        victron_metrics = application_modules.get_plugin_manager().get_victron_modbus_tcp_plugin_metrics()
         if victron_metrics and len(victron_metrics) > 0:
             active_input_source = victron_metrics[0]
             ve_bus_state = victron_metrics[6]
