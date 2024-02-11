@@ -26,6 +26,11 @@ VICTRON_MODBUS_TCP_TIMER_INTERVAL = 1  # In seconds, defines the amount of time 
 GPS_TIMER_INTERVAL = 5  # In seconds, defines the amount of time to wait between metrics retrievals
 
 
+class DataSource(Enum):
+    VICTRON_BLE = "victron_ble"
+    VICTRON_MODBUS_TCP = "victron_modbus_tcp"
+
+
 # Session Run modes
 class SessionRunMode(Enum):
     AUTO_NMEA = 'auto-nmea'

@@ -19,13 +19,11 @@
     "nmea_server_ip": "",
     "nmea_server_port": "10110"
   },
-  "data_sources": {
-    "housing_battery_soc": "victron_ble",
-    "housing_battery_voltage": "victron_ble",
-    "housing_battery_current": "victron_ble",
-    "starter_battery_voltage": "victron_modbus_tcp",
-    "housing_battery_consumed_ah": "victron_ble",
-    "housing_battery_remaining_time": "victron_ble"
+  "data_source": {
+    "data_source_housing_battery_soc": "victron_ble",
+    "data_source_housing_battery_voltage": "victron_ble",
+    "data_source_housing_battery_current": "victron_ble",
+    "data_source_starter_battery_voltage": "victron_modbus_tcp"
   },
   "victron_modbus_tcp": {
     "victron_modbus_tcp_module": "True",

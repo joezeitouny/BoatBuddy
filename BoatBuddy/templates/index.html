@@ -476,6 +476,13 @@
         </div>
         <div class="col d-flex justify-content-center">
             <span>
+                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;"
+                      id="victron_ble_module_spinner" role="status"></span>Victron BLE module:&nbsp;<span
+                    id="victron_ble_module_status"></span>
+            </span>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <span>
                 <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="nmea_module_spinner"
                       role="status"></span>NMEA0183 module:&nbsp;<span id="nmea_module_status"></span>
             </span>
@@ -1516,6 +1523,20 @@ function refreshData() {
             } else {
                 document.getElementById('victron_modbus_tcp_module_status').innerHTML = "Disabled";
                 document.getElementById("victron_modbus_tcp_module_spinner").className = "spinner-grow text-secondary me-2";
+            }
+
+            if (data['victron_ble_module']) {
+                document.getElementById('victron_ble_module_status').innerHTML = data['victron_ble_status'];
+                if (data['victron_ble_status'] == "Running") {
+                    document.getElementById("victron_ble_module_spinner").className = "spinner-border text-success me-2";
+                } else if (data['victron_ble_status'] == "Down") {
+                    document.getElementById("victron_ble_module_spinner").className = "spinner-grow text-danger me-2";
+                } else if (data['victron_ble_status'] == "Starting") {
+                    document.getElementById("victron_ble_module_spinner").className = "spinner-grow text-warning me-2";
+                }
+            } else {
+                document.getElementById('victron_ble_module_status').innerHTML = "Disabled";
+                document.getElementById("victron_ble_module_spinner").className = "spinner-grow text-secondary me-2";
             }
 
             if (data['nmea_module']) {

@@ -47,6 +47,10 @@ if __name__ == '__main__':
             options.nmea_module = utils.try_parse_bool(data['nmea']['nmea_module'])
             options.nmea_server_ip = data['nmea']['nmea_server_ip']
             options.nmea_server_port = utils.try_parse_int(data['nmea']['nmea_server_port'])
+            options.data_source_housing_battery_soc = data['data_source']['data_source_housing_battery_soc']
+            options.data_source_housing_battery_voltage = data['data_source']['data_source_housing_battery_voltage']
+            options.data_source_housing_battery_current = data['data_source']['data_source_housing_battery_current']
+            options.data_source_starter_battery_voltage = data['data_source']['data_source_starter_battery_voltage']
             options.victron_modbus_tcp_module = utils.try_parse_bool(
                 data['victron_modbus_tcp']['victron_modbus_tcp_module'])
             options.victron_modbus_tcp_server_ip = data['victron_modbus_tcp']['victron_modbus_tcp_server_ip']
