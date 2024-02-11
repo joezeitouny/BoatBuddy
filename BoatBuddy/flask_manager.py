@@ -365,6 +365,7 @@ def get_data():
     victron_modbus_tcp_module = False
     victron_ble_module = False
     victron_modbus_tcp_status = ''
+    victron_ble_status = ''
     active_input_source = 'N/A'
     ve_bus_state = 'N/A'
     housing_battery_state = 'N/A'
