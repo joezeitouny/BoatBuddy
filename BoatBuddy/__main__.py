@@ -52,7 +52,9 @@ if __name__ == '__main__':
             options.victron_modbus_tcp_server_ip = data['victron_modbus_tcp']['victron_modbus_tcp_server_ip']
             options.victron_modbus_tcp_port = utils.try_parse_int(data['victron_modbus_tcp']['victron_modbus_tcp_port'])
             options.victron_ble_module = utils.try_parse_bool(data['victron_ble']['victron_ble_module'])
-            options.victron_ble_devices = data['victron_ble']['victron_ble_devices']
+            options.victron_ble_bmv_device_address = data['victron_ble']['victron_ble_bmv_device_address']
+            options.victron_ble_bmv_device_advertisement_key = data['victron_ble'][
+                'victron_ble_bmv_device_advertisement_key']
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
             options.anchor_alarm_module = utils.try_parse_bool(data['anchor_alarm']['anchor_alarm_module'])
@@ -121,6 +123,13 @@ if __name__ == '__main__':
             print(
                 f'Invalid argument: Victron Modbus TCP server IP and port need to be configured to be able to use the '
                 f'victron Modbus TCP module\r\n')
+            parser.print_help()
+        elif options.victron_ble_module and not (
+                options.victron_ble_bmv_device_address or options.victron_ble_bmv_device_advertisement_key):
+            print(
+                f'Invalid argument: Victron BLE BMV address and advertisement key need to be configured '
+                f'to be able to use the '
+                f'victron BLE module\r\n')
             parser.print_help()
         elif options.gps_module and not options.gps_serial_port:
             print(f'Invalid argument: GPS serial port need to be configured to be able to use the GPS module\r\n')

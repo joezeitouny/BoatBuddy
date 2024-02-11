@@ -31,8 +31,10 @@ dependencies = [
     "yagmail ~= 0.15.293",
     "keyring ~= 23.13.1",
     "mysql-connector-python ~= 8.0.32",
-    "Flask ~= 2.2.3",
-    "python-telegram-bot ~= 20.6"
+    "Flask ~= 3.0.2",
+    "python-telegram-bot ~= 20.6",
+    "bleak~=0.21.1",
+    "victron-ble~=0.6.0"
 ]
 [project.urls]
 "Homepage" = "https://boatbuddy.site"

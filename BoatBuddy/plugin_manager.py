@@ -21,6 +21,7 @@ from BoatBuddy.notifications_manager import NotificationsManager, NotificationEn
 from BoatBuddy.sound_manager import SoundManager, SoundType
 from BoatBuddy.utils import ModuleStatus
 from BoatBuddy.victron_modbus_tcp_plugin import VictronModbusTCPPlugin, VictronModbusTCPPluginEvents
+from BoatBuddy.victron_ble_plugin import VictronBLEPlugin
 
 
 class PluginManagerEvents(Events):
@@ -78,13 +79,17 @@ class PluginManager:
             self._gps_plugin.register_for_events(gps_connection_events)
 
         if self._options.victron_modbus_tcp_module:
-            # initialize the Victron plugin
+            # initialize the Victron Modbus TCP plugin
             self._victron_modbus_tcp_plugin = VictronModbusTCPPlugin(self._options, self._log_manager)
 
             victron_modbus_tcp_connection_events = VictronModbusTCPPluginEvents()
             victron_modbus_tcp_connection_events.on_connect += self._on_connect_victron_plugin
             victron_modbus_tcp_connection_events.on_disconnect += self._on_disconnect_victron_plugin
             self._victron_modbus_tcp_plugin.register_for_events(victron_modbus_tcp_connection_events)
+
+        if self._options.victron_ble_module:
+            # initialize the Victron BLE plugin
+            self._victron_ble_plugin = VictronBLEPlugin(self._options, self._log_manager)
 
         if self._options.nmea_module:
             # initialize the NMEA0183 plugin
@@ -162,6 +167,10 @@ class PluginManager:
         if self._nmea_plugin:
             self._nmea_plugin.take_snapshot(store_entry=True)
             values += self._nmea_plugin.get_metadata_values()
+
+        if self._victron_ble_plugin:
+            self._victron_ble_plugin.take_snapshot(store_entry=True)
+            values += self._victron_ble_plugin.get_metadata_values()
 
         if self._victron_modbus_tcp_plugin:
             self._victron_modbus_tcp_plugin.take_snapshot(store_entry=True)
@@ -244,6 +253,9 @@ class PluginManager:
         if self._nmea_plugin:
             column_headers += self._nmea_plugin.get_metadata_headers()
 
+        if self._victron_ble_plugin:
+            column_headers += self._victron_ble_plugin.get_metadata_headers()
+
         if self._victron_modbus_tcp_plugin:
             column_headers += self._victron_modbus_tcp_plugin.get_metadata_headers()
 
@@ -319,6 +331,9 @@ class PluginManager:
             if self._nmea_plugin:
                 column_headers += self._nmea_plugin.get_summary_headers()
 
+            if self._victron_ble_plugin:
+                column_headers += self._victron_ble_plugin.get_summary_headers()
+
             if self._victron_modbus_tcp_plugin:
                 column_headers += self._victron_modbus_tcp_plugin.get_summary_headers()
             summary_sheet.append(column_headers)
@@ -333,6 +348,10 @@ class PluginManager:
             if self._nmea_plugin:
                 log_summary_list += self._nmea_plugin.get_summary_values(True)
                 self._nmea_plugin.clear_entries()
+
+            if self._victron_ble_plugin:
+                log_summary_list += self._victron_ble_plugin.get_summary_values()
+                self._victron_ble_plugin.clear_entries()
 
             if self._victron_modbus_tcp_plugin:
                 log_summary_list += self._victron_modbus_tcp_plugin.get_summary_values()
@@ -407,6 +426,9 @@ class PluginManager:
         if self._gps_plugin:
             self._gps_plugin.finalize()
 
+        if self._victron_ble_plugin:
+            self._victron_ble_plugin.finalize()
+
         if self._victron_modbus_tcp_plugin:
             self._victron_modbus_tcp_plugin.finalize()
 
@@ -422,6 +444,13 @@ class PluginManager:
 
     def get_nmea_plugin_metrics(self) -> {}:
         entry = self._nmea_plugin.take_snapshot(store_entry=False)
+        if entry is not None:
+            return entry.get_values()
+
+        return []
+
+    def get_victron_ble_plugin_metrics(self) -> {}:
+        entry = self._victron_ble_plugin.take_snapshot(store_entry=False)
         if entry is not None:
             return entry.get_values()
 
@@ -461,12 +490,24 @@ class PluginManager:
                                                        self._nmea_plugin.get_summary_values())
             summary_key_value_list.update(nmea_dictionary)
 
+        if self._victron_ble_plugin:
+            victron_ble_dictionary = utils.get_key_value_list(self._victron_ble_plugin.get_summary_headers(),
+                                                              self._victron_ble_plugin.get_summary_values())
+            summary_key_value_list.update(victron_ble_dictionary)
+
         if self._victron_modbus_tcp_plugin:
-            victron_dictionary = utils.get_key_value_list(self._victron_modbus_tcp_plugin.get_summary_headers(),
-                                                          self._victron_modbus_tcp_plugin.get_summary_values())
-            summary_key_value_list.update(victron_dictionary)
+            victron_modbus_tcp_dictionary = utils.get_key_value_list(
+                self._victron_modbus_tcp_plugin.get_summary_headers(),
+                self._victron_modbus_tcp_plugin.get_summary_values())
+            summary_key_value_list.update(victron_modbus_tcp_dictionary)
 
         return summary_key_value_list
+
+    def get_victron_ble_plugin_status(self) -> PluginStatus:
+        if not self._victron_ble_plugin:
+            return PluginStatus.DOWN
+
+        return self._victron_ble_plugin.get_status()
 
     def get_victron_modbus_tcp_plugin_status(self) -> PluginStatus:
         if not self._victron_modbus_tcp_plugin:

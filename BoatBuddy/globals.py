@@ -87,3 +87,17 @@ VICTRON_MODBUS_TCP_PLUGIN_SUMMARY_HEADERS = ['[GX] Batt. max voltage (V)', '[GX]
                                              '[GX] AC Consumption avg. (W)',
                                              '[GX] Tank 1 max lvl', '[GX] Tank 1 min lvl', '[GX] Tank 1 avg. lvl',
                                              '[GX] Tank 2 max lvl', '[GX] Tank 2 min lvl', '[GX] Tank 2 avg. lvl']
+
+VICTRON_BLE_PLUGIN_METADATA_HEADERS = ['[BLE] Housing batt. voltage (V)', '[BLE] Housing batt. current (A)',
+                                       '[BLE] Housing batt. SOC', '[BLE] Starter batt. voltage (V)',
+                                       '[BLE] Housing batt. consumed Ah', '[BLE] Housing batt. remaining mins']
+
+VICTRON_BLE_PLUGIN_SUMMARY_HEADERS = ['[BLE] Housing batt. max voltage (V)', '[BLE] Housing batt. min voltage (V)',
+                                      '[BLE] Housing batt. avg. voltage (V)', '[BLE] Housing batt. max current (A)',
+                                      '[BLE] Housing batt. avg. current (A)', '[BLE] Housing batt. max SOC',
+                                      '[BLE] Housing batt. min SOC', '[BLE] Housing batt. avg. SOC',
+                                      '[BLE] Starter batt. max voltage (V)', '[BLE] Starter batt. min voltage (V)',
+                                      '[BLE] Starter batt. avg. voltage',
+                                      '[BLE] Housing batt. max consumed Ah', '[BLE] Housing batt. min consumed Ah',
+                                      '[BLE] Housing batt. avg. consumed Ah',
+                                      '[BLE] Housing batt. avg. remaining mins']

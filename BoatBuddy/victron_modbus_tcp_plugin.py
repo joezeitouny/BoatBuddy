@@ -142,7 +142,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
         self._exit_signal = threading.Event()
-        self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self._main_loop)
         self._timer.start()
         self._log_manager.info('Victron Modbus TCP module successfully started!')
 
@@ -194,7 +194,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
         self._sum_tank2_level = 0
         self._cnt_tank2_level_entries = 0
 
-    def main_loop(self):
+    def _main_loop(self):
         if self._exit_signal.is_set():
             self._plugin_status = PluginStatus.DOWN
             self._log_manager.info('Victron Modbus TCP plugin instance is ready to be destroyed')
@@ -360,7 +360,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
             self._handle_connection_exception(e)
 
         # Reset the timer
-        self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self.main_loop)
+        self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self._main_loop)
         self._timer.start()
 
     def _handle_connection_exception(self, message):
