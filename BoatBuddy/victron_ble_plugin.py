@@ -160,11 +160,11 @@ class VictronBLEPlugin(GenericPlugin):
                 ble_device = device_klass(self._bmv_device_advertisement_key)
                 parsed_data = ble_device.parse(raw_data)
 
-                self._housing_battery_voltage = parsed_data.get_voltage()
-                self._housing_battery_current = parsed_data.get_current()
-                self._housing_battery_soc = parsed_data.get_soc()
-                self._starter_battery_voltage = parsed_data.get_starter_voltage()
-                self._housing_battery_consumed_ah = parsed_data.get_consumed_ah()
+                self._housing_battery_voltage = round(parsed_data.get_voltage(), 2)
+                self._housing_battery_current = round(parsed_data.get_current(), 1)
+                self._housing_battery_soc = round(parsed_data.get_soc())
+                self._starter_battery_voltage = round(parsed_data.get_starter_voltage(), 2)
+                self._housing_battery_consumed_ah = round(parsed_data.get_consumed_ah(), 1)
                 self._housing_battery_remaining_mins = parsed_data.get_remaining_mins()
         except Exception as e:
             self._handle_connection_exception(e)

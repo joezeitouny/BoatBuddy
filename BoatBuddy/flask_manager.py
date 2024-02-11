@@ -428,7 +428,7 @@ def get_data():
 
             if (str(application_modules.get_options().data_source_housing_battery_soc).lower() ==
                     globals.DataSource.VICTRON_BLE.value):
-                housing_battery_soc = utils.try_parse_int(victron_ble_metrics[2])
+                housing_battery_soc = utils.try_parse_float(victron_ble_metrics[2])
 
             if (str(application_modules.get_options().data_source_starter_battery_voltage).lower() ==
                     globals.DataSource.VICTRON_BLE.value):
