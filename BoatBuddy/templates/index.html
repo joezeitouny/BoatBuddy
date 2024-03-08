@@ -550,7 +550,7 @@
             if (currentItem['type'] == 'gauge') {
                 // Create a new col element
                 var col = document.createElement('div');
-                col.className = "col d-flex justify-content-center";
+                col.className = "col-lg-6 d-flex justify-content-center";
 
                 var gaugeDiv = document.createElement('div');
                 gaugeDiv.className = "GaugeMeter-Dark";
@@ -1471,51 +1471,51 @@
                     }
                 }
 
-                if (data['housing_battery_soc'] && document.getElementById("housing_battery_soc_gauge") !== null) {
+                if (data['housing_battery_soc'] !== null && document.getElementById("housing_battery_soc_gauge") !== null) {
                     $("#housing_battery_soc_gauge").gaugeMeter({used:parseInt(data['housing_battery_soc'])});
                 }
 
-                if (data['battery_voltage'] && document.getElementById("battery_voltage_gauge") !== null) {
+                if (data['battery_voltage'] !== null && document.getElementById("battery_voltage_gauge") !== null) {
                     $("#battery_voltage_gauge").gaugeMeter({used:parseFloat(data['battery_voltage'])});
                 }
 
-                if (data['starter_battery_voltage'] && document.getElementById("starter_battery_voltage_gauge") !== null) {
+                if (data['starter_battery_voltage'] !== null && document.getElementById("starter_battery_voltage_gauge") !== null) {
                     $("#starter_battery_voltage_gauge").gaugeMeter({used:parseFloat(data['starter_battery_voltage'])});
                 }
 
-                if (data['housing_battery_current'] && document.getElementById("housing_battery_current_gauge") !== null) {
+                if (data['housing_battery_current'] !== null && document.getElementById("housing_battery_current_gauge") !== null) {
                     $("#housing_battery_current_gauge").gaugeMeter({used:parseFloat(data['housing_battery_current'])});
                 }
 
-                if (data['housing_battery_current'] && document.getElementById('housing_battery_current') !== null) {
+                if (data['housing_battery_current'] !== null && document.getElementById('housing_battery_current') !== null) {
                     document.getElementById('housing_battery_current').innerHTML = data['housing_battery_current'] + 'A';
                 }
 
-                if (data['pv_power'] && document.getElementById("pv_power_gauge") !== null) {
+                if (data['pv_power'] !== null && document.getElementById("pv_power_gauge") !== null) {
                     $("#pv_power_gauge").gaugeMeter({used:parseInt(data['pv_power'])});
                 }
 
-                if (data['fuel_tank'] && document.getElementById("fuel_tank_gauge") !== null) {
+                if (data['fuel_tank'] !== null && document.getElementById("fuel_tank_gauge") !== null) {
                     $("#fuel_tank_gauge").gaugeMeter({used:parseInt(data['fuel_tank'])});
                 }
 
-                if (data['water_tank'] && document.getElementById("water_tank_gauge") !== null) {
+                if (data['water_tank'] !== null && document.getElementById("water_tank_gauge") !== null) {
                     $("#water_tank_gauge").gaugeMeter({used:parseInt(data['water_tank'])});
                 }
 
-                if (data['active_input_source'] && document.getElementById('active_input_source') !== null) {
+                if (data['active_input_source'] !== null && document.getElementById('active_input_source') !== null) {
                     document.getElementById('active_input_source').innerHTML = data['active_input_source'];
                 }
 
-                if (data['ve_bus_state'] && document.getElementById('ve_bus_state') !== null) {
+                if (data['ve_bus_state'] !== null && document.getElementById('ve_bus_state') !== null) {
                     document.getElementById('ve_bus_state').innerHTML = data['ve_bus_state'];
                 }
 
-                if (data['housing_battery_state'] && document.getElementById('housing_battery_state') !== null) {
+                if (data['housing_battery_state'] !== null && document.getElementById('housing_battery_state') !== null) {
                     document.getElementById('housing_battery_state').innerHTML = data['housing_battery_state'];
                 }
 
-                if (data['pv_current'] && document.getElementById('pv_current') !== null) {
+                if (data['pv_current'] !== null && document.getElementById('pv_current') !== null) {
                     document.getElementById('pv_current').innerHTML = data['pv_current'] + 'A';
                 }
 
