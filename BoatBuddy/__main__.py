@@ -61,6 +61,8 @@ if __name__ == '__main__':
                 'victron_ble_bmv_device_advertisement_key']
             options.gps_module = utils.try_parse_bool(data['gps']['gps_module'])
             options.gps_serial_port = data['gps']['gps_serial_port']
+            options.gps_latitude_home = data['gps']['gps_latitude_home']
+            options.gps_longitude_home = data['gps']['gps_longitude_home']
             options.anchor_alarm_module = utils.try_parse_bool(data['anchor_alarm']['anchor_alarm_module'])
             options.anchor_alarm_default_allowed_distance = \
                 utils.try_parse_int(data['anchor_alarm']['anchor_alarm_default_allowed_distance'])

@@ -234,6 +234,17 @@ def get_gps_coordinates():
     return jsonify(data)
 
 
+@app.route('/home_gps_coordinates')
+def get_home_gps_coordinates():
+    gps_latitude = application_modules.get_options().gps_latitude_home
+    gps_longitude = application_modules.get_options().gps_longitude_home
+
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION, 'gps_latitude': gps_latitude,
+            'gps_longitude': gps_longitude}
+
+    return jsonify(data)
+
+
 @app.route('/set_anchor', methods=['POST'])
 def set_anchor():
     latitude = request.form.get('latitude')  # Get the latitude value from the request

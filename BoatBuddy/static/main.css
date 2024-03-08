@@ -162,3 +162,11 @@
     Font-Size:       .9em;
     Opacity:         1;
 }
+
+.hidden {
+    opacity: 0;
+    height: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity 1.0s ease, height 1.0s ease, width 1.0s ease;
+}
