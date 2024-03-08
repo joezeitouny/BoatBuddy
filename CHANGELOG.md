@@ -1,3 +1,13 @@
+## 0.11.0 (2024-03-08)
+
+* Added support for displaying housing battery voltage on the dashboard
+* Removed database storage feature
+* Removed Rich console feature
+* Introduced support for Victron BLE readouts
+* Added ability to use a preset position when setting an anchor
+* UI layout improvements
+* Version bump to 0.11.0
+
 ## 0.10.1 (2024-02-02)
 
 * Added boat name on main UI
