@@ -192,7 +192,7 @@
             .html(option.label)
             .css({
               'line-height': option.size + 5 * a + 'px',
-              color: option.label_color
+//              color: option.label_color
             });
         }
       }

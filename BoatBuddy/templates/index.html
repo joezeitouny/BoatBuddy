@@ -553,9 +553,10 @@
                 col.className = "col d-flex justify-content-center";
 
                 var gaugeDiv = document.createElement('div');
-                gaugeDiv.className = "GaugeMeter-Light";
+                gaugeDiv.className = "GaugeMeter-Dark";
                 gaugeDiv.id = key;
                 gaugeDiv.setAttribute("data-label", currentItem['name']);
+                gaugeDiv.setAttribute("data-label_color", "White");
                 gaugeDiv.setAttribute("data-min", currentItem['min_value']);
                 gaugeDiv.setAttribute("data-total", currentItem['max_value']);
                 gaugeDiv.setAttribute("data-size", "170");
@@ -657,9 +658,10 @@
             if (currentItem['type'] == 'gauge') {
                 if (currentItem['style'] == 'wind_gauge') {
                     var gaugeDiv = document.createElement('div');
-                    gaugeDiv.className = "GaugeMeter-Light";
+                    gaugeDiv.className = "GaugeMeter-Dark";
                     gaugeDiv.id = key;
                     gaugeDiv.setAttribute("data-label", currentItem['name']);
+                    gaugeDiv.setAttribute("data-label_color", "White");
                     gaugeDiv.setAttribute("data-min", currentItem['min_value']);
                     gaugeDiv.setAttribute("data-total", currentItem['max_value']);
                     gaugeDiv.setAttribute("data-size", "170");
@@ -769,9 +771,10 @@
                     col.appendChild(gaugeDiv)
                 } else if (currentItem['style'] == 'speed_gauge') {
                     var gaugeDiv = document.createElement('div');
-                    gaugeDiv.className = "GaugeMeter-Light";
+                    gaugeDiv.className = "GaugeMeter-Dark";
                     gaugeDiv.id = key;
                     gaugeDiv.setAttribute("data-label", currentItem['name']);
+                    gaugeDiv.setAttribute("data-label_color", "White");
                     gaugeDiv.setAttribute("data-min", currentItem['min_value']);
                     gaugeDiv.setAttribute("data-total", currentItem['max_value']);
                     gaugeDiv.setAttribute("data-size", "170");
@@ -789,9 +792,10 @@
                     col.appendChild(gaugeDiv)
                 } else if (currentItem['style'] == 'temperature_gauge') {
                     var gaugeDiv = document.createElement('div');
-                    gaugeDiv.className = "GaugeMeter-Light";
+                    gaugeDiv.className = "GaugeMeter-Dark";
                     gaugeDiv.id = key;
                     gaugeDiv.setAttribute("data-label", currentItem['name']);
+                    gaugeDiv.setAttribute("data-label_color", "White");
                     gaugeDiv.setAttribute("data-min", currentItem['min_value']);
                     gaugeDiv.setAttribute("data-total", currentItem['max_value']);
                     gaugeDiv.setAttribute("data-size", "170");

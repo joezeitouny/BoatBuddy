@@ -95,7 +95,7 @@
     Position:        Absolute;
     Text-align:      Center;
     Display:         Inline-Block;
-    Color:           RGBa(0,0,0,.8);
+    Color:           RGBa(0,0,0,1);
     Font-Weight:     100;
     Font-Family:     "Open Sans", Arial;
     Overflow:        Hidden;
