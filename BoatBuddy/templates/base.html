@@ -17,17 +17,44 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/main.css" type="text/css">
     <link rel="shortcut icon" href="/static/favicon.ico">
-    <title>{{application_name}} v{{application_version}}</title>
+    <title>{{application_name}}</title>
 </head>
 
 <body id="body-element-id"
       class="container-fluid d-flex bg-dark bg-gradient text-light position-absolute mt-0 ms-0 me-0 mb-0">
 <div class="container-fluid p-0 m-0">
+    <div id="about_us_modal" tabindex="-1" class="modal fade" data-backdrop="static"
+         xmlns="http://www.w3.org/1999/html"
+         role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" id="about_us_modal_content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{application_name}}</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <span><b>Version</b>&nbsp {{application_version}}</span>
+                    </div>
+                    <div class="row">
+                        <span><b>Website</b>&nbsp <a href="https://boatbuddy.site" target="_blank">https://boatbuddy.site</a></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="close btn btn-secondary" onclick="hideAboutUsModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <nav id="navbar-element-id" class="navbar navbar-expand-lg bg-dark bg-gradient shadow">
             <div class="container-fluid">
                 <div class="col-9 col-lg col-sm-5">
-                    <a class="navbar-brand" href="#"><span><img src="/static/logo.png" alt="..." width="32" height="32"> {{application_name}} <small>v{{application_version}}</small></span></a>
+                    <button class="navbar-brand btn" type="button" onclick="showAboutUsModal()">
+                        <span><img src="/static/logo.png" alt="..." width="32" height="32"> {{application_name}}</small></span>
+                    </button>
                 </div>
                 <div class="col-3 col-lg-1 col-sm-1 text-center">
                     <span class="navbar-text fw-bolder"
@@ -106,6 +133,15 @@
 
 <script type="text/javascript">
     connection_lost_dialog_shown = false;
+    const aboutUsModal = new bootstrap.Modal(document.getElementById('about_us_modal'), {backdrop: 'static'});
+
+    function hideAboutUsModal() {
+        aboutUsModal.hide();
+    }
+
+    function showAboutUsModal() {
+        aboutUsModal.show();
+    }
 
     function updateNavBar() {
         // Update the time
