@@ -1,3 +1,9 @@
+## 0.11.1 (2024-03-09)
+
+* Added "Use last anchor position" feature
+* UI layout improvements
+* Version bump to 0.11.1
+
 ## 0.11.0 (2024-03-08)
 
 * Added support for displaying housing battery voltage on the dashboard
