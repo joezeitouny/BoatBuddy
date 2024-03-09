@@ -24,6 +24,7 @@ class TelegramManager:
         self._status = TelegramManagerStatus.STARTING
 
         if self._options.telegram_module:
+            self._status = TelegramManagerStatus.RUNNING
             self._log_manager.info('Telegram module successfully started!')
             self.send_message(f"Telegram notifications are successfully enabled!\r\n\r\n"
                               f"--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})")
@@ -38,7 +39,7 @@ class TelegramManager:
         self._log_manager.info('Telegram manager instance is ready to be destroyed')
 
     def send_message(self, message: str):
-        if self._options.telegram_module:
+        if self._options.telegram_module and self._status == TelegramManagerStatus.RUNNING:
             asyncio.run(self.async_send_message(message))
 
     async def async_send_message(self, message: str):
