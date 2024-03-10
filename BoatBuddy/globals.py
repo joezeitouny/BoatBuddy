@@ -8,7 +8,7 @@ LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 EMPTY_METRIC_VALUE = "N/A"
-JSON_RESPONSE_FORMAT_VERSION = 7
+JSON_RESPONSE_FORMAT_VERSION = 8
 
 # Anchor alarm
 EARTH_RADIUS = 6371000  # Approximately 6,371 km
@@ -106,3 +106,18 @@ VICTRON_BLE_PLUGIN_SUMMARY_HEADERS = ['[BLE] Housing batt. max voltage (V)', '[B
                                       '[BLE] Housing batt. max consumed Ah', '[BLE] Housing batt. min consumed Ah',
                                       '[BLE] Housing batt. avg. consumed Ah',
                                       '[BLE] Housing batt. avg. remaining mins']
+
+BB_MICRO_PLUGIN_METADATA_HEADERS = ['[BB] Air Temperature', '[BB] Humidity', '[BB] Air Quality',
+                                    '[BB] Barometric Pressure', '[BB] Altitude',
+                                    '[BB] Relay 1', '[BB] Relay 2', '[BB] Relay 3',
+                                    '[BB] Relay 4', '[BB] Relay 5', '[BB] Relay 6']
+
+BB_MICRO_PLUGIN_SUMMARY_HEADERS = ['[BLE] Housing batt. max voltage (V)', '[BLE] Housing batt. min voltage (V)',
+                                   '[BLE] Housing batt. avg. voltage (V)', '[BLE] Housing batt. max current (A)',
+                                   '[BLE] Housing batt. avg. current (A)', '[BLE] Housing batt. max SOC',
+                                   '[BLE] Housing batt. min SOC', '[BLE] Housing batt. avg. SOC',
+                                   '[BLE] Starter batt. max voltage (V)', '[BLE] Starter batt. min voltage (V)',
+                                   '[BLE] Starter batt. avg. voltage',
+                                   '[BLE] Housing batt. max consumed Ah', '[BLE] Housing batt. min consumed Ah',
+                                   '[BLE] Housing batt. avg. consumed Ah',
+                                   '[BLE] Housing batt. avg. remaining mins']

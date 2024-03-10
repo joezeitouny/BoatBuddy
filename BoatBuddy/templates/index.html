@@ -204,7 +204,17 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="nmea-tab" data-bs-toggle="tab" data-bs-target="#nmea"
-                                type="button" role="tab" aria-controls="nmea" aria-selected="true">NMEA0183 Instruments
+                                type="button" role="tab" aria-controls="nmea" aria-selected="false">NMEA0183 Instruments
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="sensors-tab" data-bs-toggle="tab" data-bs-target="#sensors"
+                                type="button" role="tab" aria-controls="sensors" aria-selected="false">Sensors
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="relays-tab" data-bs-toggle="tab" data-bs-target="#relays"
+                                type="button" role="tab" aria-controls="relays" aria-selected="false">Relays
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -383,6 +393,16 @@
                             </div>
                         </div>
                     </div>
+                    <div class="tab-pane fade" id="sensors" role="tabpanel" aria-labelledby="sensors-tab">
+                        <div id="no_available_sensors_message" class="container-fluid align-self-center">
+                            <h5>No available sensors</h5>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="relays" role="tabpanel" aria-labelledby="relays-tab">
+                        <div id="no_available_relays_message" class="container-fluid align-self-center">
+                            <h5>No available relays</h5>
+                        </div>
+                    </div>
                     <div class="tab-pane fade" id="anchor" role="tabpanel" aria-labelledby="anchor-tab"
                          style="position: relative;">
                         <!-- Anchor panel-->
@@ -490,6 +510,12 @@
             <span>
                 <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="nmea_module_spinner"
                       role="status"></span>NMEA0183:&nbsp;<span id="nmea_module_status"></span>
+            </span>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <span>
+                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="bb_micro_module_spinner"
+                      role="status"></span>{{application_name}} Micro:&nbsp;<span id="bb_micro_module_status"></span>
             </span>
         </div>
         <div class="col d-flex justify-content-center">
@@ -1634,6 +1660,20 @@
                 } else {
                     document.getElementById('gps_module_status').innerHTML = "Disabled";
                     document.getElementById("gps_module_spinner").className = "spinner-grow text-secondary me-2";
+                }
+
+                if (data['bb_micro_module']) {
+                    document.getElementById('bb_micro_module_status').innerHTML = data['bb_micro_status'];
+                    if (data['gps_status'] == "Running") {
+                        document.getElementById("bb_micro_module_spinner").className = "spinner-border text-success me-2";
+                    } else if (data['gps_status'] == "Down") {
+                        document.getElementById("bb_micro_module_spinner").className = "spinner-grow text-danger me-2";
+                    } else if (data['gps_status'] == "Starting") {
+                        document.getElementById("bb_micro_module_spinner").className = "spinner-grow text-warning me-2";
+                    }
+                } else {
+                    document.getElementById('bb_micro_module_status').innerHTML = "Disabled";
+                    document.getElementById("bb_micro_module_spinner").className = "spinner-grow text-secondary me-2";
                 }
 
                 if (data['status'] === "idle") {
