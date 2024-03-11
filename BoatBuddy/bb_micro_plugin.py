@@ -100,8 +100,20 @@ class BBMicroPlugin(GenericPlugin):
         self._relay_6 = False
 
         self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
-                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
-                                False, False, False, False, False, False]
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+        self._sum_air_temperature = 0
+        self._cnt_air_temperature_entries = 0
+        self._sum_humidity = 0
+        self._cnt_humidity_entries = 0
+        self._sum_air_quality = 0
+        self._cnt_air_quality_entries = 0
+        self._sum_barometric_pressure = 0
+        self._cnt_barometric_pressure_entries = 0
+        self._sum_altitude = 0
+        self._cnt_altitude_entries = 0
 
         # Other instance variables
         self._plugin_status = PluginStatus.STARTING
@@ -109,6 +121,36 @@ class BBMicroPlugin(GenericPlugin):
         self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self._main_loop)
         self._timer.start()
         self._log_manager.info('BB Micro plugin successfully started!')
+
+    def _reset_instance_metrics(self):
+        # Instance metrics
+        self._air_temperature = globals.EMPTY_METRIC_VALUE
+        self._humidity = globals.EMPTY_METRIC_VALUE
+        self._air_quality = globals.EMPTY_METRIC_VALUE
+        self._barometric_pressure = globals.EMPTY_METRIC_VALUE
+        self._altitude = globals.EMPTY_METRIC_VALUE
+        self._relay_1 = False
+        self._relay_2 = False
+        self._relay_3 = False
+        self._relay_4 = False
+        self._relay_5 = False
+        self._relay_6 = False
+
+        self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+        self._sum_air_temperature = 0
+        self._cnt_air_temperature_entries = 0
+        self._sum_humidity = 0
+        self._cnt_humidity_entries = 0
+        self._sum_air_quality = 0
+        self._cnt_air_quality_entries = 0
+        self._sum_barometric_pressure = 0
+        self._cnt_barometric_pressure_entries = 0
+        self._sum_altitude = 0
+        self._cnt_altitude_entries = 0
 
     def _main_loop(self):
         if self._exit_signal.is_set():
@@ -160,6 +202,122 @@ class BBMicroPlugin(GenericPlugin):
                                     f'Relay 6: {self._relay_6}')
 
             self._log_entries.append(entry)
+
+            # Calculate extremes and averages
+            if entry.air_temperature != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[0] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[0] = entry.air_temperature
+                else:
+                    self._summary_values[0] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.air_temperature),
+                                                 self._summary_values[0])
+
+                if self._summary_values[1] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[1] = entry.air_temperature
+                else:
+                    self._summary_values[1] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.air_temperature),
+                                                  self._summary_values[1])
+
+                self._sum_air_temperature += utils.try_parse_float(entry.air_temperature)
+                self._cnt_air_temperature_entries += 1
+                if self._summary_values[2] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[2] = entry.air_temperature
+                else:
+                    self._summary_values[2] = \
+                        round(self._sum_air_temperature / self._cnt_air_temperature_entries, 1)
+
+            if entry.humidity != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[3] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[3] = entry.humidity
+                else:
+                    self._summary_values[3] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.humidity),
+                                                 self._summary_values[3])
+
+                if self._summary_values[4] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[4] = entry.humidity
+                else:
+                    self._summary_values[4] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.humidity),
+                                                  self._summary_values[4])
+
+                self._sum_humidity += utils.try_parse_int(entry.humidity)
+                self._cnt_humidity_entries += 1
+                if self._summary_values[5] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[5] = entry.humidity
+                else:
+                    self._summary_values[5] = \
+                        round(self._sum_humidity / self._cnt_humidity_entries, 0)
+
+            if entry.air_quality != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[6] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[6] = entry.air_quality
+                else:
+                    self._summary_values[6] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.air_quality),
+                                                 self._summary_values[6])
+
+                if self._summary_values[7] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[7] = entry.air_quality
+                else:
+                    self._summary_values[7] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.air_quality),
+                                                  self._summary_values[7])
+
+                self._sum_air_quality += utils.try_parse_int(entry.air_quality)
+                self._cnt_air_quality_entries += 1
+                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[8] = entry.air_quality
+                else:
+                    self._summary_values[8] = \
+                        round(self._sum_air_quality / self._cnt_air_quality_entries, 0)
+
+            if entry.barometric_pressure != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[9] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[9] = entry.barometric_pressure
+                else:
+                    self._summary_values[9] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.barometric_pressure),
+                                                 self._summary_values[9])
+
+                if self._summary_values[10] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[10] = entry.barometric_pressure
+                else:
+                    self._summary_values[10] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.barometric_pressure),
+                                                  self._summary_values[10])
+
+                self._sum_barometric_pressure += utils.try_parse_int(entry.barometric_pressure)
+                self._cnt_barometric_pressure_entries += 1
+                if self._summary_values[11] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[11] = entry.barometric_pressure
+                else:
+                    self._summary_values[11] = \
+                        round(self._sum_barometric_pressure / self._cnt_barometric_pressure_entries, 0)
+
+            if entry.altitude != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[12] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[12] = entry.altitude
+                else:
+                    self._summary_values[12] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.altitude),
+                                                 self._summary_values[9])
+
+                if self._summary_values[13] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[13] = entry.altitude
+                else:
+                    self._summary_values[13] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.altitude),
+                                                  self._summary_values[10])
+
+                self._sum_altitude += utils.try_parse_float(entry.altitude)
+                self._cnt_altitude_entries += 1
+                if self._summary_values[14] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[14] = entry.altitude
+                else:
+                    self._summary_values[14] = \
+                        round(self._sum_altitude / self._cnt_altitude_entries, 1)
 
         return entry
 
