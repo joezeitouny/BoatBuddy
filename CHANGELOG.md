@@ -1,7 +1,13 @@
+## 0.11.2 (2024-03-11)
+
+* Fixed an issue where a session couldn't be started if the Victron BLE module is not enabled
+* Version bump to 0.11.2
+
 ## 0.11.1 (2024-03-09)
 
 * Added "Use last anchor position" feature
 * UI layout improvements
+* Fixed an issue with the Telegram module where the module is not registering correctly its internal state
 * Version bump to 0.11.1
 
 ## 0.11.0 (2024-03-08)
