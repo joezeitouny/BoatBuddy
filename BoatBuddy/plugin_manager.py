@@ -104,7 +104,7 @@ class PluginManager:
             self._nmea_plugin.register_for_events(nmea_connection_events)
 
         if self._options.bb_micro_module:
-            # initialize the NMEA0183 plugin
+            # initialize the BB Micro plugin
             self._bb_micro_plugin = BBMicroPlugin(self._options, self._log_manager)
 
             bb_micro_connection_events = BBMicroPluginEvents()
@@ -185,6 +185,10 @@ class PluginManager:
         if self._nmea_plugin:
             self._nmea_plugin.take_snapshot(store_entry=True)
             values += self._nmea_plugin.get_metadata_values()
+
+        if self._bb_micro_plugin:
+            self._bb_micro_plugin.take_snapshot(store_entry=True)
+            values += self._bb_micro_plugin.get_metadata_values()
 
         if self._victron_ble_plugin:
             self._victron_ble_plugin.take_snapshot(store_entry=True)
@@ -271,6 +275,9 @@ class PluginManager:
         if self._nmea_plugin:
             column_headers += self._nmea_plugin.get_metadata_headers()
 
+        if self._bb_micro_plugin:
+            column_headers += self._bb_micro_plugin.get_metadata_headers()
+
         if self._victron_ble_plugin:
             column_headers += self._victron_ble_plugin.get_metadata_headers()
 
@@ -349,6 +356,9 @@ class PluginManager:
             if self._nmea_plugin:
                 column_headers += self._nmea_plugin.get_summary_headers()
 
+            if self._bb_micro_plugin:
+                column_headers += self._bb_micro_plugin.get_summary_headers()
+
             if self._victron_ble_plugin:
                 column_headers += self._victron_ble_plugin.get_summary_headers()
 
@@ -366,6 +376,10 @@ class PluginManager:
             if self._nmea_plugin:
                 log_summary_list += self._nmea_plugin.get_summary_values(True)
                 self._nmea_plugin.clear_entries()
+
+            if self._bb_micro_plugin:
+                log_summary_list += self._bb_micro_plugin.get_summary_values()
+                self._bb_micro_plugin.clear_entries()
 
             if self._victron_ble_plugin:
                 log_summary_list += self._victron_ble_plugin.get_summary_values()
@@ -453,6 +467,9 @@ class PluginManager:
         if self._nmea_plugin:
             self._nmea_plugin.finalize()
 
+        if self._bb_micro_plugin:
+            self._bb_micro_plugin.finalize()
+
     def get_clock_metrics(self) -> {}:
         entry = self._clock_plugin.take_snapshot(store_entry=False)
         if entry is not None:
@@ -514,6 +531,11 @@ class PluginManager:
             nmea_dictionary = utils.get_key_value_list(self._nmea_plugin.get_summary_headers(),
                                                        self._nmea_plugin.get_summary_values())
             summary_key_value_list.update(nmea_dictionary)
+
+        if self._bb_micro_plugin:
+            bb_micro_dictionary = utils.get_key_value_list(self._bb_micro_plugin.get_summary_headers(),
+                                                           self._bb_micro_plugin.get_summary_values())
+            summary_key_value_list.update(bb_micro_dictionary)
 
         if self._victron_ble_plugin:
             victron_ble_dictionary = utils.get_key_value_list(self._victron_ble_plugin.get_summary_headers(),
