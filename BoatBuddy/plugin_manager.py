@@ -39,6 +39,7 @@ class PluginManager:
     _clock_plugin = None
     _nmea_plugin = None
     _victron_modbus_tcp_plugin = None
+    _victron_ble_plugin = None
     _gps_plugin = None
     _workbook = None
     _sheet = None
