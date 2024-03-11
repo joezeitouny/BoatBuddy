@@ -1,5 +1,6 @@
 import threading
 from events import Events
+import requests
 
 from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
@@ -162,6 +163,24 @@ class BBMicroPlugin(GenericPlugin):
         bb_micro_ip_address = self._options.bb_micro_server_ip
         bb_micro_port = self._options.bb_micro_server_port
 
+        # URL of the API endpoint
+        base_url = f"http://{bb_micro_ip_address}:{bb_micro_port}/"
+        metrics_url = f"{base_url}/metrics"
+        relays_url = f"{base_url}/relay_list"
+
+        # # Make a GET request to the metrics API
+        # response = requests.get(metrics_url)
+        #
+        # # Check if the request was successful (status code 200)
+        # if response.status_code == 200:
+        #     # Parse the JSON response
+        #     data = response.json()
+        #
+        #     # Process the data
+        #     print(data)  # Example: Print the JSON response
+        # else:
+        #     # Print an error message if the request was not successful
+        #     print(f"Error: {response.status_code}")
 
         # Reset the timer
         self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self._main_loop)
@@ -170,7 +189,7 @@ class BBMicroPlugin(GenericPlugin):
     def _handle_connection_exception(self, message):
         if self._plugin_status != PluginStatus.DOWN:
             self._log_manager.info(
-                f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. Details: {message}')
+                f'Problem with BB Micro system on {self._options.victron_modbus_tcp_server_ip}. Details: {message}')
 
             self._plugin_status = PluginStatus.DOWN
 
@@ -349,4 +368,19 @@ class BBMicroPlugin(GenericPlugin):
         if self._exit_signal.is_set():
             return False
 
-        #TODO: Toggle the relay with the specified number
+        bb_micro_ip_address = self._options.bb_micro_server_ip
+        bb_micro_port = self._options.bb_micro_server_port
+
+        # URL of the API endpoint
+        base_url = f"http://{bb_micro_ip_address}:{bb_micro_port}/"
+        toggle_relay_url = f"{base_url}/toggle_relay/{relay_number}"
+
+        try:
+            # Make a GET request to the metrics API
+            response = requests.get(toggle_relay_url)
+
+            # Check if the request was successful (status code 200)
+            return response.status_code == 200
+        except Exception as e:
+            self._log_manager.info(f'Could not toggle relay with relay number: {relay_number}. Details {e}')
+            return False
