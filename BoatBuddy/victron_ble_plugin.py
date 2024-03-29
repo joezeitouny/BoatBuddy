@@ -160,12 +160,35 @@ class VictronBLEPlugin(GenericPlugin):
                 ble_device = device_klass(self._bmv_device_advertisement_key)
                 parsed_data = ble_device.parse(raw_data)
 
-                self._housing_battery_voltage = round(parsed_data.get_voltage(), 2)
-                self._housing_battery_current = round(parsed_data.get_current(), 1)
-                self._housing_battery_soc = round(parsed_data.get_soc())
-                self._starter_battery_voltage = round(parsed_data.get_starter_voltage(), 2)
-                self._housing_battery_consumed_ah = round(parsed_data.get_consumed_ah(), 1)
-                self._housing_battery_remaining_mins = parsed_data.get_remaining_mins()
+                if not parsed_data.get_voltage() is None:
+                    self._housing_battery_voltage = round(parsed_data.get_voltage(), 2)
+                else:
+                    self._housing_battery_voltage = 0
+
+                if not parsed_data.get_current() is None:
+                    self._housing_battery_current = round(parsed_data.get_current(), 1)
+                else:
+                    self._housing_battery_current = 0
+
+                if not parsed_data.get_soc() is None:
+                    self._housing_battery_soc = round(parsed_data.get_soc())
+                else:
+                    self._housing_battery_soc = 0
+
+                if not parsed_data.get_starter_voltage() is None:
+                    self._starter_battery_voltage = round(parsed_data.get_starter_voltage(), 2)
+                else:
+                    self._starter_battery_voltage = 0
+
+                if not parsed_data.get_consumed_ah() is None:
+                    self._housing_battery_consumed_ah = round(parsed_data.get_consumed_ah(), 1)
+                else:
+                    self._housing_battery_consumed_ah = 0
+
+                if not parsed_data.get_remaining_mins() is None:
+                    self._housing_battery_remaining_mins = parsed_data.get_remaining_mins()
+                else:
+                    self._housing_battery_remaining_mins = 0
         except Exception as e:
             self._handle_connection_exception(e)
 
