@@ -1089,13 +1089,11 @@
 
         redrawMapLayers();
 
-        // Set the center coordinate to the target coordinate and apply the zoom animation
-        anchorView.animate({
-          center: [decimalLon, decimalLat],
-          zoom: 19, // Adjust the zoom level as needed
-          duration: 4000,
-          easing: ol.easing.easeOut, // Use a suitable easing function
-        });
+        // Get the current view from the map
+        view = anchorMap.getView();
+
+        // Set the new zoom level at 19 for the view
+        view.setZoom(19);
     }
 
     function isValidGPSCoordinate(value) {
