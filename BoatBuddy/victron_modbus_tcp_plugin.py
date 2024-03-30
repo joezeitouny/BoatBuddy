@@ -119,7 +119,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
-                                globals.EMPTY_METRIC_VALUE]
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
         self._sum_housing_battery_voltage = 0
         self._cnt_housing_battery_voltage_entries = 0
         self._sum_housing_battery_current = 0
@@ -174,7 +174,7 @@ class VictronModbusTCPPlugin(GenericPlugin):
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
-                                globals.EMPTY_METRIC_VALUE]
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
         self._sum_housing_battery_voltage = 0
         self._cnt_housing_battery_voltage_entries = 0
         self._sum_housing_battery_current = 0
@@ -437,143 +437,157 @@ class VictronModbusTCPPlugin(GenericPlugin):
                         utils.get_biggest_number(utils.try_parse_float(entry.get_battery_current()),
                                                  self._summary_values[3])
 
-                self._sum_housing_battery_current += utils.try_parse_float(entry.get_battery_current())
-                self._cnt_housing_battery_current_entries += 1
                 if self._summary_values[4] == globals.EMPTY_METRIC_VALUE:
                     self._summary_values[4] = entry.get_battery_current()
                 else:
                     self._summary_values[4] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.get_battery_current()),
+                                                  self._summary_values[4])
+
+                self._sum_housing_battery_current += utils.try_parse_float(entry.get_battery_current())
+                self._cnt_housing_battery_current_entries += 1
+                if self._summary_values[5] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[5] = entry.get_battery_current()
+                else:
+                    self._summary_values[5] = \
                         round(self._sum_housing_battery_current / self._cnt_housing_battery_current_entries, 2)
 
             if entry.get_battery_power() != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[5] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[5] = entry.get_battery_power()
-                else:
-                    self._summary_values[5] = \
-                        utils.get_biggest_number(utils.try_parse_int(entry.get_battery_power()),
-                                                 self._summary_values[5])
-
-                self._sum_housing_battery_power += utils.try_parse_int(entry.get_battery_power())
-                self._cnt_housing_battery_power_entries += 1
                 if self._summary_values[6] == globals.EMPTY_METRIC_VALUE:
                     self._summary_values[6] = entry.get_battery_power()
                 else:
                     self._summary_values[6] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_battery_power()),
+                                                 self._summary_values[6])
+
+                if self._summary_values[7] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[7] = entry.get_battery_power()
+                else:
+                    self._summary_values[7] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.get_battery_power()),
+                                                  self._summary_values[7])
+
+                self._sum_housing_battery_power += utils.try_parse_int(entry.get_battery_power())
+                self._cnt_housing_battery_power_entries += 1
+                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[8] = entry.get_battery_power()
+                else:
+                    self._summary_values[8] = \
                         round(self._sum_housing_battery_power / self._cnt_housing_battery_power_entries)
 
             if entry.get_pv_power() != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[7] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[7] = entry.get_pv_power()
+                if self._summary_values[9] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[9] = entry.get_pv_power()
                 else:
-                    self._summary_values[7] = \
+                    self._summary_values[9] = \
                         utils.get_biggest_number(utils.try_parse_int(entry.get_pv_power()),
-                                                 self._summary_values[7])
+                                                 self._summary_values[9])
 
                 self._sum_pv_power += utils.try_parse_int(entry.get_pv_power())
                 self._cnt_pv_power_entries += 1
-                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[8] = entry.get_pv_power()
+                if self._summary_values[10] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[10] = entry.get_pv_power()
                 else:
-                    self._summary_values[8] = round(self._sum_pv_power / self._cnt_pv_power_entries)
+                    self._summary_values[10] = round(self._sum_pv_power / self._cnt_pv_power_entries)
 
             if entry.get_pv_current() != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[9] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[9] = entry.get_pv_current()
+                if self._summary_values[11] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[11] = entry.get_pv_current()
                 else:
-                    self._summary_values[9] = \
+                    self._summary_values[11] = \
                         utils.get_biggest_number(utils.try_parse_float(entry.get_pv_current()),
-                                                 self._summary_values[9])
+                                                 self._summary_values[11])
 
                 self._sum_pv_current += utils.try_parse_float(entry.get_pv_current())
                 self._cnt_pv_current_entries += 1
-                if self._summary_values[10] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[10] = entry.get_pv_current()
+                if self._summary_values[12] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[12] = entry.get_pv_current()
                 else:
-                    self._summary_values[10] = round(self._sum_pv_current / self._cnt_pv_current_entries, 1)
+                    self._summary_values[12] = round(self._sum_pv_current / self._cnt_pv_current_entries, 2)
 
             if entry.get_starter_battery_voltage() != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[11] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[11] = entry.get_starter_battery_voltage()
-                else:
-                    self._summary_values[11] = \
-                        utils.get_biggest_number(utils.try_parse_float(entry.get_starter_battery_voltage()),
-                                                 self._summary_values[11])
-
-                if self._summary_values[12] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[12] = entry.get_starter_battery_voltage()
-                else:
-                    self._summary_values[12] = \
-                        utils.get_smallest_number(utils.try_parse_float(entry.get_starter_battery_voltage()),
-                                                  self._summary_values[12])
-
-                self._sum_starter_battery_voltage += utils.try_parse_float(entry.get_starter_battery_voltage())
-                self._cnt_starter_battery_voltage_entries += 1
                 if self._summary_values[13] == globals.EMPTY_METRIC_VALUE:
                     self._summary_values[13] = entry.get_starter_battery_voltage()
                 else:
                     self._summary_values[13] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.get_starter_battery_voltage()),
+                                                 self._summary_values[13])
+
+                if self._summary_values[14] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[14] = entry.get_starter_battery_voltage()
+                else:
+                    self._summary_values[14] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.get_starter_battery_voltage()),
+                                                  self._summary_values[14])
+
+                self._sum_starter_battery_voltage += utils.try_parse_float(entry.get_starter_battery_voltage())
+                self._cnt_starter_battery_voltage_entries += 1
+                if self._summary_values[15] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[15] = entry.get_starter_battery_voltage()
+                else:
+                    self._summary_values[15] = \
                         round(self._sum_starter_battery_voltage / self._cnt_starter_battery_voltage_entries, 2)
 
             if entry.get_ac_consumption_power() != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[14] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[14] = entry.get_ac_consumption_power()
+                if self._summary_values[16] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[16] = entry.get_ac_consumption_power()
                 else:
-                    self._summary_values[14] = \
+                    self._summary_values[16] = \
                         utils.get_biggest_number(utils.try_parse_int(entry.get_ac_consumption_power()),
-                                                 self._summary_values[14])
+                                                 self._summary_values[16])
 
                 self._sum_ac_consumption_power += utils.try_parse_int(entry.get_ac_consumption_power())
                 self._cnt_ac_consumption_power_entries += 1
-                if self._summary_values[15] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[15] = entry.get_ac_consumption_power()
+                if self._summary_values[17] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[17] = entry.get_ac_consumption_power()
                 else:
-                    self._summary_values[15] = \
+                    self._summary_values[17] = \
                         round(self._sum_ac_consumption_power / self._cnt_ac_consumption_power_entries)
 
             if entry.get_tank1_level() != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[16] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[16] = entry.get_tank1_level()
-                else:
-                    self._summary_values[16] = \
-                        utils.get_biggest_number(utils.try_parse_int(entry.get_tank1_level()),
-                                                 self._summary_values[16])
-
-                if self._summary_values[17] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[17] = entry.get_tank1_level()
-                else:
-                    self._summary_values[17] = \
-                        utils.get_smallest_number(utils.try_parse_int(entry.get_tank1_level()),
-                                                  self._summary_values[17])
-
-                self._sum_tank1_level += utils.try_parse_int(entry.get_tank1_level())
-                self._cnt_tank1_level_entries += 1
                 if self._summary_values[18] == globals.EMPTY_METRIC_VALUE:
                     self._summary_values[18] = entry.get_tank1_level()
                 else:
                     self._summary_values[18] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_tank1_level()),
+                                                 self._summary_values[18])
+
+                if self._summary_values[19] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[19] = entry.get_tank1_level()
+                else:
+                    self._summary_values[19] = \
+                        utils.get_smallest_number(utils.try_parse_int(entry.get_tank1_level()),
+                                                  self._summary_values[19])
+
+                self._sum_tank1_level += utils.try_parse_int(entry.get_tank1_level())
+                self._cnt_tank1_level_entries += 1
+                if self._summary_values[20] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[20] = entry.get_tank1_level()
+                else:
+                    self._summary_values[20] = \
                         round(self._sum_tank1_level / self._cnt_tank1_level_entries)
 
             if entry.get_tank2_level() != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[19] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[19] = entry.get_tank2_level()
-                else:
-                    self._summary_values[19] = \
-                        utils.get_biggest_number(utils.try_parse_int(entry.get_tank2_level()),
-                                                 self._summary_values[19])
-
-                if self._summary_values[20] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[20] = entry.get_tank2_level()
-                else:
-                    self._summary_values[20] = \
-                        utils.get_smallest_number(utils.try_parse_int(entry.get_tank2_level()),
-                                                  self._summary_values[20])
-
-                self._sum_tank2_level += utils.try_parse_int(entry.get_tank2_level())
-                self._cnt_tank2_level_entries += 1
                 if self._summary_values[21] == globals.EMPTY_METRIC_VALUE:
                     self._summary_values[21] = entry.get_tank2_level()
                 else:
                     self._summary_values[21] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.get_tank2_level()),
+                                                 self._summary_values[21])
+
+                if self._summary_values[22] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[22] = entry.get_tank2_level()
+                else:
+                    self._summary_values[22] = \
+                        utils.get_smallest_number(utils.try_parse_int(entry.get_tank2_level()),
+                                                  self._summary_values[22])
+
+                self._sum_tank2_level += utils.try_parse_int(entry.get_tank2_level())
+                self._cnt_tank2_level_entries += 1
+                if self._summary_values[23] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[23] = entry.get_tank2_level()
+                else:
+                    self._summary_values[23] = \
                         round(self._sum_tank2_level / self._cnt_tank2_level_entries)
 
         return entry

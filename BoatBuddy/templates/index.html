@@ -590,6 +590,14 @@
                     gaugeDiv.setAttribute("data-style", "Arch");
                     gaugeDiv.setAttribute("data-text_size", "0.22");
                     gaugeDiv.setAttribute("data-showvalue", true);
+                } else if (currentItem['style'] == 'power_gauge_alternative') {
+                    gaugeDiv.setAttribute("data-append", "W");
+                    gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
+                    gaugeDiv.setAttribute("data-width", "15");
+                    gaugeDiv.setAttribute("data-style", "Arch");
+                    gaugeDiv.setAttribute("data-text_size", "0.22");
+                    gaugeDiv.setAttribute("data-showvalue", true);
+                    gaugeDiv.setAttribute("data-middle_value_format", true);
                 } else if (currentItem['style'] == 'current_gauge') {
                     gaugeDiv.setAttribute("data-append", "A");
                     gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
@@ -1525,12 +1533,24 @@
                     $("#starter_battery_voltage_gauge").gaugeMeter({used:parseFloat(data['starter_battery_voltage'])});
                 }
 
+                if (data['housing_battery_voltage'] !== null && document.getElementById("housing_battery_voltage_gauge") !== null) {
+                    $("#housing_battery_voltage_gauge").gaugeMeter({used:parseFloat(data['housing_battery_voltage'])});
+                }
+
+                if (data['housing_battery_current'] !== null && document.getElementById('housing_battery_current') !== null) {
+                    document.getElementById('housing_battery_current').innerHTML = data['housing_battery_current'] + 'A';
+                }
+
                 if (data['housing_battery_current'] !== null && document.getElementById("housing_battery_current_gauge") !== null) {
                     $("#housing_battery_current_gauge").gaugeMeter({used:parseFloat(data['housing_battery_current'])});
                 }
 
                 if (data['housing_battery_current'] !== null && document.getElementById('housing_battery_current') !== null) {
                     document.getElementById('housing_battery_current').innerHTML = data['housing_battery_current'] + 'A';
+                }
+
+                if (data['housing_battery_power'] !== null && document.getElementById("housing_battery_power_gauge") !== null) {
+                    $("#housing_battery_power_gauge").gaugeMeter({used:parseInt(data['housing_battery_power'])});
                 }
 
                 if (data['pv_power'] !== null && document.getElementById("pv_power_gauge") !== null) {

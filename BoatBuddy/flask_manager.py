@@ -380,10 +380,11 @@ def get_data():
     active_input_source = 'N/A'
     ve_bus_state = 'N/A'
     housing_battery_state = 'N/A'
-    housing_battery_current = 0
     pv_current = 0
     housing_battery_soc = 0
     housing_battery_voltage = 0.0
+    housing_battery_current = 0
+    housing_battery_power = 0
     starter_battery_voltage = 0.0
     housing_battery_consumed_ah = 0
     housing_battery_remaining_mins = 0
@@ -408,6 +409,10 @@ def get_data():
             if (str(application_modules.get_options().data_source_housing_battery_current).lower() ==
                     globals.DataSource.VICTRON_MODBUS_TCP.value):
                 housing_battery_current = utils.try_parse_float(victron_modbus_tcp_metrics[9])
+
+            if (str(application_modules.get_options().data_source_housing_battery_power).lower() ==
+                    globals.DataSource.VICTRON_MODBUS_TCP.value):
+                housing_battery_power = utils.try_parse_float(victron_modbus_tcp_metrics[10])
 
             if (str(application_modules.get_options().data_source_housing_battery_soc).lower() ==
                     globals.DataSource.VICTRON_MODBUS_TCP.value):
@@ -438,16 +443,20 @@ def get_data():
                     globals.DataSource.VICTRON_BLE.value):
                 housing_battery_current = utils.try_parse_float(victron_ble_metrics[1])
 
+            if (str(application_modules.get_options().data_source_housing_battery_power).lower() ==
+                    globals.DataSource.VICTRON_BLE.value):
+                housing_battery_power = utils.try_parse_float(victron_ble_metrics[2])
+
             if (str(application_modules.get_options().data_source_housing_battery_soc).lower() ==
                     globals.DataSource.VICTRON_BLE.value):
-                housing_battery_soc = utils.try_parse_float(victron_ble_metrics[2])
+                housing_battery_soc = utils.try_parse_float(victron_ble_metrics[3])
 
             if (str(application_modules.get_options().data_source_starter_battery_voltage).lower() ==
                     globals.DataSource.VICTRON_BLE.value):
-                starter_battery_voltage = utils.try_parse_float(victron_ble_metrics[3])
+                starter_battery_voltage = utils.try_parse_float(victron_ble_metrics[4])
 
-            housing_battery_consumed_ah = utils.try_parse_float(victron_ble_metrics[4])
-            housing_battery_remaining_mins = utils.try_parse_int(victron_ble_metrics[5])
+            housing_battery_consumed_ah = utils.try_parse_float(victron_ble_metrics[5])
+            housing_battery_remaining_mins = utils.try_parse_int(victron_ble_metrics[6])
 
     nmea_module = False
     nmea_status = ''
@@ -483,6 +492,7 @@ def get_data():
     housing_battery_min_voltage = ''
     housing_battery_avg_voltage = ''
     housing_battery_max_current = ''
+    housing_battery_min_current = ''
     housing_battery_avg_current = ''
     housing_battery_max_soc = ''
     housing_battery_min_soc = ''
@@ -492,6 +502,7 @@ def get_data():
     housing_battery_avg_consumed_ah = ''
     housing_battery_avg_remaining_mins = ''
     housing_battery_max_power = ''
+    housing_battery_min_power = ''
     housing_battery_avg_power = ''
     pv_max_power = ''
     pv_avg_power = ''
@@ -536,7 +547,14 @@ def get_data():
             if (str(application_modules.get_options().data_source_housing_battery_current).lower() ==
                     globals.DataSource.VICTRON_BLE.value):
                 housing_battery_max_current = session_summary_metrics['[BLE] Housing batt. max current (A)']
+                housing_battery_min_current = session_summary_metrics['[BLE] Housing batt. min current (A)']
                 housing_battery_avg_current = session_summary_metrics['[BLE] Housing batt. avg. current (A)']
+
+            if (str(application_modules.get_options().data_source_housing_battery_power).lower() ==
+                    globals.DataSource.VICTRON_BLE.value):
+                housing_battery_max_power = session_summary_metrics['[BLE] Housing batt. max power (W)']
+                housing_battery_min_power = session_summary_metrics['[BLE] Housing batt. min power (W)']
+                housing_battery_avg_power = session_summary_metrics['[BLE] Housing batt. avg. power (W)']
 
             if (str(application_modules.get_options().data_source_starter_battery_voltage).lower() ==
                     globals.DataSource.VICTRON_BLE.value):
@@ -562,6 +580,7 @@ def get_data():
             if (str(application_modules.get_options().data_source_housing_battery_current).lower() ==
                     globals.DataSource.VICTRON_MODBUS_TCP.value):
                 housing_battery_max_current = session_summary_metrics['[GX] Batt. max current (A)']
+                housing_battery_min_current = session_summary_metrics['[GX] Batt. min current (A)']
                 housing_battery_avg_current = session_summary_metrics['[GX] Batt. avg. current (A)']
 
             if (str(application_modules.get_options().data_source_starter_battery_voltage).lower() ==
@@ -570,8 +589,11 @@ def get_data():
                 starter_battery_min_voltage = session_summary_metrics['[GX] Strt. batt. min voltage (V)']
                 starter_battery_avg_voltage = session_summary_metrics['[GX] Strt. batt. avg. voltage']
 
-            housing_battery_max_power = session_summary_metrics['[GX] Batt. max power (W)']
-            housing_battery_avg_power = session_summary_metrics['[GX] Batt. avg. power (W)']
+            if (str(application_modules.get_options().data_source_housing_battery_power).lower() ==
+                    globals.DataSource.VICTRON_MODBUS_TCP.value):
+                housing_battery_max_power = session_summary_metrics['[GX] Batt. max power (W)']
+                housing_battery_min_power = session_summary_metrics['[GX] Batt. min power (W)']
+                housing_battery_avg_power = session_summary_metrics['[GX] Batt. avg. power (W)']
             pv_max_power = session_summary_metrics['[GX] PV max power (W)']
             pv_avg_power = session_summary_metrics['[GX] PV avg. power']
             pv_max_current = session_summary_metrics['[GX] PV max current (A)']
@@ -602,7 +624,9 @@ def get_data():
             'active_input_source': active_input_source, 've_bus_state': ve_bus_state,
             'housing_battery_consumed_ah': housing_battery_consumed_ah,
             'housing_battery_remaining_mins': housing_battery_remaining_mins,
-            'housing_battery_state': housing_battery_state, 'housing_battery_current': housing_battery_current,
+            'housing_battery_state': housing_battery_state,
+            'housing_battery_current': housing_battery_current,
+            'housing_battery_power': housing_battery_power,
             'pv_current': pv_current, 'status': status, 'nmea_module': nmea_module, 'nmea_status': nmea_status,
             'gps_module': gps_module, 'gps_status': gps_status,
             'session_name': session_name, 'start_time': start_time,
@@ -615,8 +639,10 @@ def get_data():
             'housing_battery_min_voltage': housing_battery_min_voltage,
             'housing_battery_avg_voltage': housing_battery_avg_voltage,
             'housing_battery_max_current': housing_battery_max_current,
+            'housing_battery_min_current': housing_battery_min_current,
             'housing_battery_avg_current': housing_battery_avg_current,
             'housing_battery_max_power': housing_battery_max_power,
+            'housing_battery_min_power': housing_battery_min_power,
             'housing_battery_avg_power': housing_battery_avg_power,
             'housing_battery_max_soc': housing_battery_max_soc,
             'housing_battery_min_soc': housing_battery_min_soc,

@@ -286,7 +286,7 @@ class GPSPlugin(GenericPlugin):
                 self._log_manager.debug(f'Could not get location from GPS coordinates. Details: {e}')
         elif str(csv_list[0]).endswith('VTG'):
             self._course_over_ground = utils.try_parse_float(csv_list[1])
-            self._speed_over_ground = utils.try_parse_float(csv_list[5])
+            self._speed_over_ground = round(utils.try_parse_float(csv_list[5]), 1)
             self._log_manager.debug(
                 f'Detected COG: {self._course_over_ground} SOG: {self._speed_over_ground}')
         elif str(csv_list[0]).endswith('GSA'):

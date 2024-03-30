@@ -12,10 +12,12 @@ from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 
 class VictronBLEBMVDeviceEntry:
     def __init__(self, housing_battery_soc, housing_battery_voltage, housing_battery_current,
+                 housing_battery_power,
                  starter_battery_voltage, housing_battery_consumed_ah, housing_battery_remaining_mins):
         self._housing_battery_soc = housing_battery_soc
         self._housing_battery_voltage = housing_battery_voltage
         self._housing_battery_current = housing_battery_current
+        self._housing_battery_power = housing_battery_power
         self._starter_battery_voltage = starter_battery_voltage
         self._housing_battery_consumed_ah = housing_battery_consumed_ah
         self._housing_battery_remaining_mins = housing_battery_remaining_mins
@@ -25,7 +27,9 @@ class VictronBLEBMVDeviceEntry:
 
     def get_values(self):
         return [f'{self._housing_battery_voltage}', f'{self._housing_battery_current}',
-                f'{self._housing_battery_soc}', f'{self._starter_battery_voltage}',
+                f'{self._housing_battery_power}',
+                f'{self._housing_battery_soc}',
+                f'{self._starter_battery_voltage}',
                 f'{self._housing_battery_consumed_ah}',
                 f'{self._housing_battery_remaining_mins}']
 
@@ -40,6 +44,10 @@ class VictronBLEBMVDeviceEntry:
     @property
     def housing_battery_current(self):
         return self._housing_battery_current
+
+    @property
+    def housing_battery_power(self):
+        return self._housing_battery_power
 
     @property
     def starter_battery_voltage(self):
@@ -63,6 +71,7 @@ class VictronBLEPlugin(GenericPlugin):
         self._housing_battery_soc = globals.EMPTY_METRIC_VALUE
         self._housing_battery_voltage = globals.EMPTY_METRIC_VALUE
         self._housing_battery_current = globals.EMPTY_METRIC_VALUE
+        self._housing_battery_power = globals.EMPTY_METRIC_VALUE
         self._starter_battery_voltage = globals.EMPTY_METRIC_VALUE
         self._housing_battery_consumed_ah = globals.EMPTY_METRIC_VALUE
         self._housing_battery_remaining_mins = globals.EMPTY_METRIC_VALUE
@@ -71,7 +80,9 @@ class VictronBLEPlugin(GenericPlugin):
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
-                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE]
 
         self._sum_housing_battery_voltage = 0
         self._cnt_housing_battery_voltage_entries = 0
@@ -79,6 +90,8 @@ class VictronBLEPlugin(GenericPlugin):
         self._cnt_housing_battery_current_entries = 0
         self._sum_housing_battery_soc = 0
         self._cnt_housing_battery_soc_entries = 0
+        self._sum_housing_battery_power = 0
+        self._cnt_housing_battery_power_entries = 0
         self._sum_starter_battery_voltage = 0
         self._cnt_starter_battery_voltage_entries = 0
         self._sum_housing_battery_consumed_ah = 0
@@ -101,6 +114,7 @@ class VictronBLEPlugin(GenericPlugin):
         self._housing_battery_soc = globals.EMPTY_METRIC_VALUE
         self._housing_battery_voltage = globals.EMPTY_METRIC_VALUE
         self._housing_battery_current = globals.EMPTY_METRIC_VALUE
+        self._housing_battery_power = globals.EMPTY_METRIC_VALUE
         self._starter_battery_voltage = globals.EMPTY_METRIC_VALUE
         self._housing_battery_consumed_ah = globals.EMPTY_METRIC_VALUE
         self._housing_battery_remaining_mins = globals.EMPTY_METRIC_VALUE
@@ -109,7 +123,9 @@ class VictronBLEPlugin(GenericPlugin):
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
-                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE]
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE]
 
         self._sum_housing_battery_voltage = 0
         self._cnt_housing_battery_voltage_entries = 0
@@ -117,6 +133,8 @@ class VictronBLEPlugin(GenericPlugin):
         self._cnt_housing_battery_current_entries = 0
         self._sum_housing_battery_soc = 0
         self._cnt_housing_battery_soc_entries = 0
+        self._sum_housing_battery_power = 0
+        self._cnt_housing_battery_power_entries = 0
         self._sum_starter_battery_voltage = 0
         self._cnt_starter_battery_voltage_entries = 0
         self._sum_housing_battery_consumed_ah = 0
@@ -170,6 +188,8 @@ class VictronBLEPlugin(GenericPlugin):
                 else:
                     self._housing_battery_current = 0
 
+                self._housing_battery_power = round(self._housing_battery_voltage * self._housing_battery_current)
+
                 if not parsed_data.get_soc() is None:
                     self._housing_battery_soc = round(parsed_data.get_soc())
                 else:
@@ -220,6 +240,7 @@ class VictronBLEPlugin(GenericPlugin):
         entry = VictronBLEBMVDeviceEntry(housing_battery_soc=self._housing_battery_soc,
                                          housing_battery_voltage=self._housing_battery_voltage,
                                          housing_battery_current=self._housing_battery_current,
+                                         housing_battery_power=self._housing_battery_power,
                                          starter_battery_voltage=self._starter_battery_voltage,
                                          housing_battery_consumed_ah=self._housing_battery_consumed_ah,
                                          housing_battery_remaining_mins=self._housing_battery_remaining_mins)
@@ -228,6 +249,7 @@ class VictronBLEPlugin(GenericPlugin):
             self._log_manager.debug(f'Housing Battery SOC: {entry.housing_battery_soc} ' +
                                     f'Housing Battery Voltage: {entry.housing_battery_voltage} V ' +
                                     f'Housing Battery Current: {entry.housing_battery_current} A ' +
+                                    f'Housing Battery Power: {entry.housing_battery_power} W ' +
                                     f'Starter Battery Voltage: {entry.starter_battery_voltage} V' +
                                     f'Housing Battery Consumed Ah: {entry.housing_battery_consumed_ah}' +
                                     f'Housing Battery Remaining mins: {entry.housing_battery_remaining_mins}')
@@ -266,90 +288,120 @@ class VictronBLEPlugin(GenericPlugin):
                         utils.get_biggest_number(utils.try_parse_float(entry.housing_battery_current),
                                                  self._summary_values[3])
 
-                self._sum_housing_battery_current += utils.try_parse_float(entry.housing_battery_current)
-                self._cnt_housing_battery_current_entries += 1
                 if self._summary_values[4] == globals.EMPTY_METRIC_VALUE:
                     self._summary_values[4] = entry.housing_battery_current
                 else:
                     self._summary_values[4] = \
-                        round(self._sum_housing_battery_current / self._cnt_housing_battery_current_entries, 2)
+                        utils.get_smallest_number(utils.try_parse_float(entry.housing_battery_current),
+                                                  self._summary_values[4])
 
-            if entry.housing_battery_soc != globals.EMPTY_METRIC_VALUE:
+                self._sum_housing_battery_current += utils.try_parse_float(entry.housing_battery_current)
+                self._cnt_housing_battery_current_entries += 1
                 if self._summary_values[5] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[5] = entry.housing_battery_soc
+                    self._summary_values[5] = entry.housing_battery_current
                 else:
                     self._summary_values[5] = \
-                        utils.get_biggest_number(utils.try_parse_int(entry.housing_battery_soc),
-                                                 self._summary_values[5])
+                        round(self._sum_housing_battery_current / self._cnt_housing_battery_current_entries, 2)
 
+            if entry.housing_battery_power != globals.EMPTY_METRIC_VALUE:
                 if self._summary_values[6] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[6] = entry.housing_battery_soc
+                    self._summary_values[6] = entry.housing_battery_power
                 else:
                     self._summary_values[6] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.housing_battery_power),
+                                                 self._summary_values[6])
+
+                if self._summary_values[7] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[7] = entry.housing_battery_power
+                else:
+                    self._summary_values[7] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.housing_battery_power),
+                                                  self._summary_values[7])
+
+                self._sum_housing_battery_power += utils.try_parse_float(entry.housing_battery_power)
+                self._cnt_housing_battery_power_entries += 1
+                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[8] = entry.housing_battery_power
+                else:
+                    self._summary_values[8] = \
+                        round(self._sum_housing_battery_power / self._cnt_housing_battery_power_entries)
+
+            if entry.housing_battery_soc != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[9] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[9] = entry.housing_battery_soc
+                else:
+                    self._summary_values[9] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.housing_battery_soc),
+                                                 self._summary_values[9])
+
+                if self._summary_values[10] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[10] = entry.housing_battery_soc
+                else:
+                    self._summary_values[10] = \
                         utils.get_smallest_number(utils.try_parse_float(entry.housing_battery_soc),
-                                                  self._summary_values[6])
+                                                  self._summary_values[10])
 
                 self._sum_housing_battery_soc += utils.try_parse_int(entry.housing_battery_soc)
                 self._cnt_housing_battery_soc_entries += 1
-                if self._summary_values[7] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[7] = entry.housing_battery_soc
+                if self._summary_values[11] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[11] = entry.housing_battery_soc
                 else:
-                    self._summary_values[7] = \
+                    self._summary_values[11] = \
                         round(self._sum_housing_battery_soc / self._cnt_housing_battery_soc_entries)
 
             if entry.starter_battery_voltage != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[8] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[8] = entry.starter_battery_voltage
-                else:
-                    self._summary_values[8] = \
-                        utils.get_biggest_number(utils.try_parse_int(entry.starter_battery_voltage),
-                                                 self._summary_values[8])
-
-                if self._summary_values[9] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[9] = entry.starter_battery_voltage
-                else:
-                    self._summary_values[9] = \
-                        utils.get_smallest_number(utils.try_parse_float(entry.starter_battery_voltage),
-                                                  self._summary_values[9])
-
-                self._sum_starter_battery_voltage += utils.try_parse_int(entry.starter_battery_voltage)
-                self._cnt_starter_battery_voltage_entries += 1
-                if self._summary_values[10] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[10] = entry.starter_battery_voltage
-                else:
-                    self._summary_values[10] = round(
-                        self._sum_starter_battery_voltage / self._cnt_starter_battery_voltage_entries)
-
-            if entry.housing_battery_consumed_ah != globals.EMPTY_METRIC_VALUE:
-                if self._summary_values[11] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[11] = entry.housing_battery_consumed_ah
-                else:
-                    self._summary_values[11] = \
-                        utils.get_biggest_number(utils.try_parse_float(entry.housing_battery_consumed_ah),
-                                                 self._summary_values[11])
-
                 if self._summary_values[12] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[12] = entry.housing_battery_consumed_ah
+                    self._summary_values[12] = entry.starter_battery_voltage
                 else:
                     self._summary_values[12] = \
+                        utils.get_biggest_number(utils.try_parse_int(entry.starter_battery_voltage),
+                                                 self._summary_values[12])
+
+                if self._summary_values[13] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[13] = entry.starter_battery_voltage
+                else:
+                    self._summary_values[13] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.starter_battery_voltage),
+                                                  self._summary_values[13])
+
+                self._sum_starter_battery_voltage += utils.try_parse_float(entry.starter_battery_voltage)
+                self._cnt_starter_battery_voltage_entries += 1
+                if self._summary_values[14] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[14] = entry.starter_battery_voltage
+                else:
+                    self._summary_values[14] = round(
+                        self._sum_starter_battery_voltage / self._cnt_starter_battery_voltage_entries, 2)
+
+            if entry.housing_battery_consumed_ah != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[15] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[15] = entry.housing_battery_consumed_ah
+                else:
+                    self._summary_values[15] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.housing_battery_consumed_ah),
+                                                 self._summary_values[15])
+
+                if self._summary_values[16] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[16] = entry.housing_battery_consumed_ah
+                else:
+                    self._summary_values[16] = \
                         utils.get_smallest_number(utils.try_parse_float(entry.housing_battery_consumed_ah),
-                                                  self._summary_values[12])
+                                                  self._summary_values[16])
 
                 self._sum_housing_battery_consumed_ah += utils.try_parse_float(entry.housing_battery_consumed_ah)
                 self._cnt_housing_battery_consumed_ah_entries += 1
-                if self._summary_values[13] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[13] = entry.housing_battery_consumed_ah
+                if self._summary_values[17] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[17] = entry.housing_battery_consumed_ah
                 else:
-                    self._summary_values[13] = \
+                    self._summary_values[17] = \
                         round(self._sum_housing_battery_consumed_ah / self._cnt_housing_battery_consumed_ah_entries, 2)
 
             if entry.housing_battery_remaining_mins != globals.EMPTY_METRIC_VALUE:
                 self._sum_housing_battery_remaining_mins += utils.try_parse_int(entry.housing_battery_remaining_mins)
                 self._cnt_housing_battery_remaining_mins_entries += 1
-                if self._summary_values[14] == globals.EMPTY_METRIC_VALUE:
-                    self._summary_values[14] = entry.housing_battery_remaining_mins
+                if self._summary_values[18] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[18] = entry.housing_battery_remaining_mins
                 else:
-                    self._summary_values[14] = \
+                    self._summary_values[18] = \
                         round(
                             self._sum_housing_battery_remaining_mins / self._cnt_housing_battery_remaining_mins_entries)
 

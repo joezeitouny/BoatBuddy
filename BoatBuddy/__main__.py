@@ -50,6 +50,7 @@ if __name__ == '__main__':
             options.data_source_housing_battery_soc = data['data_source']['data_source_housing_battery_soc']
             options.data_source_housing_battery_voltage = data['data_source']['data_source_housing_battery_voltage']
             options.data_source_housing_battery_current = data['data_source']['data_source_housing_battery_current']
+            options.data_source_housing_battery_power = data['data_source']['data_source_housing_battery_power']
             options.data_source_starter_battery_voltage = data['data_source']['data_source_starter_battery_voltage']
             options.victron_modbus_tcp_module = utils.try_parse_bool(
                 data['victron_modbus_tcp']['victron_modbus_tcp_module'])
