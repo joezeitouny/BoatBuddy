@@ -2,7 +2,8 @@ import os
 from enum import Enum
 from threading import Thread, Event, Lock
 
-from playsound import playsound
+from pydub import AudioSegment
+from pydub.playback import play
 
 from BoatBuddy.log_manager import LogManager
 
@@ -74,4 +75,5 @@ class SoundManager:
     def _play_sound(self, filename):
         full_path = os.path.dirname(os.path.abspath(__file__)) + filename
         self._log_manager.debug(f'Playing a sound with filename: {full_path}')
-        playsound(full_path)
+        sound = AudioSegment.from_file(full_path)
+        play(sound)

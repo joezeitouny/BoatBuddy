@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "BoatBuddy"
-version = "0.12.0"
+version = "0.12.1"
 authors = [
     { name = "Joe Zeitouny", email = "joezeitouny@gmail.com" },
 ]
@@ -26,15 +26,14 @@ dependencies = [
     "Events ~= 0.4",
     "numpy ~= 1.24.1",
     "rich ~= 13.3.1",
-    "playsound ~= 1.3.0",
     "pyserial",
     "yagmail ~= 0.15.293",
     "keyring ~= 23.13.1",
-    "mysql-connector-python ~= 8.0.32",
     "Flask ~= 3.0.2",
     "python-telegram-bot ~= 20.6",
     "bleak~=0.21.1",
-    "victron-ble~=0.6.0"
+    "victron-ble~=0.6.0",
+    "pydub"
 ]
 [project.urls]
 "Homepage" = "https://boatbuddy.site"

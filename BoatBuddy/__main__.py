@@ -16,6 +16,14 @@ if __name__ == '__main__':
     parser.add_option('--config', dest='configuration_path', type='string', help=f'Path to the configuration file')
 
     (options, args) = parser.parse_args()
+
+    # Get the value of an environment variable
+    config_file_path_env_value = os.getenv("BB_CONFIG_FILE_PATH")
+
+    # Check if the variable is set
+    if config_file_path_env_value is not None:
+        options.configuration_path = config_file_path_env_value
+
     if not options.configuration_path:
         print(f'Invalid argument: Configuration path is a required argument\r\n')
         parser.print_help()
@@ -39,7 +47,6 @@ if __name__ == '__main__':
             options.excel = utils.try_parse_bool(data['output_to_excel'])
             options.csv = utils.try_parse_bool(data['output_to_csv'])
             options.gpx = utils.try_parse_bool(data['output_to_gpx'])
-            options.web_host = data['web_application']['web_host']
             options.web_port = data['web_application']['web_port']
             options.web_theme = data['web_application']['web_theme']
             options.web_sunrise = data['web_application']['web_sunrise']
@@ -173,8 +180,8 @@ if __name__ == '__main__':
             print(f'Invalid argument: Notification cool-off interval need to be provided if the '
                   f'notification module is turned on')
             parser.print_help()
-        elif not (options.web_host or options.web_port):
-            print(f'Invalid argument: Web module requires the host and port parameters to be provided')
+        elif not options.web_port:
+            print(f'Invalid argument: Web module requires the port parameter to be provided')
             parser.print_help()
         elif options.anchor_alarm_module and not options.gps_module:
             print(f'Invalid argument: Anchor alarm module cannot be enabled without the GPS module being enabled too')

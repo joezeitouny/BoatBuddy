@@ -8,7 +8,6 @@
   "output_to_csv": "True",
   "output_to_gpx": "True",
   "web_application": {
-    "web_host": "127.0.0.1",
     "web_port": "5001",
     "web_theme": "auto",
     "web_sunrise": "07:00",

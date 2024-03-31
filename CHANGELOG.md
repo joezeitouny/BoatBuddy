@@ -1,3 +1,12 @@
+## 0.12.1 (2024-03-31)
+
+* Added support for passing in the configuration file path through an environment variable
+* Removed support for specifying the server IP address for the web application
+* Switched the used sound library from playsound to pydub
+* Cleaned up the requirements file
+* Added a Dockerfile for experimentation
+* Version bump to 0.12.1
+
 ## 0.12.0 (2024-03-31)
 
 * Removed the anchor map animation as it was causing problems when controlling the application from multiple screens
