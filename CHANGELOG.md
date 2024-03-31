@@ -1,3 +1,17 @@
+## 0.12.0 (2024-03-31)
+
+* Removed the anchor map animation as it was causing problems when controlling the application from multiple screens
+* Fixed an issue where Victron BLE plugin would repeatedly report that it is down when connecting to a BMV that doesn't have the starter battery configured as Auxiliary
+* Added support for reporting on housing battery power 
+* Added support to display housing battery voltage on the left side pane 
+* Fixed an issue where SS SOC value wasn't correctly rounded in the excel output
+* Added Housing battery minimum power and housing battery minimum current entries in the summary list
+* Added created by section in the about us page
+* Removed the NMEA0183 Instruments tab from the display when the NMEA module is disabled
+* Removed "Use Home Position" button from the display if the GPS Home Position field is not configured 
+* UI Layout improvements
+* Version bump to 0.12.0
+
 ## 0.11.2 (2024-03-11)
 
 * Fixed an issue where a session couldn't be started if the Victron BLE module is not enabled
