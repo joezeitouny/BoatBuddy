@@ -27,23 +27,35 @@
                     <div class="row align-items-center" id="default_anchor_configuration_div_id">
                         <div class="col col-sm">
                             <div class="row mb-2">
-                            <span>Latitude:&nbsp<input type="text" id="set_anchor_alarm_latitude_text_id"
-                                                       placeholder="Latitude"/></span>
+                                <div class="col">
+                                    Latitude:
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="set_anchor_alarm_latitude_text_id"
+                                           placeholder="Latitude"/>
+                                </div>
                             </div>
                             <div class="row mb-2">
-                            <span>Longitude:&nbsp<input type="text" id="set_anchor_alarm_longitude_text_id"
-                                                        placeholder="Longitude"/></span>
+                                <div class="col">
+                                    Longitude:
+                                </div>
+                                <div class="col">
+                                    <input type="text" id="set_anchor_alarm_longitude_text_id"
+                                           placeholder="Longitude"/>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12 col-sm">
-                            <button class="btn btn-outline-primary mb-2 mt-2" type="button" onclick="useCurrentPosition()">
+                            <button class="btn btn-outline-primary mb-2 mt-2" type="button"
+                                    onclick="useCurrentPosition()">
                                 <span><i class="bi bi-crosshair"></i>&nbspUse current position</span>
                             </button>
                             <button id="use_last_anchor_position_button_id" class="btn btn-outline-primary mb-2"
                                     type="button" onclick="useLastAnchorPosition()" disabled>
                                 <span><i class="bi bi-crosshair"></i>&nbspUse last anchor position</span>
                             </button>
-                            <button class="btn btn-outline-primary mb-2" type="button" onclick="useHomePosition()">
+                            <button id="use_home_position_button_id" class="btn btn-outline-primary mb-2" type="button"
+                                    onclick="useHomePosition()">
                                 <span><i class="bi bi-house-check"></i>&nbspUse home position</span>
                             </button>
                         </div>
@@ -517,6 +529,14 @@
     {% else %}
     document.getElementById('anchor_alarm_section').style.display = 'none';
     document.getElementById('anchor_alarm_section').style.visibility = 'hidden';
+    {% endif %}
+
+    {% if home_position_available %}
+    document.getElementById('use_home_position_button_id').style.display = 'block';
+    document.getElementById('use_home_position_button_id').style.visibility = 'visible';
+    {% else %}
+    document.getElementById('use_home_position_button_id').style.display = 'none';
+    document.getElementById('use_home_position_button_id').style.visibility = 'hidden';
     {% endif %}
 
     anchorMap = new ol.Map({

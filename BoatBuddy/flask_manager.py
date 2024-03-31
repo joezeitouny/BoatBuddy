@@ -143,11 +143,17 @@ def index():
     metrics_electrical_system = application_modules.get_options().metrics_electrical_system
     metrics_nmea = application_modules.get_options().metrics_nmea
 
+    home_position_available = ((application_modules.get_options().gps_latitude_home and
+                               application_modules.get_options().gps_longitude_home) and
+                               (len(application_modules.get_options().gps_latitude_home) > 0 and
+                                len(application_modules.get_options().gps_longitude_home) > 0))
+
     return render_template('index.html', boat_name=boat_name, application_name=application_name,
                            application_version=application_version,
                            session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module,
                            anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key,
-                           metrics_electrical_system=metrics_electrical_system, metrics_nmea=metrics_nmea)
+                           metrics_electrical_system=metrics_electrical_system, metrics_nmea=metrics_nmea,
+                           home_position_available=home_position_available)
 
 
 @app.route('/toggle_session')
