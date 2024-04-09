@@ -1,3 +1,8 @@
+## 0.12.2 (2024-04-09)
+
+* Added ability to refresh the whole page by clicking on the time field in the navigation bar section
+* Version bump to 0.12.2
+
 ## 0.12.1 (2024-03-31)
 
 * Added support for passing in the configuration file path through an environment variable
