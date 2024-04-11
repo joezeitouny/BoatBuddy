@@ -1,3 +1,8 @@
+## 0.13.0 (2024-04-11)
+
+* Launching the website in a browser during startup is now configurable in the json configuration file
+* Version bump to 0.13.0
+
 ## 0.12.2 (2024-04-09)
 
 * Added ability to refresh the whole page by clicking on the time field in the navigation bar section

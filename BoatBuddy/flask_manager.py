@@ -116,7 +116,9 @@ class FlaskManager:
                                                  _notifications_manager, _plugin_manager,
                                                  _anchor_manager, _telegram_manager)
 
-        webbrowser.open(f'http://localhost:{self._options.web_port}')
+        if self._options.web_launch_browser_during_startup:
+            webbrowser.open(f'http://localhost:{self._options.web_port}')
+
         app.run(debug=False, host='0.0.0.0', port=self._options.web_port)
 
 

@@ -8,6 +8,7 @@
   "output_to_csv": "True",
   "output_to_gpx": "True",
   "web_application": {
+    "web_launch_browser_during_startup": "False",
     "web_port": "5001",
     "web_theme": "auto",
     "web_sunrise": "07:00",

@@ -47,6 +47,8 @@ if __name__ == '__main__':
             options.excel = utils.try_parse_bool(data['output_to_excel'])
             options.csv = utils.try_parse_bool(data['output_to_csv'])
             options.gpx = utils.try_parse_bool(data['output_to_gpx'])
+            options.web_launch_browser_during_startup = utils.try_parse_bool(
+                data['web_application']['web_launch_browser_during_startup'])
             options.web_port = data['web_application']['web_port']
             options.web_theme = data['web_application']['web_theme']
             options.web_sunrise = data['web_application']['web_sunrise']
