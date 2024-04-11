@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import time
 
 from bleak import BleakScanner
 
@@ -158,6 +159,9 @@ class VictronBLEPlugin(GenericPlugin):
                 await scanner.stop()
             except Exception as e:
                 self._handle_connection_exception(e)
+
+            # sleep for 1 second
+            time.sleep(1)
 
         self._plugin_status = PluginStatus.DOWN
         self._log_manager.info('Victron BLE plugin instance is ready to be destroyed')

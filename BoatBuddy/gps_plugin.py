@@ -1,6 +1,7 @@
 import csv
 import math
 import threading
+import time
 from io import BufferedReader
 from io import StringIO
 
@@ -235,6 +236,8 @@ class GPSPlugin(GenericPlugin):
                     str_data = raw_data.decode().rstrip('\r\n')
                     self._log_manager.debug(str_data)
                     self._process_data(str_data)
+
+                    time.sleep(1)  # Sleep for one second
         except Exception as e:
             self._handle_connection_exception(e)
 

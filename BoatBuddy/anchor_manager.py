@@ -278,10 +278,11 @@ class AnchorManager:
                         self._notifications_manager.notify('anchor', ModuleStatus.ALARM_CLEARED.value,
                                                            NotificationEntryType.MODULE)
 
-                    # sleep for 1 second
-                    time.sleep(1)
             except Exception as e:
                 if self._status != AnchorManagerStatus.DOWN:
                     self._log_manager.info(f'Exception occurred in Anchor manager main thread. Details {e}')
 
                     self._status = AnchorManagerStatus.DOWN
+
+            # sleep for 1 second
+            time.sleep(1)

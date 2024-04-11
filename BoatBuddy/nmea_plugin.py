@@ -2,6 +2,7 @@ import csv
 import math
 import socket
 import threading
+import time
 from io import StringIO
 
 from events import Events
@@ -369,6 +370,9 @@ class NMEAPlugin(GenericPlugin):
                 str_data = data.decode().rstrip('\r\n')
                 self._log_manager.debug(str_data)
                 self._process_data(str_data)
+
+                # sleep for 1 second
+                time.sleep(1)
         except Exception as e:
             self._handle_connection_exception(e)
 

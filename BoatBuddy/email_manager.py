@@ -1,5 +1,6 @@
 from enum import Enum
 from threading import Thread, Event
+import time
 
 import yagmail
 
@@ -64,3 +65,5 @@ class EmailManager:
                         self._log_manager.info(f'Could not send email. Details {e}')
 
                         self._status = EmailManagerStatus.DOWN
+
+            time.sleep(1)  # Sleep for one second

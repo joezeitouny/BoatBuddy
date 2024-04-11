@@ -1,6 +1,7 @@
 import os
 from enum import Enum
 from threading import Thread, Event, Lock
+import time
 
 from pydub import AudioSegment
 from pydub.playback import play
@@ -71,6 +72,8 @@ class SoundManager:
             if len(self._sound_queue):
                 self._play_sound(self._sound_queue.pop(0))
             self._mutex.release()
+
+            time.sleep(1)  # Sleep for one second
 
     def _play_sound(self, filename):
         full_path = os.path.dirname(os.path.abspath(__file__)) + filename

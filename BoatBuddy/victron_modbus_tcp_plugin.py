@@ -1,4 +1,5 @@
 import threading
+import time
 
 import numpy as np
 from events import Events
@@ -358,6 +359,9 @@ class VictronModbusTCPPlugin(GenericPlugin):
                 self._handle_connection_exception(e)
         except Exception as e:
             self._handle_connection_exception(e)
+
+        # sleep for 1 second
+        time.sleep(1)
 
         # Reset the timer
         self._timer = threading.Timer(globals.VICTRON_MODBUS_TCP_TIMER_INTERVAL, self._main_loop)

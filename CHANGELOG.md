@@ -1,3 +1,8 @@
+## 0.13.1 (2024-04-11)
+
+* CPU Performance improvements
+* Version bump to 0.13.1
+
 ## 0.13.0 (2024-04-11)
 
 * Launching the website in a browser during startup is now configurable in the json configuration file
