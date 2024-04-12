@@ -1,7 +1,7 @@
 from enum import Enum
 from threading import Thread, Event
 import time
-
+import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -77,7 +77,7 @@ class EmailManager:
                                 encoders.encode_base64(part)
                                 part.add_header(
                                     "Content-Disposition",
-                                    f"attachment; filename= {filename}",
+                                    f"attachment; filename= {os.path.basename(filename)}",
                                 )
                                 message.attach(part)
 

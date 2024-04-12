@@ -1,3 +1,8 @@
+## 0.13.4 (2024-04-12)
+
+* Fixed an issue where Email attachments weren't correctly named
+* Version bump to 0.13.4
+
 ## 0.13.3 (2024-04-12)
 
 * Email layout improvements
