@@ -2,9 +2,14 @@ from enum import Enum
 from threading import Thread, Event
 import time
 
-import yagmail
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 from BoatBuddy.log_manager import LogManager
+from BoatBuddy import globals
 
 
 class EmailManagerStatus(Enum):
@@ -49,14 +54,43 @@ class EmailManager:
                 email_entry = self._email_queue[0]
 
                 try:
-                    receiver = self._options.email_address
+                    # receiver = self._options.email_receiver_address
                     subject = email_entry['subject']
-                    yagmail.register(self._options.email_address, self._options.email_password)
-                    yag = yagmail.SMTP(receiver)
-                    yag.send(to=receiver, subject=subject, contents=email_entry['body'],
-                             attachments=email_entry['attachments'])
+
+                    # Create a message object
+                    message = MIMEMultipart()
+                    message["From"] = globals.SMTP_EMAIL_ADDRESS
+                    message["To"] = self._options.email_address
+                    message["Subject"] = subject
+
+                    # Email body
+                    body = email_entry['body']
+                    message.attach(MIMEText(body, "plain"))
+
+                    # Add attachments if any
+                    if not email_entry['attachments'] is None and len(email_entry['attachments']) > 0:
+                        for filename in email_entry['attachments']:
+                            # Attach file
+                            with open(filename, "rb") as attachment:
+                                part = MIMEBase("application", "octet-stream")
+                                part.set_payload(attachment.read())
+                                encoders.encode_base64(part)
+                                part.add_header(
+                                    "Content-Disposition",
+                                    f"attachment; filename= {filename}",
+                                )
+                                message.attach(part)
+
+                    # Connect to the SMTP server
+                    with smtplib.SMTP_SSL("mail.privateemail.com", 465) as server:
+                        server.login(globals.SMTP_EMAIL_ADDRESS, globals.SMTP_EMAIL_PASSWORD[::-1])
+                        # Send email
+                        server.sendmail(globals.SMTP_EMAIL_ADDRESS, self._options.email_address,
+                                        message.as_string())
+
                     self._email_queue.pop(0)
-                    self._log_manager.info(f'Email successfully sent to {receiver} with subject \'{subject}\'!')
+                    self._log_manager.info(
+                        f'Email successfully sent to {self._options.email_receiver_address} with subject \'{subject}\'!')
 
                     if self._status != EmailManagerStatus.RUNNING:
                         self._status = EmailManagerStatus.RUNNING

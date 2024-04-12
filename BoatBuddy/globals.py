@@ -2,13 +2,15 @@ from enum import Enum
 
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.13.1'
+APPLICATION_VERSION = '0.13.2'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 EMPTY_METRIC_VALUE = "N/A"
 JSON_RESPONSE_FORMAT_VERSION = 8
+SMTP_EMAIL_ADDRESS = "app@boatbuddy.site"
+SMTP_EMAIL_PASSWORD = "^wPVTf4KToPGCck"
 
 # Anchor alarm
 EARTH_RADIUS = 6371000  # Approximately 6,371 km

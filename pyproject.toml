@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "BoatBuddy"
-version = "0.13.1"
+version = "0.13.2"
 authors = [
     { name = "Joe Zeitouny", email = "joezeitouny@gmail.com" },
 ]
@@ -27,7 +27,6 @@ dependencies = [
     "numpy ~= 1.24.1",
     "rich ~= 13.3.1",
     "pyserial",
-    "yagmail ~= 0.15.293",
     "keyring ~= 23.13.1",
     "Flask ~= 3.0.2",
     "python-telegram-bot ~= 20.6",

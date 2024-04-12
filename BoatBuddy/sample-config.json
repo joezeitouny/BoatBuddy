@@ -47,7 +47,6 @@
   "email": {
     "email_module": "False",
     "email_address": "",
-    "email_password": "",
     "email_session_report": "True"
   },
   "telegram": {

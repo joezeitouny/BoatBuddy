@@ -1,3 +1,8 @@
+## 0.13.2 (2024-04-12)
+
+* Removed the dependency on yagmail and Gmail. Emails will now be sent from app@boatbuddy.site
+* Version bump to 0.13.2
+
 ## 0.13.1 (2024-04-11)
 
 * CPU Performance improvements

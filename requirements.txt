@@ -154,7 +154,6 @@ pyobjc-framework-Vision==9.0.1; sys_platform == 'darwin'
 pyobjc-framework-WebKit==9.0.1; sys_platform == 'darwin'
 pyserial==3.5
 rich==13.3.1
-yagmail==0.15.293
 keyring == 23.13.1
 Flask~=3.0.2
 python-telegram-bot~=20.6
