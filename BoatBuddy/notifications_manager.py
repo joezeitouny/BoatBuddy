@@ -257,7 +257,7 @@ class NotificationsManager:
                        f'Cool Off Interval: {cool_off_interval} seconds\r\n\r\n' \
                        f'Additional message: {additional_message}\r\n\r\n' \
                        f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
-                subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) ' \
+                subject = f'({str(severity).upper()}) ' \
                           f'notification for metric \'{key}\''
             self._email_manager.send_email(subject, body)
             if entry_type == NotificationEntryType.MODULE:
@@ -284,7 +284,7 @@ class NotificationsManager:
             body = f'Notification cleared for ' \
                    f'{notification_entry.get_entry_type().value} \'{key}\' @ {local_time} on {local_date}\r\n\r\n' \
                    f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
-            subject = f'{globals.APPLICATION_NAME} - ({str(severity).upper()}) cleared ' \
+            subject = f'({str(severity).upper()}) cleared ' \
                       f'for {notification_entry.get_entry_type().value} \'{key}\''
             self._email_manager.send_email(subject, body)
             self._log_manager.info(f'Notification cleared for '

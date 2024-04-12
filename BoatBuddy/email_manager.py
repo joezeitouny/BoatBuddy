@@ -59,7 +59,7 @@ class EmailManager:
 
                     # Create a message object
                     message = MIMEMultipart()
-                    message["From"] = globals.SMTP_EMAIL_ADDRESS
+                    message["From"] = f"{globals.APPLICATION_NAME} <{globals.SMTP_EMAIL_ADDRESS}>"
                     message["To"] = self._options.email_address
                     message["Subject"] = subject
 
