@@ -400,7 +400,7 @@ class PluginManager:
                 if self._options.session_summary_report:
                     attachments.append(f"{self._output_directory}{self._summary_filename}.xlsx")
 
-                subject = f'(Session Report) for session {self._log_filename}'
+                subject = f'{self._options.boat_name} - Session report for session {self._log_filename}'
                 self._email_manager.send_email(subject, body, attachments)
                 self._log_manager.info(f'Email report for session {self._log_filename} successfully created and '
                                        f'will be sent out shortly')
