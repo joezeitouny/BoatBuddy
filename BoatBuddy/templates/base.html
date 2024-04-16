@@ -54,47 +54,53 @@
     <div class="row">
         <nav id="navbar-element-id" class="navbar navbar-expand-lg bg-dark bg-gradient shadow">
             <div class="container-fluid">
-                <div class="col-9 col-lg col-sm-5">
+                <div class="col-9 col-md-4 col-lg-5 col-xl-4">
                     <button class="navbar-brand btn" type="button" onclick="showAboutUsModal()">
                         <span><img src="/static/logo.png" alt="..." width="32" height="32"> {{application_name}}</small></span>
                     </button>
                 </div>
-                <div class="col-3 col-lg-1 col-sm-1 text-center">
+                <div class="col-3 col-md-1 col-lg-2 col-xl-4 text-center">
                     <span class="navbar-text fw-bolder"
-                          id="curr_time_id" style="font-size: 20px; cursor: pointer;" onclick="location.reload(true);"></span>
+                          id="curr_time_id" style="font-size: 20px; cursor: pointer;"
+                          onclick="location.reload(true);"></span>
                 </div>
-                <div class="col col-lg col-sm">
+                <div class="col-12 col-md-7 col-lg-5 col-xl-4">
                     <span class="row align-items-center justify-content-end">
-                        <div class="col-5 col-md-5 col-lg-auto" id="anchor_alarm_section">
+                        <div class="col-auto" id="anchor_alarm_section">
                             <span class="d-inline-block" tabindex="0" data-toggle="tooltip" data-bs-placement="left"
                                   title="Feature is disabled because the GPS module is down" id="set_anchor_tooltip_id">
-                                <button class="mx-2 btn btn-success" id="set_anchor_alarm_button_id" type="button"
-                                        style="visibility: visible; display: Block" onclick="showSetAnchorAlarmModal()"
+                                <button class="btn btn-success" id="set_anchor_alarm_button_id" type="button"
+                                        style="visibility: visible; display: Block; font-size: 0.9rem;"
+                                        onclick="showSetAnchorAlarmModal()"
                                         disabled>
                                     <span>
                                         <span><i class="bi bi-link-45deg"></i>&nbspSet anchor</span>
                                     </span>
                                 </button>
                             </span>
-                            <button class="mx-2 btn btn-warning" id="update_anchor_alarm_button_id" type="button"
-                                    style="visibility: hidden; display: None" onclick="showUpdateAnchorAlarmModal()">
+                            <button class="btn btn-warning" id="update_anchor_alarm_button_id" type="button"
+                                    style="visibility: hidden; display: None; font-size: 0.9rem;"
+                                    onclick="showUpdateAnchorAlarmModal()">
                                 <span class="spinner-border spinner-border-sm" role="status"></span>
                                 Anchor distance:&nbsp<span id="anchor_distance_label_id"></span>m
                             </button>
                         </div>
-                        <div class="col-7 col-sm-auto border border-2 p-2 p-sm-1 mx-sm-1 border-white rounded">
-
-                                <span><i class="bi bi-bootstrap-reboot"></i>&nbsp</span><span class="navbar-text">{{session_run_mode}}</span>
-                                <button class="ms-2 btn btn-success" type="submit" id="session_button_id"
-                                        onclick="toggleSession()">
-                                    <span>
-                                        <span id="session_button_spinner" class="spinner-border spinner-border-sm"
-                                              style="visibility: hidden; display: none;" role="status"
-                                              aria-hidden="true"></span>
-                                        <span id="session_button_text">Start Session</span>
-                                    </span>
-                                </button>
-
+                        <div class="col-auto border border-2 p-1 me-1 border-white rounded">
+                            <div class="row">
+                                <span>
+                                    <span class="navbar-text" style="font-size: 0.9rem;"><i
+                                            class="bi bi-bootstrap-reboot"></i>&nbsp;{{session_run_mode}}</span>
+                                    <button class="ms-2 btn btn-success" type="submit" id="session_button_id"
+                                            onclick="toggleSession()" style="font-size: 0.9rem;">
+                                            <span>
+                                                <span id="session_button_spinner" class="spinner-border spinner-border-sm"
+                                                      style="visibility: hidden; display: none;" role="status"
+                                                      aria-hidden="true"></span>
+                                                <span id="session_button_text">Start Session</span>
+                                            </span>
+                                    </button>
+                                </span>
+                            </div>
                         </div>
                     </span>
                 </div>
