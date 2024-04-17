@@ -468,7 +468,7 @@
                                         Zoom Out <i class="bi bi-zoom-out"></i></button>
                                     <label class="bg-secondary text-light p-1">
                                         <input type="checkbox" id="track_current_position_checkbox">
-                                        <span>Track current position</span>
+                                        <span>Follow boat position</span>
                                     </label>
                                 </div>
                                 <div id="anchor-map"></div>
@@ -1012,27 +1012,57 @@
           geometry: circle,
         });
 
-        // Create a vector source for the circle feature
+        // Create a vector source for the circle and center dot features
         vectorSource = new ol.source.Vector({
           features: [circleFeature],
         });
 
-        // Create a vector layer for the circle
+        // Create a vector layer for the circle and center dot
         vectorLayer = new ol.layer.Vector({
           source: vectorSource,
-          style: new ol.style.Style({
-            stroke: new ol.style.Stroke({
-              color: 'red', // Circle border color
-              width: 1, // Border width
-            }),
-            fill: new ol.style.Fill({
-              color: 'rgba(0, 0, 255, 0.1)', // Circle fill color with transparency
-            })
-          })
+          style: new ol.style.Style({ // Style for the circle
+                  stroke: new ol.style.Stroke({
+                    color: 'red', // Circle border color
+                    width: 1, // Border width
+                  }),
+                  fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 255, 0.1)', // Circle fill color with transparency
+                  }),
+                })
         });
 
         // Add the circle layer to the map
         anchorMap.addLayer(vectorLayer);
+
+        // Create a point geometry at the specified coordinates
+        var imagePoint = new ol.geom.Point([anchorDecimalLongitude, anchorDecimalLatitude]);
+
+        // Create a feature for the point geometry
+        var imageFeature = new ol.Feature({
+          geometry: imagePoint,
+        });
+
+        // Create a vector source for the feature
+        var imageSource = new ol.source.Vector({
+          features: [imageFeature],
+        });
+
+        // Create a custom icon style for the point
+        var iconStyle = new ol.style.Style({
+          image: new ol.style.Icon({
+            src: '/static/anchor.png', // Path to your image file
+            scale: 0.5, // Adjust the scale of the image as needed
+          }),
+        });
+
+        // Create a vector layer for the feature
+        var anchorLayer = new ol.layer.Vector({
+          source: imageSource,
+          style: iconStyle, // Apply the custom icon style
+        });
+
+        // Add the anchor layer to the map
+        anchorMap.addLayer(anchorLayer);
 
         // draw position history markers if provided
         if (anchorPositionHistory && anchorPositionHistory.length > 0) {
