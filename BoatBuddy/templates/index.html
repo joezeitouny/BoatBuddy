@@ -1004,31 +1004,55 @@
         clearMapLayers();
 
         // Calculate the anchor circle's geometry taking into consideration the allowed distance
-        radiusMeters = radiusFromValue(anchorAllowedDistance);
-        circle = new ol.geom.Circle([anchorDecimalLongitude, anchorDecimalLatitude], radiusMeters);
+        var radiusMeters = radiusFromValue(anchorAllowedDistance);
 
         // Create a feature for the circle
-        circleFeature = new ol.Feature({
-          geometry: circle,
+        var circleFeature = new ol.Feature({
+          geometry: new ol.geom.Circle([anchorDecimalLongitude, anchorDecimalLatitude], radiusMeters),
         });
 
-        // Create a vector source for the circle and center dot features
-        vectorSource = new ol.source.Vector({
+        circleFeature.setStyle(
+          new ol.style.Style({
+            renderer(coordinates, state) {
+              const [[x, y], [x1, y1]] = coordinates;
+              const ctx = state.context;
+              const dx = x1 - x;
+              const dy = y1 - y;
+              const radius = Math.sqrt(dx * dx + dy * dy);
+
+              const innerRadius = 0;
+              const outerRadius = radius * 1.4;
+
+              const gradient = ctx.createRadialGradient(
+                x,
+                y,
+                innerRadius,
+                x,
+                y,
+                outerRadius,
+              );
+              gradient.addColorStop(0, 'rgba(0,0,255,0)');
+              gradient.addColorStop(0.9, 'rgba(255,0,0,0.25)');
+              gradient.addColorStop(1, 'rgba(255,0,0,1)');
+              ctx.beginPath();
+              ctx.arc(x, y, radius, 0, 2 * Math.PI, true);
+              ctx.fillStyle = gradient;
+              ctx.fill();
+
+              ctx.arc(x, y, radius, 0, 2 * Math.PI, true);
+              ctx.strokeStyle = 'rgba(255,0,0,1)';
+              ctx.stroke();
+            },
+          }),
+        );
+
+        // Create a vector source for the circle feature
+        var vectorSource = new ol.source.Vector({
           features: [circleFeature],
         });
 
-        // Create a vector layer for the circle and center dot
         vectorLayer = new ol.layer.Vector({
           source: vectorSource,
-          style: new ol.style.Style({ // Style for the circle
-                  stroke: new ol.style.Stroke({
-                    color: 'red', // Circle border color
-                    width: 1, // Border width
-                  }),
-                  fill: new ol.style.Fill({
-                    color: 'rgba(0, 0, 255, 0.1)', // Circle fill color with transparency
-                  }),
-                })
         });
 
         // Add the circle layer to the map
@@ -1129,18 +1153,10 @@
         anchorView = new ol.View({
             projection: 'EPSG:4326',
             center: [decimalLon, decimalLat],
-            zoom: 8,
+            maxZoom: 19
         });
 
         anchorMap.setView(anchorView);
-
-        anchorMarker = new ol.Overlay({
-          position: [decimalLon, decimalLat], // Convert GPS coordinates to map coordinates
-          positioning: 'center-center',
-          element: document.createElement('div')
-        });
-        anchorMarker.getElement().className = 'anchor-marker'; // Apply CSS class for styling
-        anchorMap.addOverlay(anchorMarker);
 
         anchorAllowedDistance = allowed_distance;
         anchorPositionHistory = position_history;
