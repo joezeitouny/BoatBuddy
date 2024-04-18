@@ -1,3 +1,9 @@
+## 0.13.7 (2024-04-18)
+
+* UI Layout improvements
+* Fixed an issue with sampling rates for plugins
+* Version bump to 0.13.7
+
 ## 0.13.6 (2024-04-17)
 
 * UI Layout improvements

@@ -1153,7 +1153,8 @@
         anchorView = new ol.View({
             projection: 'EPSG:4326',
             center: [decimalLon, decimalLat],
-            maxZoom: 19
+            maxZoom: 19,
+            enableRotation: false
         });
 
         anchorMap.setView(anchorView);

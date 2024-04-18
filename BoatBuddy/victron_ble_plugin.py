@@ -161,7 +161,7 @@ class VictronBLEPlugin(GenericPlugin):
                 self._handle_connection_exception(e)
 
             # sleep for 1 second
-            time.sleep(1)
+            time.sleep(globals.VICTRON_BLE_PLUGIN_SAMPLING_RATE)
 
         self._plugin_status = PluginStatus.DOWN
         self._log_manager.info('Victron BLE plugin instance is ready to be destroyed')

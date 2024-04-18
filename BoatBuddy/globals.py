@@ -2,7 +2,7 @@ from enum import Enum
 
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.13.6'
+APPLICATION_VERSION = '0.13.7'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -20,13 +20,18 @@ HISTORY_CACHE_LIMIT = 500
 BUFFER_SIZE = 4096
 SOCKET_TIMEOUT = 60
 NMEA_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
+NMEA_PLUGIN_SAMPLING_RATE = 0.5  # In seconds
 
 # Victron Modbus TCP Plugin
 VICTRON_MODBUS_TCP_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
+VICTRON_MODBUS_TCP_SAMPLING_RATE = 1  # In seconds
+
+# Victron BLE Plugin
+VICTRON_BLE_PLUGIN_SAMPLING_RATE = 1  # In seconds
 
 # GPS Plugin
 GPS_TIMER_INTERVAL = 5  # In seconds, defines the amount of time to wait between metrics retrievals
-
+GPS_PLUGIN_SAMPLING_RATE = 0.2  # In seconds
 
 class DataSource(Enum):
     VICTRON_BLE = "victron_ble"

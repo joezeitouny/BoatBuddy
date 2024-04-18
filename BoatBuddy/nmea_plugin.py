@@ -372,7 +372,7 @@ class NMEAPlugin(GenericPlugin):
                 self._process_data(str_data)
 
                 # sleep for 1 second
-                time.sleep(1)
+                time.sleep(globals.NMEA_PLUGIN_SAMPLING_RATE)
         except Exception as e:
             self._handle_connection_exception(e)
 
