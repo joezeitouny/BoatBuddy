@@ -210,25 +210,120 @@
             <div class="row">
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="session-tab" data-bs-toggle="tab" data-bs-target="#session"
-                                type="button" role="tab" aria-controls="session" aria-selected="true">Session
+                        <button class="nav-link active" id="anchor-tab" data-bs-toggle="tab" data-bs-target="#anchor"
+                                type="button" role="tab" aria-controls="anchor" aria-selected="true">Anchor
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="nmea-tab" data-bs-toggle="tab" data-bs-target="#nmea"
-                                type="button" role="tab" aria-controls="nmea" aria-selected="true">NMEA0183 Instruments
+                                type="button" role="tab" aria-controls="nmea" aria-selected="false">Instruments
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="anchor-tab" data-bs-toggle="tab" data-bs-target="#anchor"
-                                type="button" role="tab" aria-controls="anchor" aria-selected="false">Anchor
+                        <button class="nav-link" id="session-tab" data-bs-toggle="tab" data-bs-target="#session"
+                                type="button" role="tab" aria-controls="session" aria-selected="false">Session
                         </button>
                     </li>
                 </ul>
             </div>
             <div class="row border border-5 border-danger rounded text-center d-flex">
                 <div class="tab-content p-0">
-                    <div class="tab-pane fade show active" id="session" role="tabpanel" aria-labelledby="session-tab">
+                    <div class="tab-pane fade show active" id="anchor" role="tabpanel" aria-labelledby="anchor-tab"
+                         style="position: relative;">
+                        <!-- Anchor panel-->
+                        <div id="anchor_alarm_is_not_set_message" class="container-fluid align-self-center">
+                            <h5>Anchor alarm is not set</h5>
+                        </div>
+                        <div id="anchor_container" style="display: none; visibility: hidden;"
+                             class="container-fluid align-self-top">
+                            <div class="row text-start">
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                    <h5 class="fw-bolder">Start time</h5>
+                                    <span>Local:&nbsp;<span id="anchor_start_time"></span></span>
+                                    <br>
+                                    <span>UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
+                                </div>
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                    <h5 class="fw-bolder">Distance</h5>
+                                    <span class="fw-bolder">Allowed Distance:&nbsp<span
+                                            id="anchor_allowed_distance"></span>&nbspm</span>
+                                    <br>
+                                    <span id="distance_from_anchor_span" class="fw-bolder text-success">Distance from anchor:&nbsp<span
+                                            id="anchor_distance"></span>&nbspm</span>
+                                </div>
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                    <h5 class="fw-bolder">Anchor position</h5>
+                                    <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
+                                    <br>
+                                    <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
+                                </div>
+                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                    <h5 class="fw-bolder">Current position</h5>
+                                    <span>Latitude:&nbsp<span id="current_latitude"></span></span>
+                                    <br>
+                                    <span>Longitude:&nbsp<span id="current_longitude"></span></span>
+                                </div>
+                                <div class="col-12 col-sm-12 col-xl-8 mb-2">
+                                    <h5 class="fw-bolder">Other metrics</h5>
+                                    <div class="row">
+                                        <div class="col-12 col-sm-6">
+                                        <span>Duration:&nbsp<span
+                                                id="anchor_duration"></span></span>
+                                            <br>
+                                            <span>Anchor bearing:&nbsp<span
+                                                    id="anchor_bearing"></span>&nbspdegrees</span>
+                                            <br>
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <span>GPS Accuracy:&nbsp<span
+                                                    id="gps_accuracy"></span></span>
+                                            <br>
+                                            <span>Max. Distance:&nbsp<span
+                                                    id="max_anchor_distance"></span>&nbspmeters</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <hr class="mt-1 mb-1"/>
+                            </div>
+                            <div id="map-container">
+                                <div id="map-button-container">
+                                    <button id="default_map_layer_button" class="bg-secondary"
+                                            onclick="showDefaultMapLayer()" disabled>Default
+                                    </button>
+                                    <button id="satellite_map_layer_button" class="bg-secondary text-light"
+                                            onclick="showSatelliteMapLayer()">Satellite
+                                    </button>
+                                    <button id="zoom_in_button" class="bg-secondary text-light" onclick="zoomIn()">Zoom
+                                        In <i class="bi bi-zoom-in"></i></button>
+                                    <button id="zoom_out_button" class="bg-secondary text-light" onclick="zoomOut()">
+                                        Zoom Out <i class="bi bi-zoom-out"></i></button>
+                                    <label class="bg-secondary text-light p-1">
+                                        <input type="checkbox" id="track_current_position_checkbox">
+                                        <span>Follow boat position</span>
+                                    </label>
+                                </div>
+                                <div id="anchor-map"></div>
+                            </div>
+                        </div>
+                        <div id="anchor_section_gps_module_is_down_overlay"
+                             style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(255, 0, 0, 0.5); display: none; visibility: hidden; align-items: center; justify-content: center;">
+                            <h3 class="text-white">Anchor alarm is not running because the GPS module is down!</h3>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="nmea" role="tabpanel" aria-labelledby="nmea-tab">
+                        <!-- NMEA panel-->
+                        <div id="no_available_nmea_instruments_message" class="container-fluid align-self-center">
+                            <h5>No available NMEA0183 instruments</h5>
+                        </div>
+                        <div id="nmea_container" class="container" style="display: none; visibility: hidden;">
+                            <div id="nmea_metrics_row_id" class="row align-items-center">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="session" role="tabpanel" aria-labelledby="session-tab">
                         <!-- Session panel-->
                         <div id="no_session_message" class="container-fluid align-self-center">
                             <h5>No session in progress</h5>
@@ -382,101 +477,6 @@
                                     <span>Tank 2 avg. level:&nbsp;<span id="tank2_avg_level"></span>&nbsp;%</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="nmea" role="tabpanel" aria-labelledby="nmea-tab">
-                        <!-- NMEA panel-->
-                        <div id="no_available_nmea_instruments_message" class="container-fluid align-self-center">
-                            <h5>No available NMEA0183 instruments</h5>
-                        </div>
-                        <div id="nmea_container" class="container" style="display: none; visibility: hidden;">
-                            <div id="nmea_metrics_row_id" class="row align-items-center">
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="anchor" role="tabpanel" aria-labelledby="anchor-tab"
-                         style="position: relative;">
-                        <!-- Anchor panel-->
-                        <div id="anchor_alarm_is_not_set_message" class="container-fluid align-self-center">
-                            <h5>Anchor alarm is not set</h5>
-                        </div>
-                        <div id="anchor_container" style="display: none; visibility: hidden;"
-                             class="container-fluid align-self-top">
-                            <div class="row text-start">
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
-                                    <h5 class="fw-bolder">Start time</h5>
-                                    <span>Local:&nbsp;<span id="anchor_start_time"></span></span>
-                                    <br>
-                                    <span>UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
-                                </div>
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
-                                    <h5 class="fw-bolder">Distance</h5>
-                                    <span class="fw-bolder">Allowed Distance:&nbsp<span
-                                            id="anchor_allowed_distance"></span>&nbspm</span>
-                                    <br>
-                                    <span id="distance_from_anchor_span" class="fw-bolder text-success">Distance from anchor:&nbsp<span
-                                            id="anchor_distance"></span>&nbspm</span>
-                                </div>
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
-                                    <h5 class="fw-bolder">Anchor position</h5>
-                                    <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
-                                    <br>
-                                    <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
-                                </div>
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
-                                    <h5 class="fw-bolder">Current position</h5>
-                                    <span>Latitude:&nbsp<span id="current_latitude"></span></span>
-                                    <br>
-                                    <span>Longitude:&nbsp<span id="current_longitude"></span></span>
-                                </div>
-                                <div class="col-12 col-sm-12 col-xl-8 mb-2">
-                                    <h5 class="fw-bolder">Other metrics</h5>
-                                    <div class="row">
-                                        <div class="col-12 col-sm-6">
-                                        <span>Duration:&nbsp<span
-                                                id="anchor_duration"></span></span>
-                                            <br>
-                                            <span>Anchor bearing:&nbsp<span
-                                                    id="anchor_bearing"></span>&nbspdegrees</span>
-                                            <br>
-                                        </div>
-                                        <div class="col-12 col-sm-6">
-                                            <span>GPS Accuracy:&nbsp<span
-                                                    id="gps_accuracy"></span></span>
-                                            <br>
-                                            <span>Max. Distance:&nbsp<span
-                                                    id="max_anchor_distance"></span>&nbspmeters</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <hr class="mt-1 mb-1"/>
-                            </div>
-                            <div id="map-container">
-                                <div id="map-button-container">
-                                    <button id="default_map_layer_button" class="bg-secondary"
-                                            onclick="showDefaultMapLayer()" disabled>Default
-                                    </button>
-                                    <button id="satellite_map_layer_button" class="bg-secondary text-light"
-                                            onclick="showSatelliteMapLayer()">Satellite
-                                    </button>
-                                    <button id="zoom_in_button" class="bg-secondary text-light" onclick="zoomIn()">Zoom
-                                        In <i class="bi bi-zoom-in"></i></button>
-                                    <button id="zoom_out_button" class="bg-secondary text-light" onclick="zoomOut()">
-                                        Zoom Out <i class="bi bi-zoom-out"></i></button>
-                                    <label class="bg-secondary text-light p-1">
-                                        <input type="checkbox" id="track_current_position_checkbox">
-                                        <span>Follow boat position</span>
-                                    </label>
-                                </div>
-                                <div id="anchor-map"></div>
-                            </div>
-                        </div>
-                        <div id="anchor_section_gps_module_is_down_overlay"
-                             style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(255, 0, 0, 0.5); display: none; visibility: hidden; align-items: center; justify-content: center;">
-                            <h3 class="text-white">Anchor alarm is not running because the GPS module is down!</h3>
                         </div>
                     </div>
                 </div>
@@ -1031,9 +1031,9 @@
                 y,
                 outerRadius,
               );
-              gradient.addColorStop(0, 'rgba(0,0,255,0)');
-              gradient.addColorStop(0.9, 'rgba(255,0,0,0.25)');
-              gradient.addColorStop(1, 'rgba(255,0,0,1)');
+              gradient.addColorStop(0, 'rgba(0,0,255,0.1)');
+              gradient.addColorStop(0.99, 'rgba(150,0,0,0.2)');
+              gradient.addColorStop(1, 'rgba(255,0,0,0.8)');
               ctx.beginPath();
               ctx.arc(x, y, radius, 0, 2 * Math.PI, true);
               ctx.fillStyle = gradient;
