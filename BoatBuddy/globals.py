@@ -2,7 +2,7 @@ from enum import Enum
 
 # General
 APPLICATION_NAME = 'Boat Buddy'
-APPLICATION_VERSION = '0.13.7'
+APPLICATION_VERSION = '0.13.8'
 LOG_FILENAME = 'BoatBuddy.log'
 LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
@@ -31,7 +31,8 @@ VICTRON_BLE_PLUGIN_SAMPLING_RATE = 1  # In seconds
 
 # GPS Plugin
 GPS_TIMER_INTERVAL = 5  # In seconds, defines the amount of time to wait between metrics retrievals
-GPS_PLUGIN_SAMPLING_RATE = 0.2  # In seconds
+GPS_PLUGIN_SAMPLING_RATE = 0.1  # In seconds
+
 
 class DataSource(Enum):
     VICTRON_BLE = "victron_ble"

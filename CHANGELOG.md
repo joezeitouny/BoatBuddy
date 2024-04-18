@@ -1,3 +1,10 @@
+## 0.13.8 (2024-04-18)
+
+* UI Layout improvements
+* Updated Open Layers library to v9.1.0
+* Increased GPS Plugin sampling rate
+* Version bump to 0.13.8
+
 ## 0.13.7 (2024-04-18)
 
 * UI Layout improvements
