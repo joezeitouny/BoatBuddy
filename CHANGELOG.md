@@ -1,3 +1,9 @@
+## 0.13.11 (2024-04-18)
+
+* UI Layout improvements
+* Allowed distance field is now clickable in the anchor alarm feature
+* Version bump to 0.13.11
+
 ## 0.13.10 (2024-04-18)
 
 * UI Layout improvements
