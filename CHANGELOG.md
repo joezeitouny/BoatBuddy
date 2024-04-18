@@ -1,3 +1,9 @@
+## 0.13.9 (2024-04-18)
+
+* UI Layout improvements
+* Added ability to reset maximum recorded distance in the anchor alarm feature
+* Version bump to 0.13.9
+
 ## 0.13.8 (2024-04-18)
 
 * UI Layout improvements

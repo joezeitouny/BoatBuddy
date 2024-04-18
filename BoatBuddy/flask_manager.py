@@ -289,6 +289,13 @@ def set_anchor_alternative():
                                                                         utils.try_parse_int(allowed_distance)))
 
 
+@app.route('/reset_max_anchor_distance')
+def reset_max_anchor_distance():
+    application_modules.get_anchor_manager().reset_max_anchor_distance()
+
+    return jsonify(True)
+
+
 @app.route('/cancel_anchor')
 def cancel_anchor():
     application_modules.get_anchor_manager().cancel_anchor()

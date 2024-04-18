@@ -278,8 +278,9 @@
                                             <span>GPS Accuracy:&nbsp<span
                                                     id="gps_accuracy"></span></span>
                                             <br>
-                                            <span>Max. Distance:&nbsp<span
-                                                    id="max_anchor_distance"></span>&nbspmeters</span>
+                                            <span class="text-warning-emphasis fw-bold" style="cursor: pointer;"
+                                                  onclick="resetMaximumDistanceMetric()">Max. Distance:&nbsp<span
+                                                    id="max_anchor_distance"></span>&nbspmeters (click to reset)</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1350,6 +1351,19 @@
             },
             error: function (error) {
                 notify_warning('Error while canceling the anchor alarm! Reason: ' + error);
+            }
+        });
+    }
+
+    function resetMaximumDistanceMetric() {
+        $.ajax({
+            type: 'GET',
+            url: '/reset_max_anchor_distance',
+            success: function(data) {
+                notify_success('Anchor alarm recorded maximum distance successfully reset!');
+            },
+            error: function (error) {
+                notify_warning('Error while resetting the anchor alarm maximum distance metric! Reason: ' + error);
             }
         });
     }

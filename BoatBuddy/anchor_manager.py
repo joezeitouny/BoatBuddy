@@ -192,6 +192,9 @@ class AnchorManager:
     def max_anchor_distance(self):
         return self._max_anchor_distance
 
+    def reset_max_anchor_distance(self):
+        self._max_anchor_distance = 0
+
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
