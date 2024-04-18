@@ -186,6 +186,24 @@
     </div>
 </div>
 
+<div id="reset_maximum_distance_modal" tabindex="-1" class="modal fade" data-backdrop="static"
+     xmlns="http://www.w3.org/1999/html">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" id="reset_maximum_distance_modal_content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset maximum distance metric?</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to reset the maximum recorded distance for your current anchor alarm?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideResetMaximumDistanceModal()">No</button>
+                <button type="button" class="btn btn-primary" onclick="resetMaximumDistanceMetric()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container p-0 mt-1">
     <div id="warning_notification" class="alert alert-warning ms-2 me-2 mb-0 text-danger" role="alert"
          style="display: none">
@@ -232,7 +250,7 @@
                          style="position: relative;">
                         <!-- Anchor panel-->
                         <div id="anchor_alarm_is_not_set_message" class="container-fluid align-self-center">
-                            <h5>Anchor alarm is not set</h5>
+                            <h5 class="mt-2">Anchor alarm is not set</h5>
                         </div>
                         <div id="anchor_container" style="display: none; visibility: hidden;"
                              class="container-fluid align-self-top">
@@ -245,7 +263,7 @@
                                 </div>
                                 <div class="col-12 col-sm-6 col-xl-4 mb-2">
                                     <h5 class="fw-bolder">Distance</h5>
-                                    <span class="text-warning-emphasis fw-bold" style="cursor: pointer;"
+                                    <span class="text-warning fw-bold" style="cursor: pointer;"
                                           onclick="showUpdateAnchorAlarmModal()">Allowed Distance:&nbsp<span
                                             id="anchor_allowed_distance"></span>&nbspm</span>
                                     <br>
@@ -271,7 +289,7 @@
                                         <span>Duration:&nbsp<span
                                                 id="anchor_duration"></span></span>
                                             <br>
-                                            <span>Anchor bearing:&nbsp<span
+                                            <span>Anchor Bearing:&nbsp<span
                                                     id="anchor_bearing"></span>&nbspdegrees</span>
                                             <br>
                                         </div>
@@ -279,8 +297,8 @@
                                             <span>GPS Accuracy:&nbsp<span
                                                     id="gps_accuracy"></span></span>
                                             <br>
-                                            <span class="text-warning-emphasis fw-bold" style="cursor: pointer;"
-                                                  onclick="resetMaximumDistanceMetric()">Max. Distance:&nbsp<span
+                                            <span class="text-warning fw-bold" style="cursor: pointer;"
+                                                  onclick="showResetMaximumDistanceModal()">Max. Distance:&nbsp<span
                                                     id="max_anchor_distance"></span>&nbspmeters</span>
                                         </div>
                                     </div>
@@ -317,7 +335,7 @@
                     <div class="tab-pane fade" id="nmea" role="tabpanel" aria-labelledby="nmea-tab">
                         <!-- NMEA panel-->
                         <div id="no_available_nmea_instruments_message" class="container-fluid align-self-center">
-                            <h5>No available NMEA0183 instruments</h5>
+                            <h5 class="mt-2">No available NMEA0183 instruments</h5>
                         </div>
                         <div id="nmea_container" class="container" style="display: none; visibility: hidden;">
                             <div id="nmea_metrics_row_id" class="row align-items-center">
@@ -328,7 +346,7 @@
                     <div class="tab-pane fade" id="session" role="tabpanel" aria-labelledby="session-tab">
                         <!-- Session panel-->
                         <div id="no_session_message" class="container-fluid align-self-center">
-                            <h5>No session in progress</h5>
+                            <h5 class="mt-2">No session in progress</h5>
                         </div>
                         <div id="session_container" style="display: none; visibility: hidden;"
                              class="container-fluid align-self-top">
@@ -563,6 +581,7 @@
     const setAnchorAlarmModal = new bootstrap.Modal(document.getElementById('set_anchor_alarm_modal'), {backdrop: 'static'});
     const updateAnchorAlarmModal = new bootstrap.Modal(document.getElementById('update_anchor_alarm_modal'), {backdrop: 'static'});
     const cancelAnchorAlarmModal = new bootstrap.Modal(document.getElementById('cancel_anchor_alarm_modal'), {backdrop: 'static'});
+    const resetMaximumDistanceModal = new bootstrap.Modal(document.getElementById('reset_maximum_distance_modal'), {backdrop: 'static'});
 
     {% if metrics_electrical_system | length > 0 %}
     var metrics_electrical_system_dictionary = {{ metrics_electrical_system|tojson|safe }};
@@ -1357,6 +1376,8 @@
     }
 
     function resetMaximumDistanceMetric() {
+        hideResetMaximumDistanceModal();
+
         $.ajax({
             type: 'GET',
             url: '/reset_max_anchor_distance',
@@ -1499,6 +1520,14 @@
         cancelAnchorAlarmModal.hide();
     }
 
+    function showResetMaximumDistanceModal() {
+        resetMaximumDistanceModal.show();
+    }
+
+    function hideResetMaximumDistanceModal() {
+        resetMaximumDistanceModal.hide();
+    }
+
     function cancelAnchorAlarm() {
         hideCancelAnchorAlarmModal();
         hideUpdateAnchorAlarmModal();
@@ -1523,6 +1552,7 @@
         document.getElementById("set_anchor_alarm_modal_content").classList.remove('bg-dark');
         document.getElementById("update_anchor_alarm_modal_content").classList.remove('bg-dark');
         document.getElementById("cancel_anchor_alarm_modal_content").classList.remove('bg-dark');
+        document.getElementById("reset_maximum_distance_modal_content").classList.remove('bg-dark');
         document.getElementById("body-element-id").classList.add('text-dark');
         document.getElementById("body-element-id").classList.remove('bg-dark');
         document.getElementById("body-element-id").classList.remove('text-light');
@@ -1547,6 +1577,7 @@
         document.getElementById("set_anchor_alarm_modal_content").classList.add('bg-dark');
         document.getElementById("update_anchor_alarm_modal_content").classList.add('bg-dark');
         document.getElementById("cancel_anchor_alarm_modal_content").classList.add('bg-dark');
+        document.getElementById("reset_maximum_distance_modal_content").classList.add('bg-dark');
         document.getElementById("body-element-id").classList.add('bg-dark');
         document.getElementById("body-element-id").classList.add('text-light');
         document.getElementById("body-element-id").classList.remove('text-dark');
