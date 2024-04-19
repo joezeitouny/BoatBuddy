@@ -215,7 +215,7 @@
     </div>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid ps-1 pe-1">
     <div class="d-lg-flex flex-lg-row d-sm-flex flex-sm-row mb-1">
         <div class="col-xl-4 col-xxl-3 col-lg-5 col-md-4 col-sm-4 col-12 border border-5 border-success rounded text-center">
             <!-- System metrics column-->
@@ -1571,6 +1571,12 @@
             gauge.classList.add('GaugeMeter-Light');
             gauge.setAttribute("data-label_color", "Black");
         });
+
+        const elements = document.querySelectorAll(".text-warning");
+        elements.forEach(element => {
+            element.classList.remove('text-warning');
+            element.classList.add('text-warning-emphasis');
+        });
     }
 
     function switch_to_dark_mode() {
@@ -1595,6 +1601,12 @@
             gauge.classList.remove('GaugeMeter-Light');
             gauge.classList.add('GaugeMeter-Dark');
             gauge.setAttribute("data-label_color", "White");
+        });
+
+        const elements = document.querySelectorAll(".text-warning-emphasis");
+        elements.forEach(element => {
+            element.classList.remove('text-warning-emphasis');
+            element.classList.add('text-warning');
         });
     }
 
