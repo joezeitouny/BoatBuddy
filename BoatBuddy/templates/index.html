@@ -155,10 +155,10 @@
                     <div class="text-danger">Check your input!</div>
                 </div>
                 <button type="button" class="btn btn-success" onclick="updateAnchor()">
-                    <span>Update</span>
+                    <span>Update Allowed Distance</span>
                 </button>
                 <button type="button" class="btn btn-danger" onclick="showCancelAnchorAlarmModal()">
-                    <span>Cancel</span>
+                    <span>Cancel Alarm</span>
                 </button>
                 <button type="button" class="close btn btn-secondary" onclick="hideUpdateAnchorAlarmModal()">
                     Close
@@ -256,7 +256,7 @@
                              class="container-fluid align-self-top">
                             <div class="row text-start">
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
-                                    <h5 class="fw-bolder">Timing</h5>
+                                    <h5 class="fw-bolder mb-0">Timing</h5>
                                     <span>Strt. time Local:&nbsp;<span id="anchor_start_time"></span></span>
                                     <br>
                                     <span>Strt. time UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
@@ -265,7 +265,7 @@
                                                 id="anchor_duration"></span></span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
-                                    <h5 class="fw-bolder">Distance</h5>
+                                    <h5 class="fw-bolder mb-0">Distance</h5>
                                     <span class="text-warning fw-bold" style="cursor: pointer;"
                                           onclick="showUpdateAnchorAlarmModal()">Allowed Distance:&nbsp<span
                                             id="anchor_allowed_distance"></span>&nbspm</span>
@@ -278,7 +278,7 @@
                                                     id="max_anchor_distance"></span>&nbspmeters</span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
-                                    <h5 class="fw-bolder">Anchor position</h5>
+                                    <h5 class="fw-bolder mb-0">Anchor position</h5>
                                     <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
                                     <br>
                                     <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
@@ -287,7 +287,7 @@
                                                     id="anchor_bearing"></span>&nbspdegrees</span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
-                                    <h5 class="fw-bolder">Current position</h5>
+                                    <h5 class="fw-bolder mb-0">Current position</h5>
                                     <span>Latitude:&nbsp<span id="current_latitude"></span></span>
                                     <br>
                                     <span>Longitude:&nbsp<span id="current_longitude"></span></span>
@@ -528,6 +528,7 @@
 <script type="text/javascript">
     first_refresh_data_call = true;
     first_refresh_anchor_data_call = true;
+    light_theme = true;
 
     {% if session_run_mode == 'manual' %}
     document.getElementById('session_button_id').disabled = false;
@@ -1475,12 +1476,20 @@
                 document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').innerHTML = data['anchor_distance']
 
                 if (data['anchor_distance'] > data['anchor_allowed_distance']) {
-                    document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-success');
+                    if (light_theme) {
+                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-success-emphasis');
+                    } else {
+                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-success');
+                    }
                     document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-danger');
                 }
                 else {
                     document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-danger');
-                    document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-success');
+                    if (light_theme) {
+                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-success-emphasis');
+                    } else {
+                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-success');
+                    }
                 }
 
                 // hide the check your input warning message
@@ -1541,6 +1550,7 @@
     }
 
     function switch_to_light_mode() {
+        light_theme = true;
         document.getElementById("set_anchor_alarm_modal_content").classList.remove('bg-dark');
         document.getElementById("update_anchor_alarm_modal_content").classList.remove('bg-dark');
         document.getElementById("cancel_anchor_alarm_modal_content").classList.remove('bg-dark');
@@ -1572,6 +1582,7 @@
     }
 
     function switch_to_dark_mode() {
+        light_theme = false;
         document.getElementById("set_anchor_alarm_modal_content").classList.add('bg-dark');
         document.getElementById("update_anchor_alarm_modal_content").classList.add('bg-dark');
         document.getElementById("cancel_anchor_alarm_modal_content").classList.add('bg-dark');
@@ -1883,12 +1894,20 @@
                     document.getElementById('max_anchor_distance').innerHTML = data['max_anchor_distance'];
 
                     if (data['anchor_distance'] > data['anchor_allowed_distance']) {
-                        document.getElementById("distance_from_anchor_span").classList.remove('text-success');
+                        if (light_theme) {
+                            document.getElementById("distance_from_anchor_span").classList.remove('text-success-emphasis');
+                        } else {
+                            document.getElementById("distance_from_anchor_span").classList.remove('text-success');
+                        }
                         document.getElementById("distance_from_anchor_span").classList.add('text-danger');
                     }
                     else {
                         document.getElementById("distance_from_anchor_span").classList.remove('text-danger');
-                        document.getElementById("distance_from_anchor_span").classList.add('text-success');
+                        if (light_theme) {
+                            document.getElementById("distance_from_anchor_span").classList.add('text-success-emphasis');
+                        } else {
+                            document.getElementById("distance_from_anchor_span").classList.add('text-success');
+                        }
                     }
 
                     // draw relevant boat positions on the map
