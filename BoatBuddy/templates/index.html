@@ -255,13 +255,16 @@
                         <div id="anchor_container" style="display: none; visibility: hidden;"
                              class="container-fluid align-self-top">
                             <div class="row text-start">
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
-                                    <h5 class="fw-bolder">Start time</h5>
-                                    <span>Local:&nbsp;<span id="anchor_start_time"></span></span>
+                                <div class="col-12 col-sm-6 col-xxl-3 mb-2">
+                                    <h5 class="fw-bolder">Timing</h5>
+                                    <span>Strt. time Local:&nbsp;<span id="anchor_start_time"></span></span>
                                     <br>
-                                    <span>UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
+                                    <span>Strt. time UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
+                                    <br>
+                                    <span>Duration:&nbsp<span
+                                                id="anchor_duration"></span></span>
                                 </div>
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                <div class="col-12 col-sm-6 col-xxl-3 mb-2">
                                     <h5 class="fw-bolder">Distance</h5>
                                     <span class="text-warning fw-bold" style="cursor: pointer;"
                                           onclick="showUpdateAnchorAlarmModal()">Allowed Distance:&nbsp<span
@@ -269,39 +272,28 @@
                                     <br>
                                     <span id="distance_from_anchor_span" class="fw-bold text-success">Distance from anchor:&nbsp<span
                                             id="anchor_distance"></span>&nbspm</span>
+                                    <br>
+                                    <span class="text-warning fw-bold" style="cursor: pointer;"
+                                                  onclick="showResetMaximumDistanceModal()">Max. Distance:&nbsp<span
+                                                    id="max_anchor_distance"></span>&nbspmeters</span>
                                 </div>
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                <div class="col-12 col-sm-6 col-xxl-3 mb-2">
                                     <h5 class="fw-bolder">Anchor position</h5>
                                     <span>Latitude:&nbsp<span id="anchor_latitude"></span></span>
                                     <br>
                                     <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
+                                    <br>
+                                    <span>Anchor Bearing:&nbsp<span
+                                                    id="anchor_bearing"></span>&nbspdegrees</span>
                                 </div>
-                                <div class="col-12 col-sm-6 col-xl-4 mb-2">
+                                <div class="col-12 col-sm-6 col-xxl-3 mb-2">
                                     <h5 class="fw-bolder">Current position</h5>
                                     <span>Latitude:&nbsp<span id="current_latitude"></span></span>
                                     <br>
                                     <span>Longitude:&nbsp<span id="current_longitude"></span></span>
-                                </div>
-                                <div class="col-12 col-sm-12 col-xl-8 mb-2">
-                                    <h5 class="fw-bolder">Other metrics</h5>
-                                    <div class="row">
-                                        <div class="col-12 col-sm-6">
-                                        <span>Duration:&nbsp<span
-                                                id="anchor_duration"></span></span>
-                                            <br>
-                                            <span>Anchor Bearing:&nbsp<span
-                                                    id="anchor_bearing"></span>&nbspdegrees</span>
-                                            <br>
-                                        </div>
-                                        <div class="col-12 col-sm-6">
-                                            <span>GPS Accuracy:&nbsp<span
+                                    <br>
+                                    <span>GPS Accuracy:&nbsp<span
                                                     id="gps_accuracy"></span></span>
-                                            <br>
-                                            <span class="text-warning fw-bold" style="cursor: pointer;"
-                                                  onclick="showResetMaximumDistanceModal()">Max. Distance:&nbsp<span
-                                                    id="max_anchor_distance"></span>&nbspmeters</span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="row">
