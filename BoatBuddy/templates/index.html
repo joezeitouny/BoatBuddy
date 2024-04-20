@@ -74,9 +74,9 @@
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="number" step="1"
+                    <span>Allowed distance:&nbsp<input type="number" step="1" style="width: 80px;"
                                                        id="set_anchor_alarm_allowed_distance_text_id"
-                                                       placeholder="Distance (in meters)"/>&nbspin meters</span>
+                                                       placeholder="Distance (in meters)"/>&nbspmeters</span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -121,32 +121,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col">
-                            <h4>Current position</h4>
-                            <div class="row mb-2">
-                                <div class="col">
-                                    <div class="row">
-                                        <span>Latitude:&nbsp<span
-                                                id="update_anchor_alarm_current_latitude_label_id"></span></span>
-                                    </div>
-                                    <div class="row">
-                                    <span>Longitude:&nbsp<span
-                                            id="update_anchor_alarm_current_longitude_label_id"></span></span>
-                                    </div>
-                                    <div class="row text-success fw-bolder"
-                                         id="update_anchor_alarm_distance_from_anchor_div_id">
-                                    <span>Distance from anchor:&nbsp<span
-                                            id="update_anchor_alarm_distance_from_anchor_label_id"></span>&nbspm</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="number" step="1"
+                    <span>Allowed distance:&nbsp<input type="number" style="width: 80px;" step="1"
                                                        id="update_anchor_alarm_allowed_distance_text_id"
-                                                       placeholder="Distance (in meters)"/>&nbspin meters</span>
+                                                       placeholder="Distance (in meters)"/>&nbspmeters</span>
                 </div>
             </div>
             <div class="modal-footer">
@@ -270,7 +250,7 @@
                                           onclick="showUpdateAnchorAlarmModal()">Allowed Distance:&nbsp<span
                                             id="anchor_allowed_distance"></span>&nbspm</span>
                                     <br>
-                                    <span id="distance_from_anchor_span" class="fw-bold text-success">Distance from anchor:&nbsp<span
+                                    <span id="distance_from_anchor_span" class="fw-bold text-success-emphasis">Distance from anchor:&nbsp<span
                                             id="anchor_distance"></span>&nbspm</span>
                                     <br>
                                     <span class="text-warning fw-bold" style="cursor: pointer;"
@@ -1471,26 +1451,6 @@
                 document.getElementById('update_anchor_alarm_allowed_distance_text_id').value = data['anchor_allowed_distance'];
                 document.getElementById('update_anchor_alarm_latitude_label_id').innerHTML = data['anchor_latitude']
                 document.getElementById('update_anchor_alarm_longitude_label_id').innerHTML = data['anchor_longitude'];
-                document.getElementById('update_anchor_alarm_current_latitude_label_id').innerHTML = data['current_latitude']
-                document.getElementById('update_anchor_alarm_current_longitude_label_id').innerHTML = data['current_longitude'];
-                document.getElementById('update_anchor_alarm_distance_from_anchor_label_id').innerHTML = data['anchor_distance']
-
-                if (data['anchor_distance'] > data['anchor_allowed_distance']) {
-                    if (light_theme) {
-                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-success-emphasis');
-                    } else {
-                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-success');
-                    }
-                    document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-danger');
-                }
-                else {
-                    document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.remove('text-danger');
-                    if (light_theme) {
-                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-success-emphasis');
-                    } else {
-                        document.getElementById("update_anchor_alarm_distance_from_anchor_div_id").classList.add('text-success');
-                    }
-                }
 
                 // hide the check your input warning message
                 document.getElementById('update_anchor_check_your_input_div_id').style.display = 'none';
@@ -1574,10 +1534,16 @@
             gauge.setAttribute("data-label_color", "Black");
         });
 
-        const elements = document.querySelectorAll(".text-warning");
-        elements.forEach(element => {
+        const warning_elements = document.querySelectorAll(".text-warning");
+        warning_elements.forEach(element => {
             element.classList.remove('text-warning');
             element.classList.add('text-warning-emphasis');
+        });
+
+        const success_elements = document.querySelectorAll(".text-success");
+        success_elements.forEach(element => {
+            element.classList.remove('text-success');
+            element.classList.add('text-success-emphasis');
         });
     }
 
@@ -1610,6 +1576,12 @@
         elements.forEach(element => {
             element.classList.remove('text-warning-emphasis');
             element.classList.add('text-warning');
+        });
+
+        const success_elements = document.querySelectorAll(".text-success-emphasis");
+        success_elements.forEach(element => {
+            element.classList.remove('text-success-emphasis');
+            element.classList.add('text-success');
         });
     }
 
@@ -1899,6 +1871,7 @@
                         } else {
                             document.getElementById("distance_from_anchor_span").classList.remove('text-success');
                         }
+
                         document.getElementById("distance_from_anchor_span").classList.add('text-danger');
                     }
                     else {
