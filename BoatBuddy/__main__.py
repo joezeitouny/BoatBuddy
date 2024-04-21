@@ -79,6 +79,10 @@ if __name__ == '__main__':
             options.anchor_alarm_mapbox_api_key = data['anchor_alarm']['anchor_alarm_mapbox_api_key']
             options.email_module = utils.try_parse_bool(data['email']['email_module'])
             options.email_address = data['email']['email_address']
+            options.email_smtp_server = data['email']['email_smtp_server']
+            options.email_smtp_port = utils.try_parse_int(data['email']['email_smtp_port'])
+            options.email_smtp_username = data['email']['email_smtp_username']
+            options.email_smtp_password = data['email']['email_smtp_password']
             options.telegram_module = utils.try_parse_bool(data['telegram']['telegram_module'])
             options.telegram_bot_token = data['telegram']['telegram_bot_token']
             options.telegram_recipient_id = data['telegram']['telegram_recipient_id']

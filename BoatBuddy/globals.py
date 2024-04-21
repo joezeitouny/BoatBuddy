@@ -9,8 +9,6 @@ LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 EMPTY_METRIC_VALUE = "N/A"
 JSON_RESPONSE_FORMAT_VERSION = 8
-SMTP_EMAIL_ADDRESS = "app@boatbuddy.site"
-SMTP_EMAIL_PASSWORD = "^wPVTf4KToPGCck"
 
 # Anchor alarm
 EARTH_RADIUS = 6371000  # Approximately 6,371 km

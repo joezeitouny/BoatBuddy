@@ -59,7 +59,7 @@ class EmailManager:
 
                     # Create a message object
                     message = MIMEMultipart()
-                    message["From"] = f"{globals.APPLICATION_NAME} <{globals.SMTP_EMAIL_ADDRESS}>"
+                    message["From"] = f"{globals.APPLICATION_NAME} <{self._options.email_smtp_username}>"
                     message["To"] = self._options.email_address
                     message["Subject"] = subject
 
@@ -82,10 +82,11 @@ class EmailManager:
                                 message.attach(part)
 
                     # Connect to the SMTP server
-                    with smtplib.SMTP_SSL("mail.privateemail.com", 465) as server:
-                        server.login(globals.SMTP_EMAIL_ADDRESS, globals.SMTP_EMAIL_PASSWORD[::-1])
+                    with smtplib.SMTP_SSL(host=self._options.email_smtp_server,
+                                          port=self._options.email_smtp_port) as server:
+                        server.login(self._options.email_smtp_username, self._options.email_smtp_password)
                         # Send email
-                        server.sendmail(globals.SMTP_EMAIL_ADDRESS, self._options.email_address,
+                        server.sendmail(self._options.email_smtp_username, self._options.email_address,
                                         message.as_string())
 
                     self._email_queue.pop(0)
