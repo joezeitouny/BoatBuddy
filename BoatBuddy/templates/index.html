@@ -297,7 +297,11 @@
                                         Zoom Out <i class="bi bi-zoom-out"></i></button>
                                     <label class="bg-secondary text-light p-1">
                                         <input type="checkbox" id="track_current_position_checkbox">
-                                        <span>Follow boat position</span>
+                                        <span>Center Map to Boat Position</span>
+                                    </label>
+                                    <label class="bg-secondary text-light p-1">
+                                        <input type="checkbox" id="boat_tracks_checkbox" checked>
+                                        <span>Boat Tracks</span>
                                     </label>
                                 </div>
                                 <div id="anchor-map"></div>
@@ -1087,7 +1091,8 @@
         anchorMap.addLayer(anchorLayer);
 
         // draw position history markers if provided
-        if (anchorPositionHistory && anchorPositionHistory.length > 0) {
+        if (document.getElementById('boat_tracks_checkbox').checked &&
+            anchorPositionHistory && anchorPositionHistory.length > 0) {
             // Create a vector source for the position dots feature
             positionHistoryVectorSource = new ol.source.Vector();
 
