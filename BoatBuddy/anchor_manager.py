@@ -2,7 +2,8 @@ import time
 import copy
 from enum import Enum
 from threading import Thread, Event
-
+import os
+import json
 from latloncalc.latlon import LatLon, Latitude, Longitude, string2latlon
 
 from BoatBuddy.log_manager import LogManager
@@ -44,6 +45,10 @@ class AnchorManager:
         self._anchor_bearing = 0
         self._gps_accuracy = 'N/A'
         self._max_anchor_distance = 0
+
+        directory_path = self._options.tmp_path
+        filename = globals.ANCHOR_ALARM_FILENAME
+        self._session_filename = os.path.join(directory_path, filename)
 
         if self._options.anchor_alarm_module:
             self._anchor_thread = Thread(target=self._main_loop)
@@ -117,19 +122,90 @@ class AnchorManager:
         # reset the anchor bearing
         self._anchor_bearing = 0
 
-        # register that the anchor is set
-        self._anchor_is_set = True
-
         # reset the gps accuracy
         self._gps_accuracy = 'N/A'
 
         # reset the max anchor distance register
         self._max_anchor_distance = 0
 
+        # register that the anchor is set
+        self._anchor_is_set = True
+
+        # write the current anchor session to disk
+        self.persist_session_to_disk()
+
         return True
 
+    def set_anchor_from_disk(self):
+        try:
+            # Open the JSON file
+            with open(self._session_filename) as f:
+                # Load JSON data
+                data = json.load(f)
+
+            # Recover the data from disk
+            latitude = data["latitude"]
+            longitude = data["longitude"]
+            allowed_distance = utils.try_parse_int(data["allowed_distance"])
+            timestamp_utc = time.strptime(data["timestamp_utc"], "%Y-%m-%d %H:%M:%S %Z")
+            timestamp_local = time.strptime(data["timestamp_local"], "%Y-%m-%d %H:%M:%S %Z")
+            max_anchor_distance = utils.try_parse_float(data["max_anchor_distance"])
+            position_history = data["position_history"]
+
+            # validate the input
+            try:
+                latlon_anchor = string2latlon(latitude, longitude, 'd%°%m%\'%S%\" %H')
+            except Exception as e:
+                return False
+
+            # Setup necessary instance variables
+            self._anchor_latitude = latitude
+            self._anchor_longitude = longitude
+            self._anchor_allowed_distance = allowed_distance
+            self._anchor_timestamp_utc = timestamp_utc
+            self._anchor_timestamp_local = timestamp_local
+            self._max_anchor_distance = max_anchor_distance
+            self._position_history = position_history
+
+            # reset the anchor bearing
+            self._anchor_bearing = 0
+
+            # reset the gps accuracy
+            self._gps_accuracy = 'N/A'
+
+            # register that the anchor is set
+            self._anchor_is_set = True
+        except Exception as e:
+            self._log_manager.info(
+                f'Exception occurred while trying to recover a previous anchor session from disk. Details {e}')
+
+    def persist_session_to_disk(self):
+        try:
+            # Data to be written to the JSON file
+            data = {
+                "latitude": self._anchor_latitude,
+                "longitude": self._anchor_longitude,
+                "allowed_distance": self._anchor_allowed_distance,
+                "timestamp_utc": time.strftime("%Y-%m-%d %H:%M:%S %Z", self._anchor_timestamp_utc),
+                "timestamp_local": time.strftime("%Y-%m-%d %H:%M:%S %Z", self._anchor_timestamp_local),
+                "max_anchor_distance": self._max_anchor_distance,
+                "position_history": self._position_history
+            }
+
+            # Writing data to the JSON file
+            with open(self._session_filename, 'w') as f:
+                json.dump(data, f, indent=4)  # indent for pretty formatting
+        except Exception as e:
+            self._log_manager.info(
+                f'Exception occurred while trying to write the current anchor session to disk. Details {e}')
+
     def cancel_anchor(self):
-        self._anchor_is_set = False
+        if self._anchor_is_set:
+            self._anchor_is_set = False
+
+            # delete the anchor session data from disk (if any)
+            if utils.file_exists(self._session_filename):
+                os.remove(self._session_filename)
 
         if self._anchor_alarm_is_active:
             self._anchor_alarm_is_active = False
@@ -198,9 +274,9 @@ class AnchorManager:
     def _main_loop(self):
         while not self._exit_signal.is_set():
             try:
+                gps_plugin_status = self._plugin_manager.get_gps_plugin_status()
                 if self._anchor_is_set:
                     # check first if the GPS module is running otherwise raise the alarm
-                    gps_plugin_status = self._plugin_manager.get_gps_plugin_status()
                     if not gps_plugin_status == PluginStatus.RUNNING:
                         self._anchor_alarm_is_active = True
 
@@ -253,7 +329,11 @@ class AnchorManager:
                                 self._position_history.append([self._current_latitude, self._current_longitude])
 
                         # cleanup history
-                        self._position_history = copy.deepcopy(self._position_history[-globals.HISTORY_CACHE_LIMIT:])
+                        self._position_history = copy.deepcopy(
+                            self._position_history[-globals.ANCHOR_ALARM_HISTORY_CACHE_LIMIT:])
+
+                        # write the current anchor session to disk
+                        self.persist_session_to_disk()
 
                         # check if current distance exceeds the allowed distance
                         if self._anchor_distance > self._anchor_allowed_distance:
@@ -280,7 +360,8 @@ class AnchorManager:
                         # send out a notification
                         self._notifications_manager.notify('anchor', ModuleStatus.ALARM_CLEARED.value,
                                                            NotificationEntryType.MODULE)
-
+                elif gps_plugin_status == PluginStatus.RUNNING and utils.file_exists(self._session_filename):
+                    self.set_anchor_from_disk()
             except Exception as e:
                 if self._status != AnchorManagerStatus.DOWN:
                     self._log_manager.info(f'Exception occurred in Anchor manager main thread. Details {e}')

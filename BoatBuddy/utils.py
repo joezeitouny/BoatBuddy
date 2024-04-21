@@ -1,5 +1,6 @@
 from enum import Enum
 import math
+import os
 
 from latloncalc.latlon import Latitude, Longitude
 
@@ -202,15 +203,25 @@ def calculate_destination_point(lat1, lon1, bearing, distance):
     bearing = math.radians(bearing)
 
     # Calculate the destination point's latitude
-    lat2 = math.asin(math.sin(lat1) * math.cos(distance / globals.EARTH_RADIUS) +
-                     math.cos(lat1) * math.sin(distance / globals.EARTH_RADIUS) * math.cos(bearing))
+    lat2 = math.asin(math.sin(lat1) * math.cos(distance / globals.ANCHOR_ALARM_EARTH_RADIUS) +
+                     math.cos(lat1) * math.sin(distance / globals.ANCHOR_ALARM_EARTH_RADIUS) * math.cos(bearing))
 
     # Calculate the destination point's longitude
-    lon2 = lon1 + math.atan2(math.sin(bearing) * math.sin(distance / globals.EARTH_RADIUS) * math.cos(lat1),
-                             math.cos(distance / globals.EARTH_RADIUS) - math.sin(lat1) * math.sin(lat2))
+    lon2 = lon1 + math.atan2(math.sin(bearing) * math.sin(distance / globals.ANCHOR_ALARM_EARTH_RADIUS) * math.cos(lat1),
+                             math.cos(distance / globals.ANCHOR_ALARM_EARTH_RADIUS) - math.sin(lat1) * math.sin(lat2))
 
     # Convert the latitude and longitude back to degrees
     lat2 = math.degrees(lat2)
     lon2 = math.degrees(lon2)
 
     return lat2, lon2
+
+
+def file_exists(file_path):
+    try:
+        if os.path.exists(file_path):
+            return True
+
+        return False
+    except Exception as e:
+        return False
