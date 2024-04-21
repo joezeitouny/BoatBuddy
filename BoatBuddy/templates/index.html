@@ -12,21 +12,21 @@
             <div class="modal-body">
                 <h4>Anchor position</h4>
                 <div class="container mb-2 border rounded">
-                    <div class="row border-bottom justify-content-center">
-                        <label class="col col-sm-3 mb-2">
+                    <div class="row border-bottom justify-content-center py-1">
+                        <label class="col col-sm-3">
                             <input type="radio" name="toggleRadio" value="default"
                                    id="default_anchor_configuration_button_id"
                                    onchange="toggleAnchorConfigurationMode()" checked> Default
                         </label>
-                        <label class="col col-sm-4 mb-2">
+                        <label class="col col-sm-4">
                             <input type="radio" name="toggleRadio" value="alternative"
                                    id="alternative_anchor_configuration_button_id"
                                    onchange="toggleAnchorConfigurationMode()"> Alternative
                         </label>
                     </div>
-                    <div class="row align-items-center" id="default_anchor_configuration_div_id">
-                        <div class="col col-sm">
-                            <div class="row mb-2">
+                    <div class="row align-items-center py-1" id="default_anchor_configuration_div_id">
+                        <div class="col col-sm py-1">
+                            <div class="row">
                                 <div class="col">
                                     Latitude:
                                 </div>
@@ -35,7 +35,7 @@
                                            placeholder="Latitude"/>
                                 </div>
                             </div>
-                            <div class="row mb-2">
+                            <div class="row">
                                 <div class="col">
                                     Longitude:
                                 </div>
@@ -73,10 +73,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="number" step="1" style="width: 80px;"
-                                                       id="set_anchor_alarm_allowed_distance_text_id"
-                                                       placeholder="Distance (in meters)"/>&nbspmeters</span>
+                <h4>Allowed distance</h4>
+                <div class="container mb-2 border rounded">
+                    <div class="row border-bottom justify-content-center py-1">
+                        <input type="number" step="1" style="width: 80px;"
+                                                           id="set_anchor_alarm_allowed_distance_text_id"
+                                                           placeholder="Distance (in meters)"/>&nbspmeters
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -104,9 +107,9 @@
                 <h5 class="modal-title">Anchor alarm configuration</h5>
             </div>
             <div class="modal-body">
-                <div class="container mb-2 border rounded">
-                    <div class="row">
-                        <div class="col">
+                <div class="row">
+                    <div class="col-12 col-sm-7">
+                        <div class="container mb-2 border rounded">
                             <h4>Anchor position</h4>
                             <div class="row mb-2">
                                 <div class="col">
@@ -122,16 +125,17 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row mb-2">
-                    <span>Allowed distance:&nbsp<input type="number" style="width: 80px;" step="1"
+                    <div class="col-12 col-sm-5">
+                        <h4>Allowed distance</h4>
+                        <span><input type="number" style="width: 80px;" step="1"
                                                        id="update_anchor_alarm_allowed_distance_text_id"
                                                        placeholder="Distance (in meters)"/>&nbspmeters</span>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="d-flex col" id="update_anchor_check_your_input_div_id"
-                     style="visibility: hidden; display: none">
+                 style="visibility: hidden; display: none">
                     <div class="text-danger">Check your input!</div>
                 </div>
                 <button type="button" class="btn btn-success" onclick="updateAnchor()">
@@ -236,7 +240,7 @@
                              class="container-fluid align-self-top">
                             <div class="row text-start">
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
-                                    <h5 class="fw-bolder mb-0">Timing</h5>
+                                    <h5 class="fw-bolder mb-0">Timers</h5>
                                     <span>Strt. time Local:&nbsp;<span id="anchor_start_time"></span></span>
                                     <br>
                                     <span>Strt. time UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
