@@ -1,3 +1,9 @@
+## 0.14.0 (2024-04-21)
+
+* Added feature to persist active enchor alarm session on disk and recover it when the application restarts
+* Added ability to specify SMTP server settings
+* Version bump to 0.14.0
+
 ## 0.13.15 (2024-04-21)
 
 * UI Layout improvements
