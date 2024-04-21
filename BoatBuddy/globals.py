@@ -8,16 +8,18 @@ LOG_FILE_SIZE = 1024 * 1024  # Log file size 1MB
 LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 EMPTY_METRIC_VALUE = "N/A"
+EARTH_RADIUS = 6371000  # Approximately 6,371 km
 JSON_RESPONSE_FORMAT_VERSION = 8
 
-# Anchor alarm
-ANCHOR_ALARM_EARTH_RADIUS = 6371000  # Approximately 6,371 km
-ANCHOR_ALARM_HISTORY_CACHE_LIMIT = 500
-ANCHOR_ALARM_FILENAME = "anchor_alarm.json"
+# Anchor manager
+ANCHOR_MANAGER_HISTORY_CACHE_LIMIT = 500
+ANCHOR_MANAGER_FILENAME = "anchor_alarm.json"
+ANCHOR_MANAGER_SAMPLING_RATE = 1  # In seconds
+ANCHOR_MANAGER_PERSIST_SESSION_TO_DISK_RATE = 5  # In seconds
 
 # NMEA Plugin
-BUFFER_SIZE = 4096
-SOCKET_TIMEOUT = 60
+NMEA_PLUGIN_BUFFER_SIZE = 4096
+NMEA_PLUGIN_SOCKET_TIMEOUT = 60
 NMEA_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
 NMEA_PLUGIN_SAMPLING_RATE = 0.5  # In seconds
 

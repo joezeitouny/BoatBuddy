@@ -332,7 +332,7 @@ class NMEAPlugin(GenericPlugin):
         self._log_manager.debug(f'Trying to connect to NMEA0183 server with address {self._server_ip} on ' +
                                 f'port {self._server_port}...')
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(globals.SOCKET_TIMEOUT)
+        client.settimeout(globals.NMEA_PLUGIN_SOCKET_TIMEOUT)
 
         try:
             client.connect((self._server_ip, self._server_port))
@@ -348,13 +348,13 @@ class NMEAPlugin(GenericPlugin):
 
     def _process_data_loop(self):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.settimeout(globals.SOCKET_TIMEOUT)
+        client.settimeout(globals.NMEA_PLUGIN_SOCKET_TIMEOUT)
 
         try:
             client.connect((self._server_ip, self._server_port))
 
             while not self._exit_signal.is_set():
-                data = client.recv(globals.BUFFER_SIZE)
+                data = client.recv(globals.NMEA_PLUGIN_BUFFER_SIZE)
                 if data is None:
                     raise ValueError('No NMEA0183 data received')
 
