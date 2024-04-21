@@ -225,3 +225,10 @@ def file_exists(file_path):
         return False
     except Exception as e:
         return False
+
+
+def directory_exists(path):
+    try:
+        return os.path.exists(path) and os.path.isdir(path)
+    except Exception as e:
+        return False

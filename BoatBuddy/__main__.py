@@ -116,8 +116,11 @@ if __name__ == '__main__':
         if not options.boat_name:
             print(f'Invalid argument: Boat name is required.\r\n')
             parser.print_help()
-        elif not options.output_path:
+        elif not options.output_path or not utils.directory_exists(options.output_path):
             print(f'Invalid argument: Output directory defined in OUTPUT_PATH is required.\r\n')
+            parser.print_help()
+        elif not options.tmp_path or not utils.directory_exists(options.tmp_path):
+            print(f'Invalid argument: Temporary directory defined in TMP_PATH is required.\r\n')
             parser.print_help()
         elif not isinstance(log_numeric_level, int):
             print(f'Invalid argument: Log level "{options.log_level}"')
