@@ -1,6 +1,7 @@
 ## 0.14.1 (2024-04-21)
 
 * Added ability to show / hide boat tracks on the map when an anchor alarm is active
+* Added extra checks to validate OUTPUT_PATH and TMP_PATH configuration settings during application startup
 * Version bump to 0.14.1
 
 ## 0.14.0 (2024-04-21)
