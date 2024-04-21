@@ -1,3 +1,8 @@
+## 0.14.1 (2024-04-21)
+
+* Added ability to show / hide boat tracks on the map when an anchor alarm is active
+* Version bump to 0.14.1
+
 ## 0.14.0 (2024-04-21)
 
 * Added feature to persist active enchor alarm session on disk and recover it when the application restarts
