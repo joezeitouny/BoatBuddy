@@ -14,7 +14,8 @@ from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
 class VictronBLEBMVDeviceEntry:
     def __init__(self, housing_battery_soc, housing_battery_voltage, housing_battery_current,
                  housing_battery_power,
-                 starter_battery_voltage, housing_battery_consumed_ah, housing_battery_remaining_mins):
+                 starter_battery_voltage, housing_battery_consumed_ah, housing_battery_remaining_mins,
+                 auxiliary_temperature):
         self._housing_battery_soc = housing_battery_soc
         self._housing_battery_voltage = housing_battery_voltage
         self._housing_battery_current = housing_battery_current
@@ -22,6 +23,7 @@ class VictronBLEBMVDeviceEntry:
         self._starter_battery_voltage = starter_battery_voltage
         self._housing_battery_consumed_ah = housing_battery_consumed_ah
         self._housing_battery_remaining_mins = housing_battery_remaining_mins
+        self._auxiliary_temperature = auxiliary_temperature
 
     def __str__(self):
         return utils.get_comma_separated_string(self.get_values())
@@ -32,7 +34,8 @@ class VictronBLEBMVDeviceEntry:
                 f'{self._housing_battery_soc}',
                 f'{self._starter_battery_voltage}',
                 f'{self._housing_battery_consumed_ah}',
-                f'{self._housing_battery_remaining_mins}']
+                f'{self._housing_battery_remaining_mins}',
+                f'{self._auxiliary_temperature}']
 
     @property
     def housing_battery_soc(self):
@@ -62,6 +65,10 @@ class VictronBLEBMVDeviceEntry:
     def housing_battery_remaining_mins(self):
         return self._housing_battery_remaining_mins
 
+    @property
+    def auxiliary_temperature(self):
+        return self._auxiliary_temperature
+
 
 class VictronBLEPlugin(GenericPlugin):
     def __init__(self, options, log_manager):
@@ -76,8 +83,10 @@ class VictronBLEPlugin(GenericPlugin):
         self._starter_battery_voltage = globals.EMPTY_METRIC_VALUE
         self._housing_battery_consumed_ah = globals.EMPTY_METRIC_VALUE
         self._housing_battery_remaining_mins = globals.EMPTY_METRIC_VALUE
+        self._auxiliary_temperature = globals.EMPTY_METRIC_VALUE
 
         self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
@@ -99,6 +108,8 @@ class VictronBLEPlugin(GenericPlugin):
         self._cnt_housing_battery_consumed_ah_entries = 0
         self._sum_housing_battery_remaining_mins = 0
         self._cnt_housing_battery_remaining_mins_entries = 0
+        self._sum_auxiliary_temperature = 0
+        self._cnt_auxiliary_temperature_entries = 0
 
         self._bmv_device_address = self._options.victron_ble_bmv_device_address
         self._bmv_device_advertisement_key = self._options.victron_ble_bmv_device_advertisement_key
@@ -119,8 +130,10 @@ class VictronBLEPlugin(GenericPlugin):
         self._starter_battery_voltage = globals.EMPTY_METRIC_VALUE
         self._housing_battery_consumed_ah = globals.EMPTY_METRIC_VALUE
         self._housing_battery_remaining_mins = globals.EMPTY_METRIC_VALUE
+        self._auxiliary_temperature = globals.EMPTY_METRIC_VALUE
 
         self._summary_values = [globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
+                                globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
                                 globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE, globals.EMPTY_METRIC_VALUE,
@@ -142,6 +155,8 @@ class VictronBLEPlugin(GenericPlugin):
         self._cnt_housing_battery_consumed_ah_entries = 0
         self._sum_housing_battery_remaining_mins = 0
         self._cnt_housing_battery_remaining_mins_entries = 0
+        self._sum_auxiliary_temperature = 0
+        self._cnt_auxiliary_temperature_entries = 0
 
     async def _main_loop(self):
         # Function to run the scanning process
@@ -213,6 +228,11 @@ class VictronBLEPlugin(GenericPlugin):
                     self._housing_battery_remaining_mins = parsed_data.get_remaining_mins()
                 else:
                     self._housing_battery_remaining_mins = 0
+
+                if not parsed_data.get_temperature() is None:
+                    self._auxiliary_temperature = round(parsed_data.get_temperature())
+                else:
+                    self._auxiliary_temperature = 0
         except Exception as e:
             self._handle_connection_exception(e)
 
@@ -247,7 +267,8 @@ class VictronBLEPlugin(GenericPlugin):
                                          housing_battery_power=self._housing_battery_power,
                                          starter_battery_voltage=self._starter_battery_voltage,
                                          housing_battery_consumed_ah=self._housing_battery_consumed_ah,
-                                         housing_battery_remaining_mins=self._housing_battery_remaining_mins)
+                                         housing_battery_remaining_mins=self._housing_battery_remaining_mins,
+                                         auxiliary_temperature=self._auxiliary_temperature)
         if store_entry:
             self._log_manager.debug(f'Adding new Victron BLE entry')
             self._log_manager.debug(f'Housing Battery SOC: {entry.housing_battery_soc} ' +
@@ -256,7 +277,8 @@ class VictronBLEPlugin(GenericPlugin):
                                     f'Housing Battery Power: {entry.housing_battery_power} W ' +
                                     f'Starter Battery Voltage: {entry.starter_battery_voltage} V' +
                                     f'Housing Battery Consumed Ah: {entry.housing_battery_consumed_ah}' +
-                                    f'Housing Battery Remaining mins: {entry.housing_battery_remaining_mins}')
+                                    f'Housing Battery Remaining mins: {entry.housing_battery_remaining_mins}' +
+                                    f'Auxiliary Temperature: {entry.auxiliary_temperature}')
 
             self._log_entries.append(entry)
 
@@ -408,6 +430,29 @@ class VictronBLEPlugin(GenericPlugin):
                     self._summary_values[18] = \
                         round(
                             self._sum_housing_battery_remaining_mins / self._cnt_housing_battery_remaining_mins_entries)
+
+            if entry.auxiliary_temperature != globals.EMPTY_METRIC_VALUE:
+                if self._summary_values[19] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[19] = entry.auxiliary_temperature
+                else:
+                    self._summary_values[19] = \
+                        utils.get_biggest_number(utils.try_parse_float(entry.auxiliary_temperature),
+                                                 self._summary_values[19])
+
+                if self._summary_values[20] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[20] = entry.auxiliary_temperature
+                else:
+                    self._summary_values[20] = \
+                        utils.get_smallest_number(utils.try_parse_float(entry.auxiliary_temperature),
+                                                  self._summary_values[20])
+
+                self._sum_auxiliary_temperature += utils.try_parse_float(entry.auxiliary_temperature)
+                self._cnt_auxiliary_temperature_entries += 1
+                if self._summary_values[21] == globals.EMPTY_METRIC_VALUE:
+                    self._summary_values[21] = entry.auxiliary_temperature
+                else:
+                    self._summary_values[21] = \
+                        round(self._sum_auxiliary_temperature / self._cnt_auxiliary_temperature_entries)
 
         return entry
 

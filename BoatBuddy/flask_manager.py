@@ -403,6 +403,7 @@ def get_data():
     starter_battery_voltage = 0.0
     housing_battery_consumed_ah = 0
     housing_battery_remaining_mins = 0
+    auxiliary_temperature = 0
     fuel_tank = 0
     water_tank = 0
     pv_power = 0
@@ -472,6 +473,7 @@ def get_data():
 
             housing_battery_consumed_ah = utils.try_parse_float(victron_ble_metrics[5])
             housing_battery_remaining_mins = utils.try_parse_int(victron_ble_metrics[6])
+            auxiliary_temperature = utils.try_parse_int(victron_ble_metrics[7])
 
     nmea_module = False
     nmea_status = ''
@@ -639,6 +641,7 @@ def get_data():
             'active_input_source': active_input_source, 've_bus_state': ve_bus_state,
             'housing_battery_consumed_ah': housing_battery_consumed_ah,
             'housing_battery_remaining_mins': housing_battery_remaining_mins,
+            'auxiliary_temperature': auxiliary_temperature,
             'housing_battery_state': housing_battery_state,
             'housing_battery_current': housing_battery_current,
             'housing_battery_power': housing_battery_power,

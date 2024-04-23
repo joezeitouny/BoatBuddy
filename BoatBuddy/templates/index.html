@@ -628,6 +628,14 @@
                     gaugeDiv.setAttribute("data-text_size", "0.22");
                     gaugeDiv.setAttribute("data-showvalue", true);
                     gaugeDiv.setAttribute("data-middle_value_format", true);
+                } else if (currentItem['style'] == 'auxiliary_temperature_gauge') {
+                    gaugeDiv.setAttribute("data-append", "°");
+                    gaugeDiv.setAttribute("data-theme", "Red-Gold-Green");
+                    gaugeDiv.setAttribute("data-width", "15");
+                    gaugeDiv.setAttribute("data-style", "Arch");
+                    gaugeDiv.setAttribute("data-text_size", "0.22");
+                    gaugeDiv.setAttribute("data-showvalue", true);
+                    gaugeDiv.setAttribute("data-middle_value_format", true);
                 }
 
                 col.appendChild(gaugeDiv)
@@ -680,7 +688,7 @@
     var metrics_nmea_dictionary = {{ metrics_nmea|tojson|safe }};
     var nmeaElementsList = {};
 
-    // Draw electrical system panel components
+    // Draw nmea system panel components
     for (var key in metrics_nmea_dictionary) {
         if (metrics_nmea_dictionary.hasOwnProperty(key)) {
             var currentItem = metrics_nmea_dictionary[key];
@@ -1654,8 +1662,8 @@
                     $("#housing_battery_current_gauge").gaugeMeter({used:parseFloat(data['housing_battery_current'])});
                 }
 
-                if (data['housing_battery_current'] !== null && document.getElementById('housing_battery_current') !== null) {
-                    document.getElementById('housing_battery_current').innerHTML = data['housing_battery_current'] + 'A';
+                if (data['auxiliary_temperature'] !== null && document.getElementById("auxiliary_temperature_gauge") !== null) {
+                    $("#auxiliary_temperature_gauge").gaugeMeter({used:parseInt(data['auxiliary_temperature'])});
                 }
 
                 if (data['housing_battery_power'] !== null && document.getElementById("housing_battery_power_gauge") !== null) {

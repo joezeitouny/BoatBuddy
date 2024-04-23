@@ -160,6 +160,15 @@
             "data_field": "pv_current"
           }
         }
+      },
+      "auxiliary_temperature_gauge": {
+        "order": "8",
+        "name": "Aux. Temp.",
+        "data_field": "auxiliary_temperature",
+        "type": "gauge",
+        "max_value": 35,
+        "min_value": -15,
+        "style": "auxiliary_temperature_gauge"
       }
     },
     "metrics_nmea": {

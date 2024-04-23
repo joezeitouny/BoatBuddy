@@ -9,7 +9,7 @@ LOGGER_NAME = 'BoatBuddy'
 INITIAL_SNAPSHOT_INTERVAL = 1  # Time to wait for the first snapshot to be taken after the session starts in seconds
 EMPTY_METRIC_VALUE = "N/A"
 EARTH_RADIUS = 6371000  # Approximately 6,371 km
-JSON_RESPONSE_FORMAT_VERSION = 8
+JSON_RESPONSE_FORMAT_VERSION = 9
 
 # Anchor manager
 ANCHOR_MANAGER_HISTORY_CACHE_LIMIT = 500
@@ -106,7 +106,8 @@ VICTRON_MODBUS_TCP_PLUGIN_SUMMARY_HEADERS = ['[GX] Batt. max voltage (V)', '[GX]
 VICTRON_BLE_PLUGIN_METADATA_HEADERS = ['[BLE] Housing batt. voltage (V)', '[BLE] Housing batt. current (A)',
                                        '[BLE] Housing batt. power (W)',
                                        '[BLE] Housing batt. SOC', '[BLE] Starter batt. voltage (V)',
-                                       '[BLE] Housing batt. consumed Ah', '[BLE] Housing batt. remaining mins']
+                                       '[BLE] Housing batt. consumed Ah', '[BLE] Housing batt. remaining mins',
+                                       '[BLE] Auxiliary Temperature (°)']
 
 VICTRON_BLE_PLUGIN_SUMMARY_HEADERS = ['[BLE] Housing batt. max voltage (V)', '[BLE] Housing batt. min voltage (V)',
                                       '[BLE] Housing batt. avg. voltage (V)', '[BLE] Housing batt. max current (A)',
@@ -119,4 +120,6 @@ VICTRON_BLE_PLUGIN_SUMMARY_HEADERS = ['[BLE] Housing batt. max voltage (V)', '[B
                                       '[BLE] Starter batt. avg. voltage',
                                       '[BLE] Housing batt. max consumed Ah', '[BLE] Housing batt. min consumed Ah',
                                       '[BLE] Housing batt. avg. consumed Ah',
-                                      '[BLE] Housing batt. avg. remaining mins']
+                                      '[BLE] Housing batt. avg. remaining mins',
+                                      '[BLE] Auxiliary Temperature max (°)', '[BLE] Auxiliary Temperature min (°)',
+                                      '[BLE] Auxiliary Temperature avg. (°)']
