@@ -1,3 +1,8 @@
+## 0.14.2 (2024-04-23)
+
+* Added support for reading auxiliary temperature from the battery monitor (if present) in the Victron BLE plugin
+* Version bump to 0.14.2
+
 ## 0.14.1 (2024-04-21)
 
 * Added ability to show / hide boat tracks on the map when an anchor alarm is active
