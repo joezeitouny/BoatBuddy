@@ -115,22 +115,19 @@ class AnchorManager:
         self._anchor_longitude = longitude
         self._anchor_allowed_distance = allowed_distance
 
-        # record the current timestamp
-        self._anchor_timestamp_utc = time.gmtime()
-        self._anchor_timestamp_local = time.localtime()
-
-        # reset the history and its associated counter
         if not preserve_history:
+            # record the current timestamp
+            self._anchor_timestamp_utc = time.gmtime()
+            self._anchor_timestamp_local = time.localtime()
+            # reset the history and the max anchor distance registers
             self._position_history = []
+            self._max_anchor_distance = 0
 
         # reset the anchor bearing
         self._anchor_bearing = 0
 
         # reset the gps accuracy
         self._gps_accuracy = 'N/A'
-
-        # reset the max anchor distance register
-        self._max_anchor_distance = 0
 
         # register that the anchor is set
         self._anchor_is_set = True
