@@ -1,3 +1,10 @@
+## 0.14.3 (2024-04-25)
+
+* Added a tolerance margin when calculating the anchor circle radius based on the allowed distance
+* UI Layout improvements
+* Updating anchor allowed distance no longer resets the maximum observed distance nor the timing registers
+* Version bump to 0.14.3
+
 ## 0.14.2 (2024-04-23)
 
 * Added support for reading auxiliary temperature from the battery monitor (if present) in the Victron BLE plugin
