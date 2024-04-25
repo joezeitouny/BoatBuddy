@@ -65,7 +65,7 @@
   color: #fff; /* Bootstrap's text-light */
 }
 
-#map-container {
+#anchor-map-container {
   position: relative;
 }
 
@@ -74,11 +74,36 @@
   height: 328px;
 }
 
-#map-button-container {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 1;
+#anchor-map-container-buttons-top-left {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    padding: 10px; /* Adjust the padding for separation from the edges */
+    z-index: 1;
+}
+
+#anchor-map-container-buttons-top-right {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 10px; /* Adjust the padding for separation from the edges */
+    z-index: 1;
+}
+
+#anchor-map-container-buttons-bottom-left {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    padding: 10px; /* Adjust the padding for separation from the edges */
+    z-index: 1;
+}
+
+#anchor-map-container-buttons-bottom-right {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    padding: 10px; /* Adjust the padding for separation from the edges */
+    z-index: 1;
 }
 
 .GaugeMeter-Light {

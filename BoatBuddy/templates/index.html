@@ -77,8 +77,8 @@
                 <div class="container mb-2 border rounded">
                     <div class="row border-bottom justify-content-center py-1">
                         <input type="number" step="1" style="width: 80px;"
-                                                           id="set_anchor_alarm_allowed_distance_text_id"
-                                                           placeholder="Distance (in meters)"/>&nbspmeters
+                               id="set_anchor_alarm_allowed_distance_text_id"
+                               placeholder="Distance (in meters)"/>&nbspmeters
                     </div>
                 </div>
             </div>
@@ -128,14 +128,14 @@
                     <div class="col-12 col-sm-5">
                         <h4>Allowed distance</h4>
                         <span><input type="number" style="width: 80px;" step="1"
-                                                       id="update_anchor_alarm_allowed_distance_text_id"
-                                                       placeholder="Distance (in meters)"/>&nbspmeters</span>
+                                     id="update_anchor_alarm_allowed_distance_text_id"
+                                     placeholder="Distance (in meters)"/>&nbspmeters</span>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="d-flex col" id="update_anchor_check_your_input_div_id"
-                 style="visibility: hidden; display: none">
+                     style="visibility: hidden; display: none">
                     <div class="text-danger">Check your input!</div>
                 </div>
                 <button type="button" class="btn btn-success" onclick="updateAnchor()">
@@ -246,7 +246,7 @@
                                     <span>Strt. time UTC:&nbsp;<span id="anchor_start_time_utc"></span></span>
                                     <br>
                                     <span>Duration:&nbsp<span
-                                                id="anchor_duration"></span></span>
+                                            id="anchor_duration"></span></span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
                                     <h5 class="fw-bolder mb-0">Distance</h5>
@@ -258,8 +258,8 @@
                                             id="anchor_distance"></span>&nbspm</span>
                                     <br>
                                     <span class="text-warning fw-bold" style="cursor: pointer;"
-                                                  onclick="showResetMaximumDistanceModal()">Max. Distance:&nbsp<span
-                                                    id="max_anchor_distance"></span>&nbspmeters</span>
+                                          onclick="showResetMaximumDistanceModal()">Max. Distance:&nbsp<span
+                                            id="max_anchor_distance"></span>&nbspmeters</span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
                                     <h5 class="fw-bolder mb-0">Anchor position</h5>
@@ -268,7 +268,7 @@
                                     <span>Longitude:&nbsp<span id="anchor_longitude"></span></span>
                                     <br>
                                     <span>Anchor Bearing:&nbsp<span
-                                                    id="anchor_bearing"></span>&nbspdegrees</span>
+                                            id="anchor_bearing"></span>&nbspdegrees</span>
                                 </div>
                                 <div class="col-12 col-sm-6 col-xxl-3 mb-2">
                                     <h5 class="fw-bolder mb-0">Current position</h5>
@@ -277,32 +277,46 @@
                                     <span>Longitude:&nbsp<span id="current_longitude"></span></span>
                                     <br>
                                     <span>GPS Accuracy:&nbsp<span
-                                                    id="gps_accuracy"></span></span>
+                                            id="gps_accuracy"></span></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <hr class="mt-1 mb-1"/>
                             </div>
-                            <div id="map-container">
-                                <div id="map-button-container">
-                                    <button id="default_map_layer_button" class="bg-secondary"
-                                            onclick="showDefaultMapLayer()" disabled>Default
-                                    </button>
-                                    <button id="satellite_map_layer_button" class="bg-secondary text-light"
-                                            onclick="showSatelliteMapLayer()">Satellite
-                                    </button>
-                                    <button id="zoom_in_button" class="bg-secondary text-light" onclick="zoomIn()">Zoom
-                                        In <i class="bi bi-zoom-in"></i></button>
-                                    <button id="zoom_out_button" class="bg-secondary text-light" onclick="zoomOut()">
-                                        Zoom Out <i class="bi bi-zoom-out"></i></button>
-                                    <label class="bg-secondary text-light p-1">
-                                        <input type="checkbox" id="track_current_position_checkbox">
-                                        <span>Center Map to Boat Position</span>
-                                    </label>
-                                    <label class="bg-secondary text-light p-1">
-                                        <input type="checkbox" id="boat_tracks_checkbox" checked>
-                                        <span>Boat Tracks</span>
-                                    </label>
+                            <div id="anchor-map-container">
+                                <div id="anchor-map-container-buttons-top-right">
+                                    <div class="card bg-light border-dark p-1">
+                                        <button id="default_map_layer_button" type="button" class="btn btn-secondary"
+                                                onclick="showDefaultMapLayer()" style="margin-bottom: 5px;"
+                                                disabled>Default
+                                        </button>
+                                        <button type="button" id="satellite_map_layer_button"
+                                                class="btn btn-secondary text-light"
+                                                onclick="showSatelliteMapLayer()">Satellite
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="anchor-map-container-buttons-bottom-left">
+                                    <div class="card bg-light border-dark p-1">
+                                        <label class="p-1" style="margin-bottom: 5px;">
+                                            <input type="checkbox" id="track_current_position_checkbox">
+                                            <span><i class="bi bi-crosshair"></i></span>
+                                        </label>
+                                        <label class="p-1">
+                                            <input type="checkbox" id="boat_tracks_checkbox" checked>
+                                            <span><i class="bi bi-cookie"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="anchor-map-container-buttons-bottom-right">
+                                    <div class="card bg-light border-dark p-1">
+                                        <button id="zoom_in_button" type="button" class="btn btn-secondary"
+                                                onclick="zoomIn()" style="margin-bottom: 5px;">
+                                            <i class="bi bi-zoom-in"></i></button>
+                                        <button id="zoom_out_button" type="button" class="btn btn-secondary"
+                                                onclick="zoomOut()">
+                                            <i class="bi bi-zoom-out"></i></button>
+                                    </div>
                                 </div>
                                 <div id="anchor-map"></div>
                             </div>
