@@ -1028,7 +1028,7 @@
         clearMapLayers();
 
         // Calculate the anchor circle's geometry taking into consideration the allowed distance
-        var radiusMeters = radiusFromValue(anchorAllowedDistance);
+        var radiusMeters = radiusFromValue(anchorAllowedDistance) * 1.05;
 
         // Create a feature for the circle
         var circleFeature = new ol.Feature({
