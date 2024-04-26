@@ -1,3 +1,8 @@
+## 0.14.5 (2024-04-26)
+
+* Added ability to upload and download system configuration files
+* Version bump to 0.14.5
+
 ## 0.14.4 (2024-04-26)
 
 * UI Layout improvements
