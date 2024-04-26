@@ -254,7 +254,7 @@
                                           onclick="showUpdateAnchorAlarmModal()">Allowed Distance:&nbsp<span
                                             id="anchor_allowed_distance"></span>&nbspm</span>
                                     <br>
-                                    <span id="distance_from_anchor_span" class="fw-bold text-success-emphasis">Distance from anchor:&nbsp<span
+                                    <span id="distance_from_anchor_span" class="fw-bold">Distance from anchor:&nbsp<span
                                             id="anchor_distance"></span>&nbspm</span>
                                     <br>
                                     <span class="text-warning fw-bold" style="cursor: pointer;"
@@ -1940,21 +1940,10 @@
                     document.getElementById('max_anchor_distance').innerHTML = data['max_anchor_distance'];
 
                     if (data['anchor_distance'] > data['anchor_allowed_distance']) {
-                        if (light_theme) {
-                            document.getElementById("distance_from_anchor_span").classList.remove('text-success-emphasis');
-                        } else {
-                            document.getElementById("distance_from_anchor_span").classList.remove('text-success');
-                        }
-
                         document.getElementById("distance_from_anchor_span").classList.add('text-danger');
                     }
                     else {
                         document.getElementById("distance_from_anchor_span").classList.remove('text-danger');
-                        if (light_theme) {
-                            document.getElementById("distance_from_anchor_span").classList.add('text-success-emphasis');
-                        } else {
-                            document.getElementById("distance_from_anchor_span").classList.add('text-success');
-                        }
                     }
 
                     // draw relevant boat positions on the map
