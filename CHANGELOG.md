@@ -1,3 +1,8 @@
+## 0.14.4 (2024-04-26)
+
+* UI Layout improvements
+* Version bump to 0.14.4
+
 ## 0.14.3 (2024-04-25)
 
 * Added a tolerance margin when calculating the anchor circle radius based on the allowed distance
