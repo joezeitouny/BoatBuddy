@@ -286,7 +286,7 @@
                             <div id="anchor-map-container">
                                 <div id="anchor-map-container-buttons-top-right">
                                     <div class="card bg-light border-dark p-1">
-                                        <button id="default_map_layer_button" type="button" class="btn btn-secondary"
+                                        <button id="default_map_layer_button" type="button" class="btn btn-warning"
                                                 onclick="showDefaultMapLayer()" style="margin-bottom: 5px;"
                                                 disabled>Default
                                         </button>
@@ -298,23 +298,33 @@
                                 </div>
                                 <div id="anchor-map-container-buttons-bottom-left">
                                     <div class="card bg-light border-dark p-1">
-                                        <label class="p-1" style="margin-bottom: 5px;">
-                                            <input type="checkbox" id="track_current_position_checkbox">
-                                            <span><i class="bi bi-crosshair"></i></span>
-                                        </label>
-                                        <label class="p-1">
-                                            <input type="checkbox" id="boat_tracks_checkbox" checked>
-                                            <span><i class="bi bi-cookie"></i></span>
-                                        </label>
+                                        <button id="track_current_position_button" class="btn btn-secondary"
+                                                onclick="trackCurrentPositionStateChange();"
+                                                style="margin-bottom: 5px;">
+                                            <i class="bi bi-crosshair"></i>
+                                        </button>
+                                        <button id="show_hide_boat_tracks_button" class="btn btn-warning"
+                                                onclick="showHideBoatTracksStateChange();">
+                                            <i class="bi bi-cookie"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <div id="anchor-map-container-buttons-bottom-right">
                                     <div class="card bg-light border-dark p-1">
                                         <button id="zoom_in_button" type="button" class="btn btn-secondary"
-                                                onclick="zoomIn()" style="margin-bottom: 5px;">
+                                                onclick="zoomIn();"
+                                                ontouchstart="this.classList.remove('btn-secondary'); this.classList.add('btn-warning');"
+                                                ontouchend="this.classList.remove('btn-warning'); this.classList.add('btn-secondary');"
+                                                onmousedown="this.classList.remove('btn-secondary'); this.classList.add('btn-warning');"
+                                                onmouseup="this.classList.remove('btn-warning'); this.classList.add('btn-secondary');"
+                                                style="margin-bottom: 5px;">
                                             <i class="bi bi-zoom-in"></i></button>
                                         <button id="zoom_out_button" type="button" class="btn btn-secondary"
-                                                onclick="zoomOut()">
+                                                onclick="zoomOut();"
+                                                ontouchstart="this.classList.remove('btn-secondary'); this.classList.add('btn-warning');"
+                                                ontouchend="this.classList.remove('btn-warning'); this.classList.add('btn-secondary');"
+                                                onmousedown="this.classList.remove('btn-secondary'); this.classList.add('btn-warning');"
+                                                onmouseup="this.classList.remove('btn-warning'); this.classList.add('btn-secondary');">
                                             <i class="bi bi-zoom-out"></i></button>
                                     </div>
                                 </div>
@@ -908,6 +918,25 @@
         })
     });
 
+    function trackCurrentPositionStateChange() {
+        if (document.getElementById('track_current_position_button').classList.contains("btn-secondary")) {
+            document.getElementById('track_current_position_button').classList.remove("btn-secondary");
+            document.getElementById('track_current_position_button').classList.add("btn-warning");
+        } else {
+            document.getElementById('track_current_position_button').classList.remove("btn-warning");
+            document.getElementById('track_current_position_button').classList.add("btn-secondary");
+        }
+    }
+
+    function showHideBoatTracksStateChange() {
+        if (document.getElementById('show_hide_boat_tracks_button').classList.contains("btn-secondary")) {
+            document.getElementById('show_hide_boat_tracks_button').classList.remove("btn-secondary");
+            document.getElementById('show_hide_boat_tracks_button').classList.add("btn-warning");
+        } else {
+            document.getElementById('show_hide_boat_tracks_button').classList.remove("btn-warning");
+            document.getElementById('show_hide_boat_tracks_button').classList.add("btn-secondary");
+        }
+    }
 
     function toggleAnchorConfigurationMode() {
         document.getElementById('alternative_anchor_configuration_div_id').classList.toggle('hidden');
@@ -966,8 +995,12 @@
 
         // Disable the default map layer button and enable the satellite button
         document.getElementById('default_map_layer_button').disabled = true;
+        document.getElementById("default_map_layer_button").classList.remove('btn-secondary');
         document.getElementById("default_map_layer_button").classList.remove('text-light');
+        document.getElementById("default_map_layer_button").classList.add('btn-warning');
         document.getElementById('satellite_map_layer_button').disabled = false;
+        document.getElementById("satellite_map_layer_button").classList.remove('btn-warning');
+        document.getElementById("satellite_map_layer_button").classList.add('btn-secondary');
         document.getElementById("satellite_map_layer_button").classList.add('text-light');
 
 
@@ -981,8 +1014,12 @@
 
         // Disable the satellite button and enable the default button
         document.getElementById('satellite_map_layer_button').disabled = true;
+        document.getElementById("satellite_map_layer_button").classList.remove('btn-secondary');
         document.getElementById("satellite_map_layer_button").classList.remove('text-light');
+        document.getElementById("satellite_map_layer_button").classList.add('btn-warning');
         document.getElementById('default_map_layer_button').disabled = false;
+        document.getElementById("default_map_layer_button").classList.remove('btn-warning');
+        document.getElementById("default_map_layer_button").classList.add('btn-secondary');
         document.getElementById("default_map_layer_button").classList.add('text-light');
 
         // redraw map layers
@@ -1113,7 +1150,7 @@
         anchorMap.addLayer(anchorLayer);
 
         // draw position history markers if provided
-        if (document.getElementById('boat_tracks_checkbox').checked &&
+        if (document.getElementById('show_hide_boat_tracks_button').classList.contains("btn-warning") &&
             anchorPositionHistory && anchorPositionHistory.length > 0) {
             // Create a vector source for the position dots feature
             positionHistoryVectorSource = new ol.source.Vector();
@@ -1934,7 +1971,7 @@
                     boatMarker.getElement().className = 'boat-marker'; // Apply CSS class for styling
                     anchorMap.addOverlay(boatMarker);
 
-                    if (document.getElementById('track_current_position_checkbox').checked) {
+                    if (document.getElementById('track_current_position_button').classList.contains("btn-warning")) {
                         // recenter the map to the latest boat position
                         anchorMap.getView().setCenter([decimalLon, decimalLat]);
                     }
