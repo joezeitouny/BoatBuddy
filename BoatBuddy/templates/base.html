@@ -41,6 +41,23 @@
                     <div class="row mb-2">
                         <span><b>Website</b>&nbsp <a href="https://boatbuddy.site" target="_blank">https://boatbuddy.site</a></span>
                     </div>
+                    <div class="row mb-2">
+                        <div id="system_configuration_card" class="card border bg-dark text-light">
+                            <div class="card-body p-0">
+                                <h5 class="card-title">System Configuration</h5>
+                                <form action="/upload_config" method="POST" enctype="multipart/form-data">
+                                    <div class="container d-flex p-1 align-items-center">
+                                        <div class="col-9 col-sm-10">
+                                            <input type="file" name="config_file" accept=".json">
+                                        </div>
+                                        <div class="col-2">
+                                            <button type="submit" class="btn btn-primary">Upload</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="close btn btn-secondary" onclick="hideAboutUsModal()">
@@ -93,7 +110,8 @@
                                     <button class="ms-2 btn btn-success" type="submit" id="session_button_id"
                                             onclick="toggleSession()" style="font-size: 0.9rem;">
                                             <span>
-                                                <span id="session_button_spinner" class="spinner-border spinner-border-sm"
+                                                <span id="session_button_spinner"
+                                                      class="spinner-border spinner-border-sm"
                                                       style="visibility: hidden; display: none;" role="status"
                                                       aria-hidden="true"></span>
                                                 <span id="session_button_text">Start Session</span>

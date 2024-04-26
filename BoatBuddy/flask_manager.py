@@ -1,8 +1,8 @@
 import time
 import datetime
 import webbrowser
-
 from flask import render_template, jsonify, request
+from flask import send_file
 from rich.console import Console
 
 from BoatBuddy import app
@@ -156,6 +156,31 @@ def index():
                            anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key,
                            metrics_electrical_system=metrics_electrical_system, metrics_nmea=metrics_nmea,
                            home_position_available=home_position_available)
+
+
+def is_json_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() == 'json'
+
+
+@app.route('/upload_config', methods=['GET', 'POST'])
+def upload_config():
+    if 'config_file' in request.files:
+        file = request.files['config_file']
+        if file and is_json_file(file.filename):
+            try:
+                file.save(application_modules.get_options().configuration_path)
+                # Store the uploaded JSON file on your server
+                return 'System configuration updated successfully!'
+            except Exception as e:
+                return f'Error while trying to update the configuration on the server. Details: {e}'
+    return 'Invalid file type'
+
+
+@app.route('/configuration')
+def download_config():
+    filename = application_modules.get_options().configuration_path
+    return send_file(filename, as_attachment=True)
 
 
 @app.route('/toggle_session')
