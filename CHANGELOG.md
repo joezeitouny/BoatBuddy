@@ -1,3 +1,8 @@
+## 0.14.8 (2024-04-27)
+
+* UI Layout improvements
+* Version bump to 0.14.8
+
 ## 0.14.7 (2024-04-26)
 
 * UI Layout improvements
