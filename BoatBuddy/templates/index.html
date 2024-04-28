@@ -199,9 +199,9 @@
     </div>
 </div>
 
-<div class="container px-2">
+<div class="container px-1">
     <div class="d-lg-flex flex-lg-row d-sm-flex flex-sm-row mb-1">
-        <div class="col-xl-4 col-xxl-3 col-lg-5 col-md-4 col-sm-4 col-12 border border-5 border-success rounded text-center">
+        <div class="col-xl-4 col-xxl-3 col-lg-5 col-md-4 col-sm-4 col-12 border border-5 border-danger rounded text-center">
             <!-- System metrics column-->
             <h5 class="fw-bolder mb-2">{{boat_name}} Dashboard</h5>
             <div class="container px-0 mx-0 d-flex">
@@ -228,7 +228,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="row border border-5 border-danger rounded text-center px-0 mx-0 d-flex">
+            <div class="row border border-5 border-success rounded text-center px-0 mx-0 d-flex">
                 <div class="tab-content p-0">
                     <div class="tab-pane fade show active" id="anchor" role="tabpanel" aria-labelledby="anchor-tab"
                          style="position: relative;">
@@ -507,7 +507,7 @@
             </div>
         </div>
     </div>
-    <div class="row mb-2">
+    <div class="row">
         <div class="col d-flex justify-content-center">
             <span>
                 <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;"
@@ -1065,7 +1065,7 @@
         clearMapLayers();
 
         // Calculate the anchor circle's geometry taking into consideration the allowed distance
-        var radiusMeters = radiusFromValue(anchorAllowedDistance) * 1.1;
+        var radiusMeters = radiusFromValue(anchorAllowedDistance) * 1.02;
 
         // Create a feature for the circle
         var circleFeature = new ol.Feature({
@@ -1192,9 +1192,15 @@
         // Empty the div by setting its innerHTML to an empty string
         divContainer.innerHTML = '';
 
+        tileLayer = osmLayer;
+
+        if (document.getElementById('satellite_map_layer_button').disabled) {
+            tileLayer = mapboxSatelliteLayer;
+        }
+
         // re-initialize the anchor map
         anchorMap = new ol.Map({
-            layers: [osmLayer],
+            layers: [tileLayer],
             target: 'anchor-map',
             controls: []
         });
@@ -1291,17 +1297,14 @@
                         // draw the anchor position and allowed distance radius on the map
                         latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
                         longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
-                        allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
+                        anchorAllowedDistance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
 
                         // switch to the anchor tab
                         var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
                         anchorTab.show();
 
-                        // show the default map layer
-                        showDefaultMapLayer();
-
                         // draw anchor on map
-                        drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
+                        drawAnchorOnMap(latitude, longitude, anchorAllowedDistance, undefined);
                     }
                 },
                 error: function (error) {
@@ -1327,17 +1330,14 @@
                         // draw the anchor position and allowed distance radius on the map
                         latitude = document.getElementById("set_anchor_alarm_latitude_text_id").value;
                         longitude = document.getElementById("set_anchor_alarm_longitude_text_id").value;
-                        allowed_distance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
+                        anchorAllowedDistance = parseInt(document.getElementById("set_anchor_alarm_allowed_distance_text_id").value);
 
                         // switch to the anchor tab
                         var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
                         anchorTab.show();
 
-                        // show the default map layer
-                        showDefaultMapLayer();
-
                         // draw anchor on map
-                        drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
+                        drawAnchorOnMap(latitude, longitude, anchorAllowedDistance, undefined);
                     }
                 },
                 error: function (error) {
@@ -1380,17 +1380,14 @@
                     // draw the anchor position and allowed distance radius on the map
                     latitude = document.getElementById("update_anchor_alarm_latitude_label_id").innerHTML;
                     longitude = document.getElementById("update_anchor_alarm_longitude_label_id").innerHTML;
-                    allowed_distance = parseInt(document.getElementById("update_anchor_alarm_allowed_distance_text_id").value);
+                    anchorAllowedDistance = parseInt(document.getElementById("update_anchor_alarm_allowed_distance_text_id").value);
 
                     // switch to the anchor tab
                     var anchorTab = new bootstrap.Tab(document.getElementById("anchor-tab"));
                     anchorTab.show();
 
-                    // show the default map layer
-                    showDefaultMapLayer();
-
                     // draw anchor on map
-                    drawAnchorOnMap(latitude, longitude, allowed_distance, undefined);
+                    drawAnchorOnMap(latitude, longitude, anchorAllowedDistance, undefined);
                 }
             },
             error: function (error) {
@@ -1917,8 +1914,10 @@
             url: '/anchor_alarm_data',
             success: function(data) {
                 if (data['anchor_alarm_module'] && data['anchor_is_set']) {
+                    anchorAllowedDistance = data['anchor_allowed_distance'];
+
                     if (first_refresh_anchor_data_call) {
-                        drawAnchorOnMap(data['anchor_latitude'], data['anchor_longitude'], data['anchor_allowed_distance'], data['position_history']);
+                        drawAnchorOnMap(data['anchor_latitude'], data['anchor_longitude'], anchorAllowedDistance, data['position_history']);
                         first_refresh_anchor_data_call = false;
                     }
 
