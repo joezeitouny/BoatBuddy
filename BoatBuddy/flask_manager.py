@@ -180,7 +180,15 @@ def upload_config():
 @app.route('/configuration')
 def download_config():
     filename = application_modules.get_options().configuration_path
-    return send_file(filename, as_attachment=True)
+    application_name = utils.get_application_name()
+
+    try:
+        with open(filename) as f:
+            data = f.read()
+    except Exception as e:
+        return f'Error while trying to read the configuration on the server. Details: {e}'
+
+    return render_template('configuration.html', application_name=application_name, json_data=data)
 
 
 @app.route('/toggle_session')
