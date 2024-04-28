@@ -1,3 +1,9 @@
+## 0.14.9 (2024-04-28)
+
+* UI Layout improvements
+* Fixed the way system configuration can be retrieved
+* Version bump to 0.14.9
+
 ## 0.14.8 (2024-04-27)
 
 * UI Layout improvements
