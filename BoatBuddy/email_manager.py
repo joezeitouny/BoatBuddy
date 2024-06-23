@@ -56,11 +56,12 @@ class EmailManager:
                 try:
                     # receiver = self._options.email_receiver_address
                     subject = email_entry['subject']
+                    recipients = self._options.email_address.split(';')
 
                     # Create a message object
                     message = MIMEMultipart()
                     message["From"] = f"{globals.APPLICATION_NAME} <{self._options.email_smtp_username}>"
-                    message["To"] = self._options.email_address
+                    message["To"] = ', '.join(recipients)
                     message["Subject"] = subject
 
                     # Email body
@@ -86,8 +87,8 @@ class EmailManager:
                                           port=self._options.email_smtp_port) as server:
                         server.login(self._options.email_smtp_username, self._options.email_smtp_password)
                         # Send email
-                        server.sendmail(self._options.email_smtp_username, self._options.email_address,
-                                        message.as_string())
+                        server.sendmail(from_addr=self._options.email_smtp_username, to_addrs=recipients,
+                                        msg=message.as_string())
 
                     self._email_queue.pop(0)
                     self._log_manager.info(
