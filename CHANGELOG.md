@@ -1,3 +1,9 @@
+## 0.14.10 (2024-06-23)
+
+* Added ability to support multiple email recipents when sending out emails
+* The track current boat position on map button is now selected by default
+* Version bump to 0.14.10
+
 ## 0.14.9 (2024-04-28)
 
 * UI Layout improvements
