@@ -1,3 +1,8 @@
+## 0.14.11 (2024-06-26)
+
+* Added ability to support multiple telegram recipents when sending out telegram notifications
+* Version bump to 0.14.11
+
 ## 0.14.10 (2024-06-23)
 
 * Added ability to support multiple email recipents when sending out emails
