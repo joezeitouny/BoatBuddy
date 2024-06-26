@@ -56,7 +56,7 @@
   "telegram": {
     "telegram_module": "False",
     "telegram_bot_token": "",
-    "telegram_recipient_id": ""
+    "telegram_recipient_id": "user_id_1;user_id_2"
   },
   "notification": {
     "notifications_module": "True",

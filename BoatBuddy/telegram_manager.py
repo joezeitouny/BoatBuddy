@@ -24,6 +24,7 @@ class TelegramManager:
         self._status = TelegramManagerStatus.STARTING
 
         if self._options.telegram_module:
+            self._recipients = self._options.telegram_recipient_id.split(';')
             self._status = TelegramManagerStatus.RUNNING
             self._log_manager.info('Telegram module successfully started!')
             self.send_message(f"Telegram notifications are successfully enabled!\r\n\r\n"
@@ -45,7 +46,8 @@ class TelegramManager:
     async def async_send_message(self, message: str):
         async with Bot(self._options.telegram_bot_token) as bot:
             try:
-                await bot.send_message(chat_id=self._options.telegram_recipient_id, text=message)
+                for recipient in self._recipients:
+                    await bot.send_message(chat_id=recipient, text=message)
                 self._log_manager.info(f'Telegram notification with message \'{message}\' successfully sent out!')
             except NetworkError as e:
                 await asyncio.sleep(1)
