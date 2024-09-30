@@ -135,11 +135,11 @@ def get_latitude(coord_str, hemisphere):
 
 
 def get_str_from_latitude(latitude):
-    return latitude.to_string("d%°%m%\'%S%").rstrip('0') + latitude.to_string("\" %H")
+    return latitude.to_string("d%°%m%\'%S%").rstrip('0').lstrip('-') + latitude.to_string("\" %H")
 
 
 def get_str_from_longitude(longitude):
-    return longitude.to_string("d%°%m%\'%S%").rstrip('0') + longitude.to_string("\" %H")
+    return longitude.to_string("d%°%m%\'%S%").rstrip('0').lstrip('-') + longitude.to_string("\" %H")
 
 
 def get_longitude(coord_str, hemisphere):

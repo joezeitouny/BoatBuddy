@@ -1,11 +1,16 @@
+## 0.14.12 (2024-09-30)
+
+* Fixed an issue where GPS positions in Western and Southern hemispheres weren't properly measured
+* Version bump to 0.14.12
+
 ## 0.14.11 (2024-06-26)
 
-* Added ability to support multiple telegram recipents when sending out telegram notifications
+* Added ability to support multiple telegram recipients when sending out telegram notifications
 * Version bump to 0.14.11
 
 ## 0.14.10 (2024-06-23)
 
-* Added ability to support multiple email recipents when sending out emails
+* Added ability to support multiple email recipients when sending out emails
 * The track current boat position on map button is now selected by default
 * Version bump to 0.14.10
 
