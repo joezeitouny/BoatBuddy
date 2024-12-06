@@ -17,6 +17,7 @@ from BoatBuddy.generic_plugin import PluginStatus
 from BoatBuddy.gps_plugin import GPSPlugin, GPSPluginEvents
 from BoatBuddy.log_manager import LogManager
 from BoatBuddy.nmea_plugin import NMEAPlugin, NMEAPluginEvents
+from BoatBuddy.bb_micro_plugin import BBMicroPlugin, BBMicroPluginEvents
 from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 from BoatBuddy.sound_manager import SoundManager, SoundType
 from BoatBuddy.utils import ModuleStatus
@@ -38,6 +39,7 @@ class PluginManager:
     _output_directory = None
     _clock_plugin = None
     _nmea_plugin = None
+    _bb_micro_plugin = None
     _victron_modbus_tcp_plugin = None
     _victron_ble_plugin = None
     _gps_plugin = None
@@ -101,6 +103,15 @@ class PluginManager:
             nmea_connection_events.on_disconnect += self._on_disconnect_nmea_plugin
             self._nmea_plugin.register_for_events(nmea_connection_events)
 
+        if self._options.bb_micro_module:
+            # initialize the BB Micro plugin
+            self._bb_micro_plugin = BBMicroPlugin(self._options, self._log_manager)
+
+            bb_micro_connection_events = BBMicroPluginEvents()
+            bb_micro_connection_events.on_connect += self._on_connect_bb_micro_plugin
+            bb_micro_connection_events.on_disconnect += self._on_disconnect_bb_micro_plugin
+            self._bb_micro_plugin.register_for_events(bb_micro_connection_events)
+
         # If normal mode is active then start recording system metrics immediately
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.CONTINUOUS.value \
                 or str(self._options.session_run_mode).lower() == globals.SessionRunMode.INTERVAL.value:
@@ -126,6 +137,9 @@ class PluginManager:
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self.start_session()
 
+    def _on_connect_bb_micro_plugin(self):
+        self._notifications_manager.notify('BB micro', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
+
     def _on_disconnect_gps_plugin(self):
         self._notifications_manager.notify('gps', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_GPS.value:
@@ -140,6 +154,9 @@ class PluginManager:
         self._notifications_manager.notify('nmea', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
         if str(self._options.session_run_mode).lower() == globals.SessionRunMode.AUTO_NMEA.value:
             self.end_session()
+
+    def _on_disconnect_bb_micro_plugin(self):
+        self._notifications_manager.notify('BB micro', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
 
     def _session_timer_elapsed(self):
         # End the current session
@@ -168,6 +185,10 @@ class PluginManager:
         if self._nmea_plugin:
             self._nmea_plugin.take_snapshot(store_entry=True)
             values += self._nmea_plugin.get_metadata_values()
+
+        if self._bb_micro_plugin:
+            self._bb_micro_plugin.take_snapshot(store_entry=True)
+            values += self._bb_micro_plugin.get_metadata_values()
 
         if self._victron_ble_plugin:
             self._victron_ble_plugin.take_snapshot(store_entry=True)
@@ -254,6 +275,9 @@ class PluginManager:
         if self._nmea_plugin:
             column_headers += self._nmea_plugin.get_metadata_headers()
 
+        if self._bb_micro_plugin:
+            column_headers += self._bb_micro_plugin.get_metadata_headers()
+
         if self._victron_ble_plugin:
             column_headers += self._victron_ble_plugin.get_metadata_headers()
 
@@ -332,6 +356,9 @@ class PluginManager:
             if self._nmea_plugin:
                 column_headers += self._nmea_plugin.get_summary_headers()
 
+            if self._bb_micro_plugin:
+                column_headers += self._bb_micro_plugin.get_summary_headers()
+
             if self._victron_ble_plugin:
                 column_headers += self._victron_ble_plugin.get_summary_headers()
 
@@ -349,6 +376,10 @@ class PluginManager:
             if self._nmea_plugin:
                 log_summary_list += self._nmea_plugin.get_summary_values(True)
                 self._nmea_plugin.clear_entries()
+
+            if self._bb_micro_plugin:
+                log_summary_list += self._bb_micro_plugin.get_summary_values()
+                self._bb_micro_plugin.clear_entries()
 
             if self._victron_ble_plugin:
                 log_summary_list += self._victron_ble_plugin.get_summary_values()
@@ -436,6 +467,9 @@ class PluginManager:
         if self._nmea_plugin:
             self._nmea_plugin.finalize()
 
+        if self._bb_micro_plugin:
+            self._bb_micro_plugin.finalize()
+
     def get_clock_metrics(self) -> {}:
         entry = self._clock_plugin.take_snapshot(store_entry=False)
         if entry is not None:
@@ -445,6 +479,13 @@ class PluginManager:
 
     def get_nmea_plugin_metrics(self) -> {}:
         entry = self._nmea_plugin.take_snapshot(store_entry=False)
+        if entry is not None:
+            return entry.get_values()
+
+        return []
+
+    def get_bb_micro_plugin_metrics(self) -> {}:
+        entry = self._bb_micro_plugin.take_snapshot(store_entry=False)
         if entry is not None:
             return entry.get_values()
 
@@ -491,6 +532,11 @@ class PluginManager:
                                                        self._nmea_plugin.get_summary_values())
             summary_key_value_list.update(nmea_dictionary)
 
+        if self._bb_micro_plugin:
+            bb_micro_dictionary = utils.get_key_value_list(self._bb_micro_plugin.get_summary_headers(),
+                                                           self._bb_micro_plugin.get_summary_values())
+            summary_key_value_list.update(bb_micro_dictionary)
+
         if self._victron_ble_plugin:
             victron_ble_dictionary = utils.get_key_value_list(self._victron_ble_plugin.get_summary_headers(),
                                                               self._victron_ble_plugin.get_summary_values())
@@ -522,6 +568,12 @@ class PluginManager:
 
         return self._nmea_plugin.get_status()
 
+    def get_bb_micro_plugin_status(self) -> PluginStatus:
+        if not self._bb_micro_plugin:
+            return PluginStatus.DOWN
+
+        return self._bb_micro_plugin.get_status()
+
     def get_gps_plugin_status(self) -> PluginStatus:
         if not self._gps_plugin:
             return PluginStatus.DOWN
@@ -536,3 +588,9 @@ class PluginManager:
 
     def register_for_events(self, events):
         self._events = events
+
+    def toggle_relay(self, relay_number):
+        if not self._bb_micro_plugin:
+            return False
+
+        return self._bb_micro_plugin.toggle_relay(relay_number)

@@ -408,6 +408,113 @@ def get_nmea_data():
     return jsonify(data)
 
 
+@app.route('/sensors_data')
+def get_sensors_data():
+    air_temperature = ""
+    humidity = ""
+    air_quality = ""
+    barometric_pressure = ""
+    altitude = ""
+    bb_micro_module = False
+    bb_micro_status = ""
+
+    if application_modules.get_options().bb_micro_module:
+        bb_micro_module = True
+        plugin_status = application_modules.get_plugin_manager().get_bb_micro_plugin_status()
+        bb_micro_status = get_plugin_status_str(plugin_status)
+
+        bb_micro_metrics = application_modules.get_plugin_manager().get_bb_micro_plugin_metrics()
+        if bb_micro_metrics and len(bb_micro_metrics) > 0:
+            if bb_micro_metrics[0] != globals.EMPTY_METRIC_VALUE:
+                air_temperature = bb_micro_metrics[0]
+
+            if bb_micro_metrics[1] != globals.EMPTY_METRIC_VALUE:
+                humidity = bb_micro_metrics[1]
+
+            if bb_micro_metrics[2] != globals.EMPTY_METRIC_VALUE:
+                air_quality = bb_micro_metrics[2]
+
+            if bb_micro_metrics[3] != globals.EMPTY_METRIC_VALUE:
+                barometric_pressure = bb_micro_metrics[3]
+
+            if bb_micro_metrics[4] != globals.EMPTY_METRIC_VALUE:
+                altitude = bb_micro_metrics[4]
+
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
+            'bb_micro_status': bb_micro_status, 'bb_micro_module': bb_micro_module,
+            'air_temperature': air_temperature, 'humidity': humidity, 'air_quality': air_quality,
+            'barometric_pressure': barometric_pressure, 'altitude': altitude}
+
+    return jsonify(data)
+
+
+@app.route('/relays_data')
+def get_relays_data():
+    relay_1 = False
+    relay_2 = False
+    relay_3 = False
+    relay_4 = False
+    relay_5 = False
+    relay_6 = False
+    relay_1_name = ""
+    relay_2_name = ""
+    relay_3_name = ""
+    relay_4_name = ""
+    relay_5_name = ""
+    relay_6_name = ""
+    bb_micro_module = False
+    bb_micro_status = ""
+
+    if application_modules.get_options().bb_micro_module:
+        bb_micro_module = True
+        plugin_status = application_modules.get_plugin_manager().get_bb_micro_plugin_status()
+        bb_micro_status = get_plugin_status_str(plugin_status)
+
+        relay_1_name = application_modules.get_options().bb_micro_relay_1
+        relay_2_name = application_modules.get_options().bb_micro_relay_2
+        relay_3_name = application_modules.get_options().bb_micro_relay_3
+        relay_4_name = application_modules.get_options().bb_micro_relay_4
+        relay_5_name = application_modules.get_options().bb_micro_relay_5
+        relay_6_name = application_modules.get_options().bb_micro_relay_6
+
+        bb_micro_metrics = application_modules.get_plugin_manager().get_bb_micro_plugin_metrics()
+        if bb_micro_metrics and len(bb_micro_metrics) > 0:
+            if bb_micro_metrics[5] != globals.EMPTY_METRIC_VALUE:
+                relay_1 = bb_micro_metrics[5]
+
+            if bb_micro_metrics[6] != globals.EMPTY_METRIC_VALUE:
+                relay_2 = bb_micro_metrics[6]
+
+            if bb_micro_metrics[7] != globals.EMPTY_METRIC_VALUE:
+                relay_3 = bb_micro_metrics[7]
+
+            if bb_micro_metrics[8] != globals.EMPTY_METRIC_VALUE:
+                relay_4 = bb_micro_metrics[8]
+
+            if bb_micro_metrics[9] != globals.EMPTY_METRIC_VALUE:
+                relay_5 = bb_micro_metrics[9]
+
+            if bb_micro_metrics[10] != globals.EMPTY_METRIC_VALUE:
+                relay_6 = bb_micro_metrics[10]
+
+    data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
+            'bb_micro_status': bb_micro_status, 'bb_micro_module': bb_micro_module,
+            'relay_1': relay_1, 'relay_2': relay_2, 'relay_3': relay_3,
+            'relay_4': relay_4, 'relay_5': relay_5, 'relay_6': relay_6,
+            'relay_1_name': relay_1_name, 'relay_2_name': relay_2_name, 'relay_3_name': relay_3_name,
+            'relay_4_name': relay_4_name, 'relay_5_name': relay_5_name, 'relay_6_name': relay_6_name}
+
+    return jsonify(data)
+
+
+@app.route('/toggle_relay', methods=['POST'])
+def toggle_relay():
+    relay_number = request.form.get('relay_number')  # Get the relay number of the relay to toggle from the request
+
+    return jsonify(
+        application_modules.get_plugin_manager().toggle_relay(relay_number))
+
+
 @app.route('/data')
 def get_data():
     status = application_modules.get_plugin_manager().get_status().value
@@ -440,6 +547,14 @@ def get_data():
     fuel_tank = 0
     water_tank = 0
     pv_power = 0
+    bb_micro_module = False
+    bb_micro_status = ''
+
+    if application_modules.get_options().bb_micro_module:
+        bb_micro_module = True
+        plugin_status = application_modules.get_plugin_manager().get_bb_micro_plugin_status()
+        bb_micro_status = get_plugin_status_str(plugin_status)
+
     if application_modules.get_options().victron_modbus_tcp_module:
         victron_modbus_tcp_module = True
         # Populate the victron layout
@@ -680,6 +795,7 @@ def get_data():
             'housing_battery_power': housing_battery_power,
             'pv_current': pv_current, 'status': status, 'nmea_module': nmea_module, 'nmea_status': nmea_status,
             'gps_module': gps_module, 'gps_status': gps_status,
+            'bb_micro_module': bb_micro_module, 'bb_micro_status': bb_micro_status,
             'session_name': session_name, 'start_time': start_time,
             'start_time_utc': start_time_utc, 'duration': duration, 'start_gps_lat': start_gps_lat,
             'start_gps_lon': start_gps_lon, 'distance': distance, 'heading': heading,

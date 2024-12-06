@@ -19,6 +19,16 @@
     "nmea_server_ip": "",
     "nmea_server_port": "10110"
   },
+  "bb_micro": {
+    "bb_micro_module": "False",
+    "bb_micro_ip": "",
+    "bb_micro_relay_1": "Relay 1",
+    "bb_micro_relay_2": "Relay 2",
+    "bb_micro_relay_3": "Relay 3",
+    "bb_micro_relay_4": "Relay 4",
+    "bb_micro_relay_5": "Relay 5",
+    "bb_micro_relay_6": "Relay 6"
+  },
   "data_source": {
     "data_source_housing_battery_soc": "victron_ble",
     "data_source_housing_battery_voltage": "victron_ble",

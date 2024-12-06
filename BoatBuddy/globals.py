@@ -23,6 +23,9 @@ NMEA_PLUGIN_SOCKET_TIMEOUT = 60
 NMEA_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
 NMEA_PLUGIN_SAMPLING_RATE = 0.5  # In seconds
 
+# BB Micro Plugin
+BB_MICRO_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
+
 # Victron Modbus TCP Plugin
 VICTRON_MODBUS_TCP_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
 VICTRON_MODBUS_TCP_SAMPLING_RATE = 1  # In seconds
@@ -123,3 +126,17 @@ VICTRON_BLE_PLUGIN_SUMMARY_HEADERS = ['[BLE] Housing batt. max voltage (V)', '[B
                                       '[BLE] Housing batt. avg. remaining mins',
                                       '[BLE] Auxiliary Temperature max (°)', '[BLE] Auxiliary Temperature min (°)',
                                       '[BLE] Auxiliary Temperature avg. (°)']
+
+BB_MICRO_PLUGIN_METADATA_HEADERS = ['[BB] Air Temperature (°C)', '[BB] Humidity (%)', '[BB] Air Quality (ppm)',
+                                    '[BB] Barometric Pressure (hPa)',
+                                    '[BB] Relay 1', '[BB] Relay 2', '[BB] Relay 3',
+                                    '[BB] Relay 4', '[BB] Relay 5', '[BB] Relay 6']
+
+BB_MICRO_PLUGIN_SUMMARY_HEADERS = ['[BB] Air Temperature max (°C)', '[BB] Air Temperature min (°C)',
+                                   '[BB] Air Temperature avg. (°C)',
+                                   '[BB] Humidity max (%)', '[BB] Humidity min (%)',
+                                   '[BB] Humidity avg. (%)',
+                                   '[BB] Air Quality max (ppm)', '[BB] Air Quality min (ppm)',
+                                   '[BB] Air Quality avg. (ppm)',
+                                   '[BB] Barometric Pressure max (hPa)', '[BB] Barometric Pressure min (hPa)',
+                                   '[BB] Barometric Pressure avg. (hPa)']

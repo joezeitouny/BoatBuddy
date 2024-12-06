@@ -222,6 +222,16 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="sensors-tab" data-bs-toggle="tab" data-bs-target="#sensors"
+                                type="button" role="tab" aria-controls="sensors" aria-selected="false">Sensors
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="relays-tab" data-bs-toggle="tab" data-bs-target="#relays"
+                                type="button" role="tab" aria-controls="relays" aria-selected="false">Relays
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link" id="session-tab" data-bs-toggle="tab" data-bs-target="#session"
                                 type="button" role="tab" aria-controls="session" aria-selected="false">Session
                         </button>
@@ -334,6 +344,26 @@
                         <div id="anchor_section_gps_module_is_down_overlay"
                              style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(255, 0, 0, 0.5); display: none; visibility: hidden; align-items: center; justify-content: center;">
                             <h3 class="text-white">Anchor alarm is not running because the GPS module is down!</h3>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="sensors" role="tabpanel" aria-labelledby="sensors-tab">
+                        <div id="no_available_sensors_message" class="container-fluid align-self-center">
+                            <h5>No available sensors</h5>
+                        </div>
+                        <div id="sensors_container" class="container" style="display: none; visibility: hidden;">
+                            <div id="sensors_row_id" class="row align-items-center">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="relays" role="tabpanel" aria-labelledby="relays-tab">
+                        <div id="no_available_relays_message" class="container-fluid align-self-center">
+                            <h5>No available relays</h5>
+                        </div>
+                        <div id="relays_container" class="container" style="display: none; visibility: hidden;">
+                            <div id="relays_row_id" class="row align-items-center">
+
+                            </div>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nmea" role="tabpanel" aria-labelledby="nmea-tab">
@@ -526,6 +556,12 @@
             <span>
                 <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="nmea_module_spinner"
                       role="status"></span>NMEA0183:&nbsp;<span id="nmea_module_status"></span>
+            </span>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <span>
+                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="bb_micro_module_spinner"
+                      role="status"></span>{{application_name}} Micro:&nbsp;<span id="bb_micro_module_status"></span>
             </span>
         </div>
         <div class="col d-flex justify-content-center">
@@ -1825,6 +1861,47 @@
                 } else {
                     document.getElementById('gps_module_status').innerHTML = "Disabled";
                     document.getElementById("gps_module_spinner").className = "spinner-grow text-secondary me-2";
+                }
+
+                if (data['bb_micro_module']) {
+                    document.getElementById('bb_micro_module_status').innerHTML = data['bb_micro_status'];
+                    if (data['bb_micro_status'] == "Running") {
+                        document.getElementById("bb_micro_module_spinner").className = "spinner-border text-success me-2";
+
+                        document.getElementById('no_available_sensors_message').style.display = 'none';
+                        document.getElementById('no_available_sensors_message').style.visibility = 'hidden';
+                        document.getElementById('sensors_container').style.display = 'block';
+                        document.getElementById('sensors_container').style.visibility = 'visible';
+                        document.getElementById('no_available_relays_message').style.display = 'none';
+                        document.getElementById('no_available_relays_message').style.visibility = 'hidden';
+                        document.getElementById('relays_container').style.display = 'block';
+                        document.getElementById('relays_container').style.visibility = 'visible';
+                    } else if (data['bb_micro_status'] == "Down") {
+                        document.getElementById("bb_micro_module_spinner").className = "spinner-grow text-danger me-2";
+
+                        document.getElementById('no_available_sensors_message').style.display = 'block';
+                        document.getElementById('no_available_sensors_message').style.visibility = 'visible';
+                        document.getElementById('sensors_container').style.display = 'none';
+                        document.getElementById('sensors_container').style.visibility = 'hidden';
+                        document.getElementById('no_available_relays_message').style.display = 'block';
+                        document.getElementById('no_available_relays_message').style.visibility = 'visible';
+                        document.getElementById('relays_container').style.display = 'none';
+                        document.getElementById('relays_container').style.visibility = 'hidden';
+                    } else if (data['bb_micro_status'] == "Starting") {
+                        document.getElementById("bb_micro_module_spinner").className = "spinner-grow text-warning me-2";
+
+                        document.getElementById('no_available_sensors_message').style.display = 'block';
+                        document.getElementById('no_available_sensors_message').style.visibility = 'visible';
+                        document.getElementById('sensors_container').style.display = 'none';
+                        document.getElementById('sensors_container').style.visibility = 'hidden';
+                        document.getElementById('no_available_relays_message').style.display = 'block';
+                        document.getElementById('no_available_relays_message').style.visibility = 'visible';
+                        document.getElementById('relays_container').style.display = 'none';
+                        document.getElementById('relays_container').style.visibility = 'hidden';
+                    }
+                } else {
+                    document.getElementById('bb_micro_module_status').innerHTML = "Disabled";
+                    document.getElementById("bb_micro_module_spinner").className = "spinner-grow text-secondary me-2";
                 }
 
                 if (data['status'] === "idle") {

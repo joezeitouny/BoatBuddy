@@ -56,6 +56,14 @@ if __name__ == '__main__':
             options.nmea_module = utils.try_parse_bool(data['nmea']['nmea_module'])
             options.nmea_server_ip = data['nmea']['nmea_server_ip']
             options.nmea_server_port = utils.try_parse_int(data['nmea']['nmea_server_port'])
+            options.bb_micro_module = utils.try_parse_bool(data['bb_micro']['bb_micro_module'])
+            options.bb_micro_ip = data['bb_micro']['bb_micro_ip']
+            options.bb_micro_relay_1 = data['bb_micro']['bb_micro_relay_1']
+            options.bb_micro_relay_2 = data['bb_micro']['bb_micro_relay_2']
+            options.bb_micro_relay_3 = data['bb_micro']['bb_micro_relay_3']
+            options.bb_micro_relay_4 = data['bb_micro']['bb_micro_relay_4']
+            options.bb_micro_relay_5 = data['bb_micro']['bb_micro_relay_5']
+            options.bb_micro_relay_6 = data['bb_micro']['bb_micro_relay_6']
             options.data_source_housing_battery_soc = data['data_source']['data_source_housing_battery_soc']
             options.data_source_housing_battery_voltage = data['data_source']['data_source_housing_battery_voltage']
             options.data_source_housing_battery_current = data['data_source']['data_source_housing_battery_current']
