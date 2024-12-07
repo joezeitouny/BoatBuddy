@@ -1,3 +1,8 @@
+## 0.15.0 (2024-12-07)
+
+* Added support for BB Micro module
+* Version bump to 0.15.0
+
 ## 0.14.12 (2024-09-30)
 
 * Fixed an issue where GPS positions in Western and Southern hemispheres weren't properly measured
