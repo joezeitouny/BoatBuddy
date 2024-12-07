@@ -407,7 +407,7 @@ class BBMicroPlugin(GenericPlugin):
         bb_micro_ip_address = self._options.bb_micro_ip
 
         # URL of the API endpoint
-        base_url = f"http://{bb_micro_ip_address}/"
+        base_url = f"http://{bb_micro_ip_address}"
         toggle_relay_url = f"{base_url}/switch/switch_{relay_number}/toggle"
 
         try:

@@ -477,23 +477,23 @@ def get_relays_data():
 
         bb_micro_metrics = application_modules.get_plugin_manager().get_bb_micro_plugin_metrics()
         if bb_micro_metrics and len(bb_micro_metrics) > 0:
+            if bb_micro_metrics[4] != globals.EMPTY_METRIC_VALUE:
+                relay_1 = bb_micro_metrics[4]
+
             if bb_micro_metrics[5] != globals.EMPTY_METRIC_VALUE:
-                relay_1 = bb_micro_metrics[5]
+                relay_2 = bb_micro_metrics[5]
 
             if bb_micro_metrics[6] != globals.EMPTY_METRIC_VALUE:
-                relay_2 = bb_micro_metrics[6]
+                relay_3 = bb_micro_metrics[6]
 
             if bb_micro_metrics[7] != globals.EMPTY_METRIC_VALUE:
-                relay_3 = bb_micro_metrics[7]
+                relay_4 = bb_micro_metrics[7]
 
             if bb_micro_metrics[8] != globals.EMPTY_METRIC_VALUE:
-                relay_4 = bb_micro_metrics[8]
+                relay_5 = bb_micro_metrics[8]
 
             if bb_micro_metrics[9] != globals.EMPTY_METRIC_VALUE:
-                relay_5 = bb_micro_metrics[9]
-
-            if bb_micro_metrics[10] != globals.EMPTY_METRIC_VALUE:
-                relay_6 = bb_micro_metrics[10]
+                relay_6 = bb_micro_metrics[9]
 
     data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
             'bb_micro_status': bb_micro_status, 'bb_micro_module': bb_micro_module,

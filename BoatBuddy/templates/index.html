@@ -361,8 +361,51 @@
                             <h5>No available relays</h5>
                         </div>
                         <div id="relays_container" class="container" style="display: none; visibility: hidden;">
-                            <div id="relays_row_id" class="row align-items-center">
-
+                            <div class="row align-items-center">
+                                <div class="col d-flex justify-content-center">
+                                    <div class="form-check form-switch form-check-reverse">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="flexSwitch1Check" data-relay-number="1" onchange="toggleRelay(1)">
+                                        <label id="flexSwitch1Label" class="form-check-label" for="flexSwitch1Check">Relay 1</label>
+                                    </div>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <div class="form-check form-switch form-check-reverse">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="flexSwitch2Check" data-relay-number="2" onchange="toggleRelay(2)">
+                                        <label id="flexSwitch2Label" class="form-check-label" for="flexSwitch2Check">Relay 2</label>
+                                    </div>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <div class="form-check form-switch form-check-reverse">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="flexSwitch3Check" data-relay-number="3" onchange="toggleRelay(3)">
+                                        <label id="flexSwitch3Label" class="form-check-label" for="flexSwitch3Check">Relay 3</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row align-items-center">
+                                <div class="col d-flex justify-content-center">
+                                    <div class="form-check form-switch form-check-reverse">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="flexSwitch4Check" data-relay-number="4" onchange="toggleRelay(4)">
+                                        <label id="flexSwitch4Label" class="form-check-label" for="flexSwitch4Check">Relay 4</label>
+                                    </div>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <div class="form-check form-switch form-check-reverse">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="flexSwitch5Check" data-relay-number="5" onchange="toggleRelay(5)">
+                                        <label id="flexSwitch5Label" class="form-check-label" for="flexSwitch5Check">Relay 5</label>
+                                    </div>
+                                </div>
+                                <div class="col d-flex justify-content-center">
+                                    <div class="form-check form-switch form-check-reverse">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="flexSwitch6Check" data-relay-number="6" onchange="toggleRelay(6)">
+                                        <label id="flexSwitch6Label" class="form-check-label" for="flexSwitch6Check">Relay 6</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -560,7 +603,8 @@
         </div>
         <div class="col d-flex justify-content-center">
             <span>
-                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;" id="bb_micro_module_spinner"
+                <span class="spinner-grow text-danger me-2" style="width: 1rem; height: 1rem;"
+                      id="bb_micro_module_spinner"
                       role="status"></span>{{application_name}} Micro:&nbsp;<span id="bb_micro_module_status"></span>
             </span>
         </div>
@@ -2288,6 +2332,74 @@
         });
     }
 
+    function refreshRelaysData() {
+        $.ajax({
+            type: 'GET',
+            url: '/relays_data',
+            success: function(data) {
+                //Populate the BB Micro sensors fields
+                if (data['bb_micro_module']) {
+                    if (data['bb_micro_status'] == "Running") {
+                        $("#flexSwitch1Label").text(data['relay_1_name'])
+                        if (data['relay_1'] === "True" ) {
+                            $("#flexSwitch1Check").prop('checked', true);
+                        } else {
+                            $("#flexSwitch1Check").prop('checked', false);
+                        }
+
+                        $("#flexSwitch2Label").text(data['relay_2_name'])
+                        if (data['relay_2'] === "True") {
+                            $("#flexSwitch2Check").prop('checked', true);
+                        } else {
+                            $("#flexSwitch2Check").prop('checked', false);
+                        }
+
+                        $("#flexSwitch3Label").text(data['relay_3_name'])
+                        if (data['relay_3'] === "True") {
+                            $("#flexSwitch3Check").prop('checked', true);
+                        } else {
+                            $("#flexSwitch3Check").prop('checked', false);
+                        }
+
+                        $("#flexSwitch4Label").text(data['relay_4_name'])
+                        if (data['relay_4'] === "True") {
+                            $("#flexSwitch4Check").prop('checked', true);
+                        } else {
+                            $("#flexSwitch4Check").prop('checked', false);
+                        }
+
+                        $("#flexSwitch5Label").text(data['relay_5_name'])
+                        if (data['relay_5'] === "True") {
+                            $("#flexSwitch5Check").prop('checked', true);
+                        } else {
+                            $("#flexSwitch5Check").prop('checked', false);
+                        }
+
+                        $("#flexSwitch6Label").text(data['relay_6_name'])
+                        if (data['relay_6'] === "True") {
+                            $("#flexSwitch6Check").prop('checked', true);
+                        } else {
+                            $("#flexSwitch6Check").prop('checked', false);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function toggleRelay(relay_number) {
+        $.ajax({
+            method: 'POST',
+            url: '/toggle_relay',
+            data: {
+                relay_number: relay_number
+            },
+            success: function(data) {
+
+            }
+        });
+    }
+
     function getGPSPosition() {
         $.ajax({
             type: 'GET',
@@ -2307,6 +2419,7 @@
         setInterval(refreshAnchorData, 1000);
         setInterval(refreshNMEAInstrumentsData, 1000);
         setInterval(refreshSensorsData, 1000);
+        setInterval(refreshRelaysData, 2000);
         setInterval(getGPSPosition, 2000);
     });
 

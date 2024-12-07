@@ -277,8 +277,8 @@
         "name": "Air Temperature",
         "data_field": "air_temperature",
         "type": "gauge",
-        "max_value": 60,
-        "min_value": -20,
+        "max_value": 50,
+        "min_value": 0,
         "style": "temperature_gauge"
       },
       "humidity_gauge" : {
