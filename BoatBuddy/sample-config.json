@@ -262,6 +262,44 @@
         "min_value": 3
       }
     },
+    "metrics_bb_micro": {
+      "atmospheric_pressure_gauge" : {
+        "order": "1",
+        "name": "Atm. Pressure",
+        "data_field": "atmospheric_pressure",
+        "type": "gauge",
+        "max_value": 1084,
+        "min_value": 870,
+        "style": "compass_gauge"
+      },
+      "air_temperature_gauge" : {
+        "order": "2",
+        "name": "Air Temperature",
+        "data_field": "air_temperature",
+        "type": "gauge",
+        "max_value": 60,
+        "min_value": -20,
+        "style": "temperature_gauge"
+      },
+      "humidity_gauge" : {
+        "order": "3",
+        "name": "Humidity",
+        "data_field": "humidity",
+        "type": "gauge",
+        "max_value": 100,
+        "min_value": 0,
+        "style": "humidity_gauge"
+      },
+      "air_quality_gauge" : {
+        "order": "4",
+        "name": "Air Quality",
+        "data_field": "air_quality",
+        "type": "gauge",
+        "max_value": 100,
+        "min_value": 0,
+        "style": "air_quality_gauge"
+      }
+    },
     "metrics_colouring_scheme": {
       "[GX] Tank 1 lvl (%)": {
         "green": [

@@ -144,6 +144,7 @@ def index():
     anchor_alarm_mapbox_api_key = application_modules.get_options().anchor_alarm_mapbox_api_key
     metrics_electrical_system = application_modules.get_options().metrics_electrical_system
     metrics_nmea = application_modules.get_options().metrics_nmea
+    metrics_bb_micro = application_modules.get_options().metrics_bb_micro
 
     home_position_available = ((application_modules.get_options().gps_latitude_home and
                                application_modules.get_options().gps_longitude_home) and
@@ -155,6 +156,7 @@ def index():
                            session_run_mode=session_run_mode, anchor_alarm_module=anchor_alarm_module,
                            anchor_alarm_mapbox_api_key=anchor_alarm_mapbox_api_key,
                            metrics_electrical_system=metrics_electrical_system, metrics_nmea=metrics_nmea,
+                           metrics_bb_micro=metrics_bb_micro,
                            home_position_available=home_position_available)
 
 
@@ -414,7 +416,6 @@ def get_sensors_data():
     humidity = ""
     air_quality = ""
     barometric_pressure = ""
-    altitude = ""
     bb_micro_module = False
     bb_micro_status = ""
 
@@ -437,13 +438,10 @@ def get_sensors_data():
             if bb_micro_metrics[3] != globals.EMPTY_METRIC_VALUE:
                 barometric_pressure = bb_micro_metrics[3]
 
-            if bb_micro_metrics[4] != globals.EMPTY_METRIC_VALUE:
-                altitude = bb_micro_metrics[4]
-
     data = {'data_format_version': globals.JSON_RESPONSE_FORMAT_VERSION,
             'bb_micro_status': bb_micro_status, 'bb_micro_module': bb_micro_module,
             'air_temperature': air_temperature, 'humidity': humidity, 'air_quality': air_quality,
-            'barometric_pressure': barometric_pressure, 'altitude': altitude}
+            'barometric_pressure': barometric_pressure}
 
     return jsonify(data)
 

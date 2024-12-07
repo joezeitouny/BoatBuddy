@@ -939,6 +939,147 @@
     }
     {% endif %}
 
+    {% if metrics_bb_micro | length > 0 %}
+    var metrics_bb_micro_dictionary = {{ metrics_bb_micro|tojson|safe }};
+    var bbMicroElementsList = {};
+
+    // Draw BB Micro sensors components
+    for (var key in metrics_bb_micro_dictionary) {
+        if (metrics_bb_micro_dictionary.hasOwnProperty(key)) {
+            var currentItem = metrics_bb_micro_dictionary[key];
+
+            // Create a new col element
+            var col = document.createElement('div');
+            col.className = "col d-flex justify-content-center";
+
+            if (currentItem['type'] == 'gauge') {
+                if (currentItem['style'] == 'air_pressure_gauge') {
+                    var gaugeDiv = document.createElement('canvas');
+                    gaugeDiv.id = key;
+                    gaugeDiv.setAttribute("data-type", "radial-gauge");
+                    gaugeDiv.setAttribute("data-min-value", currentItem['min_value']);
+                    gaugeDiv.setAttribute("data-max-value", currentItem['max_value']);
+                    gaugeDiv.setAttribute("data-major-ticks", "Storm,Rain,Change,Fair,Very Dry");
+                    gaugeDiv.setAttribute("data-highlights", "false");
+                    gaugeDiv.setAttribute("data-minor-ticks", "22");
+                    gaugeDiv.setAttribute("data-ticks-angle", "270");
+                    gaugeDiv.setAttribute("data-start-angle", "45");
+                    gaugeDiv.setAttribute("data-stroke-ticks", "false");
+                    gaugeDiv.setAttribute("data-color-plate", "#222");
+                    gaugeDiv.setAttribute("data-color-major-ticks", "#f5f5f5");
+                    gaugeDiv.setAttribute("data-color-minor-ticks", "#ddd");
+                    gaugeDiv.setAttribute("data-color-numbers", "#ccc");
+                    gaugeDiv.setAttribute("data-color-needle", "rgba(240, 128, 128, 1)");
+                    gaugeDiv.setAttribute("data-color-needle-end", "rgba(255, 160, 122, .9)");
+                    gaugeDiv.setAttribute("data-value-box", "true");
+                    gaugeDiv.setAttribute("data-value-text-shadow", "true");
+                    gaugeDiv.setAttribute("data-color-circle-inner", "#fff");
+                    gaugeDiv.setAttribute("data-color-needle-circle-outer", "#ccc");
+                    gaugeDiv.setAttribute("data-needle-circle-size", "20");
+                    gaugeDiv.setAttribute("data-needle-circle-outer", "false");
+                    gaugeDiv.setAttribute("data-animation-rule", "linear");
+                    gaugeDiv.setAttribute("data-needle-type", "line");
+                    gaugeDiv.setAttribute("data-needle-width", "5");
+                    gaugeDiv.setAttribute("data-borders", "false");
+                    gaugeDiv.setAttribute("data-border-inner-width", "0");
+                    gaugeDiv.setAttribute("data-border-middle-width", "0");
+                    gaugeDiv.setAttribute("data-border-outer-width", "5");
+                    gaugeDiv.setAttribute("data-color-border-outer", "#fff");
+                    gaugeDiv.setAttribute("data-color-border-outer-end", "#fff");
+                    gaugeDiv.setAttribute("data-color-needle-shadow-down", "#222");
+                    gaugeDiv.setAttribute("data-color-title", "#fff");
+                    gaugeDiv.setAttribute("data-border-shadow-width", "0");
+                    gaugeDiv.setAttribute("data-animation-duration", "500");
+                    gaugeDiv.setAttribute("data-title", currentItem['name']);
+                    gaugeDiv.setAttribute("data-color-value-box-background", "#fff");
+                    gaugeDiv.setAttribute("data-font-title-size", "32");
+                    gaugeDiv.setAttribute("data-font-value-size", "40");
+                    gaugeDiv.setAttribute("data-width", "170px");
+                    gaugeDiv.setAttribute("data-height", "170px");
+                    gaugeDiv.setAttribute("data-value-dec", "0");
+
+                    col.appendChild(gaugeDiv)
+                } else if (currentItem['style'] == 'temperature_gauge') {
+                    var gaugeDiv = document.createElement('div');
+                    gaugeDiv.className = "GaugeMeter-Dark";
+                    gaugeDiv.id = key;
+                    gaugeDiv.setAttribute("data-label", currentItem['name']);
+                    gaugeDiv.setAttribute("data-label_color", "White");
+                    gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                    gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                    gaugeDiv.setAttribute("data-size", "170");
+                    gaugeDiv.setAttribute("data-append", "°C");
+                    gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
+                    gaugeDiv.setAttribute("data-width", "15");
+                    gaugeDiv.setAttribute("data-style", "Semi");
+                    gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                    gaugeDiv.setAttribute("data-animate_text_colors", false);
+                    gaugeDiv.setAttribute("data-text_size", "0.22");
+                    gaugeDiv.setAttribute("data-animationstep", 0);
+                    gaugeDiv.setAttribute("data-showvalue", true);
+                    gaugeDiv.setAttribute("data-back", "Silver");
+
+                    col.appendChild(gaugeDiv)
+                } else if (currentItem['style'] == 'humidity_gauge') {
+                    var gaugeDiv = document.createElement('div');
+                    gaugeDiv.className = "GaugeMeter-Dark";
+                    gaugeDiv.id = key;
+                    gaugeDiv.setAttribute("data-label", currentItem['name']);
+                    gaugeDiv.setAttribute("data-label_color", "White");
+                    gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                    gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                    gaugeDiv.setAttribute("data-size", "170");
+                    gaugeDiv.setAttribute("data-append", "%");
+                    gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
+                    gaugeDiv.setAttribute("data-width", "15");
+                    gaugeDiv.setAttribute("data-style", "Semi");
+                    gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                    gaugeDiv.setAttribute("data-animate_text_colors", false);
+                    gaugeDiv.setAttribute("data-text_size", "0.22");
+                    gaugeDiv.setAttribute("data-animationstep", 0);
+                    gaugeDiv.setAttribute("data-showvalue", true);
+                    gaugeDiv.setAttribute("data-back", "Silver");
+
+                    col.appendChild(gaugeDiv)
+                } else if (currentItem['style'] == 'air_quality_gauge') {
+                    var gaugeDiv = document.createElement('div');
+                    gaugeDiv.className = "GaugeMeter-Dark";
+                    gaugeDiv.id = key;
+                    gaugeDiv.setAttribute("data-label", currentItem['name']);
+                    gaugeDiv.setAttribute("data-label_color", "White");
+                    gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                    gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                    gaugeDiv.setAttribute("data-size", "170");
+                    gaugeDiv.setAttribute("data-append", "%");
+                    gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
+                    gaugeDiv.setAttribute("data-width", "15");
+                    gaugeDiv.setAttribute("data-style", "Semi");
+                    gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                    gaugeDiv.setAttribute("data-animate_text_colors", false);
+                    gaugeDiv.setAttribute("data-text_size", "0.22");
+                    gaugeDiv.setAttribute("data-animationstep", 0);
+                    gaugeDiv.setAttribute("data-showvalue", true);
+                    gaugeDiv.setAttribute("data-back", "Silver");
+
+                    col.appendChild(gaugeDiv)
+                }
+            }
+
+            bbMicroElementsList[currentItem['order']] = col;
+        }
+    }
+
+    if (Object.entries(bbMicroElementsList).length > 0) {
+        document.getElementById('sensors_row_id').appendChild(bbMicroElementsList[Object.entries(bbMicroElementsList).length.toString()]);
+
+        if (Object.entries(bbMicroElementsList).length > 1) {
+            for (let i = Object.entries(bbMicroElementsList).length - 1; i > 0; i--) {
+                document.getElementById('sensors_row_id').insertBefore(bbMicroElementsList[i.toString()], document.getElementById('sensors_row_id').childNodes[0])
+            }
+        }
+    }
+    {% endif %}
+
     // Create the OpenStreetMap layer
     const osmLayer = new ol.layer.Tile({
       source: new ol.source.OSM(),
@@ -2118,6 +2259,35 @@
         });
     }
 
+    function refreshSensorsData() {
+        $.ajax({
+            type: 'GET',
+            url: '/sensors_data',
+            success: function(data) {
+                //Populate the BB Micro sensors fields
+                if (data['bb_micro_module']) {
+                    if (data['bb_micro_status'] == "Running") {
+                        if (document.getElementById("atmospheric_pressure_gauge") !== null && data['barometric_pressure'].trim().length) {
+                            document.getElementById("atmospheric_pressure_gauge").setAttribute("data-value", data['barometric_pressure']);
+                        }
+
+                        if ($("#air_temperature_gauge") !== null && data['air_temperature'].trim().length) {
+                            $("#air_temperature_gauge").gaugeMeter({used:parseFloat(data['air_temperature'])});
+                        }
+
+                        if ($("#humidity_gauge") !== null && data['humidity'].trim().length) {
+                            $("#humidity_gauge").gaugeMeter({used:parseFloat(data['humidity'])});
+                        }
+
+                        if ($("#air_quality_gauge") !== null && data['air_quality'].trim().length) {
+                            $("#air_quality_gauge").gaugeMeter({used:parseFloat(data['air_quality'])});
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     function getGPSPosition() {
         $.ajax({
             type: 'GET',
@@ -2136,6 +2306,7 @@
         setInterval(refreshData, 1000);
         setInterval(refreshAnchorData, 1000);
         setInterval(refreshNMEAInstrumentsData, 1000);
+        setInterval(refreshSensorsData, 1000);
         setInterval(getGPSPosition, 2000);
     });
 
