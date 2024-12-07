@@ -1,3 +1,11 @@
+## 0.15.1 (2024-12-07)
+
+* Changed the styling of the air quality gauge
+* Fixed an issue with the recorded session details where the BB columns were not correctly added
+* Updated the requirements list
+* Updated the internal JSON response format version
+* Version bump to 0.15.1
+
 ## 0.15.0 (2024-12-07)
 
 * Added support for BB Micro module
