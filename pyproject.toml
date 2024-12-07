@@ -33,7 +33,7 @@ dependencies = [
     "bleak~=0.21.1",
     "victron-ble~=0.6.0",
     "pydub",
-    "requests~=2.28.2"
+    "requests"
 ]
 [project.urls]
 "Homepage" = "https://boatbuddy.site"
