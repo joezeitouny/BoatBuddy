@@ -258,7 +258,7 @@ class BBMicroPlugin(GenericPlugin):
                 self._events.on_disconnect()
 
     def get_metadata_headers(self):
-        return globals.VICTRON_MODBUS_TCP_PLUGIN_METADATA_HEADERS.copy()
+        return globals.BB_MICRO_PLUGIN_METADATA_HEADERS.copy()
 
     def take_snapshot(self, store_entry):
         entry = BBMicroEntry(self._air_temperature, self._humidity, self._air_quality,
