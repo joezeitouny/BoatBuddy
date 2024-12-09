@@ -163,7 +163,7 @@ class BBMicroPlugin(GenericPlugin):
 
         try:
             # Make a GET request to the metrics API
-            response = requests.get(version_url)
+            response = requests.get(version_url, timeout=globals.BB_MICRO_REQUESTS_TIMEOUT)
 
             # Check if the request was successful (status code 200)
             if response.status_code == 200:
@@ -178,7 +178,7 @@ class BBMicroPlugin(GenericPlugin):
                         self._events.on_connect()
 
                 # get air quality metric
-                response = requests.get(air_quality_url)
+                response = requests.get(air_quality_url, timeout=globals.BB_MICRO_REQUESTS_TIMEOUT)
 
                 # Check if the request was successful (status code 200)
                 if response.status_code == 200:
@@ -188,7 +188,7 @@ class BBMicroPlugin(GenericPlugin):
                     self._air_quality = data["value"]
 
                 # get air temperature metric
-                response = requests.get(air_temperature_url)
+                response = requests.get(air_temperature_url, timeout=globals.BB_MICRO_REQUESTS_TIMEOUT)
 
                 # Check if the request was successful (status code 200)
                 if response.status_code == 200:
@@ -198,7 +198,7 @@ class BBMicroPlugin(GenericPlugin):
                     self._air_temperature = data["value"]
 
                 # get humidity metric
-                response = requests.get(humidity_url)
+                response = requests.get(humidity_url, timeout=globals.BB_MICRO_REQUESTS_TIMEOUT)
 
                 # Check if the request was successful (status code 200)
                 if response.status_code == 200:
@@ -208,7 +208,7 @@ class BBMicroPlugin(GenericPlugin):
                     self._humidity = data["value"]
 
                 # get barometric pressure metric
-                response = requests.get(barometric_pressure_url)
+                response = requests.get(barometric_pressure_url, timeout=globals.BB_MICRO_REQUESTS_TIMEOUT)
 
                 # Check if the request was successful (status code 200)
                 if response.status_code == 200:
@@ -219,7 +219,7 @@ class BBMicroPlugin(GenericPlugin):
 
                 for i in range(1, 7):
                     # get relay value
-                    response = requests.get(f"{relays_url}{i}")
+                    response = requests.get(f"{relays_url}{i}", timeout=globals.BB_MICRO_REQUESTS_TIMEOUT)
 
                     # Check if the request was successful (status code 200)
                     if response.status_code == 200:

@@ -25,6 +25,7 @@ NMEA_PLUGIN_SAMPLING_RATE = 0.5  # In seconds
 
 # BB Micro Plugin
 BB_MICRO_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
+BB_MICRO_REQUESTS_TIMEOUT = 30 # In seconds defines the amount of time to wait for an http request to respond
 
 # Victron Modbus TCP Plugin
 VICTRON_MODBUS_TCP_TIMER_INTERVAL = 1  # In seconds, defines the amount of time to wait between metrics retrievals
