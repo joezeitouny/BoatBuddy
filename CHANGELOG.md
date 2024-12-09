@@ -1,3 +1,9 @@
+## 0.15.3 (2024-12-09)
+
+* Added timeout to the http requests calls performed from the the bb micro plugin
+* UI Improvements
+* Version bump to 0.15.3
+
 ## 0.15.2 (2024-12-07)
 
 * UI Improvements
