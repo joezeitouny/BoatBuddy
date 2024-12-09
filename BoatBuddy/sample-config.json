@@ -633,6 +633,16 @@
           ]
         }
       },
+      "bb_micro": {
+        "alarm": {
+          "status": "offline",
+          "frequency": "once",
+          "notifications": [
+            "sound",
+            "email"
+          ]
+        }
+      },
       "victron": {
         "alarm": {
           "status": "offline",

@@ -138,7 +138,7 @@ class PluginManager:
             self.start_session()
 
     def _on_connect_bb_micro_plugin(self):
-        self._notifications_manager.notify('BB micro', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
+        self._notifications_manager.notify('bb_micro', ModuleStatus.ONLINE.value, NotificationEntryType.MODULE)
 
     def _on_disconnect_gps_plugin(self):
         self._notifications_manager.notify('gps', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
@@ -156,7 +156,7 @@ class PluginManager:
             self.end_session()
 
     def _on_disconnect_bb_micro_plugin(self):
-        self._notifications_manager.notify('BB micro', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
+        self._notifications_manager.notify('bb_micro', ModuleStatus.OFFLINE.value, NotificationEntryType.MODULE)
 
     def _session_timer_elapsed(self):
         # End the current session
