@@ -265,7 +265,7 @@
     "metrics_bb_micro": {
       "atmospheric_pressure_gauge" : {
         "order": "1",
-        "name": "Atm. Pressure",
+        "name": "Atm. Pressure (hPa)",
         "data_field": "atmospheric_pressure",
         "type": "gauge",
         "max_value": 1084,
@@ -274,7 +274,7 @@
       },
       "air_temperature_gauge" : {
         "order": "2",
-        "name": "Air Temperature",
+        "name": "Air Temp.",
         "data_field": "air_temperature",
         "type": "gauge",
         "max_value": 50,
