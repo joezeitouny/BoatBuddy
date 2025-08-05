@@ -1,3 +1,8 @@
+## 0.15.5 (2025-08-05)
+
+* Added exception handling on the startup of the telegram manager module
+* Version bump to 0.15.5
+
 ## 0.15.4 (2025-08-05)
 
 * Added the name of the boat in Telegram notifications

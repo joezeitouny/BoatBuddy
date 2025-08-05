@@ -41,7 +41,10 @@ class TelegramManager:
 
     def send_message(self, message: str):
         if self._options.telegram_module and self._status == TelegramManagerStatus.RUNNING:
-            asyncio.run(self.async_send_message(message))
+            try:
+                asyncio.run(self.async_send_message(message))
+            except Exception as e:
+                self._log_manager.warning(f'Error while sending Telegram notification. Details: {message}')
 
     async def async_send_message(self, message: str):
         async with Bot(self._options.telegram_bot_token) as bot:
