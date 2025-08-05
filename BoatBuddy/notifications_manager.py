@@ -310,7 +310,7 @@ class NotificationsManager:
             local_time = time.strftime('%H:%M:%S')
             local_date = time.strftime('%Y-%m-%d')
             if entry_type == NotificationEntryType.MODULE:
-                message = f'Notification triggered for the \'{key}\' module @ {local_time} on {local_date}:\r\n' \
+                message = f'{self._options.boat_name} - Notification triggered for the \'{key}\' module @ {local_time} on {local_date}:\r\n' \
                           f'Status: {value}\r\nSeverity: {severity}' + \
                           f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
                           f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n' \
@@ -318,7 +318,7 @@ class NotificationsManager:
                           f'Additional message: {additional_message}\r\n\r\n' \
                           f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
             elif entry_type == NotificationEntryType.METRIC:
-                message = f'Notification triggered for metric with key \'{key}\' @ {local_time} on {local_date}:\r\n' \
+                message = f'{self._options.boat_name} - Notification triggered for metric with key \'{key}\' @ {local_time} on {local_date}:\r\n' \
                           f'Value: {value}\r\nSeverity: {severity}' + \
                           f'\r\nFrequency: {frequency}\r\nConfiguration Range: ' \
                           f'{configuration_range_str}\r\nInterval: {interval_str} seconds\r\n' \
@@ -349,7 +349,7 @@ class NotificationsManager:
         try:
             local_time = time.strftime('%H:%M:%S')
             local_date = time.strftime('%Y-%m-%d')
-            message = f'Notification cleared for ' \
+            message = f'{self._options.boat_name}: Notification cleared for ' \
                       f'{notification_entry.get_entry_type().value} \'{key}\' @ {local_time} on {local_date}\r\n\r\n' \
                       f'--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})'
             self._telegram_manager.send_message(message)

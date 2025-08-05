@@ -1,3 +1,8 @@
+## 0.15.4 (2025-08-05)
+
+* Added the name of the boat in Telegram notifications
+* Version bump to 0.15.4
+
 ## 0.15.3 (2024-12-09)
 
 * Added timeout to the http requests calls performed from the the bb micro plugin

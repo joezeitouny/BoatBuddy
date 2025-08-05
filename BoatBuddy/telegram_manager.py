@@ -27,7 +27,7 @@ class TelegramManager:
             self._recipients = self._options.telegram_recipient_id.split(';')
             self._status = TelegramManagerStatus.RUNNING
             self._log_manager.info('Telegram module successfully started!')
-            self.send_message(f"Telegram notifications are successfully enabled!\r\n\r\n"
+            self.send_message(f"Telegram notifications are successfully enabled on {self._options.boat_name}!\r\n\r\n"
                               f"--\r\n{globals.APPLICATION_NAME} ({globals.APPLICATION_VERSION})")
 
     def finalize(self):
