@@ -1,3 +1,8 @@
+## 0.15.6 (2025-08-06)
+
+* Added the name of the boat in the web page title
+* Version bump to 0.15.6
+
 ## 0.15.5 (2025-08-05)
 
 * Added exception handling on the startup of the telegram manager module
