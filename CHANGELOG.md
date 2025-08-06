@@ -1,3 +1,8 @@
+## 0.15.7 (2025-08-06)
+
+* Removed the sensor and relays tab from the Web UI when the BB Micro module is not activated 
+* Version bump to 0.15.7
+
 ## 0.15.6 (2025-08-06)
 
 * Added the name of the boat in the web page title

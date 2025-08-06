@@ -2087,6 +2087,10 @@
                 } else {
                     document.getElementById('bb_micro_module_status').innerHTML = "Disabled";
                     document.getElementById("bb_micro_module_spinner").className = "spinner-grow text-secondary me-2";
+                    document.getElementById('sensors-tab').style.display = 'none';
+                    document.getElementById('sensors-tab').style.visibility = 'hidden';
+                    document.getElementById('relays-tab').style.display = 'none';
+                    document.getElementById('relays-tab').style.visibility = 'hidden';
                 }
 
                 if (data['status'] === "idle") {
