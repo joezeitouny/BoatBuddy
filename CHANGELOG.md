@@ -1,3 +1,8 @@
+## 0.15.8 (2025-08-07)
+
+* Added better error handling inside the victron modbus tcp module 
+* Version bump to 0.15.8
+
 ## 0.15.7 (2025-08-06)
 
 * Removed the sensor and relays tab from the Web UI when the BB Micro module is not activated 

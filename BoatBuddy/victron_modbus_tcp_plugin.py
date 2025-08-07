@@ -356,7 +356,9 @@ class VictronModbusTCPPlugin(GenericPlugin):
                 elif tank2_type == 11:
                     self._tank2_type_string = 'Raw water'
             except Exception as e:
-                self._handle_connection_exception(e)
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
         except Exception as e:
             self._handle_connection_exception(e)
 
