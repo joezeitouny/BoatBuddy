@@ -224,8 +224,19 @@ class VictronModbusTCPPlugin(GenericPlugin):
 
             try:
                 self._grid_power = utils.try_parse_int(c.read_holding_registers(820, 1)[0])
-                self._generator_power = utils.try_parse_int(np.int16(c.read_holding_registers(823, 1)[0]))
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
+                self._generator_power = utils.try_parse_int(np.int16(c.read_holding_registers(823, 1)[0]))
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
+
+            try:
                 self._input_source_string = ''
                 input_source = utils.try_parse_int(c.read_holding_registers(826, 1)[0])
                 if input_source == 0:
@@ -238,9 +249,19 @@ class VictronModbusTCPPlugin(GenericPlugin):
                     self._input_source_string = 'Shore Power'
                 elif input_source == 240:
                     self._input_source_string = 'Not Connected'
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
                 self._ac_consumption = utils.try_parse_int(c.read_holding_registers(817, 1)[0])
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
                 self._battery_state_string = ''
                 battery_state = utils.try_parse_int(c.read_holding_registers(844, 1)[0])
                 if battery_state == 0:
@@ -249,18 +270,63 @@ class VictronModbusTCPPlugin(GenericPlugin):
                     self._battery_state_string = 'charging'
                 elif battery_state == 2:
                     self._battery_state_string = 'discharging'
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
                 self._battery_voltage = utils.try_parse_int(c.read_holding_registers(840, 1)[0]) / 10
-                self._battery_current = utils.try_parse_int(np.int16(c.read_holding_registers(841, 1)[0])) / 10
-                self._battery_power = utils.try_parse_int(np.int16(c.read_holding_registers(842, 1)[0]))
-                self._battery_soc = utils.try_parse_int(c.read_holding_registers(843, 1)[0])
-                self._pv_power = utils.try_parse_int(c.read_holding_registers(850, 1)[0])
-                self._pv_current = utils.try_parse_int(np.int16(c.read_holding_registers(851, 1)[0])) / 10
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
+                self._battery_current = utils.try_parse_int(np.int16(c.read_holding_registers(841, 1)[0])) / 10
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
+
+            try:
+                self._battery_power = utils.try_parse_int(np.int16(c.read_holding_registers(842, 1)[0]))
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
+
+            try:
+                self._battery_soc = utils.try_parse_int(c.read_holding_registers(843, 1)[0])
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
+
+            try:
+                self._pv_power = utils.try_parse_int(c.read_holding_registers(850, 1)[0])
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
+
+            try:
+                self._pv_current = utils.try_parse_int(np.int16(c.read_holding_registers(851, 1)[0])) / 10
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
+
+            try:
                 # Get starter battery voltage
                 c.unit_id = 223
                 self._starter_battery_voltage = utils.try_parse_int(c.read_holding_registers(260, 1)[0]) / 100
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
                 # Get VE.Bus metrics
                 c.unit_id = 227
                 self._ac_input_voltage = utils.try_parse_int(c.read_holding_registers(3, 1)[0]) / 10
@@ -295,7 +361,12 @@ class VictronModbusTCPPlugin(GenericPlugin):
                     self._ve_bus_state_string = 'Power supply'
                 elif ve_bus_state == 252:
                     self._ve_bus_state_string = 'External control'
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
                 c.unit_id = 20
                 self._tank1_level = utils.try_parse_int(utils.try_parse_int(c.read_holding_registers(3004, 1)[0]) / 10)
                 tank1_type = utils.try_parse_int(c.read_holding_registers(3003, 1)[0])
@@ -326,7 +397,12 @@ class VictronModbusTCPPlugin(GenericPlugin):
                     self._tank1_type_string = 'Hydraulic oil'
                 elif tank1_type == 11:
                     self._tank1_type_string = 'Raw water'
+            except Exception as e:
+                self._log_manager.info(
+                    f'Problem with Victron Modbus TCP system on {self._options.victron_modbus_tcp_server_ip}. '
+                    f'Details: {e}')
 
+            try:
                 c.unit_id = 21
                 self._tank2_level = utils.try_parse_int(utils.try_parse_int(c.read_holding_registers(3004, 1)[0]) / 10)
                 tank2_type = utils.try_parse_int(c.read_holding_registers(3003, 1)[0])

@@ -1,3 +1,8 @@
+## 0.15.9 (2025-08-07)
+
+* Added better error handling inside the victron modbus tcp module 
+* Version bump to 0.15.9
+
 ## 0.15.8 (2025-08-07)
 
 * Added better error handling inside the victron modbus tcp module 
