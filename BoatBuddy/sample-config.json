@@ -182,84 +182,32 @@
       }
     },
     "metrics_nmea": {
-      "heading_gauge" : {
+      "navigation_component" : {
         "order": "1",
         "name": "Heading",
-        "data_field": "heading",
-        "type": "gauge",
-        "max_value": 360,
-        "min_value": 0,
-        "style": "compass_gauge"
+        "type": "navigation-component"
       },
-      "true_wind_speed_gauge" : {
+      "true_wind_component" : {
         "order": "2",
-        "name": "True Wind Speed",
-        "data_field": "true_wind_speed",
-        "type": "gauge",
-        "max_value": 60,
-        "min_value": 0,
-        "style": "wind_gauge"
+        "name": "True Wind",
+        "type": "wind-component"
       },
-      "true_wind_direction_gauge" : {
+      "apparent_wind_component" : {
         "order": "3",
-        "name": "True Wind Direction",
-        "data_field": "true_wind_direction",
-        "type": "gauge",
-        "max_value": 360,
-        "min_value": 0,
-        "style": "compass_gauge"
-      },
-      "apparent_wind_speed_gauge" : {
-        "order": "4",
-        "name": "Apparent Wind Speed",
-        "data_field": "apparent_wind_speed",
-        "type": "gauge",
-        "max_value": 60,
-        "min_value": 0,
-        "style": "wind_gauge"
-      },
-      "apparent_wind_angle_gauge" : {
-        "order": "5",
-        "name": "Apparent Wind Angle",
-        "data_field": "apparent_wind_angle",
-        "type": "gauge",
-        "max_value": 360,
-        "min_value": 0,
-        "style": "wind_angle_gauge"
-      },
-      "water_temperature_gauge" : {
-        "order": "6",
-        "name": "Water Temperature",
-        "data_field": "water_temperature",
-        "type": "gauge",
-        "max_value": 50,
-        "min_value": -10,
-        "style": "temperature_gauge"
-      },
-      "speed_over_ground_gauge" : {
-        "order": "7",
-        "name": "Speed Over Ground",
-        "data_field": "speed_over_ground",
-        "type": "gauge",
-        "max_value": 20,
-        "min_value": 0,
-        "style": "speed_gauge"
-      },
-      "speed_over_water_gauge" : {
-        "order": "8",
-        "name": "Speed Over Water",
-        "data_field": "speed_over_water",
-        "type": "gauge",
-        "max_value": 20,
-        "min_value": 0,
-        "style": "speed_gauge"
+        "name": "Apparent Wind",
+        "type": "wind-component"
       },
       "depth_label" : {
-        "order": "9",
+        "order": "4",
         "name": "Depth",
-        "data_field": "depth",
-        "type": "label",
-        "min_value": 3
+        "type": "label"
+      },
+      "temperature_gauge" : {
+        "order": "5",
+        "name": "Temperature",
+        "type": "temperature_gauge",
+        "max_value": 60,
+        "min_value": 0
       }
     },
     "metrics_bb_micro": {

@@ -799,165 +799,29 @@
 
             // Create a new col element
             var col = document.createElement('div');
-            col.className = "col d-flex justify-content-center";
+            col.className = "col d-flex justify-content-center py-2";
 
-            if (currentItem['type'] == 'gauge') {
-                if (currentItem['style'] == 'wind_gauge') {
-                    var gaugeDiv = document.createElement('div');
-                    gaugeDiv.className = "GaugeMeter-Dark";
-                    gaugeDiv.id = key;
-                    gaugeDiv.setAttribute("data-label", currentItem['name']);
-                    gaugeDiv.setAttribute("data-label_color", "White");
-                    gaugeDiv.setAttribute("data-min", currentItem['min_value']);
-                    gaugeDiv.setAttribute("data-total", currentItem['max_value']);
-                    gaugeDiv.setAttribute("data-size", "170");
-                    gaugeDiv.setAttribute("data-append", "kts");
-                    gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
-                    gaugeDiv.setAttribute("data-width", "15");
-                    gaugeDiv.setAttribute("data-style", "Semi");
-                    gaugeDiv.setAttribute("data-animate_gauge_colors", false);
-                    gaugeDiv.setAttribute("data-animate_text_colors", false);
-                    gaugeDiv.setAttribute("data-text_size", "0.22");
-                    gaugeDiv.setAttribute("data-animationstep", 0);
-                    gaugeDiv.setAttribute("data-showvalue", true);
-                    gaugeDiv.setAttribute("data-back", "Silver");
+            if (currentItem['type'] == 'temperature_gauge') {
+                var gaugeDiv = document.createElement('div');
+                gaugeDiv.className = "GaugeMeter-Dark";
+                gaugeDiv.id = key;
+                gaugeDiv.setAttribute("data-label", currentItem['name']);
+                gaugeDiv.setAttribute("data-label_color", "White");
+                gaugeDiv.setAttribute("data-min", currentItem['min_value']);
+                gaugeDiv.setAttribute("data-total", currentItem['max_value']);
+                gaugeDiv.setAttribute("data-size", "170");
+                gaugeDiv.setAttribute("data-append", "°C");
+                gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
+                gaugeDiv.setAttribute("data-width", "15");
+                gaugeDiv.setAttribute("data-style", "Semi");
+                gaugeDiv.setAttribute("data-animate_gauge_colors", false);
+                gaugeDiv.setAttribute("data-animate_text_colors", false);
+                gaugeDiv.setAttribute("data-text_size", "0.22");
+                gaugeDiv.setAttribute("data-animationstep", 0);
+                gaugeDiv.setAttribute("data-showvalue", true);
+                gaugeDiv.setAttribute("data-back", "Silver");
 
-                    col.appendChild(gaugeDiv)
-                } else if (currentItem['style'] == 'compass_gauge') {
-                    var gaugeDiv = document.createElement('canvas');
-                    gaugeDiv.id = key;
-                    gaugeDiv.setAttribute("data-type", "radial-gauge");
-                    gaugeDiv.setAttribute("data-min-value", currentItem['min_value']);
-                    gaugeDiv.setAttribute("data-max-value", currentItem['max_value']);
-                    gaugeDiv.setAttribute("data-major-ticks", "N,NE,E,SE,S,SW,W,NW,N");
-                    gaugeDiv.setAttribute("data-highlights", "false");
-                    gaugeDiv.setAttribute("data-minor-ticks", "22");
-                    gaugeDiv.setAttribute("data-ticks-angle", "360");
-                    gaugeDiv.setAttribute("data-start-angle", "180");
-                    gaugeDiv.setAttribute("data-stroke-ticks", "false");
-                    gaugeDiv.setAttribute("data-color-plate", "#222");
-                    gaugeDiv.setAttribute("data-color-major-ticks", "#f5f5f5");
-                    gaugeDiv.setAttribute("data-color-minor-ticks", "#ddd");
-                    gaugeDiv.setAttribute("data-color-numbers", "#ccc");
-                    gaugeDiv.setAttribute("data-color-needle", "rgba(240, 128, 128, 1)");
-                    gaugeDiv.setAttribute("data-color-needle-end", "rgba(255, 160, 122, .9)");
-                    gaugeDiv.setAttribute("data-value-box", "true");
-                    gaugeDiv.setAttribute("data-value-text-shadow", "true");
-                    gaugeDiv.setAttribute("data-color-circle-inner", "#fff");
-                    gaugeDiv.setAttribute("data-color-needle-circle-outer", "#ccc");
-                    gaugeDiv.setAttribute("data-needle-circle-size", "20");
-                    gaugeDiv.setAttribute("data-needle-circle-outer", "false");
-                    gaugeDiv.setAttribute("data-animation-rule", "linear");
-                    gaugeDiv.setAttribute("data-needle-type", "line");
-                    gaugeDiv.setAttribute("data-needle-width", "5");
-                    gaugeDiv.setAttribute("data-borders", "false");
-                    gaugeDiv.setAttribute("data-border-inner-width", "0");
-                    gaugeDiv.setAttribute("data-border-middle-width", "0");
-                    gaugeDiv.setAttribute("data-border-outer-width", "5");
-                    gaugeDiv.setAttribute("data-color-border-outer", "#fff");
-                    gaugeDiv.setAttribute("data-color-border-outer-end", "#fff");
-                    gaugeDiv.setAttribute("data-color-needle-shadow-down", "#222");
-                    gaugeDiv.setAttribute("data-color-title", "#fff");
-                    gaugeDiv.setAttribute("data-border-shadow-width", "0");
-                    gaugeDiv.setAttribute("data-animation-duration", "500");
-                    gaugeDiv.setAttribute("data-title", currentItem['name']);
-                    gaugeDiv.setAttribute("data-color-value-box-background", "#fff");
-                    gaugeDiv.setAttribute("data-font-title-size", "32");
-                    gaugeDiv.setAttribute("data-font-value-size", "40");
-                    gaugeDiv.setAttribute("data-width", "170px");
-                    gaugeDiv.setAttribute("data-height", "170px");
-                    gaugeDiv.setAttribute("data-value-dec", "0");
-
-                    col.appendChild(gaugeDiv)
-                } else if (currentItem['style'] == 'wind_angle_gauge') {
-                    var gaugeDiv = document.createElement('canvas');
-                    gaugeDiv.id = key;
-                    gaugeDiv.setAttribute("data-type", "radial-gauge");
-                    gaugeDiv.setAttribute("data-min-value", currentItem['min_value']);
-                    gaugeDiv.setAttribute("data-max-value", currentItem['max_value']);
-                    gaugeDiv.setAttribute("data-major-ticks", "N,NE,E,SE,S,SW,W,NW,N");
-                    gaugeDiv.setAttribute("data-highlights", '[{"from": 300, "to": 355, "color": "rgba(255, 0, 0, .75)"}, {"from": 5, "to": 60, "color": "rgba(0, 255, 0, .75)"}]');
-                    gaugeDiv.setAttribute("data-minor-ticks", "22");
-                    gaugeDiv.setAttribute("data-ticks-angle", "360");
-                    gaugeDiv.setAttribute("data-start-angle", "180");
-                    gaugeDiv.setAttribute("data-stroke-ticks", "false");
-                    gaugeDiv.setAttribute("data-color-plate", "#222");
-                    gaugeDiv.setAttribute("data-color-major-ticks", "#f5f5f5");
-                    gaugeDiv.setAttribute("data-color-minor-ticks", "#ddd");
-                    gaugeDiv.setAttribute("data-color-numbers", "#ccc");
-                    gaugeDiv.setAttribute("data-color-needle", "rgba(240, 128, 128, 1)");
-                    gaugeDiv.setAttribute("data-color-needle-end", "rgba(255, 160, 122, .9)");
-                    gaugeDiv.setAttribute("data-value-box", "true");
-                    gaugeDiv.setAttribute("data-value-text-shadow", "true");
-                    gaugeDiv.setAttribute("data-color-circle-inner", "#fff");
-                    gaugeDiv.setAttribute("data-color-needle-circle-outer", "#ccc");
-                    gaugeDiv.setAttribute("data-needle-circle-size", "20");
-                    gaugeDiv.setAttribute("data-needle-circle-outer", "false");
-                    gaugeDiv.setAttribute("data-animation-rule", "linear");
-                    gaugeDiv.setAttribute("data-needle-type", "line");
-                    gaugeDiv.setAttribute("data-needle-width", "5");
-                    gaugeDiv.setAttribute("data-borders", "false");
-                    gaugeDiv.setAttribute("data-border-inner-width", "0");
-                    gaugeDiv.setAttribute("data-border-middle-width", "0");
-                    gaugeDiv.setAttribute("data-border-outer-width", "5");
-                    gaugeDiv.setAttribute("data-color-border-outer", "#fff");
-                    gaugeDiv.setAttribute("data-color-border-outer-end", "#fff");
-                    gaugeDiv.setAttribute("data-color-needle-shadow-down", "#222");
-                    gaugeDiv.setAttribute("data-color-title", "#fff");
-                    gaugeDiv.setAttribute("data-border-shadow-width", "0");
-                    gaugeDiv.setAttribute("data-animation-duration", "500");
-                    gaugeDiv.setAttribute("data-title", currentItem['name']);
-                    gaugeDiv.setAttribute("data-color-value-box-background", "#fff");
-                    gaugeDiv.setAttribute("data-font-title-size", "32");
-                    gaugeDiv.setAttribute("data-font-value-size", "40");
-                    gaugeDiv.setAttribute("data-width", "170px");
-                    gaugeDiv.setAttribute("data-height", "170px");
-                    gaugeDiv.setAttribute("data-value-dec", "0");
-
-                    col.appendChild(gaugeDiv)
-                } else if (currentItem['style'] == 'speed_gauge') {
-                    var gaugeDiv = document.createElement('div');
-                    gaugeDiv.className = "GaugeMeter-Dark";
-                    gaugeDiv.id = key;
-                    gaugeDiv.setAttribute("data-label", currentItem['name']);
-                    gaugeDiv.setAttribute("data-label_color", "White");
-                    gaugeDiv.setAttribute("data-min", currentItem['min_value']);
-                    gaugeDiv.setAttribute("data-total", currentItem['max_value']);
-                    gaugeDiv.setAttribute("data-size", "170");
-                    gaugeDiv.setAttribute("data-append", "kts");
-                    gaugeDiv.setAttribute("data-theme", "LightGreen-DarkGreen");
-                    gaugeDiv.setAttribute("data-width", "15");
-                    gaugeDiv.setAttribute("data-style", "Semi");
-                    gaugeDiv.setAttribute("data-animate_gauge_colors", false);
-                    gaugeDiv.setAttribute("data-animate_text_colors", false);
-                    gaugeDiv.setAttribute("data-text_size", "0.22");
-                    gaugeDiv.setAttribute("data-animationstep", 0);
-                    gaugeDiv.setAttribute("data-showvalue", true);
-                    gaugeDiv.setAttribute("data-back", "Silver");
-
-                    col.appendChild(gaugeDiv)
-                } else if (currentItem['style'] == 'temperature_gauge') {
-                    var gaugeDiv = document.createElement('div');
-                    gaugeDiv.className = "GaugeMeter-Dark";
-                    gaugeDiv.id = key;
-                    gaugeDiv.setAttribute("data-label", currentItem['name']);
-                    gaugeDiv.setAttribute("data-label_color", "White");
-                    gaugeDiv.setAttribute("data-min", currentItem['min_value']);
-                    gaugeDiv.setAttribute("data-total", currentItem['max_value']);
-                    gaugeDiv.setAttribute("data-size", "170");
-                    gaugeDiv.setAttribute("data-append", "°C");
-                    gaugeDiv.setAttribute("data-theme", "Green-Gold-Red");
-                    gaugeDiv.setAttribute("data-width", "15");
-                    gaugeDiv.setAttribute("data-style", "Semi");
-                    gaugeDiv.setAttribute("data-animate_gauge_colors", false);
-                    gaugeDiv.setAttribute("data-animate_text_colors", false);
-                    gaugeDiv.setAttribute("data-text_size", "0.22");
-                    gaugeDiv.setAttribute("data-animationstep", 0);
-                    gaugeDiv.setAttribute("data-showvalue", true);
-                    gaugeDiv.setAttribute("data-back", "Silver");
-
-                    col.appendChild(gaugeDiv)
-                }
+                col.appendChild(gaugeDiv)
             } else if (currentItem['type'] == 'label') {
                 var depthSpan = document.createElement('span');
                 depthSpan.textContent = currentItem['name'] + " (in meters): ";
@@ -966,6 +830,18 @@
                 var labelSpan = document.createElement('span');
                 labelSpan.id = key;
                 depthSpan.appendChild(labelSpan);
+            } else if (currentItem['type'] == 'wind-component') {
+                var windComponentDiv = document.createElement('div');
+                windComponentDiv.id = key;
+                windComponentDiv.setAttribute("data-title", currentItem['name']);
+
+                col.appendChild(windComponentDiv);
+            } else if (currentItem['type'] == 'navigation-component') {
+                var navigationComponentDiv = document.createElement('div');
+                navigationComponentDiv.id = key;
+                navigationComponentDiv.setAttribute("data-title", currentItem['name']);
+
+                col.appendChild(navigationComponentDiv);
             }
 
             nmeaElementsList[currentItem['order']] = col;
@@ -2266,37 +2142,30 @@
                 //Populate the nmea0183 instruments fields
                 if (data['nmea_module']) {
                     if (data['nmea_status'] == "Running") {
-                        if (document.getElementById("heading_gauge") !== null && data['heading'].trim().length) {
-                            document.getElementById("heading_gauge").setAttribute("data-value", data['heading']);
+                        if (document.getElementById("navigation_component") !== null && data['heading'].trim().length && data['speed_over_ground'].trim().length && data['speed_over_water'].trim().length) {
+                            if (window.navigationComponent == undefined) { 
+                                window.navigationComponent = new NavigationComponent('navigation_component', document.getElementById("navigation_component").getAttribute("data-title"));
+                            }
+                            window.navigationComponent.update(parseInt(data['heading']), parseFloat(data['speed_over_ground']), parseFloat(data['speed_over_water']));
                         }
 
-                        if (document.getElementById("true_wind_speed_gauge") !== null && data['true_wind_speed'].trim().length) {
-                            $("#true_wind_speed_gauge").gaugeMeter({used:parseFloat(data['true_wind_speed'])});
+                        if (document.getElementById("true_wind_component") !== null && data['true_wind_speed'].trim().length && data['true_wind_direction'].trim().length) {
+                            if (window.trueWindComponent == undefined) {                            
+                                window.trueWindComponent = new WindComponent('true_wind_component', document.getElementById("true_wind_component").getAttribute("data-title"));
+                            }                            
+                        window.trueWindComponent.update(parseFloat(data['true_wind_speed']), parseInt(data['true_wind_direction']));                                        
                         }
 
-                        if (document.getElementById("true_wind_direction_gauge") !== null && data['true_wind_direction'].trim().length) {
-                            document.getElementById("true_wind_direction_gauge").setAttribute("data-value", data['true_wind_direction']);
-                        }
-
-                        if (document.getElementById("apparent_wind_speed_gauge") !== null && data['apparent_wind_speed'].trim().length) {
-                            $("#apparent_wind_speed_gauge").gaugeMeter({used:parseFloat(data['apparent_wind_speed'])});
-                        }
-
-                        if (document.getElementById("apparent_wind_angle_gauge") !== null && data['apparent_wind_angle'].trim().length) {
-                            document.getElementById("apparent_wind_angle_gauge").setAttribute("data-value", data['apparent_wind_angle']);
-                        }
+                        if (document.getElementById("apparent_wind_component") !== null && data['apparent_wind_speed'].trim().length && data['apparent_wind_angle'].trim().length) {
+                            if (window.apparentWindComponent == undefined) {                            
+                                window.apparentWindComponent = new WindComponent('apparent_wind_component', document.getElementById("apparent_wind_component").getAttribute("data-title"));
+                            }                            
+                            window.apparentWindComponent.update(parseFloat(data['apparent_wind_speed']), parseInt(data['apparent_wind_angle']));                                        
+                        }                        
 
                         if (document.getElementById("water_temperature_gauge") !== null && data['water_temperature'].trim().length) {
                             $("#water_temperature_gauge").gaugeMeter({used:parseFloat(data['water_temperature'])});
-                        }
-
-                        if (document.getElementById("speed_over_ground_gauge") !== null && data['speed_over_ground'].trim().length) {
-                            $("#speed_over_ground_gauge").gaugeMeter({used:parseFloat(data['speed_over_ground'])});
-                        }
-
-                        if (document.getElementById("speed_over_water_gauge") !== null && data['speed_over_water'].trim().length) {
-                            $("#speed_over_water_gauge").gaugeMeter({used:parseFloat(data['speed_over_water'])});
-                        }
+                        }                        
 
                         if (document.getElementById('depth_label') !== null && data['depth'].trim().length) {
                             document.getElementById('depth_label').innerHTML = data['depth'] + ' m';

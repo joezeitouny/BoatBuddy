@@ -1,0 +1,110 @@
+.widget-title {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #495057;
+    margin: 0 0 20px 0; /* No top/side margin, 20px bottom margin */
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.wind-widget {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 280px;
+    color: #333;
+}
+
+.wind-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wind-speed {
+    display: flex;
+    align-items: baseline;
+}
+
+.speed-value {
+    font-size: 3.5rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.speed-unit {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-left: 8px;
+    color: #666;
+}
+
+.wind-direction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.direction-arrow-container {
+    width: 60px;
+    height: 60px;
+    background-color: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.direction-arrow {
+    width: 32px;
+    height: 32px;
+    fill: #007bff;
+    /* This transition makes the rotation smooth */
+    transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.direction-info {
+    text-align: center;
+}
+
+.direction-degrees {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.direction-cardinal {
+    display: block;
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* Styles for the Beaufort section */
+.beaufort-info {
+    display: flex;
+    align-items: baseline;
+}
+
+.beaufort-value {
+    font-size: 3.5rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.beaufort-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-left: 8px;
+    color: #666;
+}
+
+.beaufort-name {
+    font-size: 0.7rem;
+    font-style: italic;
+    color: #888;
+    margin-left: 8px;
+    font-weight: 500;
+}
