@@ -1,3 +1,8 @@
+## 0.16.0 (2025-08-10)
+
+* Consolidated NMEA0183 instruments UI into wind and navigation components
+* Version bump to 0.16.0
+
 ## 0.15.9 (2025-08-07)
 
 * Added better error handling inside the victron modbus tcp module 
