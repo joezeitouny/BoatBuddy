@@ -112,7 +112,6 @@ if __name__ == '__main__':
             options.metrics_electrical_system = data['metrics']['metrics_electrical_system']
             options.metrics_nmea = data['metrics']['metrics_nmea']
             options.metrics_bb_micro = data['metrics']['metrics_bb_micro']
-            options.metrics_colouring_scheme = data['metrics']['metrics_colouring_scheme']
             options.metrics_notifications_rules = data['metrics']['metrics_notifications_rules']
             options.modules_notifications_rules = data['modules']['modules_notifications_rules']
         except Exception as e:
