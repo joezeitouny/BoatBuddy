@@ -9,6 +9,7 @@ from victron_ble.exceptions import UnknownDeviceError
 
 from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 
 
 class VictronBLEBMVDeviceEntry:
@@ -71,9 +72,9 @@ class VictronBLEBMVDeviceEntry:
 
 
 class VictronBLEPlugin(GenericPlugin):
-    def __init__(self, options, log_manager):
+    def __init__(self, options, log_manager, notifications_manager: NotificationsManager):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, options, log_manager)
+        GenericPlugin.__init__(self, options, log_manager, notifications_manager)
 
         # Instance metrics
         self._housing_battery_soc = globals.EMPTY_METRIC_VALUE
@@ -467,3 +468,14 @@ class VictronBLEPlugin(GenericPlugin):
 
     def get_summary_values(self):
         return self._summary_values.copy()
+
+    def validate_rules(self):
+        if not self.get_status() == PluginStatus.RUNNING:
+            return
+
+        notification_rules = self._options.metrics_notifications_rules.copy()
+        for key in notification_rules:
+            if key in globals.VICTRON_BLE_PLUGIN_METADATA_HEADERS:
+                self._notifications_manager.notify(key, self.take_snapshot(False).get_values()[
+                    globals.VICTRON_BLE_PLUGIN_METADATA_HEADERS.index(key)],
+                                                   NotificationEntryType.METRIC)

@@ -244,7 +244,7 @@
           .html(r)
           .css({
             'line-height': option.size + 'px',
-            'font-size': option.text_size * option.size + 'px',
+            'font-size': option.text_size * option.size * 0.9 + 'px',
             color: fgcolor
           });
       }

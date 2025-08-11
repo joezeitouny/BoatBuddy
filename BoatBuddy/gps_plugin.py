@@ -12,6 +12,7 @@ from serial import Serial
 
 from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 
 
 class GPSPluginEvents(Events):
@@ -68,9 +69,9 @@ class GPSPlugin(GenericPlugin):
     _events = None
     _stream = None
 
-    def __init__(self, options, log_manager):
+    def __init__(self, options, log_manager, notifications_manager: NotificationsManager):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, options, log_manager)
+        GenericPlugin.__init__(self, options, log_manager, notifications_manager)
 
         # Instance metrics
         self._gps_latitude = globals.EMPTY_METRIC_VALUE
@@ -352,3 +353,14 @@ class GPSPlugin(GenericPlugin):
             return 'Poor'
         else:
             return 'Very Poor'
+
+    def validate_rules(self):
+        if not self.get_status() == PluginStatus.RUNNING:
+            return
+
+        notification_rules = self._options.metrics_notifications_rules.copy()
+        for key in notification_rules:
+            if key in globals.GPS_PLUGIN_METADATA_HEADERS:
+                self._notifications_manager.notify(key, self.take_snapshot(False).get_values()[
+                    globals.GPS_PLUGIN_METADATA_HEADERS.index(key)],
+                                                   NotificationEntryType.METRIC)

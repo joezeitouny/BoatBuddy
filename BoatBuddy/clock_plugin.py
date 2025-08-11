@@ -4,6 +4,7 @@ from time import mktime
 
 from BoatBuddy import utils, globals
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 
 
 class ClockEntry:
@@ -27,9 +28,9 @@ class ClockEntry:
 
 class ClockPlugin(GenericPlugin):
 
-    def __init__(self, options, log_manager):
+    def __init__(self, options, log_manager, notifications_manager: NotificationsManager):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, options, log_manager)
+        GenericPlugin.__init__(self, options, log_manager, notifications_manager)
 
     def get_metadata_headers(self):
         return globals.CLOCK_PLUGIN_METADATA_HEADERS.copy()
@@ -83,3 +84,14 @@ class ClockPlugin(GenericPlugin):
 
     def get_status(self) -> PluginStatus:
         return PluginStatus.RUNNING
+
+    def validate_rules(self):
+        if not self.get_status() == PluginStatus.RUNNING:
+            return
+
+        notification_rules = self._options.metrics_notifications_rules.copy()
+        for key in notification_rules:
+            if key in globals.CLOCK_PLUGIN_METADATA_HEADERS:
+                self._notifications_manager.notify(key, self.take_snapshot(False).get_values()[
+                    globals.CLOCK_PLUGIN_METADATA_HEADERS.index(key)],
+                                                   NotificationEntryType.METRIC)

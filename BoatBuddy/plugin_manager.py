@@ -71,10 +71,10 @@ class PluginManager:
         self._log_manager.debug('Initializing plugins')
 
         # initialize the common time plugin
-        self._clock_plugin = ClockPlugin(self._options, self._log_manager)
+        self._clock_plugin = ClockPlugin(self._options, self._log_manager, self._notifications_manager)
 
         if self._options.gps_module:
-            self._gps_plugin = GPSPlugin(self._options, self._log_manager)
+            self._gps_plugin = GPSPlugin(self._options, self._log_manager, self._notifications_manager)
 
             gps_connection_events = GPSPluginEvents()
             gps_connection_events.on_connect += self._on_connect_gps_plugin
@@ -83,7 +83,7 @@ class PluginManager:
 
         if self._options.victron_modbus_tcp_module:
             # initialize the Victron Modbus TCP plugin
-            self._victron_modbus_tcp_plugin = VictronModbusTCPPlugin(self._options, self._log_manager)
+            self._victron_modbus_tcp_plugin = VictronModbusTCPPlugin(self._options, self._log_manager, self._notifications_manager)
 
             victron_modbus_tcp_connection_events = VictronModbusTCPPluginEvents()
             victron_modbus_tcp_connection_events.on_connect += self._on_connect_victron_plugin
@@ -92,11 +92,11 @@ class PluginManager:
 
         if self._options.victron_ble_module:
             # initialize the Victron BLE plugin
-            self._victron_ble_plugin = VictronBLEPlugin(self._options, self._log_manager)
+            self._victron_ble_plugin = VictronBLEPlugin(self._options, self._log_manager, self._notifications_manager)
 
         if self._options.nmea_module:
             # initialize the NMEA0183 plugin
-            self._nmea_plugin = NMEAPlugin(self._options, self._log_manager)
+            self._nmea_plugin = NMEAPlugin(self._options, self._log_manager, self._notifications_manager)
 
             nmea_connection_events = NMEAPluginEvents()
             nmea_connection_events.on_connect += self._on_connect_nmea_plugin
@@ -105,7 +105,7 @@ class PluginManager:
 
         if self._options.bb_micro_module:
             # initialize the BB Micro plugin
-            self._bb_micro_plugin = BBMicroPlugin(self._options, self._log_manager)
+            self._bb_micro_plugin = BBMicroPlugin(self._options, self._log_manager, self._notifications_manager)
 
             bb_micro_connection_events = BBMicroPluginEvents()
             bb_micro_connection_events.on_connect += self._on_connect_bb_micro_plugin

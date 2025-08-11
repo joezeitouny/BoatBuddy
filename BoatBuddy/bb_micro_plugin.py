@@ -4,6 +4,7 @@ import requests
 
 from BoatBuddy import globals, utils
 from BoatBuddy.generic_plugin import GenericPlugin, PluginStatus
+from BoatBuddy.notifications_manager import NotificationsManager, NotificationEntryType
 
 
 class BBMicroPluginEvents(Events):
@@ -76,9 +77,9 @@ class BBMicroEntry:
 
 class BBMicroPlugin(GenericPlugin):
 
-    def __init__(self, options, log_manager):
+    def __init__(self, options, log_manager, notifications_manager: NotificationsManager):
         # invoking the __init__ of the parent class
-        GenericPlugin.__init__(self, options, log_manager)
+        GenericPlugin.__init__(self, options, log_manager, notifications_manager)
 
         self._events = None
 
@@ -419,3 +420,14 @@ class BBMicroPlugin(GenericPlugin):
         except Exception as e:
             self._log_manager.info(f'Could not toggle relay with relay number: {relay_number}. Details {e}')
             return False
+
+    def validate_rules(self):
+        if not self.get_status() == PluginStatus.RUNNING:
+            return
+
+        notification_rules = self._options.metrics_notifications_rules.copy()
+        for key in notification_rules:
+            if key in globals.BB_MICRO_PLUGIN_METADATA_HEADERS:
+                self._notifications_manager.notify(key, self.take_snapshot(False).get_values()[
+                    globals.BB_MICRO_PLUGIN_METADATA_HEADERS.index(key)],
+                                                   NotificationEntryType.METRIC)
