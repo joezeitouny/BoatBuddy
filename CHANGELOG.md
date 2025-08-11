@@ -1,3 +1,10 @@
+## 0.17.0 (2025-08-11)
+
+* Added support for metrics notifications 
+* UI Improvements
+* Removed the metrics colouring scheme configuration setting
+* Version bump to 0.17.0
+
 ## 0.16.0 (2025-08-10)
 
 * Consolidated NMEA0183 instruments UI into wind and navigation components
