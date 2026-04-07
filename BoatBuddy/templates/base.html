@@ -162,8 +162,13 @@
     </div>
 </div>
 
+<audio id="anchorAlarmAudio" loop preload="auto">
+  <source src="/static/alarm.mp3" type="audio/mpeg">
+</audio>
+
 <script type="text/javascript">
     connection_lost_dialog_shown = false;
+    alarmAudioIsPlaying = false;
     const aboutUsModal = new bootstrap.Modal(document.getElementById('about_us_modal'), {backdrop: 'static'});
 
     function hideAboutUsModal() {
@@ -172,6 +177,22 @@
 
     function showAboutUsModal() {
         aboutUsModal.show();
+    }
+
+    function playAnchorAlarm() {
+        if (!alarmAudioIsPlaying) {
+            // Play warning sound
+            document.getElementById('anchorAlarmAudio').play()
+            alarmAudioIsPlaying = true;
+        }
+    }
+
+    function pauseAnchorAlarm() {
+        if (alarmAudioIsPlaying) {
+            // Stop playing warning sound
+            document.getElementById('anchorAlarmAudio').pause()
+            alarmAudioIsPlaying = false;
+        }
     }
 
     function updateNavBar() {
@@ -207,13 +228,16 @@
                         if (data['anchor_distance'] > data['anchor_allowed_distance']) {
                             document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-warning');
                             document.getElementById("update_anchor_alarm_button_id").classList.add('btn-danger');
+                            playAnchorAlarm();
                         }
                         else {
+                            pauseAnchorAlarm();
                             document.getElementById("update_anchor_alarm_button_id").classList.remove('btn-danger');
                             document.getElementById("update_anchor_alarm_button_id").classList.add('btn-warning');
                         }
                     }
                     else {
+                        pauseAnchorAlarm();
                         document.getElementById('update_anchor_alarm_button_id').style.display = 'none';
                         document.getElementById('update_anchor_alarm_button_id').style.visibility = 'hidden';
                         document.getElementById('anchor_distance_label_id').innerHTML = '';
@@ -231,6 +255,7 @@
                     }
                 }
                 else {
+                    pauseAnchorAlarm();
                     document.getElementById('set_anchor_alarm_button_id').style.display = 'none';
                     document.getElementById('set_anchor_alarm_button_id').style.visibility = 'hidden';
                 }
