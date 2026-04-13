@@ -406,7 +406,7 @@
           option.append !== null &&
           option.append !== undefined
         ) {
-          r = option.text + '<u>' + option.append + '</u>';
+          r = option.text + option.append;
         } else {
           r = option.text;
         }
@@ -419,9 +419,9 @@
         }
       } else {
         if (defaults.showvalue === true || option.showvalue === true) {
-          r = '<output>' + option.used + '</output>';
+          r = option.used;
         } else {
-          r = '<output>' + c.toString() + '</output>';
+          r = c.toString();
         }
         if (
           option.prepend !== '' &&
@@ -436,7 +436,7 @@
           option.append !== null &&
           option.append !== undefined
         ) {
-          r = r + '<u>' + option.append + '</u>';
+          r = r + option.append;
         }
       }
 
