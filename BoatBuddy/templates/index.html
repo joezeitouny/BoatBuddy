@@ -1806,11 +1806,38 @@
                 }
 
                 if (data['housing_battery_current'] !== null && document.getElementById('housing_battery_current') !== null) {
-                    document.getElementById('housing_battery_current').innerHTML = data['housing_battery_current'] + 'A';
+                    if (typeof data['housing_battery_current'] !== 'number' || isNaN(data['housing_battery_current'])) {
+                        data['housing_battery_current'] = 0;
+                    }
+                    else {
+                        housingBatteryCurrent = parseFloat(data['housing_battery_current']);
+                        if (housingBatteryCurrent > 10) {
+                            // Round up to the next integer
+                            housingBatteryCurrent = Math.ceil(housingBatteryCurrent);
+                        } else if (housingBatteryCurrent < -10) {
+                            // Round down to the smaller integer
+                            housingBatteryCurrent = Math.floor(housingBatteryCurrent);
+                        }
+                    }
+                    document.getElementById('housing_battery_current').innerHTML = housingBatteryCurrent + 'A';
                 }
 
                 if (data['housing_battery_current'] !== null && document.getElementById("housing_battery_current_gauge") !== null) {
-                    $("#housing_battery_current_gauge").gaugeMeter({used:parseFloat(data['housing_battery_current'])});
+                    if (typeof data['housing_battery_current'] !== 'number' || isNaN(data['housing_battery_current'])) {
+                        data['housing_battery_current'] = 0;
+                    }
+                    else {
+                        housingBatteryCurrent = parseFloat(data['housing_battery_current']);
+                        if (housingBatteryCurrent > 10) {
+                            // Round up to the next integer
+                            housingBatteryCurrent = Math.ceil(housingBatteryCurrent);
+                        } else if (housingBatteryCurrent < -10) {
+                            // Round down to the smaller integer
+                            housingBatteryCurrent = Math.floor(housingBatteryCurrent);
+                        }
+                    }
+
+                    $("#housing_battery_current_gauge").gaugeMeter({used:housingBatteryCurrent});
                 }
 
                 if (data['auxiliary_temperature'] !== null && document.getElementById("auxiliary_temperature_gauge") !== null) {
