@@ -1,3 +1,7 @@
+## 0.18.1 (2026-04-21)
+
+* UI Improvements
+
 ## 0.18.0 (2026-04-13)
 
 * Added looping anchor alarm sound in the client browser when the alarm is triggered
